@@ -19,4 +19,4 @@ How to simulate the circuit?
 (1) read -sv [your.v file] (-sv means system verilog)
 (2) hierarchy -top [your top module name]
 (3) prep -top [your top module name]
-(4) sim -vcd [output vcd file name] -n [number of cycle to sim] -r [the previously generated fst file] -scope [your top module]
+(4) sim -v              
