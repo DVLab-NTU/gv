@@ -4,10 +4,10 @@ Verification research for general RTL/system-level designs (take 0.0)
 # About yosys
 - **Link**
     - yosys github src code: https://github.com/YosysHQ/yosys 
-    - writing your own VCD: https://reurl.cc/k76dQq 
+    - Writing your own VCD: https://reurl.cc/k76dQq 
     - yosys manual document: https://reurl.cc/e6rxgM (google drive link) 
 - **Function as** 
-    - "parser" and "simulator"
+    - "Parser" and "Simulator"
 - **Basic command**
     - Transform **.fst** file to **.tb** file
     ```json=
