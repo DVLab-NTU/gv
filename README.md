@@ -14,16 +14,17 @@ Verification research for general RTL/system-level designs (take 0.0)
     - **Read HDL file** (-sv means system verilog)
     ```json=
     read -sv <.v_file> 
-    ```
-    e.g. 
+    ----------------------------------------- (e.g.)
     read -sv tests/RISCV/Baseline/src/Final.v
+    ```
     - **Preset top module**
     ```json=
     hierarchy -top <top_module_name>
     prep -top <top_module_name>
     sim -v
-    ```       
-    e.g. 
+    ----------------------------------------- (e.g.)
     hierarchy -top Final
     prep -top Final
     sim -v
+    ```       
+    
