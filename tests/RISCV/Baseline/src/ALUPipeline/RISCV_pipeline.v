@@ -1,8 +1,9 @@
-`include "./ALUPipeline/Pipeline_stage1.v"
-`include "./ALUPipeline/Pipeline_stage2.v"
-`include "./ALUPipeline/Pipeline_stage3.v"
-`include "./ALUPipeline/Pipeline_stage4.v"
-`include "./ALUPipeline/Pipeline_stage5.v"
+`include "./Pipeline_stage1.v"
+`include "./Pipeline_stage2.v"
+`include "./Pipeline_stage3.v"
+`include "./Pipeline_stage4.v"
+`include "./Pipeline_stage5.v"
+`include "../Cache/2way_BTB.v"
 
 module RISCV_Pipeline(
     input clk,
