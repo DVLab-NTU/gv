@@ -3,7 +3,7 @@ var_start = True
 time0_start = False
 count = 0
 n_count = 0
-with open("gen_pattern.txt", "w") as f:
+with open("gen_pattern.vcd", "w") as f:
     with open("yosys/CHIP.txt") as l:
         while True:
             text = l.readline()

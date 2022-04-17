@@ -10,8 +10,9 @@ module slow_memory(
     mem_rdata,
     mem_ready
 );
-    
-    parameter MEM_NUM = 256;
+    /* NEW ADDED 2022.04.17 : MEM_NUM = 256 --> 64 */
+    parameter MEM_NUM = 64;
+    /* END **/
     parameter MEM_WIDTH = 128;
     parameter LATENCY = 15;  // negedge clock after [Unconditional carry(15ns/CYCLE)+1] cycle
         
@@ -117,7 +118,3 @@ module slow_memory(
     end
 
 endmodule
-
-
-  
-  
