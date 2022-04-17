@@ -22,7 +22,7 @@ Verification research for general RTL/system-level designs (take 0.0)
     hierarchy -top <top_module_name>
     prep -top <top_module_name>
     sim -vcd [output_vcd_file] 
-    --------------------------------------------------------------------------------------------------------------------------- (e.g.)
+    -------------------------------- (e.g.)
     hierarchy -top Final
     prep -top Final
     sim -vcd tests/temp/Final.fst
