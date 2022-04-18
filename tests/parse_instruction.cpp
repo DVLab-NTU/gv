@@ -71,7 +71,7 @@ int main() {
     } else {
         cerr << "file is not opened" << endl;
     }
-    for (unsigned i = 0; i < mem_num-count; ++i) {
+    for (unsigned i = 0; i < mem_num-count*4; ++i) {
         outfile << "0";
     }
     outfile.close();
