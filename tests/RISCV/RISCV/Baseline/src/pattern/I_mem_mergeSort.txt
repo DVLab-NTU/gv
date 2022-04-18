@@ -1,0 +1,132 @@
+0x01410113  //addi x2,x2,20
+0x01850513  //addi x10,x10,24                   
+0x00000593  //addi x11,x0,0                27   	addi	a1, x0, 0
+0x00860613  //addi x12,x12,8                      addi    a2, a2, 8
+0xfff60613  //addi x12,x12,-1              29   	addi	a2, a2, -1
+0x010000ef  //jal x1,16                    30   	jal	ra, mergeSort
+0xfec10113  //addi x2,x2,-20               62   	addi 	sp, sp, -20
+0x00112023  //sw x1,0(x2)                  63   	sw	ra, 0(sp)
+0x00050413  //addi x8,x10,0                66   	addi	s0, a0, 0	# s0 : &addr
+0x00058493  //addi x9,x11,0                67   	addi	s1, a1, 0	# s1 : start
+0x00060913  //addi x18,x12,0               68   	addi	s2, a2, 0	# s2 : end
+0x0124ab33  //slt x22,x9,x18
+0x060b0463  //beq x22,x0,104               71   	bge	s1, s2, endMergeSort
+0x012489b3  //add x19,x9,x18               75   	add	s3, s1, s2	# mid(s3) = start(s1) + end(s2)
+0x00000a13  //addi x20,x0,0                76   	addi	s4, x0, 0	# (s4+1) each time when (s3-2) until s3 < 0
+0x0009ab33  //slt x22,x19,x0                      
+0x000b1863  //bne x22,x0,16                78   	blt	s3, x0, endDiv
+0xffe98993  //addi x19,x19,-2              79   	addi	s3, s3, -2	# each time s3 - 2
+0x001a0a13  //addi x20,x20,1               80   	addi	s4, s4, 1	# each time s4 + 1
+0xff5ff06f  //jal x0,-12                   81   	jal	x0, div		
+0xfffa0993  //addi x19,x20,-1              83   	addi	s3, s4, -1	# s3 = mid : floor((start+end)/2)
+0x00812223  //sw x8,4(x2)                  86   	sw	s0, 4(sp)
+0x00912423  //sw x9,8(x2)                  87   	sw	s1, 8(sp)
+0x01212623  //sw x18,12(x2)                88   	sw	s2, 12(sp)
+0x01312823  //sw x19,16(x2)                89   	sw	s3, 16(sp)
+0x00040513  //addi x10,x8,0                93   	addi	a0, s0, 0	# a0 <= &addr (s0)
+0x00048593  //addi x11,x9,0                94   	addi	a1, s1, 0	# a1 <= start (s1)
+0x00098613  //addi x12,x19,0               95   	addi	a2, s3, 0	# a2 <= mid   (s3)
+0xfb1ff0ef  //jal x1,-80                   96   	jal	ra, mergeSort
+0x00412503  //lw x10,4(x2)                 100  	lw	a0, 4(sp)	# a0 <= &addr	(sp+4)
+0x01012583  //lw x11,16(x2)                101  	lw	a1, 16(sp)	# a1 <= mid	(sp+16)
+0x00158593  //addi x11,x11,1               102  	addi	a1, a1, 1	# a1 <= mid + 1
+0x00c12603  //lw x12,12(x2)                103  	lw	a2, 12(sp)	# a2 <= end	(sp+12)
+0xf9dff0ef  //jal x1,-100                  104  	jal	ra, mergeSort
+0x00412503  //lw x10,4(x2)                 108  	lw	a0, 4(sp)	# a0 <= &addr	(sp+4)
+0x00812583  //lw x11,8(x2)                 109  	lw	a1, 8(sp)	# a1 <= start	(sp+8)
+0x01012603  //lw x12,16(x2)                110  	lw	a2, 16(sp)	# a2 <= mid	(sp+16)
+0x00c12683  //lw x13,12(x2)                111  	lw	a3, 12(sp)	# a3 <= end	(sp+12)
+0x010000ef  //jal x1,16                    112  	jal	ra, merge
+0x00012083  //lw x1,0(x2)                  115  	lw	ra, 0(sp)
+0x01410113  //addi x2,x2,20                116  	addi	sp, sp, 20
+0x00008067  //jalr x0,x1,0                 117  	jalr	x0, ra, 0
+0x40b682b3  //sub x5,x13,x11               141  	sub	t0, a3, a1			# total(t0) = end(a3) - start(a1)
+0x00128293  //addi x5,x5,1                 142  	addi	t0, t0, 1			# total(t0) = end(a3) - start(a1) + 1
+0x00528333  //add x6,x5,x5                 143  	add	t1, t0, t0			# space(t1) = total(t0)*2
+0x00630333  //add x6,x6,x6                 144  	add	t1, t1, t1			# space(t1) = space(t1)*2 = total(t0)*4
+0xfff34393  //xori x7,x6,-1                145  	xori	t2, t1, 0xffffffff  		# 1's complement  + -> -, t1 -> t2
+0x00138393  //addi x7,x7,1                 146  	addi	t2, t2, 1			# 2's complement(t2)  => 1's complement(t2) + 1
+0x00710133  //add x2,x2,x7                 147  	add	sp, sp, t2
+0x00058e13  //addi x28,x11,0               153  	addi	t3, a1, 0			# memory index(t3) start from start(a1)
+0x00000393  //addi x7,x0,0                 154  	addi	t2, x0, 0			# stack index(t2) start from 0
+0x01c6ab33  //slt x22,x13,x28
+0x020b1863  //bne x22,x0,48               156  	blt	a3, t3, endRead		# if(mem_index(t3) < end(a3)), else go to label(endRead)
+0x01ce0eb3  //add x29,x28,x28              157  	add	t4, t3, t3			# offset_space(t4) = mem_index(t3)*2
+0x01de8eb3  //add x29,x29,x29              158  	add	t4, t4, t4			# offset_space(t4) = offset_space(t4)*2 = mem_index(t3)*4
+0x01d50eb3  //add x29,x10,x29              159  	add	t4, a0, t4			# mem_addr(t4) = &addr(a0) + offset_space(t4) 
+0x000eaf03  //lw x30,0(x29)                160  	lw	t5, 0(t4)			# t5 = *mem_addr(t4)
+0x00738fb3  //add x31,x7,x7                161  	add	t6, t2, t2			# offset_space(t6) = st_index(t2)*2
+0x01ff8fb3  //add x31,x31,x31              162  	add	t6, t6, t6			# offset_space(t6) = offset_space(t6)*2 = st_index(t2)*4
+0x01f10fb3  //add x31,x2,x31               163  	add	t6, sp ,t6			# st_addr(t6) = initial_addr(sp) + offset_space(t6) 
+0x01efa023  //sw x30,0(x31)                164  	sw	t5, 0(t6)			# *st_addr(t6) = t5
+0x00138393  //addi x7,x7,1                 165  	addi	t2, t2, 1			# st_index + 1
+0x001e0e13  //addi x28,x28,1               166  	addi	t3, t3, 1			# mem_index + 1
+0xfd5ff06f  //jal x0,-44                   167  	jal	x0, read2Stack
+0x40b60eb3  //sub x29,x12,x11              179  	sub	t4, a2, a1 			# left max(t4) = mid(a2) - start(a1)
+0x40b68f33  //sub x30,x13,x11              180  	sub	t5, a3, a1			# right max(t5) = end(a3) - start(a1)
+0x00000393  //addi x7,x0,0                 181  	addi	t2, x0, 0			# left index(t2) = start form 0
+0x001e8e13  //addi x28,x29,1               182  	addi	t3, t4, 1			# right index(t3) = start from mid(a2) - start(a1) + 1
+0x00058f93  //addi x31,x11,0               183  	addi	t6, a1, 0			# t6 : write back index from start(a1)
+0x007ea2b3  //slt x5,x29,x7                195  	slt	t0, t4, t2				# t0 = (left terminate(t4) < left index(t2))
+0x01cf2333  //slt x6,x30,x28               196  	slt	t1, t5, t3				# t1 = (right terminate(t5) < right index(t3))
+0x0062e2b3  //or x5,x5,x6                  197  	or	t0, t0, t1				# t0 = t0 || t1
+0x0012c293  //xori x5,x5,1                 198  	xori	t0, t0, 0x1				# t0 = ~t0
+0x06028063  //beq x5,x0,96                 199  	beq	t0, x0, endMergeLoop			# if((t0||t1) != 0), else go to label(endMergeLoop)
+0x007382b3  //add x5,x7,x7                 200  	add	t0, t2, t2				# offset_space(t0) = left_index(t2)*2
+0x005282b3  //add x5,x5,x5                 201  	add	t0, t0, t0				# offset_space(t0) = offset_space(t0)*2 = left_index(t2)*4
+0x005102b3  //add x5,x2,x5                 202  	add	t0, sp, t0				# left_addr(t0) = initial_addr(sp) + offset_space(t0)
+0x0002a283  //lw x5,0(x5)                  203  	lw	t0, 0(t0)				# left_value(t0) = *left_addr(t0)
+0x01ce0333  //add x6,x28,x28               204  	add	t1, t3, t3				# offset_space(t1) = right_index(t3)*2
+0x00630333  //add x6,x6,x6                 205  	add	t1, t1, t1				# offset_space(t1) = offset_space(t1)*2 = right_index(t3)*4
+0x00610333  //add x6,x2,x6                 206  	add	t1, sp, t1				# right_addr(t1) = initial_addr(sp) + offset_space(t1)
+0x00032303  //lw x6,0(x6)                  207  	lw	t1, 0(t1)				# right_value(t1) = *right_addr(t1)
+0x00532b33  //slt x22,x6,x5
+0x020b1063  //bne x22,x0,32                 208  	blt	t1, t0,  rightSmaller			# if(left_value(t0)<=right_value(t1)), else go to label(rightSmaller)
+0x01ff8333  //add x6,x31,x31               209  	add	t1, t6, t6				# offset_space(t1) = mem_index(t6)*2
+0x00630333  //add x6,x6,x6                 210  	add	t1, t1, t1				# offset_space(t1) = offset_space(t1)*2 = mem_index(t6)*4
+0x00650333  //add x6,x10,x6                211  	add	t1, a0, t1				# mem_addr(t1) = &addr(a0) + offset_space(t1)
+0x00532023  //sw x5,0(x6)                  212  	sw	t0, 0(t1)				# *mem_addr(t1) = left_value(t0)
+0x001f8f93  //addi x31,x31,1               213  	addi	t6, t6, 1				# mem_index + 1
+0x00138393  //addi x7,x7,1                 214  	addi	t2, t2, 1				# left_index + 1
+0xfb1ff06f  //jal x0,-80                   215  	jal	x0, mergeLoop
+0x01ff82b3  //add x5,x31,x31               217  	add	t0, t6, t6				# offset_space(t0) = mem_index(t6)*2
+0x005282b3  //add x5,x5,x5                 218  	add	t0, t0, t0				# offset_space(t0) = offset_space(t0)*2 = mem_index(t6)*4
+0x005502b3  //add x5,x10,x5                219  	add	t0, a0, t0				# mem_addr(t0) = &addr(a0) + offset_space(t0)
+0x0062a023  //sw x6,0(x5)                  220  	sw	t1, 0(t0)				# *mem_addr(t0) = right_value(t1)
+0x001f8f93  //addi x31,x31,1               221  	addi	t6, t6, 1				# mem_index + 1
+0x001e0e13  //addi x28,x28,1               222  	addi	t3, t3, 1				# right_index + 1
+0xf95ff06f  //jal x0,-108                  223  	jal	x0, mergeLoop
+0x01cf2b33  //slt x22,x30,x28
+0x010b0a63  //beq x22,x0,52               229  	bge	t5, t3, rightLoop			# if(right index <= right terminate) => right part still have elements, go to label(rightLoop)
+0x007382b3  //add x5,x7,x7                 231  	add	t0, t2, t2				# offset_space(t0) = left_index(t2)*2
+0x005282b3  //add x5,x5,x5                 232  	add	t0, t0, t0				# offset_space(t0) = offset_space(t0)*2 = left_index(t2)*4
+0x005102b3  //add x5,x2,x5                 233  	add	t0, sp, t0				# left_addr(t0) = initial_addr(sp) + offset_space(t0)
+0x0002a283  //lw x5,0(x5)                  234  	lw	t0, 0(t0)				# left_value(t0) = *left_addr(t0)
+0x01ff8333  //add x6,x31,x31               235  	add	t1, t6, t6				# offset_space(t1) = mem_index(t6)*2
+0x00630333  //add x6,x6,x6                 236  	add	t1, t1, t1				# offset_space(t1) = offset_space(t1)*2 = mem_index(t6)*4
+0x00650333  //add x6,x10,x6                237  	add	t1, a0, t1				# mem_addr(t1) = &addr(a0) + offset_space(t1)
+0x00532023  //sw x5,0(x6)                  238  	sw	t0, 0(t1)				# *mem_addr(t1) = left_value(t0)
+0x001f8f93  //addi x31,x31,1               239  	addi	t6, t6, 1				# mem_index + 1
+0x00138393  //addi x7,x7,1                 240  	addi	t2, t2, 1				# left_index + 1
+0x007eab33  //slt x22,x29,x7
+0xfa0b0ce3  //beq x22,x0,-40               241  	bge	t4, t2, leftLoop			# check left part whether still have elements
+0x0340006f  //jal x0,52                    242  	jal	x0, endMerge
+0x01ce0333  //add x6,x28,x28               244  	add	t1, t3, t3				# offset_space(t1) = right_index(t3)*2
+0x00630333  //add x6,x6,x6                 245  	add	t1, t1, t1				# offset_space(t1) = offset_space(t1)*2 = right_index(t3)*4
+0x00610333  //add x6,x2,x6                 246  	add	t1, sp, t1				# right_addr(t1) = initial_addr(sp) + offset_space(t1)
+0x00032303  //lw x6,0(x6)                  247  	lw	t1, 0(t1)				# right_value(t1) = *right_addr(t1)
+0x01ff82b3  //add x5,x31,x31               248  	add	t0, t6, t6				# offset_space(t0) = mem_index(t6)*2
+0x005282b3  //add x5,x5,x5                 249  	add	t0, t0, t0				# offset_space(t0) = offset_space(t0)*2 = mem_index(t6)*4
+0x005502b3  //add x5,x10,x5                250  	add	t0, a0, t0				# mem_addr(t0) = &addr(a0) + offset_space(t0)
+0x0062a023  //sw x6,0(x5)                  251  	sw	t1, 0(t0)				# *mem_addr(t0) = right_value(t1)
+0x001f8f93  //addi x31,x31,1               252  	addi	t6, t6, 1				# mem_ndex + 1
+0x001e0e13  //addi x28,x28,1               253  	addi	t3, t3, 1				# right_index + 1
+0x01cf2b33  //slt x22,x30,x28
+0xfa0b0ce3  //beq x22,x0,-40              254  	bge	t5, t3, rightLoop			# check right part whether still have elements
+0x0040006f  //jal x0,4                     255  	jal	x0, endMerge
+0x40b682b3  //sub x5,x13,x11               262  	sub	t0, a3, a1			# total(t0) = end(a3) - start(a1)
+0x00128293  //addi x5,x5,1                 263  	addi	t0, t0, 1			# total(t0) = end(a3) - start(a1) + 1
+0x00528333  //add x6,x5,x5                 264  	add	t1, t0, t0			# space(t1) = total(t0)*2
+0x00630333  //add x6,x6,x6                 265  	add	t1, t1, t1			# space(t1) = space(t1)*2 = total(t0)*4
+0x00610133  //add x2,x2,x6                 266  	add	sp, sp, t1
+0x00008067  //jalr x0,x1,0                 268  	jalr	x0, ra, 0
