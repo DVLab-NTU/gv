@@ -4,7 +4,7 @@ time0_start = False
 count = 0
 n_count = 0
 with open("gen_pattern.vcd", "w") as f:
-    with open("../../yosys/Final.vcd") as l:
+    with open("final.vcd") as l:
         while True:
             text = l.readline()
             count = 0
