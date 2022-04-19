@@ -54,6 +54,7 @@ wire  			instruction_flush;
 wire          	memory_stall;
 wire          	branchType;
 
+
 CHIP chip0 (	clk,
 				rst_n,
 //----------for slow_memD------------	

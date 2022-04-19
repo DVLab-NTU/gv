@@ -1,9 +1,10 @@
 # gv0
 Verification research for general RTL/system-level designs (take 0.0)
 
-# About yosys
-- **Link**
-    - yosys github src code: https://github.com/YosysHQ/yosys 
+# Install yosys
+- **Follow the official tutorial for different environment**
+    - yosys github src code: https://github.com/YosysHQ/yosys
+- **Other useful link** 
     - Writing your own VCD: https://reurl.cc/k76dQq 
     - yosys manual document: https://reurl.cc/e6rxgM (google drive link) 
 - **Function as** 

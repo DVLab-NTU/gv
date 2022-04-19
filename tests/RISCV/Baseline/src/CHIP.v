@@ -69,6 +69,7 @@ wire [31:0] DCACHE_rdata;
 
 assign memory_stall = DCACHE_stall | ICACHE_stall;
 
+
 //=========================================
 	// Note that the overall design of your RISCV includes:
 	// 1. pipelined RISCV processor
