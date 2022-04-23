@@ -55,12 +55,16 @@ module slow_memory(
     // end
     // mem_in = mem;
 
-    always @(negedge rst_n) begin
-        for (idx=0; idx<MEM_NUM*4; idx=idx+1) begin
-            for (idx2=0; idx2<32; idx2=idx2+1) begin
-                mem[idx][idx2] = mem_in[idx*32+idx2];
+    always @(posedge clk) begin
+        if (!rst_n) {
+            for (idx=0; idx<MEM_NUM*4; idx=idx+1) begin
+                for (idx2=0; idx2<32; idx2=idx2+1) begin
+                    mem[idx][idx2] <= mem_in[idx*32+idx2];
+                end
             end
-        end
+        } else {
+            
+        }
     end
 
     always@(*)begin // FSM & control sig
