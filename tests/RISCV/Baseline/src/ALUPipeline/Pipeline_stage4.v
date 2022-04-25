@@ -67,4 +67,22 @@ always @(posedge clk) begin
         Mem2Reg_r       <= Mem2Reg_w;
     end
 end
+
+/*
+    [ assertion for stage 4 (memory access) ]
+
+    - if (memory_stall): 
+        - 當前執行的結果 stall (memory/ALU result)
+        - signal stall
+            - RegDestination (rd), Mem2Reg (writeback)
+        - 註: 寫在 Pipeline_stage4.v
+
+*/
+assert property ((memory_stall) ? (memory_result_w == memory_result_r) : 1);
+assert property ((memory_stall) ? (ALU_result_w == ALU_result_r) : 1);
+assert property ((memory_stall) ? (Rd_w == Rd_r) : 1);
+assert property ((memory_stall) ? (WriteBack_w == WriteBack_r) : 1);
+assert property ((memory_stall) ? (Mem2Reg_w == Mem2Reg_r) : 1);
+
+
 endmodule

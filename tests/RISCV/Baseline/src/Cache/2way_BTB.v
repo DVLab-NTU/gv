@@ -1,4 +1,4 @@
-module BTB(
+module BTB(  // BTB = Branch Target Buffer (轉移目標緩衝器, 處理 jump 等指令)
     input clk,
     input rst_n,
     input memory_stall,

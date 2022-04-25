@@ -14,11 +14,11 @@ module instruction_decode(
     input [31:0]  instruction_1,
     input [31:0]  PC_1,
     
-    output [4:0]  Rd_2,
-    output [4:0]  Rs1_2,
-    output [4:0]  Rs2_2,
-    output [31:0] data1,
-    output [31:0] data2,
+    output [4:0]  Rd_2,    // Rd at stage 2
+    output [4:0]  Rs1_2,   // Rs1 at stage 2
+    output [4:0]  Rs2_2,   // Rs2 at stage 2
+    output [31:0] data1,   // Rs1's content
+    output [31:0] data2,   // Rs2's content
     output [31:0] immediate,
     
     output        is_branchInst_2,
@@ -444,4 +444,58 @@ always @(posedge clk) begin
         branch_type_r       <= branch_type_w;
     end
 end
+
+/*
+    [ assertion for stage 2 (decode) ]
+
+    - if (memory_stall): 
+        - register's value or signal, no change (for all output pin)
+            - Rs1, Rs2, Rd, immediate, data_rs1, data_rs2
+            - PC_2, is_branch, branch_type, memory
+            - Execution ([3:1] = ALUop, [0] = ALUsrc)
+            - write_back (MemtoReg)
+        - 註: ALUop: 3 bits, ALU 操作碼
+        - 註: ALUsrc: 1 bit, 決定 ALU 的輸入是"由 Register bank 讀出"還是"立即值 (immediate)"
+        - 註: 寫在 Pipeline_stage2.v (因為都是 internal variable)
+
+    - if (load-use hazard): "Hazard Detection Unit" detect to be 1 (PC_write)
+        - (Load) && (I2 指令的暫存器編號 (rs) == I1 指令的目的地暫存器編號 (rd)) --> hazard = 1, 其餘為 0 (maybe floating)
+        - 註: Mem_2[1] = MemRead (Load from memory)
+        - 註: Mem_2[0] = MemWrite
+        - 註: Mem_2: 2 bits, (00, 01, 10) = (no read no write, write, read)
+        - 註: 寫在 Pipeline_stage2.v (因為變數 Rd_r 在其他檔案也有宣告, 會亂掉)
+
+    - if (data hazard --> forwarding): EXE, MEM, WB result "forwarding" to ID stage
+        - 如果 write_back 的訊號 enable, 那 register bank 的該 address 應該要存進 WB 的 data
+        - 註: 寫在 Pipeline_stage2.v 
+
+    - if (control_unit case):
+        - MIPS_detal.pdf 第 (7)(8)(9) 點: 若 stage 1 傳入為跳轉指令, 要設起 branch flag
+        - MIPS_detal.pdf 第 (4) 點: 若為 Load 指令, 讀入 memory 的資料 --> MemRead (under no data hazard) 
+        - MIPS_detal.pdf 第 (6) 點: 若為 Store 指令, 寫資料進 memory --> MemWrite (under no data hazard)
+        - 註: 寫在 Pipeline_stage2.v 
+
+*/
+assert property ((memory_stall) ? (Rs1_w == Rs1_r) : 1);
+assert property ((memory_stall) ? (Rs2_w == Rs2_r) : 1);
+assert property ((memory_stall) ? (Rd_w == Rd_r) : 1);
+assert property ((memory_stall) ? (immediate_w == immediate_r) : 1);
+assert property ((memory_stall) ? (data1_w == data1_r) : 1);
+assert property ((memory_stall) ? (data2_w == data2_r) : 1);
+assert property ((memory_stall) ? (PC_w == PC_r) : 1);
+assert property ((memory_stall) ? (is_branchInst_w == is_branchInst_r) : 1);
+assert property ((memory_stall) ? (branch_type_w == branch_type_r) : 1);
+assert property ((memory_stall) ? (Execution_w == Execution_r) : 1);
+assert property ((memory_stall) ? (Mem_w == Mem_r) : 1);
+assert property ((memory_stall) ? (WriteBack_w == WriteBack_r) : 1);
+
+assert property (((Mem_r[1]) && ((Rd_r == Rs1_w) || (Rd_r == Rs2_w))) ? (data_hazard == 1'b1) : (data_hazard != 1'b1));
+
+assert property (((!flush) && (!memory_stall) && (write_address) && (WriteBack_5)) ? (register_w[write_address] == write_data) : 1);
+
+assert property ((instruction_1[6:5] == 2'b11) ? (is_branchInst_w == 1'b1) : (is_branchInst_w != 1'b1));
+assert property ((data_hazard) ? 1 : (instruction_1[6:4] == 3'b000) ? (Mem_w == 2'b10) : 1);  // LW: Load Word
+assert property ((data_hazard) ? 1 : (instruction_1[6:4] == 3'b010) ? (Mem_w == 2'b01) : 1);  // SW: Store Word
+
+
 endmodule

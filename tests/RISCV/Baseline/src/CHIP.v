@@ -53,8 +53,8 @@ output          branchType;
 //--------------------------
 
 // wire declaration
-wire        ICACHE_ren;
-wire        ICACHE_wen;
+wire        ICACHE_ren;		// read enable
+wire        ICACHE_wen;		// write enable
 wire [29:0] ICACHE_addr;
 wire [31:0] ICACHE_wdata;
 wire        ICACHE_stall;
@@ -68,7 +68,6 @@ wire        DCACHE_stall;
 wire [31:0] DCACHE_rdata;
 
 assign memory_stall = DCACHE_stall | ICACHE_stall;
-
 
 //=========================================
 	// Note that the overall design of your RISCV includes:
@@ -133,4 +132,5 @@ assign memory_stall = DCACHE_stall | ICACHE_stall;
         .mem_rdata  (mem_rdata_I) ,
         .mem_ready  (mem_ready_I)
 	);
+
 endmodule

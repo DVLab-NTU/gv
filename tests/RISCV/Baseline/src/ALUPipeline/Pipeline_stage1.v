@@ -4,17 +4,17 @@ module instruction_fetch(
     input         clk,
     input         rst_n,
     
-    input         flush, 
+    input         flush,            // if jump (BEQ), 沖刷掉 stage_3 (EXE) 之前所有指令
     input         taken,
     input  [31:0] branchPC,
 
-    input         memory_stall,
+    input         memory_stall,     // reg 尚未存入欲讀取的值, 便先停止直到成功存入 (Control/Data Hazard)
     input  [31:0] IF_DWrite,     
     input         PC_write,             
     
     input  [31:0] instruction_in,
     output [29:0] I_addr,       
-    output        I_ren,         
+    output        I_ren,            // I read_enable
     
     output [31:0] PC_1,
     output [31:0] instruction_1,
@@ -32,7 +32,7 @@ reg        taken_r, taken_w;
 // wires
 reg [29:0] I_addr_w;
 reg I_ren_w;
-wire[31:0] instruction_little; //instruction input with little_end
+wire[31:0] instruction_little; //instruction input with little_end --> 圖片由最右邊 (LSB) 讀到最左邊 (MSB), 方便操作讓最右邊開始的每個 byte 依序讀入?
 
 assign PC_1                 = PC_out_r;
 assign instruction_1        = instruction_out_r;
@@ -142,4 +142,22 @@ always @(posedge clk) begin
         taken_r             <= taken_w;
     end
 end  
+
+/*
+    [ assertion for stage 1 (fetch) ]
+
+    - if (memory_stall): 
+        - register's value stall, no change (for all output pin)
+            - PC. taken, PC_out, instruction_out
+        - go to check out "Pipeline_stage1.v" (因為都是 internal variable)
+        - go to check out "Pipeline_stage2.v" (因為都是 internal variable)
+        - go to check out "Pipeline_stage3.v" (因為都是 internal variable)
+        - go to check out "Pipeline_stage4.v" (因為都是 internal variable)
+        
+*/
+assert property ((memory_stall) ? (PC_w == PC_r) : 1);
+assert property ((memory_stall) ? (taken_w == taken_r) : 1);
+assert property ((memory_stall) ? (PC_out_w == PC_out_r) : 1);
+assert property ((memory_stall) ? (instruction_out_w == instruction_out_r) : 1);
+
 endmodule

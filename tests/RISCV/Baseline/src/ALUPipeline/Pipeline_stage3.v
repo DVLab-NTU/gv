@@ -197,7 +197,7 @@ always @(*) begin
             SRA: begin
                 ALU_result_w = $signed(ALU_in1) >>> ALU_in2;
             end
-            SLT: begin
+            SLT: begin  // set less than
                 ALU_result_w = ($signed(ALU_in1) < $signed(ALU_in2)) ? 1 : 0;
             end
             default: begin
@@ -232,4 +232,38 @@ always @(posedge clk) begin
         writedata_r     <= writedata_w;
     end
 end
+
+/*
+    [ assertion for stage 3 (execute) ]
+
+    - if (memory_stall): 
+        - 當前執行的結果 stall (ALU_result)
+        - signal stall
+            - RegDestination (rd), Mem2Reg (writeback_2, writedata), MemWrite (Mem)
+        - 註: 寫在 Pipeline_stage3.v
+
+    - if (forwarding_unit):
+        - 如果符合下列條件, forwarding_signal 要立起來
+            - instr 必須為有寫入暫存器的指令 (Control Signal — RegWrite 來判斷)
+            - instr 寫入的暫存器不為 0 (instr 的 Rd 來判斷)
+            - instr 寫入的暫存器與 n_instr、nn_instr 有 data dependency (instr 的 Rd 與 n_instr 的 rs1/rs2、nn_instr 的 rs1/rs2 有沒有相同)
+        - 看 data 是不是按照 MEM 或 WB 的 flag 寫入
+        - 註: 寫在 Pipeline_stage3.v 
+
+*/
+assert property ((memory_stall) ? (ALU_result_w == ALU_result_r) : 1);
+assert property ((memory_stall) ? (Rd_w == Rd_r) : 1);
+assert property ((memory_stall) ? (writedata_w == writedata_r) : 1);
+assert property ((memory_stall) ? (writedata_w == writedata_r) : 1);
+assert property ((memory_stall) ? (Mem_w == Mem_r) : 1);
+
+assert property (((WriteBack_r) && (Rd_r != 0) && (Rd_r == Rs1_2)) ? (forwardA != 2'b00) : 1);  // MEM can write back
+assert property (((WriteBack_r) && (Rd_r != 0) && (Rd_r == Rs2_2)) ? (forwardB != 2'b00) : 1);  // MEM can write back
+assert property (((WriteBack_5) && (Rd_5 != 0) && (Rd_5 == Rs1_2)) ? (forwardA != 2'b00) : 1);  // WB can write back
+assert property (((WriteBack_5) && (Rd_5 != 0) && (Rd_5 == Rs2_2)) ? (forwardB != 2'b00) : 1);  // WB can write back
+
+assert property (((WriteBack_r) && (Rd_r != 0) && ((Rd_r == Rs1_2) || (Rd_r == Rs2_2))) ? (ALU_in1 == ALU_result_r) : 1);  // MEM data to ALU reg
+assert property (((WriteBack_5) && (Rd_5 != 0) && ((Rd_5 == Rs1_2) || (Rd_5 == Rs2_2))) ? (ALU_in1 == writeback_data_5) : 1);  // WB data to ALU reg 
+
+
 endmodule
