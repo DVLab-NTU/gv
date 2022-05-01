@@ -30,39 +30,39 @@ int main() {
                 for (unsigned j = 0; j < 2; ++j) {
                     count ++;
                     tmp = strs[3-i][j];
-                    if (tmp == "0") {
-                        outfile << "0000";
-                    } else if (tmp == "1") {
-                        outfile << "0001";
-                    } else if (tmp == "2") {
-                        outfile << "0010";
-                    } else if (tmp== "3") {
-                        outfile << "0011";
-                    } else if (tmp == "4") {
-                        outfile << "0100";
-                    } else if (tmp == "5") {
-                        outfile << "0101";
-                    } else if (tmp == "6") {
-                        outfile << "0110";
-                    } else if (tmp == "7") {
-                        outfile << "0111";
-                    } else if (tmp == "8") {
-                        outfile << "1000";
-                    } else if (tmp == "9") {
-                        outfile << "1001";
-                    } else if (tmp == "A") {
-                        outfile << "1010";
-                    } else if (tmp == "B") {
-                        outfile << "1011";
-                    } else if (tmp == "C") {
-                        outfile << "1100";
-                    } else if (tmp == "D") {
-                        outfile << "1101";
-                    } else if (tmp == "E") {
-                        outfile << "1110";
-                    } else if (tmp == "F") {
-                        outfile << "1111";
-                    }
+                    // if (tmp == "0") {
+                    //     outfile << "0000";
+                    // } else if (tmp == "1") {
+                    //     outfile << "0001";
+                    // } else if (tmp == "2") {
+                    //     outfile << "0010";
+                    // } else if (tmp== "3") {
+                    //     outfile << "0011";
+                    // } else if (tmp == "4") {
+                    //     outfile << "0100";
+                    // } else if (tmp == "5") {
+                    //     outfile << "0101";
+                    // } else if (tmp == "6") {
+                    //     outfile << "0110";
+                    // } else if (tmp == "7") {
+                    //     outfile << "0111";
+                    // } else if (tmp == "8") {
+                    //     outfile << "1000";
+                    // } else if (tmp == "9") {
+                    //     outfile << "1001";
+                    // } else if (tmp == "A") {
+                    //     outfile << "1010";
+                    // } else if (tmp == "B") {
+                    //     outfile << "1011";
+                    // } else if (tmp == "C") {
+                    //     outfile << "1100";
+                    // } else if (tmp == "D") {
+                    //     outfile << "1101";
+                    // } else if (tmp == "E") {
+                    //     outfile << "1110";
+                    // } else if (tmp == "F") {
+                    //     outfile << "1111";
+                    // }
                 }
             }
             strs.clear();
@@ -71,7 +71,10 @@ int main() {
     } else {
         cerr << "file is not opened" << endl;
     }
-    for (unsigned i = 0; i < mem_num-count*4; ++i) {
+    // for (unsigned i = 0; i < mem_num-count*4; ++i) {
+    //     outfile << "0";
+    // }
+    for (unsigned i = 0; i < mem_num; ++i) {
         outfile << "0";
     }
     outfile.close();
