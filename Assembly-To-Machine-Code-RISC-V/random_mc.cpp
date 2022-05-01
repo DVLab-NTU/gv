@@ -24,11 +24,10 @@ int main(int argc, char **argv) {
     // cout << func << endl;
 
     for (unsigned k = 0; k < func; ++k) {
-        num_func = (double)num * rand() / (RAND_MAX + 1.0);
+        num_func = 1.0 * num * rand() / (RAND_MAX + 1.0);
         num_funcs[k] += num_func;
-        num -= num_func;
         outfile << funcs[k] << ": ";
-        for (unsigned i = 0; i < num_funcs[k]-1; ++i) {
+        for (int i = 0; i < num_funcs[k]; ++i) {
             in = ins.size() * rand() / (RAND_MAX + 1.0);
             outfile << ins[in];
             if (in == 0 || in == 2)    // add or sub
@@ -61,22 +60,21 @@ int main(int argc, char **argv) {
                     reg = regs.size() * rand() / (RAND_MAX + 1.0);
                     outfile << " " << regs[reg];
                 }
-                n = func * rand() / (RAND_MAX + 1.0);
+                n = 1.0 * func * rand() / (RAND_MAX + 1.0);
                 outfile << " " << funcs[n];
             }
             else if (in == 9)   // jal
             {
-                n = func * rand() / (RAND_MAX + 1.0);
-                outfile << "jal x0 " << funcs[n] << endl;
+                n = 1.0 * func * rand() / (RAND_MAX + 1.0);
+                outfile << " x0 " << funcs[n];
             }
             outfile << endl;
-            num --;
         }
         n = 2.0 * rand() / (RAND_MAX + 1.0);
         if (n == 0) {
             outfile << "jalr x0 0(x1)" << endl; 
         } else {
-            n = func * rand() / (RAND_MAX + 1.0);
+            n = 1.0 * func * rand() / (RAND_MAX + 1.0);
             outfile << "jal x0 " << funcs[n] << endl;
         }
         outfile << endl;
