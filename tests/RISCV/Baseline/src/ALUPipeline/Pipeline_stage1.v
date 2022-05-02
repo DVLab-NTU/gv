@@ -24,23 +24,23 @@ module instruction_fetch(
 );
 
 // regs
-reg [31:0] PC_r, PC_w;
-reg [31:0] PC_out_r, PC_out_w;
-reg [31:0] instruction_out_r, instruction_out_w;
-reg        taken_r, taken_w;
+reg [31:0] PC1_r, PC1_w;
+reg [31:0] PC_out1_r, PC_out1_w;
+reg [31:0] instruction_out1_r, instruction_out1_w;
+reg        taken1_r, taken1_w;
 
 // wires
 reg [29:0] I_addr_w;
 reg I_ren_w;
 wire[31:0] instruction_little; //instruction input with little_end --> 圖片由最右邊 (LSB) 讀到最左邊 (MSB), 方便操作讓最右邊開始的每個 byte 依序讀入?
 
-assign PC_1                 = PC_out_r;
-assign instruction_1        = instruction_out_r;
+assign PC_1                 = PC_out1_r;
+assign instruction_1        = instruction_out1_r;
 assign I_addr               = I_addr_w;
 assign I_ren                = I_ren_w;
 assign instruction_little   = {instruction_in[7:0],instruction_in[15:8],instruction_in[23:16],instruction_in[31:24]}; //instruction with little_end
-assign prev_taken_1         = taken_r;
-assign instructionPC_1      = PC_r;
+assign prev_taken_1         = taken1_r;
+assign instructionPC_1      = PC1_r;
 
 // ===== RVC ===== //
 // wires
@@ -61,22 +61,22 @@ end
 // ===== PC ===== //
 always @(*) begin
     if(memory_stall) begin
-        PC_w        = PC_r;
-        taken_w     = taken_r;
+        PC1_w        = PC1_r;
+        taken1_w     = taken1_r;
     end
     else begin 
         if(flush) begin
-            PC_w        = branchPC;
-            taken_w     = 1'b0;
+            PC1_w        = branchPC;
+            taken1_w     = 1'b0;
         end
         else begin
             if(PC_write) begin
-                PC_w        = PC_r;
-                taken_w     = taken_r;
+                PC1_w        = PC1_r;
+                taken1_w     = taken1_r;
             end
             else begin
-                taken_w     = taken;
-                PC_w        = branchPC;
+                taken1_w     = taken;
+                PC1_w        = branchPC;
             end
         end
     end
@@ -85,18 +85,18 @@ end
 // ===== PC_out ===== //
 always @(*) begin
     if(memory_stall) begin
-        PC_out_w = PC_out_r ;
+        PC_out1_w = PC_out1_r ;
     end
     else begin
         if(flush) begin // branch hazard(insert NOP)
-            PC_out_w = 32'd0;  
+            PC_out1_w = 32'd0;  
         end
         else begin
             if(PC_write) begin // load-use hazard
-                PC_out_w = PC_r - 4;
+                PC_out1_w = PC1_r - 4;
             end
             else begin
-                PC_out_w = PC_r;
+                PC_out1_w = PC1_r;
             end
         end
     end
@@ -105,18 +105,18 @@ end
 // ===== instruction_out ===== //
 always @(*) begin
     if(memory_stall) begin
-        instruction_out_w = instruction_out_r;
+        instruction_out1_w = instruction_out1_r;
     end
     else begin
         if(flush) begin
-            instruction_out_w = 32'h00000013; // NOP
+            instruction_out1_w = 32'h00000013; // NOP
         end
         else begin
             if(PC_write) begin
-                instruction_out_w = IF_DWrite;
+                instruction_out1_w = IF_DWrite;
             end
             else begin
-                instruction_out_w = instruction;
+                instruction_out1_w = instruction;
             end    
         end
     end
@@ -124,40 +124,38 @@ end
 
 // ===== I_cache ===== //
 always @(*) begin
-    I_addr_w            = PC_r[31:2];
+    I_addr_w            = PC1_r[31:2];
     I_ren_w             = 1'b1;  // always reading I_cache
 end
 
 always @(posedge clk) begin
     if(!rst_n) begin
-        PC_r                <= 32'd0;
-        PC_out_r            <= 32'd0;
-        instruction_out_r   <= 32'd0;
-        taken_r             <= 1'b0;
+        PC1_r                <= 32'd0;
+        PC_out1_r            <= 32'd0;
+        instruction_out1_r   <= 32'd0;
+        taken1_r             <= 1'b0;
     end
     else begin
-        PC_r                <= PC_w;
-        PC_out_r            <= PC_out_w;
-        instruction_out_r   <= instruction_out_w;
-        taken_r             <= taken_w;
+        PC1_r                <= PC1_w;
+        PC_out1_r            <= PC_out1_w;
+        instruction_out1_r   <= instruction_out1_w;
+        taken1_r             <= taken1_w;
     end
 end  
 
-/*
-    [ assertion for stage 1 (fetch) ]
+// Add assertion here (ncverilog can read "psl" comments, and yosys cannot read it)
+// psl default clock = (posedge clk);
 
-    - if (memory_stall): 
-        - register's value stall, no change (for all output pin)
-            - PC. taken, PC_out, instruction_out
-        - go to check out "Pipeline_stage1.v" (因為都是 internal variable)
-        - go to check out "Pipeline_stage2.v" (因為都是 internal variable)
-        - go to check out "Pipeline_stage3.v" (因為都是 internal variable)
-        - go to check out "Pipeline_stage4.v" (因為都是 internal variable)
-        
-*/
-assert property ((memory_stall) ? (PC_w == PC_r) : 1);
-assert property ((memory_stall) ? (taken_w == taken_r) : 1);
-assert property ((memory_stall) ? (PC_out_w == PC_out_r) : 1);
-assert property ((memory_stall) ? (instruction_out_w == instruction_out_r) : 1);
+// psl ERROR1_flush_stage1: assert never {!(memory_stall) && (flush) && !(PC1_w == branchPC)};
+// psl ERROR2_flush_stage1: assert never {!(memory_stall) && (flush) && !(taken1_w == 1'b0)};
+// psl ERROR3_flush_stage1: assert never {!(memory_stall) && (flush) && !(instruction_out1_w == 32'h00000013)}; 
+// psl ERROR4_flush_stage1: assert never {!(memory_stall) && (flush) && !(PC_out1_w == 32'd0)};
+
+// psl ERROR1_memory_stall_stage1: assert never {(memory_stall) && !(PC1_w == PC1_r)};
+// psl ERROR2_memory_stall_stage1: assert never {(memory_stall) && !(taken1_w == taken1_r)};
+// psl ERROR3_memory_stall_stage1: assert never {(memory_stall) && !(PC_out1_w == PC_out1_r)}; 
+// psl ERROR4_memory_stall_stage1: assert never {(memory_stall) && !(instruction_out1_w == instruction_out1_r)};
+
+// psl ERROR1_load_use_hazrd_stage1: assert never {(PC_write) && !(PC_1 == instructionPC_1 - 4)};
 
 endmodule

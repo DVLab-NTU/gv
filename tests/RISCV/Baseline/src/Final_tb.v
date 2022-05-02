@@ -9,12 +9,48 @@
 `define SDFFILE   "./CHIP_syn.sdf"	// Modify your SDF file name
 
 // For different condition (I_mem, TestBed)
-
-`define IMEM_INIT "I_mem_hasHazard"
-`include "./TestBed_hasHazard.v"
-`include "./ALUPipeline/RISCV_pipeline.v"
-
-
+`ifdef noHazard
+    `define IMEM_INIT "I_mem_noHazard"
+    `include "./TestBed_noHazard.v"
+`endif
+`ifdef hasHazard
+	`define IMEM_INIT "I_mem_hasHazard"
+	`include "./TestBed_hasHazard.v"
+`endif	
+`ifdef BrPred
+	`define IMEM_INIT "../../Extension/BrPred/a10b20c30/I_mem_BrPred"
+	`include "../../Extension/BrPred/a10b20c30/TestBed_BrPred.v"
+`endif
+`ifdef compression
+	`define IMEM_INIT "I_mem_compression"
+	`include "./TestBed_compression.v"
+`endif
+`ifdef decompression
+	`define IMEM_INIT "I_mem_decompression"
+	`include "./TestBed_compression.v"
+`endif			
+`ifdef mergesort 
+	`define IMEM_INIT "I_mem_mergeSort"
+	`include "./TestBed_mergeSort.v"
+`endif
+`ifdef noBP
+	`include "./ALUPipeline2/RISCV_pipeline.v"
+`elsif lv1hash
+	`include "./ALUPipeline/RISCV_pipeline.v"
+	`include "./Cache/1_level_hash.v"
+`elsif lv1
+	`include "./ALUPipeline/RISCV_pipeline.v"
+	`include "./Cache/1_level.v"
+`elsif lv2glo
+	`include "./ALUPipeline/RISCV_pipeline.v"
+	`include "./Cache/2_level_global.v"
+`elsif lv2loc
+	`include "./ALUPipeline/RISCV_pipeline.v"
+	`include "./Cache/2_level_local.v"
+`else
+	`include "./ALUPipeline/RISCV_pipeline.v"
+	`include "./Cache/1_level.v"
+`endif
 module Final_tb;
 
 	reg clk;
@@ -120,37 +156,37 @@ module Final_tb;
 		$display("-----------------------------------------------------\n");
 	 	$display("START!!! Simulation Start .....\n");
 	 	$display("-----------------------------------------------------\n");
-		// $readmemb (`DMEM_INIT, slow_memD.mem ); // initialize data in DMEM
-		// $readmemh (`IMEM_INIT, slow_memI.mem ); // initialize data in IMEM
+		$readmemb (`DMEM_INIT, slow_memD.mem ); // initialize data in DMEM
+		$readmemh (`IMEM_INIT, slow_memI.mem ); // initialize data in IMEM
 
-		// // waveform dump
-	    // // $dumpfile("Final.vcd");
-	    // // $dumpvars;
-	    // $fsdbDumpfile("Final.fsdb");			
-		// $fsdbDumpvars(0,Final_tb,"+mda");
-		// $fsdbDumpvars;
+		// waveform dump
+	    // $dumpfile("Final.vcd");
+	    // $dumpvars;
+	    $fsdbDumpfile("Final.fsdb");			
+		$fsdbDumpvars(0,Final_tb,"+mda");
+		$fsdbDumpvars;
 	
-		// clk = 0;
-		// rst_n = 1'b1;
-		// #(`CYCLE*0.2) rst_n = 1'b0;
-		// #(`CYCLE*8.5) rst_n = 1'b1;
+		clk = 0;
+		rst_n = 1'b1;
+		#(`CYCLE*0.2) rst_n = 1'b0;
+		#(`CYCLE*8.5) rst_n = 1'b1;
 
-		// #(`CYCLE*100000) // calculate clock cycles for all operation (you can modify it)
-		// $display("============================================================================");
-		// $display("\n           Error!!! There is something wrong with your code ...!          ");
-		// $display("\n                       The test result is .....FAIL                     \n");
-		// $display("============================================================================");
-		// if (testbed.curstate == 2'b0)
-		// 	$display("Possible solution: The first answer may not be correct.\n");
-		// if (testbed.curstate == 2'b1)
-		// 	$display("Possible solution: The clock cycles may be too small. Please modify it.\n");
-	 	// $finish;
+		#(`CYCLE*100000) // calculate clock cycles for all operation (you can modify it)
+		$display("============================================================================");
+		$display("\n           Error!!! There is something wrong with your code ...!          ");
+		$display("\n                       The test result is .....FAIL                     \n");
+		$display("============================================================================");
+		if (testbed.curstate == 2'b0)
+			$display("Possible solution: The first answer may not be correct.\n");
+		if (testbed.curstate == 2'b1)
+			$display("Possible solution: The clock cycles may be too small. Please modify it.\n");
+	 	$finish;
 	end
 		
-	// always #(`CYCLE*0.5) clk = ~clk;
+	always #(`CYCLE*0.5) clk = ~clk;
 
-	// always@(finish)
-	//     if(finish)
-	//        #(`CYCLE) $finish;		   
+	always@(finish)
+	    if(finish)
+	       #(`CYCLE) $finish;		   
 	
 endmodule

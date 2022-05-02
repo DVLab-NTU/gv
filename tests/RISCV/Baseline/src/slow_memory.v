@@ -11,7 +11,7 @@ module slow_memory(
     mem_ready
 );
     
-    parameter MEM_NUM = 64;
+    parameter MEM_NUM = 256;
     parameter MEM_WIDTH = 128;
     parameter LATENCY = 15;  // negedge clock after [Unconditional carry(15ns/CYCLE)+1] cycle
         

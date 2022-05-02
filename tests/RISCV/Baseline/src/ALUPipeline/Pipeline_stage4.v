@@ -25,17 +25,17 @@ module Memory(
     output [31:0] D_writeData
 );
 
-reg [31:0] memory_result_r, memory_result_w;
-reg [31:0] ALU_result_r, ALU_result_w;
-reg [4:0]  Rd_r, Rd_w;
-reg        WriteBack_r, WriteBack_w;
-reg        Mem2Reg_r, Mem2Reg_w;
+reg [31:0] memory_result4_r, memory_result4_w;
+reg [31:0] ALU_result4_r, ALU_result4_w;
+reg [4:0]  Rd4_r, Rd4_w;
+reg        WriteBack4_r, WriteBack4_w;
+reg        Mem2Reg4_r, Mem2Reg4_w;
 
-assign memory_result_4  = memory_result_r;
-assign ALU_result_4     = ALU_result_r;
-assign Rd_4             = Rd_r;
-assign WriteBack_4      = WriteBack_r;
-assign Mem2Reg          = Mem2Reg_r; // lw 
+assign memory_result_4  = memory_result4_r;
+assign ALU_result_4     = ALU_result4_r;
+assign Rd_4             = Rd4_r;
+assign WriteBack_4      = WriteBack4_r;
+assign Mem2Reg          = Mem2Reg4_r; // lw 
 
 assign D_addr           = ALU_result_3[31:2];
 assign D_wen            = Mem_3[0];
@@ -44,45 +44,38 @@ assign D_writeData      = {writedata_3[7:0],writedata_3[15:8],writedata_3[23:16]
 assign forward_result_4 = Mem_3[1] ? {D_readData[7:0],D_readData[15:8],D_readData[23:16],D_readData[31:24]} : ALU_result_3;
 
 always @(*) begin // data memory
-    memory_result_w = memory_stall ? memory_result_r : {D_readData[7:0],D_readData[15:8],D_readData[23:16],D_readData[31:24]}; //with little_end
-    ALU_result_w    = memory_stall ? ALU_result_r : ALU_result_3;
-    Rd_w            = memory_stall ? Rd_r : Rd_3;
-    WriteBack_w     = memory_stall ? WriteBack_r : WriteBack_3;    
-    Mem2Reg_w       = memory_stall ? Mem2Reg_r : Mem_3[1];
+    memory_result4_w = memory_stall ? memory_result4_r : {D_readData[7:0],D_readData[15:8],D_readData[23:16],D_readData[31:24]}; //with little_end
+    ALU_result4_w    = memory_stall ? ALU_result4_r : ALU_result_3;
+    Rd4_w            = memory_stall ? Rd4_r : Rd_3;
+    WriteBack4_w     = memory_stall ? WriteBack4_r : WriteBack_3;    
+    Mem2Reg4_w       = memory_stall ? Mem2Reg4_r : Mem_3[1];
 end  
 
 always @(posedge clk) begin
     if(!rst_n) begin
-        memory_result_r <= 32'd0;
-        ALU_result_r    <= 32'd0;
-        Rd_r            <= 5'd0;
-        WriteBack_r     <= 1'b0;
-        Mem2Reg_r       <= 1'b0;
+        memory_result4_r <= 32'd0;
+        ALU_result4_r    <= 32'd0;
+        Rd4_r            <= 5'd0;
+        WriteBack4_r     <= 1'b0;
+        Mem2Reg4_r       <= 1'b0;
     end
     else begin
-        memory_result_r <= memory_result_w;
-        ALU_result_r    <= ALU_result_w;
-        Rd_r            <= Rd_w;
-        WriteBack_r     <= WriteBack_w;
-        Mem2Reg_r       <= Mem2Reg_w;
+        memory_result4_r <= memory_result4_w;
+        ALU_result4_r    <= ALU_result4_w;
+        Rd4_r            <= Rd4_w;
+        WriteBack4_r     <= WriteBack4_w;
+        Mem2Reg4_r       <= Mem2Reg4_w;
     end
 end
 
-/*
-    [ assertion for stage 4 (memory access) ]
+// Add assertion here (ncverilog can read "psl" comments, and yosys cannot read it)
+// psl default clock = (posedge clk);
 
-    - if (memory_stall): 
-        - 當前執行的結果 stall (memory/ALU result)
-        - signal stall
-            - RegDestination (rd), Mem2Reg (writeback)
-        - 註: 寫在 Pipeline_stage4.v
-
-*/
-assert property ((memory_stall) ? (memory_result_w == memory_result_r) : 1);
-assert property ((memory_stall) ? (ALU_result_w == ALU_result_r) : 1);
-assert property ((memory_stall) ? (Rd_w == Rd_r) : 1);
-assert property ((memory_stall) ? (WriteBack_w == WriteBack_r) : 1);
-assert property ((memory_stall) ? (Mem2Reg_w == Mem2Reg_r) : 1);
+// psl ERROR1_memory_stall_stage4: assert never {(memory_stall) && !(memory_result4_w == memory_result4_r)};
+// psl ERROR2_memory_stall_stage4: assert never {(memory_stall) && !(ALU_result4_w == ALU_result4_r)};
+// psl ERROR3_memory_stall_stage4: assert never {(memory_stall) && !(Rd4_w == Rd4_r)}; 
+// psl ERROR4_memory_stall_stage4: assert never {(memory_stall) && !(WriteBack4_w == WriteBack4_r)};
+// psl ERROR5_memory_stall_stage4: assert never {(memory_stall) && !(Mem2Reg4_w == Mem2Reg4_r)};
 
 
 endmodule

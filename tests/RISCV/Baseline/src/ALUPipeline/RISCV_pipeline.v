@@ -1,9 +1,8 @@
-`include "./Pipeline_stage1.v"
-`include "./Pipeline_stage2.v"
-`include "./Pipeline_stage3.v"
-`include "./Pipeline_stage4.v"
-`include "./Pipeline_stage5.v"
-`include "../Cache/2way_BTB.v"
+`include "./ALUPipeline/Pipeline_stage1.v"
+`include "./ALUPipeline/Pipeline_stage2.v"
+`include "./ALUPipeline/Pipeline_stage3.v"
+`include "./ALUPipeline/Pipeline_stage4.v"
+`include "./ALUPipeline/Pipeline_stage5.v"
 
 module RISCV_Pipeline(
     input clk,
@@ -223,120 +222,119 @@ Writeback stage5(
     .WriteBack_5(Wb_5)
 );
 
+
 /*
     [ assertion for stage 1 (fetch) ]
-
-    - if (branch) then (flush): 
-        - now, it must be a "jump" instruction (instructionPC_1)
-        - reset "branch_is_taken (prev_taken_1)"   --> else: True, only test "flush"
-        - reset "instruction_out (instruction_1)"  --> else: True, only test "flush"
-        - reset "PC out          (PC_1)"           --> else: True, only test "flush"
-
-    - if (memory_stall): 
-        - register's value stall, no change (for all output pin)
-            - PC. taken, PC_out, instruction_out
-        - go to check out "Pipeline_stage1.v" (因為都是 internal variable)
-        - go to check out "Pipeline_stage2.v" (因為都是 internal variable)
-        - go to check out "Pipeline_stage3.v" (因為都是 internal variable)
-        - go to check out "Pipeline_stage4.v" (因為都是 internal variable)
-
-    - if (load-use hazard): @ MIPS_detail.pdf (PC_write)
-        - PC (IF) still retain the previous action --> Inter Lock
+    
+    - external (keep)
+        - if (branch) then (flush): 
+            - now, it must be a "jump" instruction (instructionPC_1)
+            - reset "branch_is_taken (prev_taken_1)"   --> else: True, only test "flush"
+            - reset "instruction_out (instruction_1)"  --> else: True, only test "flush"
+            - reset "PC out          (PC_1)"           --> else: True, only test "flush"
+        
+        - if (load-use hazard): @ MIPS_detail.pdf (PC_write)
+            - PC (IF) still retain the previous action --> Inter Lock
+    
+    - internal (會用到內部變數)
+        - if (memory_stall): 
+            - register's value stall, no change (for all output pin)
+                - PC. taken, PC_out, instruction_out
+            - go to check out "Pipeline_stage1.v" (因為都是 internal variable)
+            - go to check out "Pipeline_stage2.v" (因為都是 internal variable)
+            - go to check out "Pipeline_stage3.v" (因為都是 internal variable)
+            - go to check out "Pipeline_stage4.v" (因為都是 internal variable)
 
     - if (nothing_special):
         - parameter will directly pass to stage 2, so no need assertion
 
 */
-assert property ((flush) ? (instructionPC_1 == branchPC) : 1);
-assert property ((flush) ? (prev_taken_1 == 1'b0) : 1);
-assert property ((flush) ? (instruction_1 == 32'h00000013) : 1); // Nop's opcode = 0010011 (bin) = 19 (dec) = 13 (hex)
-assert property ((flush) ? (PC_1 == 32'd0) : 1);
 
-assert property ((PC_write) ? (PC_1 == instructionPC_1 - 4) : 1);  // 可能錯, 原為 " PC_out_w = PC_r - 4 "
 
 /*
     [ assertion for stage 2 (decode) ]
 
-    - if (flush): (將適當的 register 資料清為 0)
-        - reset "rs1, rs2, rd (Rs1_2, Rs2_2, Rd_2)"
-        - reset "data_rs1, data_rs2, immediate (data1, data2, immediate)"
-        - reset "MemtoReg (WriteBack_2)"
-        - reset "PC_2 (PC_2)"
-        - reset "is_branch"
+    -external (keep)
+        - if (flush): (將適當的 register 資料清為 0)
+            - reset "rs1, rs2, rd (Rs1_2, Rs2_2, Rd_2)"
+            - reset "data_rs1, data_rs2, immediate (data1, data2, immediate)"
+            - reset "MemtoReg (WriteBack_2)"
+            - reset "PC_2 (PC_2)"
+            - reset "is_branch"
 
-    - if (memory_stall): 
-        - register's value or signal, no change (for all output pin)
-            - Rs1, Rs2, Rd, immediate, data_rs1, data_rs2
-            - PC_2, is_branch, branch_type, memory
-            - Execution ([3:1] = ALUop, [0] = ALUsrc)
-            - write_back (MemtoReg)
-        - 註: ALUop: 3 bits, ALU 操作碼
-        - 註: ALUsrc: 1 bit, 決定 ALU 的輸入是"由 Register bank 讀出"還是"立即值 (immediate)"
-        - 註: 寫在 Pipeline_stage2.v (因為都是 internal variable)
+    -internal (會用到內部變數)
+        - if (memory_stall): 
+            - register's value or signal, no change (for all output pin)
+                - Rs1, Rs2, Rd, immediate, data_rs1, data_rs2
+                - PC_2, is_branch, branch_type, memory
+                - Execution ([3:1] = ALUop, [0] = ALUsrc)
+                - write_back (MemtoReg)
+            - 註: ALUop: 3 bits, ALU 操作碼
+            - 註: ALUsrc: 1 bit, 決定 ALU 的輸入是"由 Register bank 讀出"還是"立即值 (immediate)"
+            - 註: 寫在 Pipeline_stage2.v (因為都是 internal variable)
 
-    - if (load-use hazard): "Hazard Detection Unit" detect to be 1 (PC_write)
-        - (Load) && (I2 指令的暫存器編號 (rs) == I1 指令的目的地暫存器編號 (rd)) --> hazard = 1, 其餘為 0 (matbe floating)
-        - 註: Mem_2[1] = MemRead (Load from memory)
-        - 註: Mem_2[0] = MemWrite
-        - 註: Mem_2: 2 bits, (00, 01, 10) = (no read no write, write, read)
-        - 註: 寫在 Pipeline_stage2.v (因為變數 Rd_r 在其他檔案也有宣告, 會亂掉)
+        - if (load-use hazard): "Hazard Detection Unit" detect to be 1 (PC_write)
+            - (Load) && (I2 指令的暫存器編號 (rs) == I1 指令的目的地暫存器編號 (rd)) --> hazard = 1, 其餘為 0 (matbe floating)
+            - 註: Mem_2[1] = MemRead (Load from memory)
+            - 註: Mem_2[0] = MemWrite
+            - 註: Mem_2: 2 bits, (00, 01, 10) = (no read no write, write, read)
+            - 註: 寫在 Pipeline_stage2.v (因為變數 Rd_r 在其他檔案也有宣告, 會亂掉)
 
-    - if (data hazard --> forwarding): EXE, MEM, WB result "forwarding" to ID stage
-        - 如果 write_back 的訊號 enable, 那 register bank 的該 address 應該要存進 WB 的 data
-        - 註: 寫在 Pipeline_stage2.v 
+        - if (data hazard --> forwarding): EXE, MEM, WB result "forwarding" to ID stage
+            - 如果 write_back 的訊號 enable, 那 register bank 的該 address 應該要存進 WB 的 data
+            - 註: 寫在 Pipeline_stage2.v 
 
-    - if (control_unit case):
-        - MIPS_detal.pdf 第 (7)(8)(9) 點: 若 stage 1 傳入為跳轉指令, 要設起 branch flag
-        - MIPS_detal.pdf 第 (4) 點: 若為 Load 指令, 讀入 memory 的資料 --> MemRead (under no data hazard) 
-        - MIPS_detal.pdf 第 (6) 點: 若為 Store 指令, 寫資料進 memory --> MemWrite (under no data hazard)
-        - 註: 寫在 Pipeline_stage2.v 
+        - if (control_unit case):
+            - MIPS_detal.pdf 第 (7)(8)(9) 點: 若 stage 1 傳入為跳轉指令, 要設起 branch flag
+            - MIPS_detal.pdf 第 (4) 點: 若為 Load 指令, 讀入 memory 的資料 --> MemRead (under no data hazard) 
+            - MIPS_detal.pdf 第 (6) 點: 若為 Store 指令, 寫資料進 memory --> MemWrite (under no data hazard)
+            - 註: 寫在 Pipeline_stage2.v 
 
     - if (nothing_special):
         - parameter will directly pass to stage 3, so no need assertion
 
 */
-assert property ((flush) ? (Rs1_2 == 5'd0) : 1);
-assert property ((flush) ? (Rs2_2 == 5'd0) : 1);
-assert property ((flush) ? (Rd_2 == 5'd0) : 1); 
-assert property ((flush) ? (data1 == 32'd0) : 1);
-assert property ((flush) ? (data2 == 32'd0) : 1); 
-assert property ((flush) ? (immediate == 32'd0) : 1);
-assert property ((flush) ? (WriteBack_2 == 1'b0) : 1);
-assert property ((flush) ? (PC_2 == 32'd0) : 1);
-assert property ((flush) ? (is_branchInst_2 == 1'b0) : 1);
 
 
 /*
     [ assertion for stage 3 (execute) ]
+    
+    - external (keep)
 
-    - if (memory_stall): 
-        - 當前執行的結果 stall (ALU_result)
-        - signal stall
-            - RegDestination (rd), Mem2Reg (writeback_2, writedata), MemWrite (Mem)
-        - 註: 寫在 Pipeline_stage3.v 
 
-    - if (forwarding_unit):
-        - 如果符合下列條件, forwarding_signal 要立起來
-            - instr 必須為有寫入暫存器的指令 (Control Signal — RegWrite 來判斷)
-            - instr 寫入的暫存器不為 0 (instr 的 Rd 來判斷)
-            - instr 寫入的暫存器與 n_instr、nn_instr 有 data dependency (instr 的 Rd 與 n_instr 的 rs1/rs2、nn_instr 的 rs1/rs2 有沒有相同)
-        - 看 data 是不是按照 MEM 或 WB 的 flag 寫入
-        - 註: 寫在 Pipeline_stage3.v 
+    - internal (會用到內部變數)
+        - if (memory_stall): 
+            - 當前執行的結果 stall (ALU_result)
+            - signal stall
+                - RegDestination (rd), Mem2Reg (writeback_2, writedata), MemWrite (Mem)
+            - 註: 寫在 Pipeline_stage3.v 
+
+        - if (forwarding_unit):
+            - 如果符合下列條件, forwarding_signal 要立起來
+                - instr 必須為有寫入暫存器的指令 (Control Signal — RegWrite 來判斷)
+                - instr 寫入的暫存器不為 0 (instr 的 Rd 來判斷)
+                - instr 寫入的暫存器與 n_instr、nn_instr 有 data dependency (instr 的 Rd 與 n_instr 的 rs1/rs2、nn_instr 的 rs1/rs2 有沒有相同)
+            - 看 data 是不是按照 MEM 或 WB 的 flag 寫入
+            - 註: 寫在 Pipeline_stage3.v 
 
     - if (nothing_special):
         - 根據不同的 decode 指令結果做不同的運算
 
 */
-
+  
 
 /*
     [ assertion for stage 4 (memory access) ]
 
-    - if (memory_stall): 
-        - 當前執行的結果 stall (memory/ALU result)
-        - signal stall
-            - RegDestination (rd), Mem2Reg (writeback)
-        - 註: 寫在 Pipeline_stage4.v
+    - external (keep)
+
+
+    - internal (會用到內部變數)
+        - if (memory_stall): 
+            - 當前執行的結果 stall (memory/ALU result)
+            - signal stall
+                - RegDestination (rd), Mem2Reg (writeback)
+            - 註: 寫在 Pipeline_stage4.v
     
     - if (nothing_special):
         - 按照 signal 指令賦值 (load, store)
@@ -347,11 +345,15 @@ assert property ((flush) ? (is_branchInst_2 == 1'b0) : 1);
 /*
     [ assertion for stage 5 (write back) ] 
 
-    - 控制寫回的資料是"由 Data Memory 提供"還是"ALU 的計算結果"
-    - 註: 寫在 Pipeline_stage5.v
-    - (目前註解掉, 不知道是不是因為 random sim 導致 writeback_data_5 == ALU_result_4 會 error)
+    - external (keep)
+
+
+    - internal (會用到內部變數)
+        - 控制寫回的資料是"由 Data Memory 提供"還是"ALU 的計算結果"
+        - 註: 寫在 Pipeline_stage5.v
     
 */
+
 
 
 endmodule

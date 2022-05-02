@@ -51,11 +51,11 @@ parameter BEQ       = 2'd2;
 parameter BNE       = 2'd3;
 
 // regs
-reg [1:0]  Mem_r, Mem_w;
-reg        WriteBack_r, WriteBack_w;
-reg [4:0]  Rd_r, Rd_w;
-reg [31:0] ALU_result_r, ALU_result_w;
-reg [31:0] writedata_r, writedata_w;
+reg [1:0]  Mem3_r, Mem3_w;
+reg        WriteBack3_r, WriteBack3_w;
+reg [4:0]  Rd3_r, Rd3_w;
+reg [31:0] ALU_result3_r, ALU_result3_w;
+reg [31:0] writedata3_r, writedata3_w;
 
 // wires
 reg [31:0] ALU_in1;
@@ -66,11 +66,11 @@ reg [1:0]  forwardB;
 reg [31:0] branch_target;
 reg        branch_taken;
 
-assign WriteBack_3      = WriteBack_r;
-assign Mem_3            = Mem_r;
-assign ALU_result_3     = ALU_result_r;
-assign writedata_3      = writedata_r;
-assign Rd_3             = Rd_r;
+assign WriteBack_3      = WriteBack3_r;
+assign Mem_3            = Mem3_r;
+assign ALU_result_3     = ALU_result3_r;
+assign writedata_3      = writedata3_r;
+assign Rd_3             = Rd3_r;
 
 assign target_3         = branch_target;
 assign instructionPC_3  = PC_2;
@@ -80,7 +80,7 @@ assign prev_taken_3     = prev_taken_2;
 
 always @(*) begin // forwarding unit
     
-    if(WriteBack_r && Rd_r != 0 && Rd_r == Rs1_2) begin
+    if(WriteBack3_r && Rd3_r != 0 && Rd3_r == Rs1_2) begin
         forwardA = 2'b10;
     end
     else if(WriteBack_5 && Rd_5 != 0 && Rd_5 == Rs1_2) begin
@@ -90,7 +90,7 @@ always @(*) begin // forwarding unit
         forwardA = 2'b00;
     end
 
-    if(WriteBack_r && Rd_r != 0 && Rd_r == Rs2_2) begin
+    if(WriteBack3_r && Rd3_r != 0 && Rd3_r == Rs2_2) begin
         forwardB = 2'b10;
     end
     else if(WriteBack_5 && Rd_5 != 0 && Rd_5 == Rs2_2) begin
@@ -111,7 +111,7 @@ always @(*) begin
             ALU_in1 = writeback_data_5;
         end
         2'b10: begin
-            ALU_in1 = ALU_result_r;
+            ALU_in1 = ALU_result3_r;
         end
         default: begin
             ALU_in1 = data1;
@@ -129,7 +129,7 @@ always @(*) begin
             temp = writeback_data_5;
         end
         2'b10: begin
-            temp = ALU_result_r;
+            temp = ALU_result3_r;
         end
         default: begin
             temp = data2;
@@ -151,12 +151,12 @@ always @(*) begin
             branch_taken    = 1'b1;
         end
         BEQ: begin
-            branch_target   = (ALU_result_w == 0) ? $signed(PC_2) + $signed(immediate) : $signed(PC_2) + $signed(4);
-            branch_taken    = (ALU_result_w == 0) ? 1'b1 : 1'b0;
+            branch_target   = (ALU_result3_w == 0) ? $signed(PC_2) + $signed(immediate) : $signed(PC_2) + $signed(4);
+            branch_taken    = (ALU_result3_w == 0) ? 1'b1 : 1'b0;
         end
         BNE: begin
-            branch_target   = (ALU_result_w != 0) ? $signed(PC_2) + $signed(immediate) : $signed(PC_2) + $signed(4);
-            branch_taken    = (ALU_result_w != 0) ? 1'b1 : 1'b0;
+            branch_target   = (ALU_result3_w != 0) ? $signed(PC_2) + $signed(immediate) : $signed(PC_2) + $signed(4);
+            branch_taken    = (ALU_result3_w != 0) ? 1'b1 : 1'b0;
         end
     endcase
 end
@@ -164,44 +164,44 @@ end
 // ===== ALU control ===== //
 always @(*) begin 
     if(memory_stall) begin
-        ALU_result_w = ALU_result_r;        
+        ALU_result3_w = ALU_result3_r;        
     end
     else begin
         case(Execution_2[4:1])
             ADD: begin
                 if(!branch_type_2[1]) begin // JALR, JAL
-                    ALU_result_w = $signed(PC_2) + $signed(4);
+                    ALU_result3_w = $signed(PC_2) + $signed(4);
                 end
                 else begin
-                    ALU_result_w = $signed(ALU_in1) + $signed(ALU_in2);
+                    ALU_result3_w = $signed(ALU_in1) + $signed(ALU_in2);
                 end
             end
             SUB: begin
-                ALU_result_w = $signed(ALU_in1) - $signed(ALU_in2);
+                ALU_result3_w = $signed(ALU_in1) - $signed(ALU_in2);
             end
             AND: begin
-                ALU_result_w = ALU_in1 & ALU_in2;
+                ALU_result3_w = ALU_in1 & ALU_in2;
             end
             OR: begin
-                ALU_result_w = ALU_in1 | ALU_in2;
+                ALU_result3_w = ALU_in1 | ALU_in2;
             end
             XOR: begin
-                ALU_result_w = ALU_in1 ^ ALU_in2;
+                ALU_result3_w = ALU_in1 ^ ALU_in2;
             end
             SLL: begin
-                ALU_result_w = ALU_in1 << ALU_in2;
+                ALU_result3_w = ALU_in1 << ALU_in2;
             end
             SRL: begin
-                ALU_result_w = ALU_in1 >> ALU_in2;
+                ALU_result3_w = ALU_in1 >> ALU_in2;
             end
             SRA: begin
-                ALU_result_w = $signed(ALU_in1) >>> ALU_in2;
+                ALU_result3_w = $signed(ALU_in1) >>> ALU_in2;
             end
             SLT: begin  // set less than
-                ALU_result_w = ($signed(ALU_in1) < $signed(ALU_in2)) ? 1 : 0;
+                ALU_result3_w = ($signed(ALU_in1) < $signed(ALU_in2)) ? 1 : 0;
             end
             default: begin
-                ALU_result_w = 32'd0;
+                ALU_result3_w = 32'd0;
             end
         endcase    
     end
@@ -209,61 +209,42 @@ end
 
 // ===== passing signals ===== //
 always @(*) begin
-    Mem_w           = memory_stall ? Mem_r          : Mem_2;
-    WriteBack_w     = memory_stall ? WriteBack_r    : WriteBack_2;
-    Rd_w            = memory_stall ? Rd_r           : Rd_2;
+    Mem3_w           = memory_stall ? Mem3_r          : Mem_2;
+    WriteBack3_w     = memory_stall ? WriteBack3_r    : WriteBack_2;
+    Rd3_w            = memory_stall ? Rd3_r           : Rd_2;
     
-    writedata_w     = memory_stall ? writedata_r    : temp;
+    writedata3_w     = memory_stall ? writedata3_r    : temp;
 end
 
 always @(posedge clk) begin
     if(!rst_n) begin
-        Mem_r           <= 2'd0;
-        WriteBack_r     <= 1'b0;
-        Rd_r            <= 5'd0;
-        ALU_result_r    <= 32'd0;
-        writedata_r     <= 32'd0;
+        Mem3_r           <= 2'd0;
+        WriteBack3_r     <= 1'b0;
+        Rd3_r            <= 5'd0;
+        ALU_result3_r    <= 32'd0;
+        writedata3_r     <= 32'd0;
     end
     else begin
-        Mem_r           <= Mem_w;
-        WriteBack_r     <= WriteBack_w;
-        Rd_r            <= Rd_w;
-        ALU_result_r    <= ALU_result_w;
-        writedata_r     <= writedata_w;
+        Mem3_r           <= Mem3_w;
+        WriteBack3_r     <= WriteBack3_w;
+        Rd3_r            <= Rd3_w;
+        ALU_result3_r    <= ALU_result3_w;
+        writedata3_r     <= writedata3_w;
     end
 end
 
-/*
-    [ assertion for stage 3 (execute) ]
+// Add assertion here (ncverilog can read "psl" comments, and yosys cannot read it)
+// psl default clock = (posedge clk);
 
-    - if (memory_stall): 
-        - 當前執行的結果 stall (ALU_result)
-        - signal stall
-            - RegDestination (rd), Mem2Reg (writeback_2, writedata), MemWrite (Mem)
-        - 註: 寫在 Pipeline_stage3.v
+// psl ERROR1_memory_stall_stage3: assert never {(memory_stall) && !(ALU_result3_w == ALU_result3_r)};
+// psl ERROR2_memory_stall_stage3: assert never {(memory_stall) && !(Rd3_w == Rd3_r)};
+// psl ERROR3_memory_stall_stage3: assert never {(memory_stall) && !(WriteBack3_w == WriteBack3_r)}; 
+// psl ERROR4_memory_stall_stage3: assert never {(memory_stall) && !(writedata3_w == writedata3_r)};
+// psl ERROR5_memory_stall_stage3: assert never {(memory_stall) && !(Mem3_w == Mem3_r)};
 
-    - if (forwarding_unit):
-        - 如果符合下列條件, forwarding_signal 要立起來
-            - instr 必須為有寫入暫存器的指令 (Control Signal — RegWrite 來判斷)
-            - instr 寫入的暫存器不為 0 (instr 的 Rd 來判斷)
-            - instr 寫入的暫存器與 n_instr、nn_instr 有 data dependency (instr 的 Rd 與 n_instr 的 rs1/rs2、nn_instr 的 rs1/rs2 有沒有相同)
-        - 看 data 是不是按照 MEM 或 WB 的 flag 寫入
-        - 註: 寫在 Pipeline_stage3.v 
-
-*/
-assert property ((memory_stall) ? (ALU_result_w == ALU_result_r) : 1);
-assert property ((memory_stall) ? (Rd_w == Rd_r) : 1);
-assert property ((memory_stall) ? (writedata_w == writedata_r) : 1);
-assert property ((memory_stall) ? (writedata_w == writedata_r) : 1);
-assert property ((memory_stall) ? (Mem_w == Mem_r) : 1);
-
-assert property (((WriteBack_r) && (Rd_r != 0) && (Rd_r == Rs1_2)) ? (forwardA != 2'b00) : 1);  // MEM can write back
-assert property (((WriteBack_r) && (Rd_r != 0) && (Rd_r == Rs2_2)) ? (forwardB != 2'b00) : 1);  // MEM can write back
-assert property (((WriteBack_5) && (Rd_5 != 0) && (Rd_5 == Rs1_2)) ? (forwardA != 2'b00) : 1);  // WB can write back
-assert property (((WriteBack_5) && (Rd_5 != 0) && (Rd_5 == Rs2_2)) ? (forwardB != 2'b00) : 1);  // WB can write back
-
-assert property (((WriteBack_r) && (Rd_r != 0) && ((Rd_r == Rs1_2) || (Rd_r == Rs2_2))) ? (ALU_in1 == ALU_result_r) : 1);  // MEM data to ALU reg
-assert property (((WriteBack_5) && (Rd_5 != 0) && ((Rd_5 == Rs1_2) || (Rd_5 == Rs2_2))) ? (ALU_in1 == writeback_data_5) : 1);  // WB data to ALU reg 
-
+// psl ERROR1_forwarding_stage3: assert never {((WriteBack3_r) && (Rd3_r != 0) && (Rd3_r == Rs1_2)) && !(forwardA != 2'b00)};  
+// psl ERROR2_forwarding_stage3: assert never {((WriteBack3_r) && (Rd3_r != 0) && (Rd3_r == Rs2_2)) && !(forwardB != 2'b00)}; 
+// psl ERROR3_forwarding_stage3: assert never {((WriteBack_5) && (Rd_5 != 0) && (Rd_5 == Rs1_2)) && !(forwardA != 2'b00)};     
+// psl ERROR4_forwarding_stage3: assert never {((WriteBack_5) && (Rd_5 != 0) && (Rd_5 == Rs2_2)) && !(forwardB != 2'b00)};
 
 endmodule

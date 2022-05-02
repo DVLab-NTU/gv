@@ -1,6 +1,4 @@
 `include "./Cache/cache_2way.v"
-`include "./ALUPipeline/RISCV_pipeline.v"
-
 module CHIP (	clk,
 				rst_n,
 //----------for slow_memD------------
@@ -53,8 +51,8 @@ output          branchType;
 //--------------------------
 
 // wire declaration
-wire        ICACHE_ren;		// read enable
-wire        ICACHE_wen;		// write enable
+wire        ICACHE_ren;
+wire        ICACHE_wen;
 wire [29:0] ICACHE_addr;
 wire [31:0] ICACHE_wdata;
 wire        ICACHE_stall;
@@ -132,5 +130,4 @@ assign memory_stall = DCACHE_stall | ICACHE_stall;
         .mem_rdata  (mem_rdata_I) ,
         .mem_ready  (mem_ready_I)
 	);
-
 endmodule

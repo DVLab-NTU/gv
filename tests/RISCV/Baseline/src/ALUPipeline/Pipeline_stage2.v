@@ -60,26 +60,26 @@ parameter BNE       = 2'd3;
 integer i;
 
 reg [31:0] register_r [0:31];
-reg [31:0] register_w [0:31];
+reg [31:0] register2_w [0:31];
 
 // regs 
-reg [4:0]  Rd_r, Rd_w;
+reg [4:0]  Rd2_r, Rd2_w;
 reg [4:0]  Rs1_r, Rs1_w;
 reg [4:0]  Rs2_r, Rs2_w;
 reg [31:0] data1_r, data1_w;
 reg [31:0] data2_r, data2_w;
 reg [31:0] immediate_r, immediate_w;
-reg [1:0]  Mem_r, Mem_w;
-reg        WriteBack_r, WriteBack_w;
+reg [1:0]  Mem2_r, Mem2_w;
+reg        WriteBack2_r, WriteBack2_w;
 reg [4:0]  Execution_r, Execution_w;
-reg [31:0] PC_r, PC_w;
+reg [31:0] PC2_r, PC2_w;
 reg        taken_r, taken_w;
 reg        is_branchInst_r, is_branchInst_w;
 reg [1:0]  branch_type_r, branch_type_w;
 
 // wires
 reg [31:0] IF_DWrite_w;
-reg        PC_write_w;
+reg        PC2_write_w;
 reg [31:0] reg1, reg2;
 
 // temporary wires
@@ -88,7 +88,7 @@ reg [3:0]  ALUOp;
 reg        ALUsrc;
 reg        data_hazard;
 
-assign Rd_2             = Rd_r;
+assign Rd_2             = Rd2_r;
 assign Rs1_2            = Rs1_r;
 assign Rs2_2            = Rs2_r;
 assign data1            = data1_r;
@@ -96,16 +96,16 @@ assign data2            = data2_r;
 assign immediate        = immediate_r;
 
 assign is_branchInst_2  = is_branchInst_r;
-assign PC_2             = PC_r;
+assign PC_2             = PC2_r;
 assign prev_taken_2     = taken_r;
 assign branch_type_2    = branch_type_r;
 
-assign Mem_2            = Mem_r;
-assign WriteBack_2      = WriteBack_r;
+assign Mem_2            = Mem2_r;
+assign WriteBack_2      = WriteBack2_r;
 assign Execution_2      = Execution_r;
 
 assign IF_DWrite        = IF_DWrite_w;
-assign PC_write         = PC_write_w;
+assign PC_write         = PC2_write_w;
 
 
 //  ===== instruction type ===== //
@@ -138,13 +138,13 @@ always @(*) begin
     if(memory_stall) begin
         Rs1_w       = Rs1_r;
         Rs2_w       = Rs2_r;
-        Rd_w        = Rd_r;
+        Rd2_w        = Rd2_r;
         immediate_w = immediate_r;
     end
     else if(flush) begin
         Rs1_w       = 5'd0;
         Rs2_w       = 5'd0;
-        Rd_w        = 5'd0;
+        Rd2_w        = 5'd0;
         immediate_w = 32'd0;
     end
     else begin
@@ -152,37 +152,37 @@ always @(*) begin
             R_type: begin
                 Rs1_w       = instruction_1[19:15];
                 Rs2_w       = instruction_1[24:20];
-                Rd_w        = instruction_1[11:7];
+                Rd2_w        = instruction_1[11:7];
                 immediate_w = 32'd0;
             end
             I_type: begin
                 Rs1_w       = instruction_1[19:15];
                 Rs2_w       = 5'd0;
-                Rd_w        = instruction_1[11:7];
+                Rd2_w        = instruction_1[11:7];
                 immediate_w = {{20{instruction_1[31]}}, instruction_1[31:20]}; // sign extended to 32-bit
             end
             S_type: begin
                 Rs1_w       = instruction_1[19:15];
                 Rs2_w       = instruction_1[24:20];
-                Rd_w        = 5'd0;
+                Rd2_w        = 5'd0;
                 immediate_w = {{20{instruction_1[31]}}, instruction_1[31:25], instruction_1[11:7]}; // sign extended to 32-bit
             end
             SB_type: begin
                 Rs1_w       = instruction_1[19:15];
                 Rs2_w       = instruction_1[24:20];
-                Rd_w        = 5'd0;
+                Rd2_w        = 5'd0;
                 immediate_w = {{19{instruction_1[31]}}, instruction_1[31], instruction_1[7], instruction_1[30:25], instruction_1[11:8], 1'b0}; // sign extended to 32-bit
             end
             UJ_type: begin
                 Rs1_w       = 5'd0;
                 Rs2_w       = 5'd0;
-                Rd_w        = instruction_1[11:7];
+                Rd2_w        = instruction_1[11:7];
                 immediate_w = {{11{instruction_1[31]}}, instruction_1[31], instruction_1[19:12], instruction_1[20], instruction_1[30:21], 1'b0};
             end
             default: begin
                 Rs1_w       = 5'd0;
                 Rs2_w       = 5'd0;
-                Rd_w        = 5'd0;
+                Rd2_w        = 5'd0;
                 immediate_w = 5'd0;
             end
         endcase    
@@ -192,13 +192,13 @@ end
 // ===== registers ===== //
 always @(*) begin 
     for(i = 0; i < 32; i = i + 1)
-        register_w[i] = register_r[i];
+        register2_w[i] = register_r[i];
     
     if(!memory_stall && write_address != 0 && WriteBack_5)
-        register_w[write_address] = write_data;
+        register2_w[write_address] = write_data;
     // -------------------------------------------------------   
-    reg1 = register_w[Rs1_w];
-    reg2 = register_w[Rs2_w];
+    reg1 = register2_w[Rs1_w];
+    reg2 = register2_w[Rs2_w];
 
     if(memory_stall) begin
         data1_w = data1_r;
@@ -224,15 +224,15 @@ end
 // ===== Branch Information ===== //
 always @(*) begin
     if(memory_stall) begin
-        PC_w        = PC_r;
+        PC2_w        = PC2_r;
         taken_w     = taken_r;
     end
     else if(flush) begin
-        PC_w        = 32'd0;
+        PC2_w        = 32'd0;
         taken_w     = 1'b0;
     end
     else begin
-        PC_w        = PC_1; 
+        PC2_w        = PC_1; 
         taken_w     = prev_taken_1;
     end
     
@@ -289,19 +289,19 @@ end
 always @(*) begin 
     IF_DWrite_w         = instruction_1;
     
-    if(Mem_r[1]) begin  // load-use hazard
-        if(Rd_r == Rs1_w || Rd_r == Rs2_w) begin
+    if(Mem2_r[1]) begin  // load-use hazard
+        if(Rd2_r == Rs1_w || Rd2_r == Rs2_w) begin
             data_hazard     = 1'b1;
-            PC_write_w      = 1'b1;    
+            PC2_write_w      = 1'b1;    
         end
         else begin
             data_hazard     = 1'b0;
-            PC_write_w      = 1'b0;    
+            PC2_write_w      = 1'b0;    
         end
     end
     else begin
         data_hazard     = 1'b0;
-        PC_write_w      = 1'b0;
+        PC2_write_w      = 1'b0;
     end
 end
 
@@ -315,31 +315,31 @@ always @(*) begin
         Execution_w = ({ALUOp, ALUsrc} & {5{~data_hazard}});
     
     if(memory_stall) begin
-        Mem_w = Mem_r;
+        Mem2_w = Mem2_r;
     end
     else if(flush) begin
-        Mem_w = 2'b00;
+        Mem2_w = 2'b00;
     end
     else begin
         if(instruction_1[6:4] == 3'b000) // lw
-            Mem_w = 2'b10 & {2{~data_hazard}};
+            Mem2_w = 2'b10 & {2{~data_hazard}};
         else if(instruction_1[6:4] == 3'b010) // sw
-            Mem_w = 2'b01 & {2{~data_hazard}};
+            Mem2_w = 2'b01 & {2{~data_hazard}};
         else
-            Mem_w = 2'b00 & {2{~data_hazard}};    
+            Mem2_w = 2'b00 & {2{~data_hazard}};    
     end
     
     if(memory_stall) begin
-        WriteBack_w = WriteBack_r;
+        WriteBack2_w = WriteBack2_r;
     end
     else if(flush) begin
-        WriteBack_w = 1'b0;
+        WriteBack2_w = 1'b0;
     end
     else begin
         if(instruction_type[1]) // SB_type, S_type
-            WriteBack_w = 1'b0 & (~data_hazard);
+            WriteBack2_w = 1'b0 & (~data_hazard);
         else
-            WriteBack_w = 1'b1 & (~data_hazard);    
+            WriteBack2_w = 1'b1 & (~data_hazard);    
     end
 end
 
@@ -412,90 +412,69 @@ always @(posedge clk) begin
     if(!rst_n) begin
         for(i = 0; i < 32; i = i + 1)
             register_r[i]   <= 32'd0;
-        Rd_r                <= 5'd0;
+        Rd2_r                <= 5'd0;
         Rs1_r               <= 5'd0;
         Rs2_r               <= 5'd0;
         data1_r             <= 32'd0;
         data2_r             <= 32'd0;
         immediate_r         <= 32'd0;
-        Mem_r               <= 2'd0;
-        WriteBack_r         <= 1'b0;
+        Mem2_r               <= 2'd0;
+        WriteBack2_r         <= 1'b0;
         Execution_r         <= 5'd0;
-        PC_r                <= 32'd0;
+        PC2_r                <= 32'd0;
         is_branchInst_r     <= 1'b0;
         taken_r             <= 1'b0;
         branch_type_r       <= 2'b00;
     end
     else begin
         for(i = 0; i < 32; i = i + 1)
-            register_r[i]   <= register_w[i];
-        Rd_r                <= Rd_w;
+            register_r[i]   <= register2_w[i];
+        Rd2_r                <= Rd2_w;
         Rs1_r               <= Rs1_w;
         Rs2_r               <= Rs2_w;
         data1_r             <= data1_w;
         data2_r             <= data2_w;
         immediate_r         <= immediate_w;
-        Mem_r               <= Mem_w;
-        WriteBack_r         <= WriteBack_w;
+        Mem2_r               <= Mem2_w;
+        WriteBack2_r         <= WriteBack2_w;
         Execution_r         <= Execution_w;
-        PC_r                <= PC_w;
+        PC2_r                <= PC2_w;
         is_branchInst_r     <= is_branchInst_w;
         taken_r             <= taken_w;
         branch_type_r       <= branch_type_w;
     end
 end
 
-/*
-    [ assertion for stage 2 (decode) ]
+// Add assertion here (ncverilog can read "psl" comments, and yosys cannot read it)
+// psl default clock = (posedge clk);
 
-    - if (memory_stall): 
-        - register's value or signal, no change (for all output pin)
-            - Rs1, Rs2, Rd, immediate, data_rs1, data_rs2
-            - PC_2, is_branch, branch_type, memory
-            - Execution ([3:1] = ALUop, [0] = ALUsrc)
-            - write_back (MemtoReg)
-        - 註: ALUop: 3 bits, ALU 操作碼
-        - 註: ALUsrc: 1 bit, 決定 ALU 的輸入是"由 Register bank 讀出"還是"立即值 (immediate)"
-        - 註: 寫在 Pipeline_stage2.v (因為都是 internal variable)
+// psl ERROR1_flush_stage2: assert never {!(memory_stall) && (flush) && !(Rs1_w == 5'd0)};
+// psl ERROR2_flush_stage2: assert never {!(memory_stall) && (flush) && !(Rs2_w == 5'd0)};
+// psl ERROR3_flush_stage2: assert never {!(memory_stall) && (flush) && !(Rd2_w == 5'd0)}; 
+// psl ERROR6_flush_stage2: assert never {!(memory_stall) && (flush) && !(immediate_w == 32'd0)};
+// psl ERROR4_flush_stage2: assert never {!(memory_stall) && (flush) && !(data1_w == 32'd0)};
+// psl ERROR5_flush_stage2: assert never {!(memory_stall) && (flush) && !(data2_w == 32'd0)};
+// psl ERROR7_flush_stage2: assert never {!(memory_stall) && (flush) && !(WriteBack2_w == 1'b0)}; 
+// psl ERROR8_flush_stage2: assert never {!(memory_stall) && (flush) && !(PC2_w == 32'd0)};
+// psl ERROR9_flush_stage2: assert never {!(memory_stall) && (flush) && !(is_branchInst_w == 1'b0)};
 
-    - if (load-use hazard): "Hazard Detection Unit" detect to be 1 (PC_write)
-        - (Load) && (I2 指令的暫存器編號 (rs) == I1 指令的目的地暫存器編號 (rd)) --> hazard = 1, 其餘為 0 (maybe floating)
-        - 註: Mem_2[1] = MemRead (Load from memory)
-        - 註: Mem_2[0] = MemWrite
-        - 註: Mem_2: 2 bits, (00, 01, 10) = (no read no write, write, read)
-        - 註: 寫在 Pipeline_stage2.v (因為變數 Rd_r 在其他檔案也有宣告, 會亂掉)
+// psl ERROR1_memory_stall_stage2: assert never {(memory_stall) && !(Rs1_w == Rs1_r)};
+// psl ERROR2_memory_stall_stage2: assert never {(memory_stall) && !(Rs2_w == Rs2_r)};
+// psl ERROR3_memory_stall_stage2: assert never {(memory_stall) && !(Rd2_w == Rd2_r)}; 
+// psl ERROR4_memory_stall_stage2: assert never {(memory_stall) && !(immediate_w == immediate_r)};
+// psl ERROR5_memory_stall_stage2: assert never {(memory_stall) && !(data1_w == data1_r)};
+// psl ERROR6_memory_stall_stage2: assert never {(memory_stall) && !(data2_w == data2_r)};
+// psl ERROR7_memory_stall_stage2: assert never {(memory_stall) && !(PC2_w == PC2_r)}; 
+// psl ERROR8_memory_stall_stage2: assert never {(memory_stall) && !(is_branchInst_w == is_branchInst_r)};
+// psl ERROR9_memory_stall_stage2: assert never {(memory_stall) && !(branch_type_w == branch_type_r)};
+// psl ERROR10_memory_stall_stage2: assert never {(memory_stall) && !(Execution_w == Execution_r)};
+// psl ERROR11_memory_stall_stage2: assert never {(memory_stall) && !(Mem2_w == Mem2_r)}; 
+// psl ERROR12_memory_stall_stage2: assert never {(memory_stall) && !(WriteBack2_w == WriteBack2_r)};
 
-    - if (data hazard --> forwarding): EXE, MEM, WB result "forwarding" to ID stage
-        - 如果 write_back 的訊號 enable, 那 register bank 的該 address 應該要存進 WB 的 data
-        - 註: 寫在 Pipeline_stage2.v 
+// psl ERROR1_load_use_hazard_stage2: assert never {((Mem2_r[1]) && ((Rd2_r == Rs1_w) || (Rd2_r == Rs2_w))) && !(data_hazard == 1'b1)}; 
+// psl ERROR2_load_use_hazard_stage2: assert never {!((Mem2_r[1]) && ((Rd2_r == Rs1_w) || (Rd2_r == Rs2_w))) && !(data_hazard != 1'b1)};
 
-    - if (control_unit case):
-        - MIPS_detal.pdf 第 (7)(8)(9) 點: 若 stage 1 傳入為跳轉指令, 要設起 branch flag
-        - MIPS_detal.pdf 第 (4) 點: 若為 Load 指令, 讀入 memory 的資料 --> MemRead (under no data hazard) 
-        - MIPS_detal.pdf 第 (6) 點: 若為 Store 指令, 寫資料進 memory --> MemWrite (under no data hazard)
-        - 註: 寫在 Pipeline_stage2.v 
-
-*/
-assert property ((memory_stall) ? (Rs1_w == Rs1_r) : 1);
-assert property ((memory_stall) ? (Rs2_w == Rs2_r) : 1);
-assert property ((memory_stall) ? (Rd_w == Rd_r) : 1);
-assert property ((memory_stall) ? (immediate_w == immediate_r) : 1);
-assert property ((memory_stall) ? (data1_w == data1_r) : 1);
-assert property ((memory_stall) ? (data2_w == data2_r) : 1);
-assert property ((memory_stall) ? (PC_w == PC_r) : 1);
-assert property ((memory_stall) ? (is_branchInst_w == is_branchInst_r) : 1);
-assert property ((memory_stall) ? (branch_type_w == branch_type_r) : 1);
-assert property ((memory_stall) ? (Execution_w == Execution_r) : 1);
-assert property ((memory_stall) ? (Mem_w == Mem_r) : 1);
-assert property ((memory_stall) ? (WriteBack_w == WriteBack_r) : 1);
-
-assert property (((Mem_r[1]) && ((Rd_r == Rs1_w) || (Rd_r == Rs2_w))) ? (data_hazard == 1'b1) : (data_hazard != 1'b1));
-
-assert property (((!flush) && (!memory_stall) && (write_address) && (WriteBack_5)) ? (register_w[write_address] == write_data) : 1);
-
-assert property ((instruction_1[6:5] == 2'b11) ? (is_branchInst_w == 1'b1) : (is_branchInst_w != 1'b1));
-assert property ((data_hazard) ? 1 : (instruction_1[6:4] == 3'b000) ? (Mem_w == 2'b10) : 1);  // LW: Load Word
-assert property ((data_hazard) ? 1 : (instruction_1[6:4] == 3'b010) ? (Mem_w == 2'b01) : 1);  // SW: Store Word
+// psl ERROR1_forwarding_stage2: assert never {((!flush) && (!memory_stall) && (write_address != 0) && (WriteBack_5)) && !(register2_w[write_address] == write_data)}; 
 
 
 endmodule
