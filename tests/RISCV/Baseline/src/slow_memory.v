@@ -63,9 +63,7 @@ module slow_memory(
                     mem[idx][idx2] = mem_in[idx*32+idx2];
                 end
             end
-        } else {
-            
-        }
+        end
     end
 
     always@(*)begin // FSM & control sig
