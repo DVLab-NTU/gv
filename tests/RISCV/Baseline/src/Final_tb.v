@@ -9,11 +9,36 @@
 `define SDFFILE   "./CHIP_syn.sdf"	// Modify your SDF file name
 
 // For different condition (I_mem, TestBed)
-
-`define IMEM_INIT "I_mem_hasHazard"
-`include "./TestBed_hasHazard.v"
-`include "./ALUPipeline/RISCV_pipeline.v"
-
+`ifdef noHazard
+    `define IMEM_INIT "I_mem_noHazard"
+    `include "./TestBed_noHazard.v"
+`endif
+`ifdef hasHazard
+	`define IMEM_INIT "I_mem_hasHazard"
+	`include "./TestBed_hasHazard.v"
+`endif	
+`ifdef BrPred
+	`define IMEM_INIT "../../Extension/BrPred/a10b20c30/I_mem_BrPred"
+	`include "../../Extension/BrPred/a10b20c30/TestBed_BrPred.v"
+`endif
+`ifdef compression
+	`define IMEM_INIT "I_mem_compression"
+	`include "./TestBed_compression.v"
+`endif
+`ifdef decompression
+	`define IMEM_INIT "I_mem_decompression"
+	`include "./TestBed_compression.v"
+`endif			
+`ifdef mergesort 
+	`define IMEM_INIT "I_mem_mergeSort"
+	`include "./TestBed_mergeSort.v"
+`endif
+// yenju added
+`ifdef yenju 
+	`define IMEM_INIT "./yenju_test/I_mem_randomSim"
+	`include "./yenju_test/TestBed_randomSim.v"
+`endif
+//end
 
 module Final_tb;
 
