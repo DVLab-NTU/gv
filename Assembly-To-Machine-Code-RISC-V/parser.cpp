@@ -8,7 +8,7 @@ using namespace std;
 int main() {
     string line = "";
     ifstream infile("MCode.mc");
-    ofstream outfile("Random.txt");
+    ofstream outfile("../tests/RISCV/Baseline/src/yenju_test/I_mem_randomSim");
     if (infile.is_open()) {
         while (infile >> line) {
             if (line == "-------------------------------------------------------") {
