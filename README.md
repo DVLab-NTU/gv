@@ -1,7 +1,7 @@
 # gv0
 Verification research for general RTL/system-level designs (take 0.0)
 
-# Install yosys
+# How to install yosys
 - **Follow the official tutorial for different environment**
     - yosys github src code: https://github.com/YosysHQ/yosys
 - **Other useful link** 
@@ -9,6 +9,12 @@ Verification research for general RTL/system-level designs (take 0.0)
     - yosys manual document: https://reurl.cc/e6rxgM (google drive link) 
 - **Function as** 
     - "Parser" and "Simulator"
+
+# How to install Symbiyosys (Linux/WSL)
+```json=
+chmod +x sby_install.sh
+./sby_install.sh
+```
 
 # Test pattern generation flow
 - How to simulate the circuit ?

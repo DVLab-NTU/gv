@@ -146,6 +146,10 @@ end
 // Add assertion here (ncverilog can read "psl" comments, and yosys cannot read it)
 // psl default clock = (posedge clk);
 
+// psl property SERE_1=
+//  always (flush -> eventually! (1+1==0));
+// psl assert SERE_1;
+
 // psl ERROR1_flush_stage1: assert never {!(memory_stall) && (flush) && !(PC1_w == branchPC)};
 // psl ERROR2_flush_stage1: assert never {!(memory_stall) && (flush) && !(taken1_w == 1'b0)};
 // psl ERROR3_flush_stage1: assert never {!(memory_stall) && (flush) && !(instruction_out1_w == 32'h00000013)}; 
