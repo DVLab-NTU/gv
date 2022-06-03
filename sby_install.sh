@@ -23,7 +23,7 @@ cd SymbiYosys
 sudo make install
 cd ..
 
-# (OPTIONAL) Yices
+# (OPTIONAL) Yices2
 git clone https://github.com/SRI-CSL/yices2.git yices2
 cd yices2
 autoconf
