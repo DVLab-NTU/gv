@@ -14,7 +14,9 @@ Verification research for general RTL/system-level designs (take 0.0)
 ```json=
 chmod +x sby_install.sh
 ./sby_install.sh
+cd super-prove-build/build
 ```
+- After "cd super-prove-build/build", unzip "super_prove-X-Y-Release.tar.gz" (X, Y differ from different environment)
 
 # Test pattern generation flow
 - How to simulate the circuit ?

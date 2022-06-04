@@ -42,7 +42,16 @@ sudo make install
 cd ..
 
 # (OPTIONAL, havn't successfull installed) super_prove
-
+sudo apt-get install cmake ninja-build g++ python-dev python-setuptools
+sudo apt-get install python-pip git
+git clone --recursive https://github.com/sterin/super-prove-build
+cd super-prove-build
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+ninja
+ninja package
+cd ../..
 
 # (OPTIONAL) Avy
 git clone https://bitbucket.org/arieg/extavy.git
@@ -72,3 +81,6 @@ cmake . -DBUILD_SHARED_LIBS=OFF
 make -j$(nproc)
 sudo make install
 cd ..
+
+# clear
+clear
