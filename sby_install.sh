@@ -51,6 +51,7 @@ cd build
 cmake -DCMAKE_BUILD_TYPE=Release -G Ninja ..
 ninja
 ninja package
+for filename in *.tar.gz; do echo $filename; tar zxvf $filename; done
 cd ../..
 
 # (OPTIONAL) Avy
