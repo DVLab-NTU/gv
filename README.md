@@ -16,6 +16,12 @@ chmod +x sby_install.sh
 ./sby_install.sh
 ```
 
+# How to install ABC-Berkeley (Linux/WSL)
+```json=
+chmod +x abc_install.sh
+./abc_install.sh
+```
+
 # Test pattern generation flow
 - How to simulate the circuit ?
     - **Read HDL file** (-sv means system verilog)
