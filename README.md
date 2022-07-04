@@ -1,6 +1,12 @@
 # gv0
 Verification research for general RTL/system-level designs (take 0.0)
 
+# Reference 
+- **overall progress** : https://reurl.cc/QLv7Q5
+- **SymbiYosys** : https://reurl.cc/q5lmeR 
+- **yosys-(abc)** : https://reurl.cc/vdZ5Z1
+- **V3** : https://reurl.cc/DyVvVO
+
 # How to install yosys
 - **Follow the official tutorial for different environment**
     - yosys github src code: https://github.com/YosysHQ/yosys
@@ -40,4 +46,3 @@ chmod +x abc_install.sh
     prep -top Final
     sim -vcd tests/temp/Final.fst
     ```       
-    
