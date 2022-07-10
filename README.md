@@ -3,9 +3,8 @@ Verification research for general RTL/system-level designs (take 0.0)
 
 # Reference 
 - **overall progress** : https://reurl.cc/QLv7Q5
-- **SymbiYosys** : https://reurl.cc/q5lmeR 
-- **yosys-(abc)** : https://reurl.cc/vdZ5Z1
 - **V3** : https://reurl.cc/DyVvVO
+- **V3 + ABC-Berkeley** : https://reurl.cc/p1lzex
 
 # How to install yosys
 - **Follow the official tutorial for different environment**
@@ -16,10 +15,10 @@ Verification research for general RTL/system-level designs (take 0.0)
 - **Function as** 
     - "Parser" and "Simulator"
 
-# How to install Symbiyosys (Linux/WSL)
+# How to install V3 (Linux/WSL)
 ```json=
-chmod +x sby_install.sh
-./sby_install.sh
+chmod +x v3_install.sh
+./v3_install.sh
 ```
 
 # How to install ABC-Berkeley (Linux/WSL)

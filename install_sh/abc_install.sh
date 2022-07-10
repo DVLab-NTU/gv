@@ -3,7 +3,7 @@
 # (MUST) abc 
 git clone https://github.com/berkeley-abc/abc
 cd abc
-make
+make -j8
 cd ..
 
 # clear
