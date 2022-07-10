@@ -1,7 +1,7 @@
-sudo apt-get install git
-sudo apt-get install wget
-sudo apt-get install libreadline-dev
-sudo apt-get install graphviz
+# sudo apt-get install git
+# sudo apt-get install wget
+# sudo apt-get install libreadline-dev
+# sudo apt-get install graphviz
 
 git clone https://github.com/chengyinwu/V3
 rm -rf V3/engine
