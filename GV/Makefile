@@ -6,7 +6,7 @@ MAIN     = main
 EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
-ENGPKGS	 += yosys
+# ENGPKGS	 += yosys
 
 
 ENGSSRC	 = eng
