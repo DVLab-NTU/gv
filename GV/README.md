@@ -27,11 +27,11 @@ VErilog2 Aig:       Convert verilog file into AIG.
 ```
 
 ### HOW TO ADD COMMAND
-1. select your directory under src (ntk for example)
-2. define you command name in gvNtkCmd.h
+1. Select your directory under src (ntk for example)
+2. Define you command name in gvNtkCmd.h
    ```bash
    GV_COMMAND(GVReadDesignCmd, CMD_TYPE_NETWORK); 
    ```
-3. add the new command into the initialization function for recognition
-4. define exec(), usage(), help() functions under gvNtkCmd.cpp
+3. Add the new command into the initialization function for recognition
+4. Define exec(), usage(), help() functions under gvNtkCmd.cpp
 5. If you add new header file under the directory, add it into the Makefile.
