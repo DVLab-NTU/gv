@@ -1,3 +1,0 @@
-1. type "make" to make / "make clean" to clean
-2. type "run.sh $1" to generate the machine code, where $1 is the number to generate machine code and
-the output machine code is named "Random.txt"
