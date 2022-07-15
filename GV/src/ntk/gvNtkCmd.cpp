@@ -13,7 +13,7 @@ bool initNtkCmd() {
     return (
             gvCmdMgr->regCmd("REad Design",         2, 1, new GVReadDesignCmd   )  &&
             gvCmdMgr->regCmd("PRint Info",          2, 1, new GVPrintInfoCmd    )  &&
-            gvCmdMgr->regCmd("VErilog2 Aig",        2, 1, new GVVerilog2AigCmd  )
+            gvCmdMgr->regCmd("VErilog2aig",        2, 1, new GVVerilog2AigCmd  )
     );
 }
 
@@ -56,7 +56,7 @@ GVPrintInfoCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// VErilog2 Aig
+// VErilog2aig -input <filename> -output <filename>
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
