@@ -13,7 +13,7 @@ bool initNtkCmd() {
     return (
             gvCmdMgr->regCmd("REad Design",         2, 1, new GVReadDesignCmd   )  &&
             gvCmdMgr->regCmd("PRint Info",          2, 1, new GVPrintInfoCmd    )  &&
-            gvCmdMgr->regCmd("VErilog2aig",        2, 1, new GVVerilog2AigCmd  )
+            gvCmdMgr->regCmd("VErilog2 Aig",        2, 1, new GVVerilog2AigCmd  )
     );
 }
 
@@ -56,7 +56,7 @@ GVPrintInfoCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// VErilog2aig -input <filename> -output <filename>
+// VErilog2 Aig -input <filename> -output <filename>
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
@@ -66,7 +66,11 @@ GVVerilog2AigCmd ::exec(const string& option) {
 
 void
 GVVerilog2AigCmd ::usage(const bool& verbose) const {
-    Msg(MSG_IFO) << "Usage: VErilog2 Aig " << endl;
+    Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
+    if (verbose) {
+        Msg(MSG_IFO) << "Param: -input  : Specify the Verilog file name with relative path." << endl;
+        Msg(MSG_IFO) << "       -output : Specify the output AIG file name with relative path." << endl;
+    }
 }
 
 void
