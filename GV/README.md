@@ -42,3 +42,4 @@ VErilog2 Aig:       Convert verilog file into AIG.
 1. cd <root_dir>
 2. make 
 3. ./gv
+
