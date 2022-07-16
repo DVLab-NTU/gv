@@ -24,6 +24,12 @@ GVFormalVerifyCmd ::exec(const string& option) {
 void
 GVFormalVerifyCmd ::usage(const bool& verbose) const {
     Msg(MSG_IFO) << "Usage: Formal Verify " << endl;
+    if (verbose) {
+      Msg(MSG_IFO) << "Param: -bmc        : Use \"Bounded Model Checking\" method to do formal verification." << endl;
+      Msg(MSG_IFO) << "       (int_depth) : Specify the number of timeframe to do BMC." << endl;
+      Msg(MSG_IFO) << "       -pdr        : Use \"Property Directed Reachability\" method to do formal verification." << endl;
+      Msg(MSG_IFO) << "       -itp        : Use \"Craig Interpolation\" method to do formal verification." << endl;
+   }
 }
 
 void
