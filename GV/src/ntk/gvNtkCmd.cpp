@@ -1,13 +1,15 @@
 #ifndef GV_NTK_CMD_C
 #define GV_NTK_CMD_C
 
+#include <string>
 #include "gvNtkCmd.h"
 #include "gvMsg.h"
-#include <string>
 #include "util.h"
-
-
 // #include "yosys.h"
+
+// for "VErilog2 Aig"
+#include "../../../V3/src/cmd/v3CmdMgr.h"
+
 
 bool initNtkCmd() {
     return (
@@ -58,15 +60,44 @@ GVPrintInfoCmd ::help() const {
 //----------------------------------------------------------------------
 // VErilog2 Aig -input <filename> -output <filename>
 //----------------------------------------------------------------------
+// Global Variable for V3CmdMgr
+V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
 
 GVCmdExecStatus
 GVVerilog2AigCmd ::exec(const string& option) {
     Msg(MSG_IFO) << "I am GVVerilog2AigCmd" << endl;
+    // Parse GV command
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    if (options.size() < 2) 
+    { 
+        Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
+        return GVCmdExec::errorOption(CMD_OPT_MISSING); 
+    }
+    else if (options.size() > 2) 
+    { 
+        Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
+        return GVCmdExec::errorOption(CMD_OPT_EXTRA); 
+    }
+    const string tok_in = options[0];
+    char* infile = const_cast <char *>(tok_in.c_str());
+    const string tok_out = options[1];
+    char* outfile = const_cast <char *>(tok_out.c_str());
+
+    // Convert to V3 command
+    char* command;
+    sprintf(command, "read rtl %s\nblast ntk\nwrite aig %s", infile, outfile);
+    string v3cmd(command);
+
+    // Start Program
+    v3CmdMgr->_prompt = v3cmd;
+    bool status = v3CmdMgr->execOneCmd();
+    return CMD_EXEC_DONE;
 }
 
 void
 GVVerilog2AigCmd ::usage(const bool& verbose) const {
-    Msg(MSG_IFO) << "Usage: VErilog2 Aig " << endl;
+    Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
     if (verbose) {
       Msg(MSG_IFO) << "Param: -input  : Specify the input Verilog filename with relative path." << endl;
       Msg(MSG_IFO) << "       -output : Specify the output AIG filename with relative path." << endl;

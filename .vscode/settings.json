@@ -3,6 +3,8 @@
     "files.associations": {
         "atomic": "cpp",
         "type_traits": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "xstring": "cpp",
+        "vector": "cpp"
     }
 }
