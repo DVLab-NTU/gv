@@ -1,0 +1,39 @@
+# Installation
+
+V3 is tested and supported on Ubuntu 16.04 with gcc 7.4 and Ubuntu 18.04 with gcc/g++ 7.5. 
+
+## Install Dependencies
+
+Before you compile V3, you are recommenced to install the following libraries first. Also, we highly suggest you compile V3 on Ubuntu with GNU gcc 7 (or later).
+
+1. git
+  sudo apt-get install git
+2. wget
+  sudo apt-get install wget
+3. readline
+  sudo apt-get install libreadline-dev
+4. dot
+  sudo apt-get install graphviz
+
+## Build V3
+
+Run "./install.sh", or follow the steps below:
+
+1. Get the V3 source
+  git clone https://bitbucket.org/chengyinwu/v3.git
+
+2. Replace engine/ directory
+  rm -rf v3/engine; cp -rf SoCV_v3_engine v3/engine;
+
+3. Patch makefile
+  cp Makefile.in.diff v3/src; cd v3/src; patch Makefile.in < Makefile.in.diff; cd ..;
+
+4. Build engines (warning message can be ignored.)
+  cd engine/ 
+  ./boolector.script
+  ./minisat.script
+  ./quteRTL.script (if you see error message like "fatal error: ***.h: No such file or directory", please comment out quteRTL.script line 15 and uncomment line 16.)
+
+5. Compiling V3(Note: V3 can now be compiled by c++98 only.)
+  cd ../; make
+

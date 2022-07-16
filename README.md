@@ -1,35 +1,47 @@
 # gv0
 Verification research for general RTL/system-level designs (take 0.0)
 
-# About yosys
-- **Link**
-    - yosys github src code: https://github.com/YosysHQ/yosys 
+# Reference 
+- **overall progress** : https://reurl.cc/QLv7Q5
+- **V3** : https://reurl.cc/DyVvVO
+- **V3 + ABC-Berkeley** : https://reurl.cc/p1lzex
+
+# How to install yosys
+- **Follow the official tutorial for different environment**
+    - yosys github src code: https://github.com/YosysHQ/yosys
+- **Other useful link** 
     - Writing your own VCD: https://reurl.cc/k76dQq 
     - yosys manual document: https://reurl.cc/e6rxgM (google drive link) 
 - **Function as** 
     - "Parser" and "Simulator"
-- **Basic command**
-    - Transform **.fst** file to **.tb** file
-    ```json=
-    fst2tb -tb CHIP_tb -r CHIP.fst -scope CHIP -clock clk CHIP
-    ```
+
+# How to install V3 (Linux/WSL)
+```json=
+chmod +x v3_install.sh
+./v3_install.sh
+```
+
+# How to install ABC-Berkeley (Linux/WSL)
+```json=
+chmod +x abc_install.sh
+./abc_install.sh
+```
 
 # Test pattern generation flow
-- How to generate input patterns ?
-    - First, handcraft (or use a driver) to generate a vcd file.
-    - Install **gtkwave** by the following command
-    ```json=
-    sudo apt install gtkwave
-    ```
-    - Use **vcd2fst** to convert the **.vcd** file into an **.fst** file.
 - How to simulate the circuit ?
     - **Read HDL file** (-sv means system verilog)
     ```json=
     read -sv <.v_file> 
+    ----------------------------------------- (e.g.)
+    read -sv tests/RISCV/Baseline/src/Final.v
     ```
     - **Preset top module**
     ```json=
     hierarchy -top <top_module_name>
     prep -top <top_module_name>
-    sim -v
-    ```        
+    sim -vcd [output_vcd_file] 
+    -------------------------------- (e.g.)
+    hierarchy -top Final
+    prep -top Final
+    sim -vcd tests/temp/Final.fst
+    ```       
