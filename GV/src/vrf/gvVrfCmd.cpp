@@ -13,7 +13,7 @@ bool initVrfCmd() {
 }
 
 //----------------------------------------------------------------------
-// Formal Verify [-bmc <int_depth> | -pdr | -itp]
+// Formal Verify -file <AIG_filename> [-bmc <int_depth> | -pdr | -itp]
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
