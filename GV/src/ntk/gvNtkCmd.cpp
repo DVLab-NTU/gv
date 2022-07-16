@@ -90,8 +90,8 @@ GVVerilog2AigCmd ::exec(const string& option) {
     string v3cmd(command);
 
     // Start Program
-    v3CmdMgr->_prompt = v3cmd;
-    bool status = v3CmdMgr->execOneCmd();
+    // v3CmdMgr->_prompt = v3cmd;
+    // bool status = v3CmdMgr->execOneCmd();
     return GV_EXEC_DONE;
 }
 
