@@ -3,9 +3,9 @@
 
 #include <string>
 #include "gvNtkCmd.h"
-#include "../cmd/gvCmdMgr.h"
-#include "../util/gvMsg.h"
-#include "../util/util.h"
+#include "gvCmdMgr.h"
+#include "gvMsg.h"
+#include "util.h"
 // #include "yosys.h"
 
 // for "VErilog2 Aig"
@@ -68,8 +68,8 @@ GVCmdExecStatus
 GVVerilog2AigCmd ::exec(const string& option) {
     Msg(MSG_IFO) << "I am GVVerilog2AigCmd" << endl;
     // Parse GV command
-    vector<string> options;
-    GVCmdExec::lexOptions(option, options);
+    // vector<string> options;
+    // GVCmdExec::lexOptions(option, options);
     // if (options.size() < 2) 
     // { 
     //     Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
@@ -80,20 +80,20 @@ GVVerilog2AigCmd ::exec(const string& option) {
     //     Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
     //     return GVCmdExec::errorOption(GV_OPT_EXTRA); 
     // }
-    const string tok_in = options[0];
-    char* infile = const_cast <char *>(tok_in.c_str());
-    const string tok_out = options[1];
-    char* outfile = const_cast <char *>(tok_out.c_str());
+    // const string tok_in = options[0];
+    // char* infile = const_cast <char *>(tok_in.c_str());
+    // const string tok_out = options[1];
+    // char* outfile = const_cast <char *>(tok_out.c_str());
 
-    // Convert to V3 command
-    char* command;
-    sprintf(command, "read rtl %s\nblast ntk\nwrite aig %s", infile, outfile);
-    string v3cmd(command);
+    // // Convert to V3 command
+    // char* command;
+    // sprintf(command, "read rtl %s\nblast ntk\nwrite aig %s", infile, outfile);
+    // string v3cmd(command);
 
-    // Start Program
-    // v3CmdMgr->_prompt = v3cmd;
-    // bool status = v3CmdMgr->execOneCmd();
-    return GV_EXEC_DONE;
+    // // Start Program
+    // // v3CmdMgr->_prompt = v3cmd;
+    // // bool status = v3CmdMgr->execOneCmd();
+    // return GV_EXEC_DONE;
 }
 
 void
