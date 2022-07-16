@@ -56,7 +56,7 @@ GVPrintInfoCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// VErilog2 Aig -input <filename> -output <filename>
+// VErilog2 Aig
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
@@ -66,11 +66,7 @@ GVVerilog2AigCmd ::exec(const string& option) {
 
 void
 GVVerilog2AigCmd ::usage(const bool& verbose) const {
-    Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
-    if (verbose) {
-        Msg(MSG_IFO) << "Param: -input  : Specify the Verilog file name with relative path." << endl;
-        Msg(MSG_IFO) << "       -output : Specify the output AIG file name with relative path." << endl;
-    }
+    Msg(MSG_IFO) << "Usage: VErilog2 Aig " << endl;
 }
 
 void

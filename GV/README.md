@@ -14,8 +14,6 @@ HIStory:            Print command history.
 Quit:               Quit the execution.
 USAGE:              Report resource usage.
 
-
-
 # Verilfy Commands
 Formal Verify:      Use options to execute specific formal engine.
 
@@ -37,9 +35,3 @@ VErilog2 Aig:       Convert verilog file into AIG.
 3. Add the new command into the initialization function for recognition.
 4. Define exec(), usage(), help() functions under gvNtkCmd.cpp.
 5. If you add new header file under the directory, add it into the Makefile.
-
-### HOW TO EXECUTE GV TOOL 
-1. cd <root_dir>
-2. make 
-3. ./gv
-
