@@ -72,12 +72,12 @@ GVVerilog2AigCmd ::exec(const string& option) {
     if (options.size() < 2) 
     { 
         Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
-        return GVCmdExec::errorOption(CMD_OPT_MISSING); 
+        return GVCmdExec::errorOption(GV_OPT_MISSING); 
     }
     else if (options.size() > 2) 
     { 
         Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
-        return GVCmdExec::errorOption(CMD_OPT_EXTRA); 
+        return GVCmdExec::errorOption(GV_OPT_EXTRA); 
     }
     const string tok_in = options[0];
     char* infile = const_cast <char *>(tok_in.c_str());
