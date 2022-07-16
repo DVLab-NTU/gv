@@ -62,7 +62,7 @@ GVPrintInfoCmd ::help() const {
 // VErilog2 Aig -input <filename> -output <filename>
 //----------------------------------------------------------------------
 // Global Variable for V3CmdMgr
-V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
+// V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
 
 GVCmdExecStatus
 GVVerilog2AigCmd ::exec(const string& option) {
