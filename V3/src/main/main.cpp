@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
    V3CmdExecStatus status = CMD_EXEC_DONE;
    while (status != CMD_EXEC_QUIT) {
       v3CmdMgr->setPrompt();
-      status = v3CmdMgr->execOneCmd(); 
+      status = v3CmdMgr->execOneCmd();
       cout << endl;
    }
    return 0;
