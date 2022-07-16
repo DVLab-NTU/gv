@@ -3,6 +3,7 @@
 
 #include <string>
 #include "gvNtkCmd.h"
+#include "../cmd/gvCmdMgr.h"
 #include "gvMsg.h"
 #include "util.h"
 // #include "yosys.h"
