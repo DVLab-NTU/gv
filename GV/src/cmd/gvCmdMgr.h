@@ -29,27 +29,27 @@ const string GVCmdTypeString[] = {
 enum GVCmdType
 {
    // Revealed command
-   CMD_TYPE_REVEALED    = 0,
-   CMD_TYPE_COMMON      = 1,
-   CMD_TYPE_VERIFY      = 2,
-   CMD_TYPE_SIMULATE    = 3,
-   CMD_TYPE_NETWORK     = 4,
+   GV_TYPE_REVEALED    = 0,
+   GV_TYPE_COMMON      = 1,
+   GV_TYPE_VERIFY      = 2,
+   GV_TYPE_SIMULATE    = 3,
+   GV_TYPE_NETWORK     = 4,
 };
 
 enum GVCmdExecStatus
 {
-    CMD_EXEC_DONE  = 0,
-    CMD_EXEC_ERROR = 1,
-    CMD_EXEC_QUIT  = 2,
-    CMD_EXEC_NOP   = 3,
+    GV_EXEC_DONE  = 0,
+    GV_EXEC_ERROR = 1,
+    GV_EXEC_QUIT  = 2,
+    GV_EXEC_NOP   = 3,
 };
 
 enum GVCmdOptionError
 {
-    CMD_OPT_MISSING    = 0,
-    CMD_OPT_EXTRA      = 1,
-    CMD_OPT_ILLEGAL    = 2,
-    CMD_OPT_FOPEN_FAIL = 3,
+    GV_OPT_MISSING    = 0,
+    GV_OPT_EXTRA      = 1,
+    GV_OPT_ILLEGAL    = 2,
+    GV_OPT_FOPEN_FAIL = 3,
 };
 
 #define GV_COMMAND(cmd, type)                      \

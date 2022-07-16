@@ -48,24 +48,24 @@ GVCmdExec::lexOptions(const string& option, vector<string>& tokens) const {
 GVCmdExecStatus
 GVCmdExec::errorOption(GVCmdOptionError err, const string& opt) const {
    switch (err) {
-      case CMD_OPT_MISSING:
+      case GV_OPT_MISSING:
          if (opt.size()) Msg(MSG_ERR) << "Missing option \"" << opt << "\" !!" << endl;
          else Msg(MSG_ERR) << "Missing option" << "!!" << endl;
          break;
-      case CMD_OPT_EXTRA:
+      case GV_OPT_EXTRA:
          Msg(MSG_ERR) << "Extra option \"" << opt << "\" !!" << endl;
          break;
-      case CMD_OPT_ILLEGAL:
+      case GV_OPT_ILLEGAL:
          Msg(MSG_ERR) << "Illegal option \"" << opt << "\" !!" << endl;
          break;
-      case CMD_OPT_FOPEN_FAIL:
+      case GV_OPT_FOPEN_FAIL:
          Msg(MSG_ERR) << "Error: cannot open file \"" << opt << "\" !!" << endl;
          break;
       default:
          Msg(MSG_ERR) << "Unknown option error type \"" << err << "\" !!" << endl;
          break;
    }
-   return CMD_EXEC_ERROR;
+   return GV_EXEC_ERROR;
 }
 
 bool
@@ -240,7 +240,7 @@ GVCmdMgr::execOneCmd() {
       if (e) return e->exec(option);
    }
    delete[] execCmd;
-   return CMD_EXEC_NOP;
+   return GV_EXEC_NOP;
 }
 
 GVCmdExec*
@@ -343,7 +343,7 @@ GVCmdMgr::getCmdListFromPart(const string& cmd) const {
    GVCmdExecSet::const_iterator it;
    GVCmdExecSubSet::iterator is;
    for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
-      if (it->first != CMD_TYPE_REVEALED) {
+      if (it->first != GV_TYPE_REVEALED) {
          for (is = it->second->begin(); is != it->second->end(); ++is) {
             if (((*is)->getCmdLen() > spCount)) {
                bool check = true;
@@ -367,7 +367,7 @@ GVCmdMgr::printHelps(bool revealed) const {
    GVCmdExecSubSet::iterator is;
    Msg(MSG_IFO) << endl;
    for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
-      if ((revealed) ^ (it->first != CMD_TYPE_REVEALED)) {
+      if ((revealed) ^ (it->first != GV_TYPE_REVEALED)) {
          Msg(MSG_IFO) << "========== " << GVCmdTypeString[it->first] << " Commands : ==========" << endl;
          for (is = it->second->begin(); is != it->second->end(); ++is) (*is)->help();
          Msg(MSG_IFO) << endl;

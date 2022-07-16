@@ -34,17 +34,17 @@ GVHelpCmd::exec(const string& option) {
    for (size_t i = 0; i < n; ++i) {
       const string& token = options[i];
       if (myStrNCmp("-Verbose", token, 2) == 0) {
-         if (revealed) return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-         else if (verbose) return GVCmdExec::errorOption(CMD_OPT_EXTRA, token);
+         if (revealed) return GVCmdExec::errorOption(GV_OPT_ILLEGAL, token);
+         else if (verbose) return GVCmdExec::errorOption(GV_OPT_EXTRA, token);
          else verbose = true;
       }
       else if (myStrNCmp("-Revealed", token, 2) == 0) {
-         if (verbose || cmd.size()) return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-         else if (revealed) return GVCmdExec::errorOption(CMD_OPT_EXTRA, token);
+         if (verbose || cmd.size()) return GVCmdExec::errorOption(GV_OPT_ILLEGAL, token);
+         else if (revealed) return GVCmdExec::errorOption(GV_OPT_EXTRA, token);
          else revealed = true;
       }
       else {
-         if (revealed) return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+         if (revealed) return GVCmdExec::errorOption(GV_OPT_ILLEGAL, token);
          if (cmd.size()) cmd.append(" "); cmd.append(token);
       }
    }
@@ -53,15 +53,15 @@ GVHelpCmd::exec(const string& option) {
    else if (!cmd.size()) gvCmdMgr->printHelps();  // Print Commands
    else {
       GVCmdExec* e = gvCmdMgr->getCmd(cmd);
-      if (e) { e->usage(verbose); return CMD_EXEC_DONE; }  // if exact match
+      if (e) { e->usage(verbose); return GV_EXEC_DONE; }  // if exact match
       GVCmdExecSubSet list = gvCmdMgr->getCmdListFromPart(cmd);
       if (list.size()) {  // if partial match
          GVCmdExecSubSet::iterator it = list.begin();
          if (verbose) for (; it != list.end(); ++it) (*it)->usage();
          else for (; it != list.end(); ++it) (*it)->help();
-         return CMD_EXEC_DONE;
+         return GV_EXEC_DONE;
       }
-      else return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, cmd); 
+      else return GVCmdExec::errorOption(GV_OPT_ILLEGAL, cmd); 
    }
 }
 
@@ -88,10 +88,10 @@ GVQuitCmd::exec(const string& option) {
    vector<string> options;
    GVCmdExec::lexOptions(option, options);
 
-   if (options.size() > 1) return GVCmdExec::errorOption(CMD_OPT_EXTRA, options[1]);
+   if (options.size() > 1) return GVCmdExec::errorOption(GV_OPT_EXTRA, options[1]);
    else if (options.size()) {
-      if (myStrNCmp("-Forced", options[0], 2) == 0) return CMD_EXEC_QUIT;
-      else return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+      if (myStrNCmp("-Forced", options[0], 2) == 0) return GV_EXEC_QUIT;
+      else return GVCmdExec::errorOption(GV_OPT_ILLEGAL, options[0]);
    }
 
    Msg(MSG_IFO) << "Are you sure to quit (Yes/No)? [No] ";
@@ -102,8 +102,8 @@ GVQuitCmd::exec(const string& option) {
       if (s != string::npos)
          ss = ss.substr(s);
    }
-   if (myStrNCmp("Yes", ss, 1) == 0) return CMD_EXEC_QUIT;
-   else return CMD_EXEC_DONE;
+   if (myStrNCmp("Yes", ss, 1) == 0) return GV_EXEC_QUIT;
+   else return GV_EXEC_DONE;
 }
 
 void
@@ -128,11 +128,11 @@ GVHistoryCmd::exec(const string& option) {
    vector<string> options;
    GVCmdExec::lexOptions(option, options);
 
-   if (options.size() > 1) return GVCmdExec::errorOption(CMD_OPT_EXTRA, options[1]);
+   if (options.size() > 1) return GVCmdExec::errorOption(GV_OPT_EXTRA, options[1]);
    int nPrint = -1;
-   if (options.size() && !myStr2Int(options[0], nPrint)) return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+   if (options.size() && !myStr2Int(options[0], nPrint)) return GVCmdExec::errorOption(GV_OPT_ILLEGAL, options[0]);
    gvCmdMgr->printHistory(nPrint);
-   return CMD_EXEC_DONE;
+   return GV_EXEC_DONE;
 }
 
 void
@@ -157,13 +157,13 @@ GVDofileCmd ::exec(const string& option) {
    vector<string> options;
    GVCmdExec::lexOptions(option, options);
    
-   if (options.size() == 0) return GVCmdExec::errorOption(CMD_OPT_MISSING, "<(string fileName)>");
-   else if (options.size() > 1) return GVCmdExec::errorOption(CMD_OPT_EXTRA, options[1]);
+   if (options.size() == 0) return GVCmdExec::errorOption(GV_OPT_MISSING, "<(string fileName)>");
+   else if (options.size() > 1) return GVCmdExec::errorOption(GV_OPT_EXTRA, options[1]);
    else if (!gvCmdMgr->openDofile(options[0])) {
       gvCmdMgr->closeDofile(); 
-      return GVCmdExec::errorOption(CMD_OPT_FOPEN_FAIL, options[0]);
+      return GVCmdExec::errorOption(GV_OPT_FOPEN_FAIL, options[0]);
    }
-   return CMD_EXEC_DONE;
+   return GV_EXEC_DONE;
 }
 
 void
@@ -194,23 +194,23 @@ GVUsageCmd ::exec(const string& option) {
    for (size_t i = 0; i < n; ++i) {
       const string& token = options[i];
       if (myStrNCmp("-Time-only", token, 2) == 0) {
-         if (timeOnly || memoryOnly) return GVCmdExec::errorOption(CMD_OPT_EXTRA, token);
+         if (timeOnly || memoryOnly) return GVCmdExec::errorOption(GV_OPT_EXTRA, token);
          else timeOnly = true;
       }
       else if (myStrNCmp("-Memory-only", token, 2) == 0) {
-         if (timeOnly || memoryOnly) return GVCmdExec::errorOption(CMD_OPT_EXTRA, token);
+         if (timeOnly || memoryOnly) return GVCmdExec::errorOption(GV_OPT_EXTRA, token);
          else memoryOnly = true;
       }
       else if (myStrNCmp("-RESET", token, 6) == 0) {
-         if (reset) return GVCmdExec::errorOption(CMD_OPT_EXTRA, token);
+         if (reset) return GVCmdExec::errorOption(GV_OPT_EXTRA, token);
          else reset = true;
       }
-      else return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+      else return GVCmdExec::errorOption(GV_OPT_ILLEGAL, token);
    }
 
    gvUsage.report(!memoryOnly, !timeOnly);
    if (reset) gvUsage.reset();
-   return CMD_EXEC_DONE;
+   return GV_EXEC_DONE;
 }
 
 void

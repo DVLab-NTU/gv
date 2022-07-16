@@ -3,9 +3,9 @@
 
 #include "gvCmdMgr.h"
 
-GV_COMMAND(GVReadDesignCmd,       CMD_TYPE_NETWORK);
-GV_COMMAND(GVPrintInfoCmd,        CMD_TYPE_NETWORK);
-GV_COMMAND(GVVerilog2AigCmd,      CMD_TYPE_NETWORK);
+GV_COMMAND(GVReadDesignCmd,       GV_TYPE_NETWORK);
+GV_COMMAND(GVPrintInfoCmd,        GV_TYPE_NETWORK);
+GV_COMMAND(GVVerilog2AigCmd,      GV_TYPE_NETWORK);
 
 
 #endif

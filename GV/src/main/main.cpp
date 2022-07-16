@@ -73,8 +73,8 @@ main(int argc, char** argv)
    if (!(initCommonCmd()&&initNtkCmd()&&initSimCmd()&&initVrfCmd()))
       return 1;
 
-   GVCmdExecStatus status = CMD_EXEC_DONE;
-   while (status != CMD_EXEC_QUIT) {
+   GVCmdExecStatus status = GV_EXEC_DONE;
+   while (status != GV_EXEC_QUIT) {
       gvCmdMgr->setPrompt();
       status = gvCmdMgr->execOneCmd();
       cout << endl;
