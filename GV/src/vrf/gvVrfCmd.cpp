@@ -1,10 +1,10 @@
 #ifndef GV_VRF_CMD_C
 #define GV_VRF_CMD_C
 
-#include "gvMsg.h"
+#include "../util/gvMsg.h"
 #include "gvVrfCmd.h"
 #include <string>
-#include "util.h"
+#include "../util/util.h"
 
 bool initVrfCmd() {
     return (

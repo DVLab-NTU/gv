@@ -1,7 +1,7 @@
 #ifndef GV_NTK_CMD_H
 #define GV_NTK_CMD_H
 
-#include "gvCmdMgr.h"
+#include "../cmd/gvCmdMgr.h"
 
 GV_COMMAND(GVReadDesignCmd,       GV_TYPE_NETWORK);
 GV_COMMAND(GVPrintInfoCmd,        GV_TYPE_NETWORK);

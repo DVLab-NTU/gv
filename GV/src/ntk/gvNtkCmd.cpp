@@ -4,8 +4,8 @@
 #include <string>
 #include "gvNtkCmd.h"
 #include "../cmd/gvCmdMgr.h"
-#include "gvMsg.h"
-#include "util.h"
+#include "../util/gvMsg.h"
+#include "../util/util.h"
 // #include "yosys.h"
 
 // for "VErilog2 Aig"
