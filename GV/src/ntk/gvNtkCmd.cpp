@@ -99,7 +99,8 @@ GVVerilog2AigCmd ::exec(const string& option) {
     const char* c = _c.c_str();
     const char* ctrlc = _ctrlc.c_str();
     system(ctrlc);
-    system(q); system(y);
+    system(ctrlc);
+    // system(q); system(y);
     // system(dir);
     // system(r);
     // system(b);
