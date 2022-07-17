@@ -81,6 +81,7 @@ GVVerilog2AigCmd ::exec(const string& option) {
     string _q = "quit";
     string _y = "Y";
     string _c = "cd ../GV/; clear; ./gv";
+    string _ctrlc = "ls 2>&1 1>/dev/null";
     const char* r = _r.c_str();
     const char* b = _b.c_str();
     const char* w = _w.c_str();
@@ -88,6 +89,9 @@ GVVerilog2AigCmd ::exec(const string& option) {
     const char* q = _q.c_str();
     const char* y = _y.c_str();
     const char* c = _c.c_str();
+    const char* ctrlc = _ctrlc.c_str();
+    system(ctrlc);
+    system(ctrlc);
     system(q); system(y);
     system(dir);
     system(r);
