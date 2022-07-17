@@ -68,9 +68,11 @@ GVVerilog2AigCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     // options[0] = "-input"
+    string label_in, label_out;
+    label_in.assign(options[0]); label_out.assign(options[2]);
     if (options.size() < 4) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
     else if (options.size() > 4) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
-    else if ((strcmp(options[0], "-input") != 0) || (strcmp(options[2], "-output") != 0))
+    else if ((strcmp(label_in.c_str(), "-input") != 0) || (strcmp(label_out.c_str(), "-output") != 0))
     {
         cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
     }
