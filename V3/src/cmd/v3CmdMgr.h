@@ -150,16 +150,13 @@ class V3CmdMgr
       // Command Prompt Settings
       inline const string& getPrompt() const { return _prompt; }
       inline void setPrompt() { _prompt = _defaultPrompt + "> "; }
-
-      string         _prompt;                // Current Command Prompt
-
    private :
       // Command Helper Functions
       bool addHistory(char*);
       V3CmdExec* parseCmd(string&);
       // Command Data members
       const string   _defaultPrompt;         // Default Command Prompt
-      // string         _prompt;                // Current Command Prompt
+      string         _prompt;                // Current Command Prompt
       ifstream       _dofile;                // For Script Parsing
       V3CmdExecSet   _cmdLib;                // All Available Commands
       vector<string> _history;               // Command History Copy
