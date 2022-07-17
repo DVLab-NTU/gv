@@ -1,6 +1,7 @@
 #ifndef GV_NTK_CMD_C
 #define GV_NTK_CMD_C
 
+#include <stdio.h>
 #include <iostream>
 #include <string>
 #include "gvNtkCmd.h"
