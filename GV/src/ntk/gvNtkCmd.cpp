@@ -67,11 +67,16 @@ GVVerilog2AigCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     cout << options.size() << " " << options[0] << endl;
-    if (options.size() < 2) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
-    else if (options.size() > 2) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
+    // options[0] = "-input"
+    if (options.size() < 4) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
+    else if (options.size() > 4) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
+    else if ((strcmp(options[0], "-input") != 0) || (strcmp(options[2], "-output") != 0))
+    {
+        cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
+    }
     string infile, outfile;
-    const string tok_in = options[0];
-    const string tok_out = options[1];
+    const string tok_in = options[1];
+    const string tok_out = options[3];
     infile.assign(tok_in); outfile.assign(tok_out);
 
     // Start Program: Convert to V3 command
@@ -91,7 +96,6 @@ GVVerilog2AigCmd ::exec(const string& option) {
     const char* y = _y.c_str();
     const char* c = _c.c_str();
     const char* ctrlc = _ctrlc.c_str();
-    system(ctrlc);
     system(ctrlc);
     system(q); system(y);
     // system(dir);
