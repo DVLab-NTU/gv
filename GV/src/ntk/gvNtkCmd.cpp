@@ -87,9 +87,9 @@ GVVerilog2AigCmd ::exec(const string& option) {
     char* outfile = const_cast <char *>(tok_out.c_str());
 
     // Convert to V3 command
-    char* command;
-    sprintf(command, "read rtl %s\nblast ntk\nwrite aig %s", infile, outfile);
-    string v3cmd(command);
+    // char* command;
+    // sprintf(command, "read rtl %s\nblast ntk\nwrite aig %s", infile, outfile);
+    // string v3cmd(command);
 
     // Start Program
     // v3CmdMgr->_prompt = v3cmd;
