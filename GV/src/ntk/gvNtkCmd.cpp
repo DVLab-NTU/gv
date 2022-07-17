@@ -92,13 +92,13 @@ GVVerilog2AigCmd ::exec(const string& option) {
     const char* ctrlc = _ctrlc.c_str();
     system(ctrlc);
     system(ctrlc);
-    system(q); system(y);
-    system(dir);
-    system(r);
-    system(b);
-    system(w);
-    system(q); system(y);
-    system(c);
+    // system(q); system(y);
+    // system(dir);
+    // system(r);
+    // system(b);
+    // system(w);
+    // system(q); system(y);
+    // system(c);
 
     return GV_EXEC_DONE;
 }
