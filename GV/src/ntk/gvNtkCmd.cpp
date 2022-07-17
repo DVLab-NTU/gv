@@ -66,7 +66,6 @@ GVVerilog2AigCmd ::exec(const string& option) {
     // Parse GV command
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    cout << options.size() << " " << options[0] << endl;
     // options[0] = "-input"
     if (options.size() < 4) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
     else if (options.size() > 4) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
