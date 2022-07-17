@@ -150,6 +150,10 @@ class V3CmdMgr
       // Command Prompt Settings
       inline const string& getPrompt() const { return _prompt; }
       inline void setPrompt() { _prompt = _defaultPrompt + "> "; }
+
+      // Hugo: GV for add command to _prompt (gvNtkCmd.cpp)
+      inline void GVsetPrompt(string& gvcmd) { _prompt = gvcmd; }
+
    private :
       // Command Helper Functions
       bool addHistory(char*);
