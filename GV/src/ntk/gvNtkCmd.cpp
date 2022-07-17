@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-#include <unistd.h>
 #include "gvNtkCmd.h"
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
@@ -67,6 +66,7 @@ GVVerilog2AigCmd ::exec(const string& option) {
     // Parse GV command
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
+    cout << options.size() << " " << options[0] << endl;
     if (options.size() < 2) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
     else if (options.size() > 2) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
     string infile, outfile;
@@ -93,7 +93,6 @@ GVVerilog2AigCmd ::exec(const string& option) {
     const char* ctrlc = _ctrlc.c_str();
     system(ctrlc);
     system(ctrlc);
-    sleep(1);
     system(q); system(y);
     // system(dir);
     // system(r);
