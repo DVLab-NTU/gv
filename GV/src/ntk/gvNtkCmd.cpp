@@ -1,9 +1,9 @@
 #ifndef GV_NTK_CMD_C
 #define GV_NTK_CMD_C
 
-#include <stdio.h>
 #include <iostream>
 #include <string>
+#include <string.h>
 #include "gvNtkCmd.h"
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
