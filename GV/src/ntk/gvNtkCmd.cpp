@@ -80,17 +80,21 @@ GVVerilog2AigCmd ::exec(const string& option) {
     string _dir = "cd ../../../V3/; ./v3";
     string _q = "quit";
     string _y = "Y";
+    string _c = "cd ../GV/; clear; ./gv";
     const char* r = _r.c_str();
     const char* b = _b.c_str();
     const char* w = _w.c_str();
     const char* dir = _dir.c_str();
     const char* q = _q.c_str();
     const char* y = _y.c_str();
+    const char* c = _c.c_str();
+    system(q); system(y);
     system(dir);
     system(r);
     system(b);
     system(w);
     system(q); system(y);
+    system(c);
 
     return GV_EXEC_DONE;
 }
