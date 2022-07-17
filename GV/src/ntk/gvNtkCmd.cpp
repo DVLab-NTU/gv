@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <string.h>
+#include <unistd.h>
 #include "gvNtkCmd.h"
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
@@ -99,7 +100,8 @@ GVVerilog2AigCmd ::exec(const string& option) {
     const char* c = _c.c_str();
     const char* ctrlc = _ctrlc.c_str();
     system(ctrlc);
-    // system(ctrlc);
+    sleep(1);
+    system(q);
     // system(q); system(y);
     // system(dir);
     // system(r);
