@@ -1,6 +1,6 @@
 ### COMPILATION
 ```bash
-$ cd engine; ./install.sh;
+$ cd engine; ./install.scripts;
 $ cd abc; make libabc.a; mkdir gv_src;
 $ cp libabc.a gv_src
 $ cd ../../src/eng
