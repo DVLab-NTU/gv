@@ -1,6 +1,6 @@
-### COMPILATION
+### COMPILATION (GV_install.sh contents)
 ```bash
-$ cd engine; ./install.scripts;
+$ cd engine; ./install.script;
 $ cd abc; make libabc.a; mkdir gv_src;
 $ cp libabc.a gv_src
 $ cd ../../src/eng
