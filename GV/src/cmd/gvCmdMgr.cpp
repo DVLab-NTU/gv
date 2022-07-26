@@ -48,24 +48,24 @@ GVCmdExec::lexOptions(const string& option, vector<string>& tokens) const {
 GVCmdExecStatus
 GVCmdExec::errorOption(GVCmdOptionError err, const string& opt) const {
    switch (err) {
-      case GV_OPT_MISSING:
-         if (opt.size()) Msg(MSG_ERR) << "Missing option \"" << opt << "\" !!" << endl;
-         else Msg(MSG_ERR) << "Missing option" << "!!" << endl;
+      case GV_CMD_OPT_MISSING:
+         if (opt.size()) gvMsg(GV_MSG_ERR) << "Missing option \"" << opt << "\" !!" << endl;
+         else gvMsg(GV_MSG_ERR) << "Missing option" << "!!" << endl;
          break;
-      case GV_OPT_EXTRA:
-         Msg(MSG_ERR) << "Extra option \"" << opt << "\" !!" << endl;
+      case GV_CMD_OPT_EXTRA:
+         gvMsg(GV_MSG_ERR) << "Extra option \"" << opt << "\" !!" << endl;
          break;
-      case GV_OPT_ILLEGAL:
-         Msg(MSG_ERR) << "Illegal option \"" << opt << "\" !!" << endl;
+      case GV_CMD_OPT_ILLEGAL:
+         gvMsg(GV_MSG_ERR) << "Illegal option \"" << opt << "\" !!" << endl;
          break;
-      case GV_OPT_FOPEN_FAIL:
-         Msg(MSG_ERR) << "Error: cannot open file \"" << opt << "\" !!" << endl;
+      case GV_CMD_OPT_FOPEN_FAIL:
+         gvMsg(GV_MSG_ERR) << "Error: cannot open file \"" << opt << "\" !!" << endl;
          break;
       default:
-         Msg(MSG_ERR) << "Unknown option error type \"" << err << "\" !!" << endl;
+         gvMsg(GV_MSG_ERR) << "Unknown option error type \"" << err << "\" !!" << endl;
          break;
    }
-   return GV_EXEC_ERROR;
+   return GV_CMD_EXEC_ERROR;
 }
 
 bool
@@ -240,7 +240,7 @@ GVCmdMgr::execOneCmd() {
       if (e) return e->exec(option);
    }
    delete[] execCmd;
-   return GV_EXEC_NOP;
+   return GV_CMD_EXEC_NOP;
 }
 
 GVCmdExec*
@@ -296,7 +296,7 @@ GVCmdMgr::parseCmd(string& option) {
       _cmd = str.substr(0, idx);
       if ((_cmd == "ls") || (_cmd == "vi") || (_cmd == "vim") || (_cmd == "echo") || (_cmd == "cat")) 
          system(str.c_str());
-      else Msg(MSG_ERR) << "Illegal command!! (" << str << ")" << endl;
+      else gvMsg(GV_MSG_ERR) << "Illegal command!! (" << str << ")" << endl;
    }
    else if (idx != string::npos)
    {
@@ -343,7 +343,7 @@ GVCmdMgr::getCmdListFromPart(const string& cmd) const {
    GVCmdExecSet::const_iterator it;
    GVCmdExecSubSet::iterator is;
    for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
-      if (it->first != GV_TYPE_REVEALED) {
+      if (it->first != GV_CMD_TYPE_REVEALED) {
          for (is = it->second->begin(); is != it->second->end(); ++is) {
             if (((*is)->getCmdLen() > spCount)) {
                bool check = true;
@@ -365,12 +365,12 @@ void
 GVCmdMgr::printHelps(bool revealed) const {
    GVCmdExecSet::const_iterator it;
    GVCmdExecSubSet::iterator is;
-   Msg(MSG_IFO) << endl;
+   gvMsg(GV_MSG_IFO) << endl;
    for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
-      if ((revealed) ^ (it->first != GV_TYPE_REVEALED)) {
-         Msg(MSG_IFO) << "========== " << GVCmdTypeString[it->first] << " Commands : ==========" << endl;
+      if ((revealed) ^ (it->first != GV_CMD_TYPE_REVEALED)) {
+         gvMsg(GV_MSG_IFO) << "========== " << GVCmdTypeString[it->first] << " Commands : ==========" << endl;
          for (is = it->second->begin(); is != it->second->end(); ++is) (*is)->help();
-         Msg(MSG_IFO) << endl;
+         gvMsg(GV_MSG_IFO) << endl;
       }
    }
 }
@@ -379,13 +379,13 @@ void
 GVCmdMgr::printHistory(int nPrint) const {
    int historySize = _history.size();
    if (historySize == 0) {
-      Msg(MSG_IFO) << "Empty command history!!" << endl;
+      gvMsg(GV_MSG_IFO) << "Empty command history!!" << endl;
       return;
    }
    if ((nPrint < 0) || (nPrint > historySize)) nPrint = historySize;
    assert (historySize >= nPrint);
    for (int i = historySize - nPrint; i < historySize; ++i)
-      Msg(MSG_IFO) << "   " << i << ": " << _history[i] << endl;
+      gvMsg(GV_MSG_IFO) << "   " << i << ": " << _history[i] << endl;
 }
 
 bool
@@ -401,7 +401,7 @@ GVCmdMgr::addHistory(char* cmd) {
    // add to _history
    if (*tmp != 0) {
       _history.push_back(tmp);
-      // Msg(MSG_LOG) << tmp << endl;
+      // gvMsg(MSG_LOG) << tmp << endl;
       return true;
    }
    return false;

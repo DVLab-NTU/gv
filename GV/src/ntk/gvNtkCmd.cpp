@@ -1,19 +1,28 @@
 #ifndef GV_NTK_CMD_C
 #define GV_NTK_CMD_C
 
-#include <iostream>
-#include <string>
-#include <string.h>
 #include "gvNtkCmd.h"
-#include "gvCmdMgr.h"
 #include "gvMsg.h"
+#include <string>
 #include "util.h"
-// #include "yosys.h"
 
-// for "VErilog2 Aig"
-#include "../../../V3/src/cmd/v3CmdMgr.h"
 
-using namespace std;
+#include "v3Usage.h"
+#include "v3CmdMgr.h"
+#include "v3StrUtil.h"
+#include "v3NtkHandler.h"
+
+extern "C"
+{
+    void   Abc_Start();
+    void   Abc_Stop();
+    typedef struct Abc_Frame_t_ Abc_Frame_t;
+    Abc_Frame_t * Abc_FrameGetGlobalFrame();
+    int    Cmd_CommandExecute( Abc_Frame_t * pAbc, const char * sCommand );
+}
+
+Abc_Frame_t * pAbc = 0;
+
 
 bool initNtkCmd() {
     return (
@@ -23,23 +32,39 @@ bool initNtkCmd() {
     );
 }
 
+string V3Msg::_allName = "";
+ofstream V3Msg::_allout;
+V3MsgMgr Msg;
+V3Usage v3Usage;
+V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
+V3Handler v3Handler;
+
+
 //----------------------------------------------------------------------
 // REad Design <(string fileName)> 
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
 GVReadDesignCmd ::exec(const string& option) {
-    Msg(MSG_IFO) << "I am GVReadDesignCmd" << endl;
+    V3CmdExecStatus status = CMD_EXEC_DONE;
+    while (status != CMD_EXEC_QUIT) {
+        v3CmdMgr->setPrompt();
+        status = v3CmdMgr->execOneCmd();
+        cout << endl;
+    }
+    gvMsg(GV_MSG_IFO) << "I am GVReadDesignCmd" << endl;
+    return GV_CMD_EXEC_DONE;
+
 }
 
 void
 GVReadDesignCmd ::usage(const bool& verbose) const {
-    Msg(MSG_IFO) << "Usage: REAd Rtl <(string fileName)> " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: REAd Rtl <(string fileName)> " << endl;
 }
 
 void
 GVReadDesignCmd ::help() const {
-    Msg(MSG_IFO) << setw(20) << left << "REad Design: " << "Read RTL (Verilog) Designs." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "REad Design: " << "Read RTL (Verilog) Designs." << endl;
 }
 
 //----------------------------------------------------------------------
@@ -48,67 +73,41 @@ GVReadDesignCmd ::help() const {
 
 GVCmdExecStatus
 GVPrintInfoCmd ::exec(const string& option) {
-    Msg(MSG_IFO) << "I am GVPrintInfoCmd" << endl;
+    gvMsg(GV_MSG_IFO) << "I am GVPrintInfoCmd" << endl;
+    Abc_Start();
+	pAbc = Abc_FrameGetGlobalFrame();
+    Abc_Stop();
+    return GV_CMD_EXEC_DONE;
 }
 
 void
 GVPrintInfoCmd ::usage(const bool& verbose) const {
-    Msg(MSG_IFO) << "Usage: PRint Info " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: PRint Info " << endl;
 }
 
 void
 GVPrintInfoCmd ::help() const {
-    Msg(MSG_IFO) << setw(20) << left << "PRint Info: " << "Print circuit information extracted by our parser." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "PRint Info: " << "Print circuit information extracted by our parser." << endl;
 }
 
 //----------------------------------------------------------------------
-// VErilog2 Aig -input <filename> -output <filename>
+// VErilog2 Aig
 //----------------------------------------------------------------------
-// Global Variable for V3CmdMgr
-V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
 
 GVCmdExecStatus
 GVVerilog2AigCmd ::exec(const string& option) {
-    Msg(MSG_IFO) << "I am GVVerilog2AigCmd" << endl;
-    vector<string> options;
-    GVCmdExec::lexOptions(option, options);
-    // options[0] = "-input"
-    string label_in, label_out;
-    label_in.assign(options[0]); label_out.assign(options[2]);
-    if (options.size() < 4) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
-    else if (options.size() > 4) { cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl; }
-    else if ((strcmp(label_in.c_str(), "-input") != 0) || (strcmp(label_out.c_str(), "-output") != 0))
-    {
-        cerr << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
-    }
-    const string tok_in = options[0];
-    char* infile = const_cast <char *>(tok_in.c_str());
-    const string tok_out = options[1];
-    char* outfile = const_cast <char *>(tok_out.c_str());
-
-    // Convert to V3 command
-    char command[256];
-    sprintf(command, "read rtl %s\nblast ntk\nwrite aig %s", infile, outfile);
-    string v3cmd(command);
-
-    // Start Program
-    v3CmdMgr->GVsetPrompt(v3cmd);
-    bool status = v3CmdMgr->execOneCmd();
-    return GV_EXEC_DONE;
+    gvMsg(GV_MSG_IFO) << "I am GVVerilog2AigCmd" << endl;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
 GVVerilog2AigCmd ::usage(const bool& verbose) const {
-    Msg(MSG_IFO) << "Usage: VErilog2 Aig -input <filename> -output <filename>" << endl;
-    if (verbose) {
-      Msg(MSG_IFO) << "Param: -input  : Specify the input Verilog filename with relative path." << endl;
-      Msg(MSG_IFO) << "       -output : Specify the output AIG filename with relative path." << endl;
-   }
+    gvMsg(GV_MSG_IFO) << "Usage: VErilog2 Aig " << endl;
 }
 
 void
 GVVerilog2AigCmd ::help() const {
-    Msg(MSG_IFO) << setw(20) << left << "VErilog2 Aig: " << "Convert verilog file into AIG. " << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "VErilog2 Aig: " << "Convert verilog file into AIG. " << endl;
 }
 
 

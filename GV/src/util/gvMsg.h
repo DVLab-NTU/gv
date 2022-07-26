@@ -9,7 +9,7 @@
 using namespace std;
 
 class GVMsgMgr;
-extern GVMsgMgr Msg;
+extern GVMsgMgr gvMsg;
 
 class GVMsg
 {
@@ -53,11 +53,11 @@ class GVMsg
 
 enum GVMsgType
 {
-   MSG_LOG = 0,
-   MSG_ERR = 1,
-   MSG_WAR = 2,
-   MSG_DBG = 3,
-   MSG_IFO = 4
+   GV_MSG_LOG = 0,
+   GV_MSG_ERR = 1,
+   GV_MSG_WAR = 2,
+   GV_MSG_DBG = 3,
+   GV_MSG_IFO = 4
 };
 
 class GVMsgMgr
@@ -101,8 +101,8 @@ class GVMsgMgr
 };
 
 // GV Pre-Defined Template Messages
-static inline const int callEmptyVirtual(const string& functionName) {
-   Msg(MSG_ERR) << "Calling virtual function " << functionName << " !!" << endl; return 0;
+static inline const int gvCallEmptyVirtual(const string& functionName) {
+   gvMsg(GV_MSG_ERR) << "Calling virtual function " << functionName << " !!" << endl; return 0;
 }
 
 #endif

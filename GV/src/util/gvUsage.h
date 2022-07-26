@@ -34,14 +34,14 @@ class GVUsage
       void report(const bool& repTime, const bool& repMem) {
          if (repTime) {
             setTimeUsage();
-            Msg(MSG_IFO) << "Period time used : " << setprecision(4) << _periodUsedTime << " seconds" << endl;
-            Msg(MSG_IFO) << "Total time used  : " << setprecision(4) << _totalUsedTime << " seconds" << endl;
+            gvMsg(GV_MSG_IFO) << "Period time used : " << setprecision(4) << _periodUsedTime << " seconds" << endl;
+            gvMsg(GV_MSG_IFO) << "Total time used  : " << setprecision(4) << _totalUsedTime << " seconds" << endl;
          }
          if (repMem) {
             setMemUsage();
-            Msg(MSG_IFO) << "Peak memory used   : " << setprecision(4) << _peakMem << " M Bytes" << endl;
-            Msg(MSG_IFO) << "Total memory used  : " << setprecision(4) << _totalMem << " M Bytes" << endl;
-            Msg(MSG_IFO) << "Current memory used: " << setprecision(4) << _currentMem << " M Bytes" << endl;
+            gvMsg(GV_MSG_IFO) << "Peak memory used   : " << setprecision(4) << _peakMem << " M Bytes" << endl;
+            gvMsg(GV_MSG_IFO) << "Total memory used  : " << setprecision(4) << _totalMem << " M Bytes" << endl;
+            gvMsg(GV_MSG_IFO) << "Current memory used: " << setprecision(4) << _currentMem << " M Bytes" << endl;
          }
       }
       const double getMemUsage() { setMemUsage(); return _currentMem; }
@@ -49,7 +49,7 @@ class GVUsage
       // Private Functions
       const double checkMem() const {
          ifstream inf("/proc/self/status");
-         if (!inf) { Msg(MSG_ERR) << "Cannot get memory usage" << endl; return 0.0; }
+         if (!inf) { gvMsg(GV_MSG_ERR) << "Cannot get memory usage" << endl; return 0.0; }
          const size_t bufSize = 128;
          char bufStr[bufSize];
          while (!inf.eof()) {

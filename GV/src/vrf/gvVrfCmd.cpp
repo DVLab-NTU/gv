@@ -13,28 +13,23 @@ bool initVrfCmd() {
 }
 
 //----------------------------------------------------------------------
-// Formal Verify -file <AIG_filename> [-bmc <int_depth> | -pdr | -itp]
+// Formal Verify [-bmc <int_depth> | -pdr | -itp]
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
 GVFormalVerifyCmd ::exec(const string& option) {
-    Msg(MSG_IFO) << "I am GVFormalVerifyCmd " << endl;
+    gvMsg(GV_MSG_IFO) << "I am GVFormalVerifyCmd " << endl;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
 GVFormalVerifyCmd ::usage(const bool& verbose) const {
-    Msg(MSG_IFO) << "Usage: Formal Verify " << endl;
-    if (verbose) {
-      Msg(MSG_IFO) << "Param: -bmc        : Use \"Bounded Model Checking\" method to do formal verification." << endl;
-      Msg(MSG_IFO) << "       (int_depth) : Specify the number of timeframe to do BMC." << endl;
-      Msg(MSG_IFO) << "       -pdr        : Use \"Property Directed Reachability\" method to do formal verification." << endl;
-      Msg(MSG_IFO) << "       -itp        : Use \"Craig Interpolation\" method to do formal verification." << endl;
-   }
+    gvMsg(GV_MSG_IFO) << "Usage: Formal Verify " << endl;
 }
 
 void
 GVFormalVerifyCmd ::help() const {
-    Msg(MSG_IFO) << setw(20) << left << "Formal Verify: " << "Use options to execute specific formal engine." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "Formal Verify: " << "Use options to execute specific formal engine." << endl;
 }
 
 #endif

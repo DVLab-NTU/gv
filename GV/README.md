@@ -1,8 +1,14 @@
-### COMPILATIOn
+### COMPILATION
 ```bash
-$ cd <root directory of GV>
-$ make
-$ ./gv
+$ cd engine; ./install.sh;
+$ cd abc; make libabc.a; mkdir gv_src;
+$ cp libabc.a gv_src
+$ cd ../../src/eng
+$ rm -rf abc; ln -s ../../engine/abc/gv_src/ abc;
+$ cd ../../engine/V3-fixed/src/main; rm -rf main.o;
+$ cd ../..; mkdir gv_src; cp ./src/*/*.h gv_src;
+$ ar rc gv_src/libv3.a src/*/*.o;
+$ cd ../../; make clean; make; clear; ./gv;
 ```
 
 ### COMMANDS

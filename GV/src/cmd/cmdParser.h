@@ -40,24 +40,24 @@ extern CmdParser* cmdMgr;
 //----------------------------------------------------------------------
 enum CmdExecStatus
 {
-   GV_EXEC_DONE  = 0,
-   GV_EXEC_ERROR = 1,
-   GV_EXEC_QUIT  = 2,
-   GV_EXEC_NOP   = 3,
+   GV_CMD_EXEC_DONE  = 0,
+   GV_CMD_EXEC_ERROR = 1,
+   GV_CMD_EXEC_QUIT  = 2,
+   GV_CMD_EXEC_NOP   = 3,
 
    // dummy
-   GV_EXEC_TOT
+   GV_CMD_EXEC_TOT
 };
 
 enum CmdOptionError
 {
-   GV_OPT_MISSING    = 0,
-   GV_OPT_EXTRA      = 1,
-   GV_OPT_ILLEGAL    = 2,
-   GV_OPT_FOPEN_FAIL = 3,
+   GV_CMD_OPT_MISSING    = 0,
+   GV_CMD_OPT_EXTRA      = 1,
+   GV_CMD_OPT_ILLEGAL    = 2,
+   GV_CMD_OPT_FOPEN_FAIL = 3,
 
    // dummy
-   GV_OPT_ERROR_TOT
+   GV_CMD_OPT_ERROR_TOT
 };
 
 

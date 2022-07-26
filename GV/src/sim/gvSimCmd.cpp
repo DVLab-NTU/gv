@@ -18,17 +18,18 @@ bool initSimCmd() {
 
 GVCmdExecStatus
 GVRandomSimCmd ::exec(const string& option) {
-    Msg(MSG_IFO) << "I am GVRandomSimCmd " << endl;
+    gvMsg(GV_MSG_IFO) << "I am GVRandomSimCmd " << endl;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
 GVRandomSimCmd ::usage(const bool& verbose) const {
-    Msg(MSG_IFO) << "Usage: RAndom Sim " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: RAndom Sim " << endl;
 }
 
 void
 GVRandomSimCmd ::help() const {
-    Msg(MSG_IFO) << setw(20) << left << "RAndom Sim: " << "Conduct random simulation and print the results." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "RAndom Sim: " << "Conduct random simulation and print the results." << endl;
 }
 
 #endif
