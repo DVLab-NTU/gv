@@ -31,6 +31,7 @@ extern bool initCommonCmd();
 extern bool initNtkCmd();
 extern bool initSimCmd();
 extern bool initVrfCmd();
+extern bool initAbcCmd();
 
 
 static void
@@ -70,7 +71,7 @@ main(int argc, char** argv)
       myexit();
    }
 
-   if (!(initCommonCmd()&&initNtkCmd()&&initSimCmd()&&initVrfCmd()))
+   if (!(initCommonCmd()&&initNtkCmd()&&initSimCmd()&&initVrfCmd()&&initAbcCmd()))
       return 1;
 
    GVCmdExecStatus status = GV_CMD_EXEC_DONE;

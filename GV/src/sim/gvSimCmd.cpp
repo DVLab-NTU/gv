@@ -3,6 +3,7 @@
 
 #include "gvMsg.h"
 #include "gvSimCmd.h"
+#include "gvAbcMgr.h"                                                                                                           
 #include <string>
 #include "util.h"
 

@@ -1,16 +1,17 @@
-SRCPKGS  = cmd ntk util sim vrf
-LIBPKGS  = cmd ntk util sim vrf
+SRCPKGS  = cmd ntk util sim vrf abc
+LIBPKGS  = cmd ntk util sim vrf abc
 
 MAIN     = main
 
-EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -lgmp
+EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
-ENGPKGS	 += v3
+# ENGPKGS	 += v3
+# ENGPKGS	 += minisat
+# ENGPKGS	 += quteRTL
+# ENGPKGS	 += boolector
 ENGPKGS	 += abc
-ENGPKGS	 += minisat
-ENGPKGS	 += quteRTL
-ENGPKGS	 += boolector
+ENGPKGS	 += yosys
 
 
 

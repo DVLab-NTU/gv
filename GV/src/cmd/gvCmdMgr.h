@@ -23,7 +23,8 @@ const string GVCmdTypeString[] = {
     "Common",
     "Verify",
     "Simulate",
-    "Network"
+    "Network",
+    "Abc"
 };
 
 // Command Categories Enum
@@ -35,6 +36,7 @@ enum GVCmdType
    GV_CMD_TYPE_VERIFY      = 2,
    GV_CMD_TYPE_SIMULATE    = 3,
    GV_CMD_TYPE_NETWORK     = 4,
+   GV_CMD_TYPE_ABC         = 5,
 };
 
 enum GVCmdExecStatus
