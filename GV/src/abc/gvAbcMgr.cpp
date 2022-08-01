@@ -1,6 +1,7 @@
 #include "gvAbcMgr.h"
 #include "gvAbcNtk.h"
 #include <iostream>
+#include <cstring>
 #include <string>
 
 AbcMgr* abcMgr;
@@ -21,11 +22,11 @@ AbcMgr::reset()
 void
 AbcMgr::abcReadDesign(string& fileName)
 {
-    string pFileName = fileName;
+    char pFileName[128];
+    strcpy(pFileName, fileName.c_str());
     char Command[1000];
-    cout << pFileName << endl;
     sprintf( Command, "read %s", pFileName );
-    Cmd_CommandExecute( pAbc, "read example.v" );
+    Cmd_CommandExecute( pAbc, Command );
 }
 
 void
