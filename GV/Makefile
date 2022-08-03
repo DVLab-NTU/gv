@@ -37,7 +37,7 @@ engLib:
 	@for pkg in $(ENGPKGS);	\
 	do \
 		cd include ; ln -fs ../src/$(ENGSSRC)/$$pkg/* .; cd .. ; \
-		cd lib ; ln -fs ../src/$(ENGSSRC)/$$pkg/*.a .; cd .. ; \
+		cd lib ; ln -fs ../src/$(ENGSSRC)/$$pkg/*.a .; ln -fs ../src/$(ENGSSRC)/$$pkg/*.so .; cd .. ; \
 	done
 	@rm -f include/*.a
 
