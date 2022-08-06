@@ -8,7 +8,6 @@ GVModMgr* gvModMgr;
 /* -------------------------------------------------- *\
  * Class GVModMgr Implementations
 \* -------------------------------------------------- */
-
 GVModMgr::GVModMgr(){
     _inputFileExist = false;
     _gvMode = GVModType::GV_MOD_TYPE_SETUP;      // default mode   :  Setup
@@ -28,12 +27,12 @@ GVModMgr::getInputFileExist(){
 }
 
 GVModType    
-GVModMgr::getGvMode(){
+GVModMgr::getGVMode(){
     return _gvMode;
 }
 
 GVModEngine  
-GVModMgr::getGvEngine(){
+GVModMgr::getGVEngine(){
     return _gvEng;
 }
 
@@ -52,11 +51,11 @@ GVModMgr::setInputFileExist(bool exist){
 }
 
 void 
-GVModMgr::setGvMode(GVModType mode){
+GVModMgr::setGVMode(GVModType mode){
     _gvMode = mode;
 }
 void 
-GVModMgr::setGvEngine(GVModEngine engine){
+GVModMgr::setGVEngine(GVModEngine engine){
     _gvEng = engine;
 }
 void 

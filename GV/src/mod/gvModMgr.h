@@ -16,7 +16,7 @@ const string GVEngineString[] = {
 const string GVModTypeString[] = {
     "gv",
     "SETUP",
-    "VERIFY"
+    "vrf"
 };
 
 enum GVModType{
@@ -40,13 +40,13 @@ class GVModMgr
         ~GVModMgr();
 
         bool         getInputFileExist();
-        GVModType    getGvMode();
-        GVModEngine  getGvEngine();
+        GVModType    getGVMode();
+        GVModEngine  getGVEngine();
         string       getModPrompt();
 
         void         setInputFileExist(bool exist);
-        void         setGvMode(GVModType mode);
-        void         setGvEngine(GVModEngine engine);
+        void         setGVMode(GVModType mode);
+        void         setGVEngine(GVModEngine engine);
         void         setModPromt();
 
     private:
@@ -54,8 +54,6 @@ class GVModMgr
         string        _modPrompt;
         GVModType     _gvMode;
         GVModEngine   _gvEng;
-
-        
 };
 
 

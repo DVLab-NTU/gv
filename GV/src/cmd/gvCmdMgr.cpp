@@ -237,6 +237,21 @@ GVCmdMgr::execOneCmd() {
       add_history(_history.back().c_str());
       string option = "";
       GVCmdExec* e = parseCmd(option);
+      // Check if command type belongs to vrf
+      if(e){
+         GVCmdType cmdType = e->getGVCmdType();
+         if(cmdType != GV_CMD_TYPE_MOD)
+            if(cmdType == GV_CMD_TYPE_SIMULATE || cmdType == GV_CMD_TYPE_VERIFY){
+               if(gvModMgr->getGVMode() != GV_MOD_TYPE_VERIFY)
+                  return GV_CMD_EXEC_NOP;
+            }
+            else{ 
+               if(gvModMgr->getGVMode() != GV_MOD_TYPE_SETUP){
+                     return GV_CMD_EXEC_NOP;
+               }
+            }
+      }
+      
       if (e) return e->exec(option);
    }
    delete[] execCmd;

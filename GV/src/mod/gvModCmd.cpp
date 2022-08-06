@@ -23,7 +23,7 @@ GVSetSystemCmd ::exec(const string& option) {
         gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" to read the input file first !!\n";
         return GV_CMD_EXEC_NOP;
     }
-    bool formal = false, simulation = false;
+    bool setup = false, vrf = false;
     string systemPromptStr;
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
@@ -31,17 +31,21 @@ GVSetSystemCmd ::exec(const string& option) {
     size_t n = options.size();
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
-        if (myStrNCmp("formal", token, 1) == 0) {
-            if (simulation) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else {formal = true; systemPromptStr = "fv";}
+        if (myStrNCmp("setup", token, 3) == 0) {
+            if (vrf) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            else {setup = true;}
         }
-        else if (myStrNCmp("simulation", token, 1) == 0) {
-            if (formal) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else {simulation = true; systemPromptStr = "sm";}
+        else if (myStrNCmp("vrf", token, 3) == 0) {
+            if (setup) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            else {vrf = true;}
         }
         else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
-    gvModMgr->setGvMode(GVModType::GV_MOD_TYPE_VERIFY);
+    if(setup)
+        gvModMgr->setGVMode(GV_MOD_TYPE_SETUP);
+    else if(vrf)
+        gvModMgr->setGVMode(GV_MOD_TYPE_VERIFY);
+
     return GV_CMD_EXEC_DONE;
 }
 
