@@ -254,7 +254,8 @@ gvNtkCmd.o: gvNtkCmd.cpp /usr/include/stdc-predef.h gvNtkCmd.h \
  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
  /usr/local/share/yosys/include/kernel/rtlil.h \
  /usr/local/share/yosys/include/kernel/constids.inc \
- /usr/local/share/yosys/include/kernel/register.h
+ /usr/local/share/yosys/include/kernel/register.h \
+ ../../include/gvModMgr.h
 
 /usr/include/stdc-predef.h:
 
@@ -919,3 +920,5 @@ gvNtkCmd.h:
 /usr/local/share/yosys/include/kernel/constids.inc:
 
 /usr/local/share/yosys/include/kernel/register.h:
+
+../../include/gvModMgr.h:

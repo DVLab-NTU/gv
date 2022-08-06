@@ -1,0 +1,47 @@
+#include "gvModMgr.h"
+#include <iostream>
+#include <cstring>
+#include <string>
+
+GVModMgr* gvModMgr;
+
+GVModMgr::GVModMgr(){
+    _inputFileExist = false;
+    _gvMode = GVModType::GV_MOD_TYPE_SETUP;      // default mode   :  Setup
+    _gvEng  = GVModEngine::GV_MOD_ENGINE_YOSYS;  // default engine :  yosys
+}
+
+GVModMgr::~GVModMgr(){
+}
+
+bool 
+GVModMgr::getInputFileExist(){
+    return _inputFileExist;
+}
+
+GVModType    
+GVModMgr::getGvMode(){
+    return _gvMode;
+}
+
+GVModEngine  
+GVModMgr::getGvEngine(){
+    return _gvEng;
+}
+
+void 
+GVModMgr::setInputFileExist(bool exist){
+    _inputFileExist = exist;
+}
+
+void 
+GVModMgr::setGvMode(GVModType mode){
+    _gvMode = mode;
+}
+void 
+GVModMgr::setGvEngine(GVModEngine engine){
+    _gvEng = engine;
+}
+
+
+

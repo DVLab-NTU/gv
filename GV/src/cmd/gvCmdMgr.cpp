@@ -15,19 +15,6 @@ extern "C" {
     #include <readline/history.h>
 }
 
-// =====================
-// ===    Modify     ===
-// =====================
-
-GVCmdMode gvMode = GVCmdMode::GV_CMD_MODE_SETUP; // default mode : None
-GVEngine gvEng = GVEngine::GV_ENGINE_YOSYS; // default engine : yosys
-
-// =====================
-// ===      END      ===
-// =====================
-
-
-
 /* -------------------------------------------------- *\
  * Class GVCmdMgr Implementations
 \* -------------------------------------------------- */

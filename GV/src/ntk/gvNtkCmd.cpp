@@ -7,14 +7,8 @@
 #include "util.h"
 
 #include "kernel/yosys.h"
+#include "gvModMgr.h"
 USING_YOSYS_NAMESPACE
-// #include "v3Usage.h"
-// #include "v3CmdMgr.h"
-// #include "v3StrUtil.h"
-// #include "v3NtkHandler.h"
-
-// Abc_Frame_t * pAbc = 0;
-
 
 bool initNtkCmd() {
     return (
@@ -71,16 +65,16 @@ GVSetEngineCmd ::exec(const string& option) {
         
     }
     switch(engPos){
-        case GVEngine::GV_ENGINE_YOSYS:{
-            gvEng = GVEngine::GV_ENGINE_YOSYS;
+        case GVModEngine::GV_MOD_ENGINE_YOSYS:{
+            gvModMgr->setGvEngine(GVModEngine::GV_MOD_ENGINE_YOSYS);
             break;
         }
-        case GVEngine::GV_ENGINE_ABC:{
-            gvEng = GVEngine::GV_ENGINE_ABC;
+        case GVModEngine::GV_MOD_ENGINE_ABC:{
+            gvModMgr->setGvEngine(GVModEngine::GV_MOD_ENGINE_ABC);
             break;
         }
-        case GVEngine::GV_ENGINE_V3:{
-            gvEng = GVEngine::GV_ENGINE_V3;
+        case GVModEngine::GV_MOD_ENGINE_V3:{
+            gvModMgr->setGvEngine(GVModEngine::GV_MOD_ENGINE_V3);
             break;
         }
         default:{
@@ -170,7 +164,8 @@ GVReadDesignCmd ::exec(const string& option) {
     }
 
     cout << "\nfile name: " << filename << "\n";
-    if(gvEng == GVEngine::GV_ENGINE_YOSYS){
+    GVModEngine currEng = gvModMgr -> getGvEngine();
+    if(currEng == GVModEngine::GV_MOD_ENGINE_YOSYS){
         log_streams.push_back(&std::cout);            
         string yosCommand = "";
         yosys_setup();
@@ -180,7 +175,7 @@ GVReadDesignCmd ::exec(const string& option) {
         run_pass(yosCommand + filename);
         //run_pass("help -all");
     }   
-    else if (gvEng == GVEngine::GV_ENGINE_ABC){
+    else if (currEng == GVModEngine::GV_MOD_ENGINE_ABC){
         /*char execCmd[128];
         cout << "Start abc read rtl\n";
         string outname = "test.aig";
@@ -189,11 +184,10 @@ GVReadDesignCmd ::exec(const string& option) {
         sprintf(execCmd, "write aig %s", outname.c_str());*/
         return GV_CMD_EXEC_DONE;    
     }
-    else if(gvEng == GVEngine::GV_ENGINE_V3){
+    else if(currEng == GVModEngine::GV_MOD_ENGINE_V3){
         return GV_CMD_EXEC_DONE;
     }
-    
-    inputFileExist = true; 
+    gvModMgr->setInputFileExist(true);
     return GV_CMD_EXEC_DONE;
 }
 
@@ -237,8 +231,8 @@ GVPrintInfoCmd ::exec(const string& option) {
         }
     }
 
-
-    if(gvEng == GVEngine::GV_ENGINE_YOSYS){
+    GVModEngine currEng = gvModMgr -> getGvEngine(); 
+    if(currEng == GVModEngine::GV_MOD_ENGINE_YOSYS){
         gvMsg(GV_MSG_IFO) << "Modules in current design: ";
         gvMsg(GV_MSG_IFO) << log_id(yosys_design->top_module()->name) <<"(" << GetSize(yosys_design->top_module()->wires()) <<" wires, " << GetSize(yosys_design->top_module()->cells()) << " cells)\n";
 
@@ -287,10 +281,10 @@ GVPrintInfoCmd ::exec(const string& option) {
         else
             gvMsg(GV_MSG_IFO) << "#PI = " << numPI << ", #PO = " << numPO << ", #PIO = " << numPIO << "\n";
     }
-    else if(gvEng == GVEngine::GV_ENGINE_ABC){
+    else if(currEng == GVModEngine::GV_MOD_ENGINE_ABC){
         return GV_CMD_EXEC_DONE;
     }
-    else if(gvEng == GVEngine::GV_ENGINE_V3){
+    else if(currEng == GVModEngine::GV_MOD_ENGINE_V3){
         return GV_CMD_EXEC_DONE;
     }
     return GV_CMD_EXEC_DONE;
