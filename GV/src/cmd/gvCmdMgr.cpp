@@ -237,21 +237,24 @@ GVCmdMgr::execOneCmd() {
       add_history(_history.back().c_str());
       string option = "";
       GVCmdExec* e = parseCmd(option);
-      // Check if command type belongs to vrf
+      // Check command types
       if(e){
          GVCmdType cmdType = e->getGVCmdType();
          if(cmdType != GV_CMD_TYPE_MOD)
             if(cmdType == GV_CMD_TYPE_SIMULATE || cmdType == GV_CMD_TYPE_VERIFY){
-               if(gvModMgr->getGVMode() != GV_MOD_TYPE_VERIFY)
+               if(gvModMgr->getGVMode() != GV_MOD_TYPE_VERIFY){
+                  gvMsg(GV_MSG_ERR) << "Please switch to \"VRF MODE\" !!" << endl;
                   return GV_CMD_EXEC_NOP;
+               }
             }
             else{ 
                if(gvModMgr->getGVMode() != GV_MOD_TYPE_SETUP){
-                     return GV_CMD_EXEC_NOP;
+                  gvMsg(GV_MSG_ERR) << "Please switch to \"SETUP MODE\" !!" << endl;
+                  return GV_CMD_EXEC_NOP;
                }
             }
       }
-      
+
       if (e) return e->exec(option);
    }
    delete[] execCmd;
