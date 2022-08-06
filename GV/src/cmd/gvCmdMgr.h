@@ -7,7 +7,7 @@
 #include <string>
 #include <map>
 #include <set>
-
+#include "gvModMgr.h"
 
 
 using namespace std;
@@ -128,7 +128,10 @@ class GVCmdMgr
         void closeDofile() { _dofile.close(); _dofile.clear(); }
 
         inline const string& getPrompt() const { return _prompt; }
-        inline void setPrompt() { _prompt = _defaultPrompt + "> "; }
+        inline void setPrompt() { 
+            //_prompt = _defaultPrompt + "> "; 
+            _prompt = gvModMgr->getModPrompt() + "> "; 
+        }
     
     private :
       // Command Helper Functions

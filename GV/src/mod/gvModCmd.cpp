@@ -13,7 +13,7 @@ initModCmd() {
     if (gvModMgr) delete gvModMgr;
     gvModMgr = new GVModMgr;
     return (
-         gvCmdMgr->regCmd("SEt System",   2,1,    new GVSetSystemCmd)
+         gvCmdMgr->regCmd("SEt SYStem",   2,3,    new GVSetSystemCmd)
     );
 }
 
@@ -41,9 +41,7 @@ GVSetSystemCmd ::exec(const string& option) {
         }
         else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
-    //gvCmdMgr->changeMode(GVCmdMode::GV_CMD_MODE_VERIFY);
-    //gvCmdMgr->setModePrompt(systemPromptStr);
-
+    gvModMgr->setGvMode(GVModType::GV_MOD_TYPE_VERIFY);
     return GV_CMD_EXEC_DONE;
 }
 

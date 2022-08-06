@@ -182,6 +182,7 @@ GVReadDesignCmd ::exec(const string& option) {
         sprintf(execCmd, "read rtl %s", inname.c_str());
         sprintf(execCmd, "blast ntk");
         sprintf(execCmd, "write aig %s", outname.c_str());*/
+        
         return GV_CMD_EXEC_DONE;    
     }
     else if(currEng == GVModEngine::GV_MOD_ENGINE_V3){

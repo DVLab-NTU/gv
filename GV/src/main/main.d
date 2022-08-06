@@ -179,8 +179,9 @@ main.o: main.cpp /usr/include/stdc-predef.h ../../include/util.h \
  /usr/include/c++/7/ext/aligned_buffer.h \
  /usr/include/c++/7/bits/stl_map.h /usr/include/c++/7/bits/stl_multimap.h \
  /usr/include/c++/7/set /usr/include/c++/7/bits/stl_set.h \
- /usr/include/c++/7/bits/stl_multiset.h ../../include/gvMsg.h \
- ../../include/gvUsage.h ../../include/gvMsg.h ../../include/gvIntType.h \
+ /usr/include/c++/7/bits/stl_multiset.h ../../include/gvModMgr.h \
+ ../../include/gvMsg.h ../../include/gvUsage.h ../../include/gvMsg.h \
+ ../../include/gvIntType.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/float.h /usr/include/inttypes.h \
  /usr/include/c++/7/cassert /usr/include/assert.h \
  /usr/include/c++/7/cstring /usr/include/string.h /usr/include/strings.h \
@@ -652,6 +653,8 @@ main.o: main.cpp /usr/include/stdc-predef.h ../../include/util.h \
 /usr/include/c++/7/bits/stl_set.h:
 
 /usr/include/c++/7/bits/stl_multiset.h:
+
+../../include/gvModMgr.h:
 
 ../../include/gvMsg.h:
 

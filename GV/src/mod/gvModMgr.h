@@ -7,6 +7,18 @@ using namespace std;
 
 class GVModMgr;
 
+const string GVEngineString[] = {
+    "yosys",
+    "abc",
+    "v3"
+};
+
+const string GVModTypeString[] = {
+    "gv",
+    "SETUP",
+    "VERIFY"
+};
+
 enum GVModType{
    GV_MOD_TYPE_NONE = 0,
    GV_MOD_TYPE_SETUP = 1,
@@ -30,13 +42,16 @@ class GVModMgr
         bool         getInputFileExist();
         GVModType    getGvMode();
         GVModEngine  getGvEngine();
+        string       getModPrompt();
 
-        void setInputFileExist(bool exist);
-        void setGvMode(GVModType mode);
-        void setGvEngine(GVModEngine engine);
+        void         setInputFileExist(bool exist);
+        void         setGvMode(GVModType mode);
+        void         setGvEngine(GVModEngine engine);
+        void         setModPromt();
 
     private:
         bool          _inputFileExist;
+        string        _modPrompt;
         GVModType     _gvMode;
         GVModEngine   _gvEng;
 
