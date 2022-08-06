@@ -3,4 +3,4 @@ cd ../yosys;
 make config-gcc;sudo make -j12; sudo make install;
 ar rc gv_src/libyosys.a backends/*/*.o frontends/*/*.o kernel/*.o libs/*/*.o passes/*/*.o techlibs/*/*.o;
 cd ../..;
-make clean; make;./gv
+sudod make clean;sudo make;./gv
