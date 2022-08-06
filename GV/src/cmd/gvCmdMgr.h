@@ -55,6 +55,29 @@ enum GVCmdOptionError
     GV_CMD_OPT_FOPEN_FAIL = 3,
 };
 
+// =====================
+// ===    Modify     ===
+// =====================
+
+enum GVCmdMode{
+   GV_CMD_MODE_NONE = 0,
+   GV_CMD_MODE_SETUP = 1,
+   GV_CMD_MODE_VERIFY = 2
+};
+
+enum GVEngine{
+    GV_ENGINE_YOSYS = 0,
+    GV_ENGINE_ABC = 1, 
+    GV_ENGINE_V3 = 2
+};
+
+extern GVCmdMode     gvMode;
+extern GVEngine      gvEng;
+
+// =====================
+// ===      END      ===
+// =====================
+
 #define GV_COMMAND(cmd, type)                      \
 class cmd : public GVCmdExec                       \
 {                                                  \

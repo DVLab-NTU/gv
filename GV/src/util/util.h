@@ -18,7 +18,7 @@ using namespace std;
 // Extern global variable defined in util.cpp
 extern RandomNumGen  rnGen;
 extern MyUsage       myUsage;
-
+extern bool          inputFileExist;
 // In myString.cpp
 extern int myStrNCmp(const string& s1, const string& s2, unsigned n);
 extern size_t myStrGetTok(const string& str, string& tok, size_t pos = 0,

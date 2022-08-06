@@ -25,7 +25,7 @@ using namespace std;
 
 RandomNumGen  rnGen(0);  // use random seed = 0
 MyUsage       myUsage;
-
+bool          inputFileExist = false;
 
 //----------------------------------------------------------------------
 //    Global functions in util

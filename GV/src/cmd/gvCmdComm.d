@@ -1,5 +1,5 @@
-gvNtkCmd.o: gvNtkCmd.cpp /usr/include/stdc-predef.h gvNtkCmd.h \
- ../../include/gvCmdMgr.h /usr/include/c++/7/iostream \
+gvCmdComm.o: gvCmdComm.cpp /usr/include/stdc-predef.h gvCmdComm.h \
+ gvCmdMgr.h /usr/include/c++/7/iostream \
  /usr/include/x86_64-linux-gnu/c++/7/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/7/bits/os_defines.h \
  /usr/include/features.h /usr/include/x86_64-linux-gnu/sys/cdefs.h \
@@ -151,13 +151,8 @@ gvNtkCmd.o: gvNtkCmd.cpp /usr/include/stdc-predef.h gvNtkCmd.h \
  /usr/include/c++/7/bits/invoke.h /usr/include/c++/7/bits/stl_multimap.h \
  /usr/include/c++/7/set /usr/include/c++/7/bits/stl_set.h \
  /usr/include/c++/7/bits/stl_multiset.h ../../include/gvMsg.h \
- ../../include/util.h ../../include/rnGen.h /usr/include/unistd.h \
- /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
- /usr/include/x86_64-linux-gnu/bits/environments.h \
- /usr/include/x86_64-linux-gnu/bits/confname.h \
- /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
- /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
- /usr/include/x86_64-linux-gnu/bits/unistd.h /usr/include/c++/7/stdlib.h \
+ ../../include/gvUsage.h ../../include/gvMsg.h ../../include/gvIntType.h \
+ /usr/lib/gcc/x86_64-linux-gnu/7/include/float.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include-fixed/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include-fixed/syslimits.h \
  /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
@@ -165,102 +160,37 @@ gvNtkCmd.o: gvNtkCmd.cpp /usr/include/stdc-predef.h gvNtkCmd.h \
  /usr/include/linux/limits.h \
  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
- /usr/include/x86_64-linux-gnu/bits/uio_lim.h ../../include/myUsage.h \
+ /usr/include/x86_64-linux-gnu/bits/uio_lim.h /usr/include/inttypes.h \
+ /usr/include/x86_64-linux-gnu/sys/times.h /usr/include/c++/7/ctime \
+ /usr/include/c++/7/cassert /usr/include/assert.h \
+ /usr/include/c++/7/cstring /usr/include/string.h /usr/include/strings.h \
+ /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
+ /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
  /usr/include/c++/7/iomanip /usr/include/c++/7/locale \
- /usr/include/c++/7/bits/locale_facets_nonio.h /usr/include/c++/7/ctime \
+ /usr/include/c++/7/bits/locale_facets_nonio.h \
  /usr/include/x86_64-linux-gnu/c++/7/bits/time_members.h \
  /usr/include/x86_64-linux-gnu/c++/7/bits/messages_members.h \
  /usr/include/libintl.h /usr/include/c++/7/bits/locale_facets_nonio.tcc \
  /usr/include/c++/7/bits/locale_conv.h \
  /usr/include/c++/7/bits/stringfwd.h /usr/include/c++/7/bits/allocator.h \
  /usr/include/c++/7/bits/codecvt.h /usr/include/c++/7/bits/unique_ptr.h \
- /usr/include/x86_64-linux-gnu/sys/times.h \
+ /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+ /usr/include/x86_64-linux-gnu/bits/environments.h \
+ /usr/include/x86_64-linux-gnu/bits/confname.h \
+ /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
+ /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
+ /usr/include/x86_64-linux-gnu/bits/unistd.h \
  /usr/include/x86_64-linux-gnu/sys/resource.h \
  /usr/include/x86_64-linux-gnu/bits/resource.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_rusage.h \
- /usr/local/share/yosys/include/kernel/yosys.h \
- /usr/include/c++/7/algorithm /usr/include/c++/7/bits/stl_algo.h \
- /usr/include/c++/7/bits/algorithmfwd.h \
- /usr/include/c++/7/bits/stl_heap.h /usr/include/c++/7/bits/stl_tempbuf.h \
- /usr/include/c++/7/bits/uniform_int_dist.h /usr/include/c++/7/limits \
- /usr/include/c++/7/functional /usr/include/c++/7/bits/std_function.h \
- /usr/include/c++/7/bits/refwrap.h /usr/include/c++/7/unordered_map \
- /usr/include/c++/7/bits/hashtable.h \
- /usr/include/c++/7/bits/hashtable_policy.h \
- /usr/include/c++/7/bits/unordered_map.h /usr/include/c++/7/unordered_set \
- /usr/include/c++/7/bits/unordered_set.h /usr/include/c++/7/memory \
- /usr/include/c++/7/bits/stl_raw_storage_iter.h \
- /usr/include/c++/7/ext/concurrence.h \
- /usr/include/c++/7/bits/unique_ptr.h \
- /usr/include/c++/7/bits/shared_ptr.h \
- /usr/include/c++/7/bits/shared_ptr_base.h \
- /usr/include/c++/7/bits/allocated_ptr.h \
- /usr/include/c++/7/bits/shared_ptr_atomic.h \
- /usr/include/c++/7/bits/atomic_base.h \
- /usr/include/c++/7/bits/atomic_lockfree_defines.h \
- /usr/include/c++/7/backward/auto_ptr.h /usr/include/c++/7/cmath \
- /usr/include/math.h /usr/include/x86_64-linux-gnu/bits/math-vector.h \
- /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
- /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
- /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
- /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
- /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
- /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
- /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
- /usr/include/x86_64-linux-gnu/bits/mathinline.h \
- /usr/include/c++/7/cstddef /usr/include/c++/7/sstream \
- /usr/include/c++/7/bits/sstream.tcc /usr/include/string.h \
- /usr/include/strings.h \
- /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
- /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
- /usr/include/tcl8.6/tcl.h /usr/include/tcl8.6/tclDecls.h \
- /usr/include/tcl8.6/tclPlatDecls.h \
- /usr/local/share/yosys/include/kernel/hashlib.h \
- /usr/local/share/yosys/include/kernel/log.h /usr/include/c++/7/regex \
- /usr/include/c++/7/bitset /usr/include/c++/7/iterator \
- /usr/include/c++/7/bits/stream_iterator.h /usr/include/c++/7/stack \
- /usr/include/c++/7/deque /usr/include/c++/7/bits/stl_deque.h \
- /usr/include/c++/7/bits/deque.tcc /usr/include/c++/7/bits/stl_stack.h \
- /usr/include/c++/7/cstring /usr/include/c++/7/bits/regex_constants.h \
- /usr/include/c++/7/bits/regex_error.h \
- /usr/include/c++/7/bits/regex_automaton.h \
- /usr/include/c++/7/bits/regex_automaton.tcc \
- /usr/include/c++/7/bits/regex_scanner.h \
- /usr/include/c++/7/bits/regex_scanner.tcc \
- /usr/include/c++/7/bits/regex_compiler.h \
- /usr/include/c++/7/bits/regex_compiler.tcc \
- /usr/include/c++/7/bits/regex.h /usr/include/c++/7/bits/regex.tcc \
- /usr/include/c++/7/bits/regex_executor.h \
- /usr/include/c++/7/bits/regex_executor.tcc \
- /usr/include/x86_64-linux-gnu/sys/time.h /usr/include/signal.h \
- /usr/include/x86_64-linux-gnu/bits/signum.h \
- /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
- /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
- /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h \
- /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h \
- /usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h \
- /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
- /usr/include/x86_64-linux-gnu/bits/sigevent-consts.h \
- /usr/include/x86_64-linux-gnu/bits/sigaction.h \
- /usr/include/x86_64-linux-gnu/bits/sigcontext.h \
- /usr/include/x86_64-linux-gnu/bits/types/stack_t.h \
- /usr/include/x86_64-linux-gnu/sys/ucontext.h \
- /usr/include/x86_64-linux-gnu/bits/sigstack.h \
- /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
- /usr/include/x86_64-linux-gnu/bits/sigthread.h \
- /usr/local/share/yosys/include/kernel/rtlil.h \
- /usr/local/share/yosys/include/kernel/constids.inc \
- /usr/local/share/yosys/include/kernel/register.h
+ ../../include/util.h ../../include/rnGen.h /usr/include/c++/7/stdlib.h \
+ ../../include/myUsage.h
 
 /usr/include/stdc-predef.h:
 
-gvNtkCmd.h:
+gvCmdComm.h:
 
-../../include/gvCmdMgr.h:
+gvCmdMgr.h:
 
 /usr/include/c++/7/iostream:
 
@@ -652,25 +582,13 @@ gvNtkCmd.h:
 
 ../../include/gvMsg.h:
 
-../../include/util.h:
+../../include/gvUsage.h:
 
-../../include/rnGen.h:
+../../include/gvMsg.h:
 
-/usr/include/unistd.h:
+../../include/gvIntType.h:
 
-/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
-
-/usr/include/x86_64-linux-gnu/bits/environments.h:
-
-/usr/include/x86_64-linux-gnu/bits/confname.h:
-
-/usr/include/x86_64-linux-gnu/bits/getopt_posix.h:
-
-/usr/include/x86_64-linux-gnu/bits/getopt_core.h:
-
-/usr/include/x86_64-linux-gnu/bits/unistd.h:
-
-/usr/include/c++/7/stdlib.h:
+/usr/lib/gcc/x86_64-linux-gnu/7/include/float.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/7/include-fixed/limits.h:
 
@@ -690,15 +608,31 @@ gvNtkCmd.h:
 
 /usr/include/x86_64-linux-gnu/bits/uio_lim.h:
 
-../../include/myUsage.h:
+/usr/include/inttypes.h:
+
+/usr/include/x86_64-linux-gnu/sys/times.h:
+
+/usr/include/c++/7/ctime:
+
+/usr/include/c++/7/cassert:
+
+/usr/include/assert.h:
+
+/usr/include/c++/7/cstring:
+
+/usr/include/string.h:
+
+/usr/include/strings.h:
+
+/usr/include/x86_64-linux-gnu/bits/strings_fortified.h:
+
+/usr/include/x86_64-linux-gnu/bits/string_fortified.h:
 
 /usr/include/c++/7/iomanip:
 
 /usr/include/c++/7/locale:
 
 /usr/include/c++/7/bits/locale_facets_nonio.h:
-
-/usr/include/c++/7/ctime:
 
 /usr/include/x86_64-linux-gnu/c++/7/bits/time_members.h:
 
@@ -718,7 +652,19 @@ gvNtkCmd.h:
 
 /usr/include/c++/7/bits/unique_ptr.h:
 
-/usr/include/x86_64-linux-gnu/sys/times.h:
+/usr/include/unistd.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
+
+/usr/include/x86_64-linux-gnu/bits/environments.h:
+
+/usr/include/x86_64-linux-gnu/bits/confname.h:
+
+/usr/include/x86_64-linux-gnu/bits/getopt_posix.h:
+
+/usr/include/x86_64-linux-gnu/bits/getopt_core.h:
+
+/usr/include/x86_64-linux-gnu/bits/unistd.h:
 
 /usr/include/x86_64-linux-gnu/sys/resource.h:
 
@@ -726,196 +672,10 @@ gvNtkCmd.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_rusage.h:
 
-/usr/local/share/yosys/include/kernel/yosys.h:
+../../include/util.h:
 
-/usr/include/c++/7/algorithm:
+../../include/rnGen.h:
 
-/usr/include/c++/7/bits/stl_algo.h:
+/usr/include/c++/7/stdlib.h:
 
-/usr/include/c++/7/bits/algorithmfwd.h:
-
-/usr/include/c++/7/bits/stl_heap.h:
-
-/usr/include/c++/7/bits/stl_tempbuf.h:
-
-/usr/include/c++/7/bits/uniform_int_dist.h:
-
-/usr/include/c++/7/limits:
-
-/usr/include/c++/7/functional:
-
-/usr/include/c++/7/bits/std_function.h:
-
-/usr/include/c++/7/bits/refwrap.h:
-
-/usr/include/c++/7/unordered_map:
-
-/usr/include/c++/7/bits/hashtable.h:
-
-/usr/include/c++/7/bits/hashtable_policy.h:
-
-/usr/include/c++/7/bits/unordered_map.h:
-
-/usr/include/c++/7/unordered_set:
-
-/usr/include/c++/7/bits/unordered_set.h:
-
-/usr/include/c++/7/memory:
-
-/usr/include/c++/7/bits/stl_raw_storage_iter.h:
-
-/usr/include/c++/7/ext/concurrence.h:
-
-/usr/include/c++/7/bits/unique_ptr.h:
-
-/usr/include/c++/7/bits/shared_ptr.h:
-
-/usr/include/c++/7/bits/shared_ptr_base.h:
-
-/usr/include/c++/7/bits/allocated_ptr.h:
-
-/usr/include/c++/7/bits/shared_ptr_atomic.h:
-
-/usr/include/c++/7/bits/atomic_base.h:
-
-/usr/include/c++/7/bits/atomic_lockfree_defines.h:
-
-/usr/include/c++/7/backward/auto_ptr.h:
-
-/usr/include/c++/7/cmath:
-
-/usr/include/math.h:
-
-/usr/include/x86_64-linux-gnu/bits/math-vector.h:
-
-/usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h:
-
-/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
-
-/usr/include/x86_64-linux-gnu/bits/fp-logb.h:
-
-/usr/include/x86_64-linux-gnu/bits/fp-fast.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathcalls.h:
-
-/usr/include/x86_64-linux-gnu/bits/iscanonical.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathinline.h:
-
-/usr/include/c++/7/cstddef:
-
-/usr/include/c++/7/sstream:
-
-/usr/include/c++/7/bits/sstream.tcc:
-
-/usr/include/string.h:
-
-/usr/include/strings.h:
-
-/usr/include/x86_64-linux-gnu/bits/strings_fortified.h:
-
-/usr/include/x86_64-linux-gnu/bits/string_fortified.h:
-
-/usr/include/tcl8.6/tcl.h:
-
-/usr/include/tcl8.6/tclDecls.h:
-
-/usr/include/tcl8.6/tclPlatDecls.h:
-
-/usr/local/share/yosys/include/kernel/hashlib.h:
-
-/usr/local/share/yosys/include/kernel/log.h:
-
-/usr/include/c++/7/regex:
-
-/usr/include/c++/7/bitset:
-
-/usr/include/c++/7/iterator:
-
-/usr/include/c++/7/bits/stream_iterator.h:
-
-/usr/include/c++/7/stack:
-
-/usr/include/c++/7/deque:
-
-/usr/include/c++/7/bits/stl_deque.h:
-
-/usr/include/c++/7/bits/deque.tcc:
-
-/usr/include/c++/7/bits/stl_stack.h:
-
-/usr/include/c++/7/cstring:
-
-/usr/include/c++/7/bits/regex_constants.h:
-
-/usr/include/c++/7/bits/regex_error.h:
-
-/usr/include/c++/7/bits/regex_automaton.h:
-
-/usr/include/c++/7/bits/regex_automaton.tcc:
-
-/usr/include/c++/7/bits/regex_scanner.h:
-
-/usr/include/c++/7/bits/regex_scanner.tcc:
-
-/usr/include/c++/7/bits/regex_compiler.h:
-
-/usr/include/c++/7/bits/regex_compiler.tcc:
-
-/usr/include/c++/7/bits/regex.h:
-
-/usr/include/c++/7/bits/regex.tcc:
-
-/usr/include/c++/7/bits/regex_executor.h:
-
-/usr/include/c++/7/bits/regex_executor.tcc:
-
-/usr/include/x86_64-linux-gnu/sys/time.h:
-
-/usr/include/signal.h:
-
-/usr/include/x86_64-linux-gnu/bits/signum.h:
-
-/usr/include/x86_64-linux-gnu/bits/signum-generic.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/siginfo-arch.h:
-
-/usr/include/x86_64-linux-gnu/bits/siginfo-consts.h:
-
-/usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/sigval_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/sigevent-consts.h:
-
-/usr/include/x86_64-linux-gnu/bits/sigaction.h:
-
-/usr/include/x86_64-linux-gnu/bits/sigcontext.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/stack_t.h:
-
-/usr/include/x86_64-linux-gnu/sys/ucontext.h:
-
-/usr/include/x86_64-linux-gnu/bits/sigstack.h:
-
-/usr/include/x86_64-linux-gnu/bits/ss_flags.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h:
-
-/usr/include/x86_64-linux-gnu/bits/sigthread.h:
-
-/usr/local/share/yosys/include/kernel/rtlil.h:
-
-/usr/local/share/yosys/include/kernel/constids.inc:
-
-/usr/local/share/yosys/include/kernel/register.h:
+../../include/myUsage.h:

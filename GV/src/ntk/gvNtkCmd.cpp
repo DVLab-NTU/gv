@@ -6,7 +6,8 @@
 #include <string>
 #include "util.h"
 
-
+#include "kernel/yosys.h"
+USING_YOSYS_NAMESPACE
 // #include "v3Usage.h"
 // #include "v3CmdMgr.h"
 // #include "v3StrUtil.h"
@@ -17,6 +18,7 @@
 
 bool initNtkCmd() {
     return (
+            gvCmdMgr->regCmd("SEt Engine",         2, 1, new GVSetEngineCmd   )  &&
             gvCmdMgr->regCmd("REad Design",         2, 1, new GVReadDesignCmd   )  &&
             gvCmdMgr->regCmd("PRint Info",          2, 1, new GVPrintInfoCmd    )  &&
             gvCmdMgr->regCmd("VErilog2 Aig",        2, 1, new GVVerilog2AigCmd  )
@@ -30,22 +32,169 @@ bool initNtkCmd() {
 // V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
 // V3Handler v3Handler;
 
+//----------------------------------------------------------------------
+// SEt Engine <(string engineName)>
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVSetEngineCmd ::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "I am GVSetEngineCmd" << endl;
+
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    // Missing Option
+    if(n == 0){
+        cerr << "ERROR: Please input an \"Engine Name\"<(string engineName)> !" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string engineName)>");
+    }
+    // Extra option(s)
+    if(n > 1){
+        string extraOption = "";
+        for(int i = 1; i < n ; ++i){extraOption += options[i];}
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, extraOption);
+    }
+    vector<string> engNameList = {"yosys","abc","v3"};
+    string& token =options[0];
+    size_t engPos = 0;
+    for (;engPos < engNameList.size(); ++engPos){
+        // convert the engine name to lower case
+        for_each(token.begin(), token.end(), [](char & c){c = ::tolower(c);});
+        //cout << "token: " << token << endl;
+        if(token == engNameList[engPos]){
+            break;
+        }
+        else if (token.size() < engNameList[engPos].size()){
+            if(token == engNameList[engPos].substr(0,token.size()))
+                break;
+        }
+        
+    }
+    switch(engPos){
+        case GVEngine::GV_ENGINE_YOSYS:{
+            gvEng = GVEngine::GV_ENGINE_YOSYS;
+            break;
+        }
+        case GVEngine::GV_ENGINE_ABC:{
+            gvEng = GVEngine::GV_ENGINE_ABC;
+            break;
+        }
+        case GVEngine::GV_ENGINE_V3:{
+            gvEng = GVEngine::GV_ENGINE_V3;
+            break;
+        }
+        default:{
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+        }
+    };
+    cout << "Set Engine \""<< engNameList[engPos] <<"\" Success !!" <<endl;
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVSetEngineCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: SEt Engine <(string engineName)> " << endl;
+    gvMsg(GV_MSG_IFO) << "Param: <(string engineName)>  :  Name of the engine. <(yosys) | (abc) | (v3)>" << endl;
+}
+
+void
+GVSetEngineCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt Engine: " << "Set the specific engine to parse the design." << endl;
+}
 
 //----------------------------------------------------------------------
-// REad Design <(string fileName)> 
+// REad Design <-Verilog | -Blif  | -Aig> <(string fileName)>
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
 GVReadDesignCmd ::exec(const string& option) {
-    // V3CmdExecStatus status = CMD_EXEC_DONE;
-    // while (status != CMD_EXEC_QUIT) {
-    //     v3CmdMgr->setPrompt();
-    //     status = v3CmdMgr->execOneCmd();
-    //     cout << endl;
-    // }
     gvMsg(GV_MSG_IFO) << "I am GVReadDesignCmd" << endl;
-    return GV_CMD_EXEC_DONE;
 
+    // check option 
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+
+    bool fileVerilog = false, fileBlif = false, fileAig = false;
+    size_t n = options.size();
+    string filename = "";
+
+    if (n == 0)
+        fileVerilog = true;
+    else {
+        for (size_t i = 0; i < n; ++i) {
+            const string& token = options[i];
+            if (myStrNCmp("-Verilog", token, 2) == 0) {
+                if (fileVerilog | fileBlif | fileAig)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                fileVerilog = true;
+                continue;
+            }
+            else if (myStrNCmp("-Blif", token, 2) == 0) {
+                if (fileVerilog | fileBlif | fileAig)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                fileBlif = true; 
+                continue;
+            }
+            else if (myStrNCmp("-Aig", token, 2) == 0) {
+                if (fileVerilog | fileBlif | fileAig)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                fileAig = true;
+                continue;
+            }
+            else {
+                if ( !fileVerilog && !fileBlif && !fileAig )
+                    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+
+                if (filename == "") filename = token;
+                else return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                continue;
+            }
+            
+        }
+    }
+    if (filename == "") return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string filename)>");
+    if(fileVerilog){
+        string fileExt =  filename.substr(filename.size()-2,2);
+        if(fileExt != ".v")
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
+    }
+    else if(fileBlif){
+        string fileExt =  filename.substr(filename.size()-5,5);
+        if(fileExt != ".blif")
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
+    }
+    else if(fileAig){
+        string fileExt =  filename.substr(filename.size()-4,4);
+        if(fileExt != ".aig")
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
+    }
+
+    cout << "\nfile name: " << filename << "\n";
+    if(gvEng == GVEngine::GV_ENGINE_YOSYS){
+        log_streams.push_back(&std::cout);            
+        string yosCommand = "";
+        yosys_setup();
+        if(fileVerilog) yosCommand += "read_verilog ";
+        else if(fileBlif) yosCommand += "read_blif ";
+        //cout << yosCommand + filename <<"\n";
+        run_pass(yosCommand + filename);
+        //run_pass("help -all");
+    }   
+    else if (gvEng == GVEngine::GV_ENGINE_ABC){
+        /*char execCmd[128];
+        cout << "Start abc read rtl\n";
+        string outname = "test.aig";
+        sprintf(execCmd, "read rtl %s", inname.c_str());
+        sprintf(execCmd, "blast ntk");
+        sprintf(execCmd, "write aig %s", outname.c_str());*/
+        return GV_CMD_EXEC_DONE;    
+    }
+    else if(gvEng == GVEngine::GV_ENGINE_V3){
+        return GV_CMD_EXEC_DONE;
+    }
+    
+    inputFileExist = true; 
+    return GV_CMD_EXEC_DONE;
 }
 
 void
@@ -59,12 +208,91 @@ GVReadDesignCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// PRint Info
+// PRint Info [-Verbose]
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
 GVPrintInfoCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVPrintInfoCmd" << endl;
+    /*Abc_Start();
+	pAbc = Abc_FrameGetGlobalFrame();
+    Abc_Stop();*/
+    int numFF = 0, numPI = 0, numPO = 0, numPIO = 0, numConst = 0, numNet = 0;
+    int numMux = 0, numAnd = 0, numAdd = 0, numSub = 0, numMul = 0, numEq = 0, numNot = 0, numLe = 0, numGe = 0;
+    bool verbose = false;
+    
+    // check option 
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        if (myStrNCmp("-Verbose", token, 2) == 0) {
+            verbose = true;
+            continue;
+        }
+        else{
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+        }
+    }
+
+
+    if(gvEng == GVEngine::GV_ENGINE_YOSYS){
+        gvMsg(GV_MSG_IFO) << "Modules in current design: ";
+        gvMsg(GV_MSG_IFO) << log_id(yosys_design->top_module()->name) <<"(" << GetSize(yosys_design->top_module()->wires()) <<" wires, " << GetSize(yosys_design->top_module()->cells()) << " cells)\n";
+
+        for(auto wire : yosys_design->top_module()->wires()){
+            //string wire_name = log_id(wire->name);
+            if(wire->port_input){
+                numPI++;
+                //gvMsg(GV_MSG_IFO) << "  PI: " + wire_name  << setw(25  - (wire->name.size()))<< "->      " << wire->width << " bits width\n";
+            }
+            if(wire->port_output){
+                numPO++;
+                //gvMsg(GV_MSG_IFO) << "  PO: " + wire_name  << setw(25  - (wire->name.size()))<< "->      " << wire->width << " bits width\n";
+            }
+        }
+        if(verbose){
+            /**/
+            for(auto cell : yosys_design->top_module()->cells()){
+                if (cell->type.in(ID($mux))) numMux++;
+                else if (cell->type.in(ID($logic_and))) numAnd++;
+                else if(cell->type.in(ID($add))) numAdd++;
+                else if (cell->type.in(ID($sub))) numSub++;
+                else if (cell->type.in(ID($mul))) numMul++;
+                else if (cell->type.in(ID($eq))) numEq++;
+                else if (cell->type.in(ID($logic_not))) numNot++;
+                else if (cell->type.in(ID($lt))) numLe++;
+                else if (cell->type.in(ID($ge))) numGe++;
+
+                //log("  This is cell: %s  %s\n", log_id(cell->name), log_id(cell->type));
+            }
+            gvMsg(GV_MSG_IFO) << "=========================\n";
+            gvMsg(GV_MSG_IFO) << "   MUX" << setw(15) << numMux << "\n";
+            gvMsg(GV_MSG_IFO) << "   AND" << setw(15) << numAnd << "\n";
+            gvMsg(GV_MSG_IFO) << "   ADD" << setw(15) << numAdd << "\n";
+            gvMsg(GV_MSG_IFO) << "   SUB" << setw(15) << numSub << "\n";
+            gvMsg(GV_MSG_IFO) << "   MUL" << setw(15) << numMul << "\n";
+            gvMsg(GV_MSG_IFO) << "   EQ" << setw(16) << numEq << "\n";
+            gvMsg(GV_MSG_IFO) << "   NOT" << setw(15) << numNot << "\n";
+            gvMsg(GV_MSG_IFO) << "   LT" << setw(16) << numLe << "\n";
+            gvMsg(GV_MSG_IFO) << "   GE" << setw(16) << numGe << "\n";
+            gvMsg(GV_MSG_IFO) << "=========================\n";
+            gvMsg(GV_MSG_IFO) << "   PI" << setw(16) << numPI << "\n";
+            gvMsg(GV_MSG_IFO) << "   PO" << setw(16) << numPI << "\n";
+            gvMsg(GV_MSG_IFO) << "=========================\n";
+            //gvMsg(GV_MSG_IFO) << "   PI" << setw(16) << numPI << "\n";
+        }
+        else
+            gvMsg(GV_MSG_IFO) << "#PI = " << numPI << ", #PO = " << numPO << ", #PIO = " << numPIO << "\n";
+    }
+    else if(gvEng == GVEngine::GV_ENGINE_ABC){
+        return GV_CMD_EXEC_DONE;
+    }
+    else if(gvEng == GVEngine::GV_ENGINE_V3){
+        return GV_CMD_EXEC_DONE;
+    }
     return GV_CMD_EXEC_DONE;
 }
 
