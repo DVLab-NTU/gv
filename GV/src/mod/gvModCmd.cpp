@@ -51,11 +51,11 @@ GVSetSystemCmd ::exec(const string& option) {
 
 void
 GVSetSystemCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: SEt System <formal | sim>" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: SEt SYStem <setup | vrf>" << endl;
 }
 
 void
 GVSetSystemCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt System: " << "Switch to system mode." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt System: " << "Switch to setup/vrf mode." << endl;
 }
 #endif
