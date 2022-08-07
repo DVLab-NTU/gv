@@ -223,9 +223,12 @@ GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2, GVCmdExec* e
 GVCmdExecStatus
 GVCmdMgr::execOneCmd() {
    // Read User Command Input
-   char* execCmd = 0;
+   string str = "";
+   char* execCmd = new char[1024];
    if (_dofile.is_open()) {
-      execCmd = new char[1024]; _dofile.getline(execCmd, 1024);
+      getline(_dofile, str);
+      if (!_dofile.eof()) str = str.substr(0, str.length()-1);
+      strcpy(execCmd, str.c_str());
       cout << getPrompt() << execCmd << endl;
       if (_dofile.eof()) closeDofile();
    }
