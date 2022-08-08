@@ -21,7 +21,7 @@ ENABLE_VERIFIC := 0
 DISABLE_VERIFIC_EXTENSIONS := 0
 DISABLE_VERIFIC_VHDL := 0
 ENABLE_COVER := 1
-ENABLE_LIBYOSYS := 0
+ENABLE_LIBYOSYS := 1
 ENABLE_PROTOBUF := 0
 ENABLE_ZLIB := 1
 
@@ -678,6 +678,7 @@ include $(YOSYS_SRC)/frontends/*/Makefile.inc
 include $(YOSYS_SRC)/passes/*/Makefile.inc
 include $(YOSYS_SRC)/backends/*/Makefile.inc
 include $(YOSYS_SRC)/techlibs/*/Makefile.inc
+include $(YOSYS_SRC)/ext-sim/Makefile.inc
 
 else
 

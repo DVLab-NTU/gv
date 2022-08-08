@@ -3,6 +3,7 @@
 
 #include "gvCmdMgr.h"
 
+GV_COMMAND(GVSetEngineCmd,        GV_CMD_TYPE_NETWORK);
 GV_COMMAND(GVReadDesignCmd,       GV_CMD_TYPE_NETWORK);
 GV_COMMAND(GVPrintInfoCmd,        GV_CMD_TYPE_NETWORK);
 GV_COMMAND(GVVerilog2AigCmd,      GV_CMD_TYPE_NETWORK);

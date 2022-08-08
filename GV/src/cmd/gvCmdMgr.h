@@ -7,7 +7,7 @@
 #include <string>
 #include <map>
 #include <set>
-
+#include "gvModMgr.h"
 
 
 using namespace std;
@@ -24,7 +24,8 @@ const string GVCmdTypeString[] = {
     "Verify",
     "Simulate",
     "Network",
-    "Abc"
+    "Abc",
+    "Mode"
 };
 
 // Command Categories Enum
@@ -37,6 +38,7 @@ enum GVCmdType
    GV_CMD_TYPE_SIMULATE    = 3,
    GV_CMD_TYPE_NETWORK     = 4,
    GV_CMD_TYPE_ABC         = 5,
+   GV_CMD_TYPE_MOD         = 6,
 };
 
 enum GVCmdExecStatus
@@ -126,7 +128,10 @@ class GVCmdMgr
         void closeDofile() { _dofile.close(); _dofile.clear(); }
 
         inline const string& getPrompt() const { return _prompt; }
-        inline void setPrompt() { _prompt = _defaultPrompt + "> "; }
+        inline void setPrompt() { 
+            //_prompt = _defaultPrompt + "> "; 
+            _prompt = gvModMgr->getModPrompt() + "> "; 
+        }
     
     private :
       // Command Helper Functions

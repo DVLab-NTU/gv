@@ -1,5 +1,5 @@
-SRCPKGS  = cmd ntk util sim vrf abc
-LIBPKGS  = cmd ntk util sim vrf abc
+SRCPKGS  = cmd ntk util sim vrf abc mod
+LIBPKGS  = cmd ntk util sim vrf abc mod
 
 MAIN     = main
 
@@ -59,11 +59,6 @@ clean:
 	@cd src/$(MAIN); make --no-print-directory clean
 	@echo "Removing $(EXEC)..."
 	@rm -f $(EXEC) 
-	@for pkg in $(SRCPKGS); \
-	do \
-		rm src/$$pkg/.*.mak; \
-	done
-	@rm src/main/.*.mak;
 
 ctags:	
 	@rm -f src/tags
