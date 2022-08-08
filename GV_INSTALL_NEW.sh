@@ -4,5 +4,6 @@ make config-gcc;make -j12; make install;
 ar rc gv_src/libyosys.a backends/*/*.o frontends/*/*.o kernel/*.o libs/*/*.o passes/*/*.o techlibs/*/*.o ext-sim/*.o;
 cd ../..;
 make clean;make;make;
+clear;
 ./gv;
 
