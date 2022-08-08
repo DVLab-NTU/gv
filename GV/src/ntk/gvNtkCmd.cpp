@@ -236,7 +236,7 @@ GVPrintInfoCmd ::exec(const string& option) {
 
     GVModEngine currEng = gvModMgr -> getGVEngine(); 
     if(currEng == GV_MOD_ENGINE_YOSYS){
-        gvMsg(GV_MSG_IFO) << "Modules in current design: ";
+        gvMsg(GV_MSG_IFO) << "Modules in current design: \n";
         //gvMsg(GV_MSG_IFO) << log_id(yosys_design->top_module()->name) <<"(" << GetSize(yosys_design->top_module()->wires()) <<" wires, " << GetSize(yosys_design->top_module()->cells()) << " cells)\n";
 
         for(auto wire : yosys_design->top_module()->wires()){
