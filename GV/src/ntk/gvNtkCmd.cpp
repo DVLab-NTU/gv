@@ -174,7 +174,7 @@ GVReadDesignCmd ::exec(const string& option) {
         else if(fileBlif) yosCommand += "read_blif ";
         //cout << yosCommand + filename <<"\n";
         run_pass(yosCommand + filename);
-        //run_pass("help -all");
+        //run_pass("help");
     }   
     else if (currEng == GV_MOD_ENGINE_ABC){
         /*char execCmd[128];
@@ -237,7 +237,7 @@ GVPrintInfoCmd ::exec(const string& option) {
     GVModEngine currEng = gvModMgr -> getGVEngine(); 
     if(currEng == GV_MOD_ENGINE_YOSYS){
         gvMsg(GV_MSG_IFO) << "Modules in current design: ";
-        gvMsg(GV_MSG_IFO) << log_id(yosys_design->top_module()->name) <<"(" << GetSize(yosys_design->top_module()->wires()) <<" wires, " << GetSize(yosys_design->top_module()->cells()) << " cells)\n";
+        //gvMsg(GV_MSG_IFO) << log_id(yosys_design->top_module()->name) <<"(" << GetSize(yosys_design->top_module()->wires()) <<" wires, " << GetSize(yosys_design->top_module()->cells()) << " cells)\n";
 
         for(auto wire : yosys_design->top_module()->wires()){
             //string wire_name = log_id(wire->name);
