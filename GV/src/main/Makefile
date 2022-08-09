@@ -9,5 +9,7 @@ target: $(TARGET)
 
 $(TARGET): $(COBJS) $(LIBDEP)
 	@echo "> building $(EXEC)..."
-	@$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) -L$(LIBDIR) $(EXTLIB) -static -lpthread -o $@
+	$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) -L$(LIBDIR)  $(EXTLIB) -lyosys -lpthread -o $@
+#	@$(YOSYSCONF) -o $@  --cxxflags -rdynamic -I$(INCDIR) $(COBJS) -L$(LIBDIR) --ldlibs -lstdc++ $(EXTLIB) -pthread -lyosys
+#	@$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) -L$(LIBDIR) $(EXTLIB) -static -lpthread -o $@
 #	@$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) -L$(LIBDIR) $(EXTLIB) -lpthread -o $@
