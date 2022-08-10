@@ -7,6 +7,7 @@ using namespace std;
 
 class GVModMgr;
 
+
 const string GVEngineString[] = {
     "yosys",
     "abc",
