@@ -15,7 +15,7 @@ using namespace std;
 
 extern AbcMgr* abcMgr;
 
-bool initVrfCmd() {
+bool GVinitVrfCmd() {
     return (
          gvCmdMgr->regCmd("Formal Verify",      1, 1, new GVFormalVerifyCmd   ) 
     );
@@ -42,30 +42,16 @@ GVFormalVerifyCmd ::exec(const string& option) {
 
 	// get filename, formal method (can keep doing error handling) 
 	size_t n = options.size();
-    cout << "#################" << endl;
-    cout << "# input command #" << endl;
-    cout << "#################" << endl;
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
-        cout << "option[" << i << "]: " << options[i] << endl;
-        if (myStrNCmp("-input", token, 6) == 0) {
-            // if no specify input file
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if input file not an AIG 
-            else if (strncmp(options[i+1].substr(options[i+1].length()-4, options[i+1].length()).c_str(), ".aig", 4)) 
-            {
-                cerr << "ERROR: Please input an \"AIG\" file (<filename>.aig) !" << endl;
-                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-            }
-            else { strcpy(fname, options[i+1].c_str()); }
-        }
-        else if (myStrNCmp("-bmc", token, 4) == 0) {
+        // cout << "option[" << i << "]: " << options[i] << endl;
+        if (myStrNCmp("-bmc", token, 4) == 0) {
             // if no specify int_depth
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
             // if int_depth not an integer 
             else if (!strspn(options[i+1].c_str(), "0123456789")) 
             {
-                cerr << "ERROR: Please input an \"integer\" time frame for BMC (int_depth) !" << endl;
+                cerr << "[ERROR]: Please input an \"integer\" time frame for BMC (int_depth) !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
             }
             else { bmc = true; bmc_depth = stoi(options[i+1]); }
@@ -76,10 +62,6 @@ GVFormalVerifyCmd ::exec(const string& option) {
 
     // command 
     char Command[1024];
-    cout << "\n" << endl;
-    cout << "#################" << endl;
-    cout << "# output result #" << endl;
-    cout << "#################" << endl;
     string aigFileName = gvModMgr->getAigFileName();
     sprintf( Command, "read %s", aigFileName ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
     sprintf( Command, "strash" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
@@ -93,7 +75,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
 
 void
 GVFormalVerifyCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: Formal Verify " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: Formal Verify [-bmc <int_depth> | -pdr | -itp] " << endl;
 }
 
 void

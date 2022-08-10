@@ -27,12 +27,12 @@ GVUsage gvUsage;
 //----------------------------------------------------------------------
 GVCmdMgr* gvCmdMgr = new GVCmdMgr("gv");
 
-extern bool initCommonCmd();
-extern bool initNtkCmd();
-extern bool initSimCmd();
-extern bool initVrfCmd();
-extern bool initAbcCmd();
-extern bool initModCmd();
+extern bool GVinitCommonCmd();
+extern bool GVinitNtkCmd();
+extern bool GVinitSimCmd();
+extern bool GVinitVrfCmd();
+extern bool GVinitAbcCmd();
+extern bool GVinitModCmd();
 
 
 
@@ -74,7 +74,7 @@ main(int argc, char** argv)
    }
    Yosys::yosys_setup(); // initial yosys command
    Yosys::log_streams.push_back(&std::cout); // log yosys message
-   if (!(initCommonCmd()&&initNtkCmd()&&initSimCmd()&&initVrfCmd()&&initAbcCmd()&&initModCmd()))
+   if (!(GVinitCommonCmd()&&GVinitNtkCmd()&&GVinitSimCmd()&&GVinitVrfCmd()&&GVinitAbcCmd()&&GVinitModCmd()))
       return 1;
 
    GVCmdExecStatus status = GV_CMD_EXEC_DONE;

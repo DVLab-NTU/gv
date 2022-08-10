@@ -8,7 +8,7 @@
 #include <string>
 
 
-bool initCommonCmd() {
+bool GVinitCommonCmd() {
    return (
          gvCmdMgr->regCmd("DOfile",       2,    new GVDofileCmd   ) &&
          gvCmdMgr->regCmd("HELp",         3,    new GVHelpCmd     ) &&

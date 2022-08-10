@@ -9,7 +9,7 @@
 
 #include "kernel/yosys.h"
 USING_YOSYS_NAMESPACE
-bool initSimCmd() {
+bool GVinitSimCmd() {
     return (
          gvCmdMgr->regCmd("RAndom Sim",      2, 1, new GVRandomSimCmd   ) 
     );

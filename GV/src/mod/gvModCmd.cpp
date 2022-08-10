@@ -9,7 +9,7 @@
 #include "util.h"
 
 bool 
-initModCmd() {
+GVinitModCmd() {
     if (gvModMgr) delete gvModMgr;
     gvModMgr = new GVModMgr;
     return (

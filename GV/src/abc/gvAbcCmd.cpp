@@ -8,7 +8,7 @@
 #include <vector>
 #include "util.h"
 
-bool initAbcCmd() {
+bool GVinitAbcCmd() {
     if (abcMgr) delete abcMgr;
     abcMgr = new AbcMgr;
     return (

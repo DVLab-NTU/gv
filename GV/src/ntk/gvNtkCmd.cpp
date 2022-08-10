@@ -17,12 +17,12 @@
 
 USING_YOSYS_NAMESPACE
 
-bool initNtkCmd() {
+bool GVinitNtkCmd() {
     return (
             gvCmdMgr->regCmd("SEt Engine",         2, 1, new GVSetEngineCmd   )  &&
             gvCmdMgr->regCmd("REad Design",         2, 1, new GVReadDesignCmd   )  &&
             gvCmdMgr->regCmd("PRint Info",          2, 1, new GVPrintInfoCmd    )  &&
-            gvCmdMgr->regCmd("VErilog2 Aig",        2, 1, new GVVerilog2AigCmd  )
+            gvCmdMgr->regCmd("FILE2 Aig",           4, 1, new GVFile2AigCmd  )
     );
 }
 
@@ -349,65 +349,62 @@ GVPrintInfoCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// VErilog2 Aig
+// File2 Aig <-Verilog> <input_filename> <output_filename.aig>
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
-GVVerilog2AigCmd ::exec(const string& option) {
-    gvMsg(GV_MSG_IFO) << "I am GVVerilog2AigCmd" << endl;
+GVFile2AigCmd ::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "I am GVFile2AigCmd" << endl;
     
     initV3();
+    char inname[128], outname[128];
+    bool infileIsVerilog = false;
 
     // get file name
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-
-	size_t n = options.size();
-    char inname[128], outname[128];
-    bool hasinfile = false, hasoutfile = false;
-
-    cout << "#################" << endl;
-    cout << "# input command #" << endl;
-    cout << "#################" << endl;
-    for (size_t i = 0; i < n; ++i) {
-        const string& token = options[i];
-        cout << "option[" << i << "]: " << options[i] << endl;
-        if (myStrNCmp("-input", token, 6) == 0) {
-            // if no specify input file
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if input file not an AIG 
-            else if (strncmp(options[i+1].substr(options[i+1].length()-2, options[i+1].length()).c_str(), ".v", 2)) 
-            {
-                cerr << "ERROR: Please input an \"Verilog\" file (<filename>.v) !" << endl;
-                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-            }
-            else { strcpy(inname, options[i+1].c_str()); hasinfile = true; }
-        }
-        else if (myStrNCmp("-output", token, 7) == 0) {
-            // if no specify input file
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if input file not an AIG 
-            else if (strncmp(options[i+1].substr(options[i+1].length()-4, options[i+1].length()).c_str(), ".aig", 4)) 
-            {
-                cerr << "ERROR: Please input an \"AIG\" file (<filename>.aig) !" << endl;
-                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-            }
-            else { strcpy(outname, options[i+1].c_str()); hasoutfile = true; }
-        }
+    size_t n = options.size();
+    // Missing Option
+    if(n == 0){
+        cerr << "[ERROR]: Please input an \"Output AIG Filename\"<(string filename).aig> !" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string filename).aig>");
     }
-    // need both input and output file
-    if ((!hasinfile) || (!hasoutfile))
+    // Extra option(s)
+    if(n > 1){
+        string extraOption = "";
+        for(int i = 1; i < n ; ++i){extraOption += options[i];}
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, extraOption);
+    }
+    // check file name
+    string& token = options[0];
+    // (1) if not output an AIG
+    if (strncmp(token.substr(token.length()-4, token.length()).c_str(), ".aig", 4))
     {
-        cerr << "ERROR: Both input and output file are required !" << endl;
-        const string& missing = ((!hasinfile) && (!hasoutfile)) ? "Input / Output file" : ((!hasinfile)) ? "Input file" : (!hasoutfile) ? "Output file" : "";
-        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, missing);
+        cerr << "[ERROR]: Please output an \"AIG\" file (<filename>.aig) !" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+    }
+    strcpy(outname, token.c_str()); 
+    // (2) read design input file needs to be supported format
+    string inputname = gvModMgr->getInputFileName();
+    strcpy(inname, inputname.c_str());
+    if (gvModMgr->getInputFileName() == "")
+    {
+        gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" to read a file first !\n";
+        return GV_CMD_EXEC_NOP;
+    }
+    else if (!strncmp(inputname.substr(inputname.length()-2, inputname.length()).c_str(), ".v", 2)) { infileIsVerilog = true; }
+    else 
+    {
+        gvMsg(GV_MSG_IFO) << "[ERROR]: Current version only support Verilog to AIG file !\n";
+        return GV_CMD_EXEC_NOP;
     }
 
     // refer to v3CmdMgr.cpp & main.cpp, execute the virtual layer of GVCmdExec*
     char execCmd[128];
     string cmd1 = "", cmd2 = "", cmd3 = "";
 
-    sprintf(execCmd, "read rtl %s", inname);
+    // verilog2 aig
+    if (infileIsVerilog) { sprintf(execCmd, "read rtl %s", inname); }
     string command = string(execCmd);
     e = parseV3Cmd(command, cmd1);
     e->exec(cmd1);
@@ -429,13 +426,13 @@ GVVerilog2AigCmd ::exec(const string& option) {
 }
 
 void
-GVVerilog2AigCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: VErilog2 Aig " << endl;
+GVFile2AigCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: File2 Aig <-Verilog> <input_filename> <output_filename.aig> " << endl;
 }
 
 void
-GVVerilog2AigCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "VErilog2 Aig: " << "Convert verilog file into AIG. " << endl;
+GVFile2AigCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "File2 Aig: " << "Convert verilog file into AIG. " << endl;
 }
 
 
