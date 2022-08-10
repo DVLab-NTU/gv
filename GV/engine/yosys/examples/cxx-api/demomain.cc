@@ -10,7 +10,8 @@ int main()
 
 	Yosys::yosys_setup();
 	Yosys::yosys_banner();
-
+	
+	Yosys::run_pass("help");
 	Yosys::run_pass("read_verilog example.v");
 	Yosys::run_pass("synth -noabc");
 	Yosys::run_pass("clean -purge");

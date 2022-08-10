@@ -232,7 +232,7 @@ GVReadDesignCmd ::exec(const string& option) {
         else if(fileBlif) yosCommand += "read_blif ";
         //cout << yosCommand + filename <<"\n";
         run_pass(yosCommand + filename);
-        run_pass("help");
+        //run_pass("help");
     }   
     else if (currEng == GV_MOD_ENGINE_ABC){
         /*char execCmd[128];
