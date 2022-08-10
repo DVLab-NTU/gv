@@ -165,16 +165,21 @@ GVReadDesignCmd ::exec(const string& option) {
     }
 
     cout << "\nfile name: " << filename << "\n";
+    gvModMgr->setInputFileName(filename);
+    
     GVModEngine currEng = gvModMgr -> getGVEngine();
     if(currEng == GV_MOD_ENGINE_YOSYS){
         log_streams.push_back(&std::cout);            
         string yosCommand = "";
         yosys_setup();
+        cout << "share path: " << proc_self_dirname() <<"\n";
+        cout << "share path: " << proc_share_dirname() <<"\n";
+        cout << "prefix yosys: " << proc_program_prefix() << "\n";
         if(fileVerilog) yosCommand += "read_verilog ";
         else if(fileBlif) yosCommand += "read_blif ";
         //cout << yosCommand + filename <<"\n";
         run_pass(yosCommand + filename);
-        //run_pass("help");
+        run_pass("help");
     }   
     else if (currEng == GV_MOD_ENGINE_ABC){
         /*char execCmd[128];
