@@ -13,7 +13,7 @@
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
 #include "gvUsage.h"
-
+#include "kernel/yosys.h"
 using namespace std;
 
 string GVMsg::_allName = "";
@@ -72,7 +72,8 @@ main(int argc, char** argv)
       cerr << "Error: illegal number of argument (" << argc << ")!!\n";
       myexit();
    }
-
+   Yosys::yosys_setup(); // initial yosys command
+   Yosys::log_streams.push_back(&std::cout); // log yosys message
    if (!(initCommonCmd()&&initNtkCmd()&&initSimCmd()&&initVrfCmd()&&initAbcCmd()&&initModCmd()))
       return 1;
 

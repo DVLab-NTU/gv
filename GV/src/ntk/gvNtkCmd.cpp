@@ -224,10 +224,8 @@ GVReadDesignCmd ::exec(const string& option) {
     gvModMgr->setInputFileExist(true);
 
     GVModEngine currEng = gvModMgr -> getGVEngine();
-    if(currEng == GV_MOD_ENGINE_YOSYS){
-        log_streams.push_back(&std::cout);            
+    if(currEng == GV_MOD_ENGINE_YOSYS){          
         string yosCommand = "";
-        yosys_setup();
         if(fileVerilog) yosCommand += "read_verilog ";
         else if(fileBlif) yosCommand += "read_blif ";
         run_pass(yosCommand + filename);
