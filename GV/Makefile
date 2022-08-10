@@ -3,13 +3,13 @@ LIBPKGS  = cmd ntk util sim vrf abc mod
 
 MAIN     = main
 
-EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi
+EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
-# ENGPKGS	 += v3
-# ENGPKGS	 += minisat
-# ENGPKGS	 += quteRTL
-# ENGPKGS	 += boolector
+ENGPKGS	 += v3
+ENGPKGS	 += minisat
+ENGPKGS	 += quteRTL
+ENGPKGS	 += boolector
 ENGPKGS	 += abc
 ENGPKGS	 += yosys
 

@@ -9,6 +9,12 @@
 #include "kernel/yosys.h"
 #include "gvModMgr.h"
 #include "gvAbcMgr.h"
+#include "v3Msg.h"
+#include "v3Usage.h"
+#include "v3CmdMgr.h"
+#include "v3StrUtil.h"
+#include "v3NtkHandler.h"
+
 USING_YOSYS_NAMESPACE
 
 bool initNtkCmd() {
@@ -20,12 +26,59 @@ bool initNtkCmd() {
     );
 }
 
-// string V3Msg::_allName = "";
-// ofstream V3Msg::_allout;
-// V3MsgMgr Msg;
-// V3Usage v3Usage;
-// V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
-// V3Handler v3Handler;
+string V3Msg::_allName = "";
+ofstream V3Msg::_allout;
+V3MsgMgr Msg;
+V3Usage v3Usage;
+V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
+V3Handler v3Handler;
+V3CmdExec* e = 0;
+
+extern bool initAlgCmd();
+extern bool initDfxCmd();
+extern bool initNtkCmd();
+extern bool initStgCmd();
+extern bool initVrfCmd();
+extern bool initV3MCCmd();
+extern bool initTransCmd();
+extern bool initCommonCmd();
+
+void initV3()
+{
+    // initialize command library
+    if (!(initAlgCmd() && initDfxCmd() && initNtkCmd() && initStgCmd() && initVrfCmd() &&
+            initV3MCCmd() && initTransCmd() && initCommonCmd())) {
+        Msg(MSG_ERR) << "ERROR: Command Register Failed !!!" << endl; exit(0);
+    }
+}
+
+// parseCmd
+V3CmdExec* parseV3Cmd(string raw_cmd, string& final_cmd)
+{
+    V3CmdExec* e_temp = 0;
+    // space count: indicates how many words there are in cmd
+    unsigned spCount = 0;
+    for (size_t i = 0, n = raw_cmd.size(); i < n; ++i)
+        if (raw_cmd[i] == ' ') ++spCount;
+
+    // try to match commands
+    size_t idx = 0;
+    string cmd;
+    for (unsigned i = 0; (i < spCount + 1) && i < 2; ++i)
+    {
+        idx = raw_cmd.find(' ', idx + 1);
+        cmd = raw_cmd.substr(0, idx);
+
+        e_temp = v3CmdMgr->getCmd(cmd);
+        if (e_temp) { break; } 
+    }
+    size_t opt = raw_cmd.find_first_not_of(' ', idx);
+    if (opt != string::npos)
+        final_cmd = raw_cmd.substr(opt);
+    
+    // return 
+    return e_temp;
+}
 
 //----------------------------------------------------------------------
 // SEt Engine <(string engineName)>
@@ -316,71 +369,71 @@ GVCmdExecStatus
 GVVerilog2AigCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVVerilog2AigCmd" << endl;
     
-    // initV3();
+    initV3();
 
     // get file name
-    // vector<string> options;
-    // GVCmdExec::lexOptions(option, options);
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-	// size_t n = options.size();
-    // char inname[128], outname[128];
-    // bool hasinfile = false, hasoutfile = false;
+	size_t n = options.size();
+    char inname[128], outname[128];
+    bool hasinfile = false, hasoutfile = false;
 
-    // cout << "#################" << endl;
-    // cout << "# input command #" << endl;
-    // cout << "#################" << endl;
-    // for (size_t i = 0; i < n; ++i) {
-    //     const string& token = options[i];
-    //     cout << "option[" << i << "]: " << options[i] << endl;
-    //     if (myStrNCmp("-input", token, 6) == 0) {
-    //         // if no specify input file
-    //         if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-    //         // if input file not an AIG 
-    //         else if (strncmp(options[i+1].substr(options[i+1].length()-2, options[i+1].length()).c_str(), ".v", 2)) 
-    //         {
-    //             cerr << "ERROR: Please input an \"Verilog\" file (<filename>.v) !" << endl;
-    //             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-    //         }
-    //         else { strcpy(inname, options[i+1].c_str()); hasinfile = true; }
-    //     }
-    //     else if (myStrNCmp("-output", token, 7) == 0) {
-    //         // if no specify input file
-    //         if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-    //         // if input file not an AIG 
-    //         else if (strncmp(options[i+1].substr(options[i+1].length()-4, options[i+1].length()).c_str(), ".aig", 4)) 
-    //         {
-    //             cerr << "ERROR: Please input an \"AIG\" file (<filename>.aig) !" << endl;
-    //             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-    //         }
-    //         else { strcpy(outname, options[i+1].c_str()); hasoutfile = true; }
-    //     }
-    // }
-    // // need both input and output file
-    // if ((!hasinfile) || (!hasoutfile))
-    // {
-    //     cerr << "ERROR: Both input and output file are required !" << endl;
-    //     const string& missing = ((!hasinfile) && (!hasoutfile)) ? "Input / Output file" : ((!hasinfile)) ? "Input file" : (!hasoutfile) ? "Output file" : "";
-    //     return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, missing);
-    // }
+    cout << "#################" << endl;
+    cout << "# input command #" << endl;
+    cout << "#################" << endl;
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        cout << "option[" << i << "]: " << options[i] << endl;
+        if (myStrNCmp("-input", token, 6) == 0) {
+            // if no specify input file
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if input file not an AIG 
+            else if (strncmp(options[i+1].substr(options[i+1].length()-2, options[i+1].length()).c_str(), ".v", 2)) 
+            {
+                cerr << "ERROR: Please input an \"Verilog\" file (<filename>.v) !" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+            else { strcpy(inname, options[i+1].c_str()); hasinfile = true; }
+        }
+        else if (myStrNCmp("-output", token, 7) == 0) {
+            // if no specify input file
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if input file not an AIG 
+            else if (strncmp(options[i+1].substr(options[i+1].length()-4, options[i+1].length()).c_str(), ".aig", 4)) 
+            {
+                cerr << "ERROR: Please input an \"AIG\" file (<filename>.aig) !" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+            else { strcpy(outname, options[i+1].c_str()); hasoutfile = true; }
+        }
+    }
+    // need both input and output file
+    if ((!hasinfile) || (!hasoutfile))
+    {
+        cerr << "ERROR: Both input and output file are required !" << endl;
+        const string& missing = ((!hasinfile) && (!hasoutfile)) ? "Input / Output file" : ((!hasinfile)) ? "Input file" : (!hasoutfile) ? "Output file" : "";
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, missing);
+    }
 
-    // // refer to v3CmdMgr.cpp & main.cpp, execute the virtual layer of GVCmdExec*
-    // char execCmd[128];
-    // string cmd1 = "", cmd2 = "", cmd3 = "";
+    // refer to v3CmdMgr.cpp & main.cpp, execute the virtual layer of GVCmdExec*
+    char execCmd[128];
+    string cmd1 = "", cmd2 = "", cmd3 = "";
 
-    // sprintf(execCmd, "read rtl %s", inname);
-    // string command = string(execCmd);
-    // e = parseV3Cmd(command, cmd1);
-    // e->exec(cmd1);
+    sprintf(execCmd, "read rtl %s", inname);
+    string command = string(execCmd);
+    e = parseV3Cmd(command, cmd1);
+    e->exec(cmd1);
 
-    // sprintf(execCmd, "blast ntk");
-    // command = string(execCmd);
-    // e = parseV3Cmd(command, cmd2);
-    // e->exec(cmd2);
+    sprintf(execCmd, "blast ntk");
+    command = string(execCmd);
+    e = parseV3Cmd(command, cmd2);
+    e->exec(cmd2);
 
-    // sprintf(execCmd, "write aig %s", outname);
-    // command = string(execCmd);
-    // e = parseV3Cmd(command, cmd3);
-    // e->exec(cmd3);
+    sprintf(execCmd, "write aig %s", outname);
+    command = string(execCmd);
+    e = parseV3Cmd(command, cmd3);
+    e->exec(cmd3);
 
     return GV_CMD_EXEC_DONE;
 }
