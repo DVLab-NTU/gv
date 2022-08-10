@@ -39,15 +39,17 @@ class GVModMgr
     public:
         GVModMgr();
         ~GVModMgr();
-
+//get functions
         bool         getInputFileExist();
         string       getInputFileName();
+        string       getAigFileName();
         GVModType    getGVMode();
         GVModEngine  getGVEngine();
         string       getModPrompt();
-
+//set functions
         void         setInputFileExist(bool exist);
         void         setInputFileName(string& filename);
+        void         setAigFileName(string aigFileName);
         void         setGVMode(GVModType mode);
         void         setGVEngine(GVModEngine engine);
         void         setModPromt();
@@ -55,6 +57,7 @@ class GVModMgr
     private:
         bool          _inputFileExist;
         string        _inputFileName;
+        string        _aig_name;
         string        _modPrompt;
         GVModType     _gvMode;
         GVModEngine   _gvEng;

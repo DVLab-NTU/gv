@@ -11,7 +11,7 @@ GVModMgr* gvModMgr;
 \* -------------------------------------------------- */
 GVModMgr::GVModMgr(){
     _inputFileExist = false;
-    _inputFileName  = "";
+    _inputFileName  = ""; _aig_name = "";
     _gvMode         = GVModType::GV_MOD_TYPE_SETUP;      // default mode   :  Setup
     _gvEng          = GVModEngine::GV_MOD_ENGINE_YOSYS;  // default engine :  yosys
     setModPromt();
@@ -31,6 +31,11 @@ GVModMgr::getInputFileExist(){
 string 
 GVModMgr::getInputFileName(){
     return _inputFileName;
+}
+
+string 
+GVModMgr::getAigFileName(){
+    return _aig_name;
 }
 
 GVModType    
@@ -60,6 +65,11 @@ GVModMgr::setInputFileExist(bool exist){
 void
 GVModMgr::setInputFileName(string& filename){
     _inputFileName = filename;
+}
+
+void
+GVModMgr::setAigFileName(string aigFileName){
+     _aig_name = aigFileName;
 }
 
 void 

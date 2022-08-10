@@ -28,6 +28,12 @@ bool initVrfCmd() {
 GVCmdExecStatus
 GVFormalVerifyCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVFormalVerifyCmd " << endl;
+
+    if( gvModMgr->getAigFileName() == "" ){
+        gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" or \"VErilog2 Aig\" to read/make the aig file first !!\n";
+        return GV_CMD_EXEC_NOP;
+    }
+
     bool bmc = false, pdr = false, itp = false;
     int bmc_depth;
     char fname[128];
@@ -74,7 +80,8 @@ GVFormalVerifyCmd ::exec(const string& option) {
     cout << "#################" << endl;
     cout << "# output result #" << endl;
     cout << "#################" << endl;
-    sprintf( Command, "read %s", fname ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+    string aigFileName = gvModMgr->getAigFileName();
+    sprintf( Command, "read %s", aigFileName ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
     sprintf( Command, "strash" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
     // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
     if (bmc) { cout << "\nSuccess: bmc " << endl; sprintf( Command, "bmc3 -F %d", bmc_depth ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }

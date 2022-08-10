@@ -215,33 +215,29 @@ GVReadDesignCmd ::exec(const string& option) {
         string fileExt =  filename.substr(filename.size()-4,4);
         if(fileExt != ".aig")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
+        gvModMgr->setAigFileName(filename);
+        //cout << gvModMgr->getAigFileName() << "\n";
     }
 
     cout << "\nfile name: " << filename << "\n";
     gvModMgr->setInputFileName(filename);
-    
+    gvModMgr->setInputFileExist(true);
+
     GVModEngine currEng = gvModMgr -> getGVEngine();
     if(currEng == GV_MOD_ENGINE_YOSYS){
         log_streams.push_back(&std::cout);            
         string yosCommand = "";
         yosys_setup();
-        //cout << "share path: " << proc_self_dirname() <<"\n";
-        //cout << "share path: " << proc_share_dirname() <<"\n";
-        //cout << "prefix yosys: " << proc_program_prefix() << "\n";
         if(fileVerilog) yosCommand += "read_verilog ";
         else if(fileBlif) yosCommand += "read_blif ";
-        //cout << yosCommand + filename <<"\n";
         run_pass(yosCommand + filename);
-        //run_pass("help");
     }   
     else if (currEng == GV_MOD_ENGINE_ABC){
         abcMgr -> abcReadDesign(filename);
-        return GV_CMD_EXEC_DONE;    
     }
     else if(currEng == GV_MOD_ENGINE_V3){
         return GV_CMD_EXEC_DONE;
     }
-    gvModMgr->setInputFileExist(true);
     return GV_CMD_EXEC_DONE;
 }
 
@@ -427,6 +423,9 @@ GVVerilog2AigCmd ::exec(const string& option) {
     command = string(execCmd);
     e = parseV3Cmd(command, cmd3);
     e->exec(cmd3);
+
+    // set the aig file name
+    gvModMgr->setAigFileName(outname);
 
     return GV_CMD_EXEC_DONE;
 }
