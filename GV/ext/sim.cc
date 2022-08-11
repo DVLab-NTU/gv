@@ -81,7 +81,7 @@ struct randomSim : public Pass
 				verbose = true;
 				continue;
 			}
-			if (args[argidx] == "-ouput" && argidx+1 < args.size()) {
+			if (args[argidx] == "-output" && argidx+1 < args.size()) {
 				output_file_set = true;
 				output_file_name = args[++argidx];
 				continue;
