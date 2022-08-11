@@ -162,7 +162,7 @@ GVReadDesignCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
-    bool fileVerilog = false, fileBlif = false, fileAig = false, fileBtor = false;
+    bool fileVerilog = false, fileBlif = false, fileAig = false;
     size_t n = options.size();
     string filename = "";
 
@@ -172,31 +172,25 @@ GVReadDesignCmd ::exec(const string& option) {
         for (size_t i = 0; i < n; ++i) {
             const string& token = options[i];
             if (myStrNCmp("-Verilog", token, 2) == 0) {
-                if (fileVerilog | fileBlif | fileAig | fileBtor)
-                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                if (fileVerilog | fileBlif | fileAig)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
                 fileVerilog = true;
                 continue;
             }
-            else if (myStrNCmp("-Blif", token, 3) == 0) {
-                if (fileVerilog | fileBlif | fileAig | fileBtor)
-                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            else if (myStrNCmp("-Blif", token, 2) == 0) {
+                if (fileVerilog | fileBlif | fileAig)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
                 fileBlif = true; 
                 continue;
             }
             else if (myStrNCmp("-Aig", token, 2) == 0) {
-                if (fileVerilog | fileBlif | fileAig | fileBtor)
-                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                if (fileVerilog | fileBlif | fileAig)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
                 fileAig = true;
                 continue;
             }
-            else if (myStrNCmp("-Btor", token, 3) == 0) {
-                if (fileVerilog | fileBlif | fileAig | fileBtor)
-                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-                fileBtor = true;
-                continue;
-            }
             else {
-                if ( !fileVerilog && !fileBlif && !fileAig && !fileBtor)
+                if ( !fileVerilog && !fileBlif && !fileAig )
                     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
 
                 if (filename == "") filename = token;
@@ -206,7 +200,6 @@ GVReadDesignCmd ::exec(const string& option) {
             
         }
     }
-
     if (filename == "") return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string filename)>");
     if(fileVerilog){
         string fileExt =  filename.substr(filename.size()-2,2);
@@ -215,7 +208,6 @@ GVReadDesignCmd ::exec(const string& option) {
     }
     else if(fileBlif){
         string fileExt =  filename.substr(filename.size()-5,5);
-        cout << fileExt ;
         if(fileExt != ".blif")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     }
@@ -223,13 +215,8 @@ GVReadDesignCmd ::exec(const string& option) {
         string fileExt =  filename.substr(filename.size()-4,4);
         if(fileExt != ".aig")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
-        // set the aig file name
         gvModMgr->setAigFileName(filename);
-    }
-    else if(fileBtor){
-        string fileExt =  filename.substr(filename.size()-5,5);
-        if(fileExt != ".btor")
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
+        //cout << gvModMgr->getAigFileName() << "\n";
     }
 
     cout << "\nfile name: " << filename << "\n";
@@ -237,11 +224,7 @@ GVReadDesignCmd ::exec(const string& option) {
     gvModMgr->setInputFileExist(true);
 
     GVModEngine currEng = gvModMgr -> getGVEngine();
-    if(currEng == GV_MOD_ENGINE_YOSYS){  
-        if(fileAig | fileBtor){
-            gvMsg(GV_MSG_IFO) << "[ERROR]: Engine yosys doesn't support aig file and btor file !!" << endl;
-            return GV_CMD_EXEC_NOP;
-        }
+    if(currEng == GV_MOD_ENGINE_YOSYS){          
         string yosCommand = "";
         if(fileVerilog) yosCommand += "read_verilog ";
         else if(fileBlif) yosCommand += "read_blif ";
@@ -251,21 +234,7 @@ GVReadDesignCmd ::exec(const string& option) {
         abcMgr -> abcReadDesign(filename);
     }
     else if(currEng == GV_MOD_ENGINE_V3){
-        if(fileBlif){
-            gvMsg(GV_MSG_IFO) << "[ERROR]: Engine V3 doesn't support blif file !!" << endl;
-            return GV_CMD_EXEC_NOP;
-        }
-        initV3();
-        char execCmd[128], inname[128]; string cmd = "" ,inname_str = "";
-        if(fileVerilog) inname_str = "rtl";
-        else if(fileAig) inname_str = "aig";
-        else if(fileBtor) inname_str = "btor";
-        inname_str += " "+ filename;
-        strcpy(inname, inname_str.c_str());
-        sprintf(execCmd, "read %s", inname);
-        string command = string(execCmd);
-        e = parseV3Cmd(command, cmd);
-        e->exec(cmd);
+        return GV_CMD_EXEC_DONE;
     }
     return GV_CMD_EXEC_DONE;
 }
@@ -341,20 +310,20 @@ GVPrintInfoCmd ::exec(const string& option) {
 
                 //log("  This is cell: %s  %s\n", log_id(cell->name), log_id(cell->type));
             }
-            gvMsg(GV_MSG_IFO) << "==================================================\n";
-            gvMsg(GV_MSG_IFO) << "   MUX" << setw(40) << numMux << "\n";
-            gvMsg(GV_MSG_IFO) << "   AND" << setw(40) << numAnd << "\n";
-            gvMsg(GV_MSG_IFO) << "   ADD" << setw(40) << numAdd << "\n";
-            gvMsg(GV_MSG_IFO) << "   SUB" << setw(40) << numSub << "\n";
-            gvMsg(GV_MSG_IFO) << "   MUL" << setw(40) << numMul << "\n";
-            gvMsg(GV_MSG_IFO) << "   EQ"  << setw(41) << numEq << "\n";
-            gvMsg(GV_MSG_IFO) << "   NOT" << setw(40) << numNot << "\n";
-            gvMsg(GV_MSG_IFO) << "   LT"  << setw(41) << numLe << "\n";
-            gvMsg(GV_MSG_IFO) << "   GE"  << setw(41) << numGe << "\n";
-            gvMsg(GV_MSG_IFO) << "--------------------------------------------------\n";
-            gvMsg(GV_MSG_IFO) << "   PI"  << setw(41) << numPI << "\n";
-            gvMsg(GV_MSG_IFO) << "   PO"  << setw(41) << numPI << "\n";
-            gvMsg(GV_MSG_IFO) << "==================================================\n";
+            gvMsg(GV_MSG_IFO) << "=========================\n";
+            gvMsg(GV_MSG_IFO) << "   MUX" << setw(15) << numMux << "\n";
+            gvMsg(GV_MSG_IFO) << "   AND" << setw(15) << numAnd << "\n";
+            gvMsg(GV_MSG_IFO) << "   ADD" << setw(15) << numAdd << "\n";
+            gvMsg(GV_MSG_IFO) << "   SUB" << setw(15) << numSub << "\n";
+            gvMsg(GV_MSG_IFO) << "   MUL" << setw(15) << numMul << "\n";
+            gvMsg(GV_MSG_IFO) << "   EQ" << setw(16) << numEq << "\n";
+            gvMsg(GV_MSG_IFO) << "   NOT" << setw(15) << numNot << "\n";
+            gvMsg(GV_MSG_IFO) << "   LT" << setw(16) << numLe << "\n";
+            gvMsg(GV_MSG_IFO) << "   GE" << setw(16) << numGe << "\n";
+            gvMsg(GV_MSG_IFO) << "=========================\n";
+            gvMsg(GV_MSG_IFO) << "   PI" << setw(16) << numPI << "\n";
+            gvMsg(GV_MSG_IFO) << "   PO" << setw(16) << numPI << "\n";
+            gvMsg(GV_MSG_IFO) << "=========================\n";
             //gvMsg(GV_MSG_IFO) << "   PI" << setw(16) << numPI << "\n";
         }
         else
@@ -364,22 +333,14 @@ GVPrintInfoCmd ::exec(const string& option) {
         return GV_CMD_EXEC_DONE;
     }
     else if(currEng == GV_MOD_ENGINE_V3){
-        initV3();
-        char execCmd[128]; string cmd = "";
-        if(verbose)
-            sprintf(execCmd, "print ntk -verbose");
-        else
-            sprintf(execCmd, "print ntk");
-        string command = string(execCmd);
-        e = parseV3Cmd(command, cmd);
-        e->exec(cmd);
+        return GV_CMD_EXEC_DONE;
     }
     return GV_CMD_EXEC_DONE;
 }
 
 void
 GVPrintInfoCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: PRint Info [-Verbose]" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: PRint Info " << endl;
 }
 
 void
@@ -423,6 +384,7 @@ GVFile2AigCmd ::exec(const string& option) {
         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
     strcpy(outname, token.c_str()); 
+    string outputname = token;
     // (2) read design input file needs to be supported format
     string inputname = gvModMgr->getInputFileName();
     strcpy(inname, inputname.c_str());
@@ -459,7 +421,7 @@ GVFile2AigCmd ::exec(const string& option) {
     e->exec(cmd3);
 
     // set the aig file name
-    gvModMgr->setAigFileName(outname);
+    gvModMgr->setAigFileName(outputname);
 
     return GV_CMD_EXEC_DONE;
 }

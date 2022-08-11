@@ -61,9 +61,10 @@ GVFormalVerifyCmd ::exec(const string& option) {
     }
 
     // command 
-    char Command[1024];
+    char Command[1024], inname[128];
     string aigFileName = gvModMgr->getAigFileName();
-    sprintf( Command, "read %s", aigFileName ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+    strcpy(inname, aigFileName.c_str());
+    sprintf( Command, "read %s", inname ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
     sprintf( Command, "strash" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
     // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
     if (bmc) { cout << "\nSuccess: bmc " << endl; sprintf( Command, "bmc3 -F %d", bmc_depth ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
