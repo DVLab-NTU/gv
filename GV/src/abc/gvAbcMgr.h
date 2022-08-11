@@ -32,7 +32,7 @@ class AbcMgr
         void reset();
 
         void abcReadDesign(string&);
-        void abcPrintDesign();
+        void abcPrintDesign(bool);
 
         Abc_Frame_t * get_Abc_Frame_t() { return pAbc; }
         Abc_Ntk_t * get_Abc_Ntk_t() { return pNtk; }

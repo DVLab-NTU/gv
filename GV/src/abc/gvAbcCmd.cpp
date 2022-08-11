@@ -48,13 +48,24 @@ GVABCReadCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// ABCPrint
+// ABCPrint [-Verbose]
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
 GVABCPrintCmd ::exec(const string& option) {
-    gvMsg(GV_MSG_IFO) << "I am GVABCPrintCmd  " << endl;
-    abcMgr -> abcPrintDesign();
+    // gvMsg(GV_MSG_IFO) << "I am GVABCPrintCmd  " << endl;
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    bool basic = false, verbose = false;
+    size_t n = options.size();
+
+    if (options.size() > 1) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[1]);
+    else if(options.size()) {
+        if (myStrNCmp("-Verbose", options[0], 2) == 0) verbose = true;
+        else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    }
+
+    abcMgr -> abcPrintDesign(verbose);
     return GV_CMD_EXEC_DONE;
 }
 

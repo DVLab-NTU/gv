@@ -30,8 +30,14 @@ AbcMgr::abcReadDesign(string& fileName)
 }
 
 void
-AbcMgr::abcPrintDesign()
+AbcMgr::abcPrintDesign(bool verbose)
 {
-    Cmd_CommandExecute( pAbc, "lsv_print_nodes" );
+    printf("\n[Netlist information]\n\n");
+    Cmd_CommandExecute( pAbc, "print_stats" );
+    printf("\n");
+    if (verbose) {
+        printf("[Detailed Netlist information]\n\n");
+        Cmd_CommandExecute( pAbc, "lsv_print_nodes" );
+    }
 }
 
