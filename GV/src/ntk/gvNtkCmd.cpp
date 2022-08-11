@@ -235,9 +235,12 @@ GVReadDesignCmd ::exec(const string& option) {
     }
     else if(currEng == GV_MOD_ENGINE_V3){
         initV3();
-        char execCmd[128], inname[128]; string cmd = "";
-        strcpy(inname, filename.c_str());
-        sprintf(execCmd, "read rtl %s", inname);
+        char execCmd[128], inname[128]; string cmd = "" ,inname_str = "";
+        if(fileVerilog) inname_str = "rtl";
+        else if(fileAig) inname_str = "aig";
+        inname_str += " "+ filename;
+        strcpy(inname, inname_str.c_str());
+        sprintf(execCmd, "read %s", inname);
         string command = string(execCmd);
         e = parseV3Cmd(command, cmd);
         e->exec(cmd);
