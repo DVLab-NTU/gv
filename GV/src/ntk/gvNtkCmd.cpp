@@ -234,7 +234,13 @@ GVReadDesignCmd ::exec(const string& option) {
         abcMgr -> abcReadDesign(filename);
     }
     else if(currEng == GV_MOD_ENGINE_V3){
-        return GV_CMD_EXEC_DONE;
+        initV3();
+        char execCmd[128], inname[128]; string cmd = "";
+        strcpy(inname, filename.c_str());
+        sprintf(execCmd, "read rtl %s", inname);
+        string command = string(execCmd);
+        e = parseV3Cmd(command, cmd);
+        e->exec(cmd);
     }
     return GV_CMD_EXEC_DONE;
 }
@@ -310,20 +316,20 @@ GVPrintInfoCmd ::exec(const string& option) {
 
                 //log("  This is cell: %s  %s\n", log_id(cell->name), log_id(cell->type));
             }
-            gvMsg(GV_MSG_IFO) << "=========================\n";
-            gvMsg(GV_MSG_IFO) << "   MUX" << setw(15) << numMux << "\n";
-            gvMsg(GV_MSG_IFO) << "   AND" << setw(15) << numAnd << "\n";
-            gvMsg(GV_MSG_IFO) << "   ADD" << setw(15) << numAdd << "\n";
-            gvMsg(GV_MSG_IFO) << "   SUB" << setw(15) << numSub << "\n";
-            gvMsg(GV_MSG_IFO) << "   MUL" << setw(15) << numMul << "\n";
-            gvMsg(GV_MSG_IFO) << "   EQ" << setw(16) << numEq << "\n";
-            gvMsg(GV_MSG_IFO) << "   NOT" << setw(15) << numNot << "\n";
-            gvMsg(GV_MSG_IFO) << "   LT" << setw(16) << numLe << "\n";
-            gvMsg(GV_MSG_IFO) << "   GE" << setw(16) << numGe << "\n";
-            gvMsg(GV_MSG_IFO) << "=========================\n";
-            gvMsg(GV_MSG_IFO) << "   PI" << setw(16) << numPI << "\n";
-            gvMsg(GV_MSG_IFO) << "   PO" << setw(16) << numPI << "\n";
-            gvMsg(GV_MSG_IFO) << "=========================\n";
+            gvMsg(GV_MSG_IFO) << "==================================================\n";
+            gvMsg(GV_MSG_IFO) << "   MUX" << setw(40) << numMux << "\n";
+            gvMsg(GV_MSG_IFO) << "   AND" << setw(40) << numAnd << "\n";
+            gvMsg(GV_MSG_IFO) << "   ADD" << setw(40) << numAdd << "\n";
+            gvMsg(GV_MSG_IFO) << "   SUB" << setw(40) << numSub << "\n";
+            gvMsg(GV_MSG_IFO) << "   MUL" << setw(40) << numMul << "\n";
+            gvMsg(GV_MSG_IFO) << "   EQ"  << setw(41) << numEq << "\n";
+            gvMsg(GV_MSG_IFO) << "   NOT" << setw(40) << numNot << "\n";
+            gvMsg(GV_MSG_IFO) << "   LT"  << setw(41) << numLe << "\n";
+            gvMsg(GV_MSG_IFO) << "   GE"  << setw(41) << numGe << "\n";
+            gvMsg(GV_MSG_IFO) << "--------------------------------------------------\n";
+            gvMsg(GV_MSG_IFO) << "   PI"  << setw(41) << numPI << "\n";
+            gvMsg(GV_MSG_IFO) << "   PO"  << setw(41) << numPI << "\n";
+            gvMsg(GV_MSG_IFO) << "==================================================\n";
             //gvMsg(GV_MSG_IFO) << "   PI" << setw(16) << numPI << "\n";
         }
         else
@@ -333,14 +339,22 @@ GVPrintInfoCmd ::exec(const string& option) {
         return GV_CMD_EXEC_DONE;
     }
     else if(currEng == GV_MOD_ENGINE_V3){
-        return GV_CMD_EXEC_DONE;
+        initV3();
+        char execCmd[128]; string cmd = "";
+        if(verbose)
+            sprintf(execCmd, "print ntk -verbose");
+        else
+            sprintf(execCmd, "print ntk");
+        string command = string(execCmd);
+        e = parseV3Cmd(command, cmd);
+        e->exec(cmd);
     }
     return GV_CMD_EXEC_DONE;
 }
 
 void
 GVPrintInfoCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: PRint Info " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: PRint Info [-Verbose]" << endl;
 }
 
 void
