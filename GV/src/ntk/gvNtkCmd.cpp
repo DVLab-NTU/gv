@@ -162,7 +162,7 @@ GVReadDesignCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
-    bool fileVerilog = false, fileBlif = false, fileAig = false;
+    bool fileVerilog = false, fileBlif = false, fileAig = false, fileBtor = false;
     size_t n = options.size();
     string filename = "";
 
@@ -172,25 +172,31 @@ GVReadDesignCmd ::exec(const string& option) {
         for (size_t i = 0; i < n; ++i) {
             const string& token = options[i];
             if (myStrNCmp("-Verilog", token, 2) == 0) {
-                if (fileVerilog | fileBlif | fileAig)
-                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                if (fileVerilog | fileBlif | fileAig | fileBtor)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
                 fileVerilog = true;
                 continue;
             }
-            else if (myStrNCmp("-Blif", token, 2) == 0) {
-                if (fileVerilog | fileBlif | fileAig)
-                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            else if (myStrNCmp("-Blif", token, 3) == 0) {
+                if (fileVerilog | fileBlif | fileAig | fileBtor)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
                 fileBlif = true; 
                 continue;
             }
             else if (myStrNCmp("-Aig", token, 2) == 0) {
-                if (fileVerilog | fileBlif | fileAig)
-                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                if (fileVerilog | fileBlif | fileAig | fileBtor)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
                 fileAig = true;
                 continue;
             }
+            else if (myStrNCmp("-Btor", token, 3) == 0) {
+                if (fileVerilog | fileBlif | fileAig | fileBtor)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                fileBtor = true;
+                continue;
+            }
             else {
-                if ( !fileVerilog && !fileBlif && !fileAig )
+                if ( !fileVerilog && !fileBlif && !fileAig && !fileBtor)
                     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
 
                 if (filename == "") filename = token;
@@ -200,6 +206,7 @@ GVReadDesignCmd ::exec(const string& option) {
             
         }
     }
+
     if (filename == "") return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string filename)>");
     if(fileVerilog){
         string fileExt =  filename.substr(filename.size()-2,2);
@@ -208,6 +215,7 @@ GVReadDesignCmd ::exec(const string& option) {
     }
     else if(fileBlif){
         string fileExt =  filename.substr(filename.size()-5,5);
+        cout << fileExt ;
         if(fileExt != ".blif")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     }
@@ -215,8 +223,13 @@ GVReadDesignCmd ::exec(const string& option) {
         string fileExt =  filename.substr(filename.size()-4,4);
         if(fileExt != ".aig")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
+        // set the aig file name
         gvModMgr->setAigFileName(filename);
-        //cout << gvModMgr->getAigFileName() << "\n";
+    }
+    else if(fileBtor){
+        string fileExt =  filename.substr(filename.size()-5,5);
+        if(fileExt != ".btor")
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     }
 
     cout << "\nfile name: " << filename << "\n";
@@ -224,7 +237,11 @@ GVReadDesignCmd ::exec(const string& option) {
     gvModMgr->setInputFileExist(true);
 
     GVModEngine currEng = gvModMgr -> getGVEngine();
-    if(currEng == GV_MOD_ENGINE_YOSYS){          
+    if(currEng == GV_MOD_ENGINE_YOSYS){  
+        if(fileAig | fileBtor){
+            gvMsg(GV_MSG_IFO) << "[ERROR]: Engine yosys doesn't support aig file and btor file !!" << endl;
+            return GV_CMD_EXEC_NOP;
+        }
         string yosCommand = "";
         if(fileVerilog) yosCommand += "read_verilog ";
         else if(fileBlif) yosCommand += "read_blif ";
@@ -234,10 +251,15 @@ GVReadDesignCmd ::exec(const string& option) {
         abcMgr -> abcReadDesign(filename);
     }
     else if(currEng == GV_MOD_ENGINE_V3){
+        if(fileBlif){
+            gvMsg(GV_MSG_IFO) << "[ERROR]: Engine V3 doesn't support blif file !!" << endl;
+            return GV_CMD_EXEC_NOP;
+        }
         initV3();
         char execCmd[128], inname[128]; string cmd = "" ,inname_str = "";
         if(fileVerilog) inname_str = "rtl";
         else if(fileAig) inname_str = "aig";
+        else if(fileBtor) inname_str = "btor";
         inname_str += " "+ filename;
         strcpy(inname, inname_str.c_str());
         sprintf(execCmd, "read %s", inname);
