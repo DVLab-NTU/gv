@@ -68,6 +68,7 @@ GVRandomSimCmd ::exec(const string& option) {
         if (myStrNCmp("-input", token, 1) == 0) {
             ++i;
             in_file_name = options[i];
+            file_name_set = true;
             command += " -input " + in_file_name;
             continue;
         }
@@ -81,8 +82,10 @@ GVRandomSimCmd ::exec(const string& option) {
     // load the random_sim plugin in yosys
     run_pass("plugin -i ./ext/sim.so");
 
+    if(!file_name_set)
+        command += " -input " + gvModMgr -> getInputFileName();
+
     // execute "random_sim" command
-    // command = "random_sim -top vendingMachine -reset_n reset -clk clk -sim_cycle 42 -input /home/yenlu_mepu/gv0/test_design/vending/vending-origin.v -output out.txt";
     run_pass(command);
     return GV_CMD_EXEC_DONE;
 }
