@@ -51,7 +51,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
             // if int_depth not an integer 
             else if (!strspn(options[i+1].c_str(), "0123456789")) 
             {
-                cerr << "[ERROR]: Please input an \"integer\" time frame for BMC (int_depth) !" << endl;
+                cout << "[ERROR]: Please input an \"integer\" time frame for BMC (int_depth) !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
             }
             else { bmc = true; bmc_depth = stoi(options[i+1]); }

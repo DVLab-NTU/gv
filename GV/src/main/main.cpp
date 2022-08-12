@@ -59,17 +59,17 @@ main(int argc, char** argv)
    if (argc == 3) {  // -file <doFile>
       if (myStrNCmp("-File", argv[1], 2) == 0) {
          if (!gvCmdMgr->openDofile(argv[2])) {
-            cerr << "Error: cannot open file \"" << argv[2] << "\"!!\n";
+            cout << "Error: cannot open file \"" << argv[2] << "\"!!\n";
             myexit();
          }
       }
       else {
-         cerr << "Error: unknown argument \"" << argv[1] << "\"!!\n";
+         cout << "Error: unknown argument \"" << argv[1] << "\"!!\n";
          myexit();
       }
    }
    else if (argc != 1) {
-      cerr << "Error: illegal number of argument (" << argc << ")!!\n";
+      cout << "Error: illegal number of argument (" << argc << ")!!\n";
       myexit();
    }
    Yosys::yosys_setup(); // initial yosys command

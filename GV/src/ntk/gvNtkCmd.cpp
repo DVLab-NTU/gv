@@ -93,7 +93,7 @@ GVSetEngineCmd ::exec(const string& option) {
     size_t n = options.size();
     // Missing Option
     if(n == 0){
-        cerr << "ERROR: Please input an \"Engine Name\"<(string engineName)> !" << endl;
+        cout << "ERROR: Please input an \"Engine Name\"<(string engineName)> !" << endl;
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string engineName)>");
     }
     // Extra option(s)
@@ -403,7 +403,7 @@ GVFile2AigCmd ::exec(const string& option) {
     size_t n = options.size();
     // Missing Option
     if(n == 0){
-        cerr << "[ERROR]: Please input an \"Output AIG Filename\"<(string filename).aig> !" << endl;
+        cout << "[ERROR]: Please input an \"Output AIG Filename\"<(string filename).aig> !" << endl;
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string filename).aig>");
     }
     // Extra option(s)
@@ -417,7 +417,7 @@ GVFile2AigCmd ::exec(const string& option) {
     // (1) if not output an AIG
     if (strncmp(token.substr(token.length()-4, token.length()).c_str(), ".aig", 4))
     {
-        cerr << "[ERROR]: Please output an \"AIG\" file (<filename>.aig) !" << endl;
+        cout << "[ERROR]: Please output an \"AIG\" file (<filename>.aig) !" << endl;
         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
     strcpy(outname, token.c_str()); 

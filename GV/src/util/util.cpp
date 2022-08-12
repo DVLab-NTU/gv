@@ -39,7 +39,7 @@ int listDir
    DIR *dp;
    dirent *dirp;
    if ((dp = opendir(dir.c_str())) == NULL) {
-      cerr << "Error(" << errno << "): failed to open " << dir << "!!\n";
+      cout << "Error(" << errno << "): failed to open " << dir << "!!\n";
       return errno;
    }
 
