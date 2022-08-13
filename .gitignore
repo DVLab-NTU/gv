@@ -1,0 +1,3 @@
+/src/lib/*.a
+/src/lib/*.so
+/src/lib/lib.d
