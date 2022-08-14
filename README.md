@@ -29,7 +29,7 @@ chmod +x <shell_script_filename>
 - **simulator** --> yosys
 
 # GV tool's API 
-- Below are current supporting APIs, please check the document above to get detailed tutorials in [gv0/doc/](https://github.com/ric2k1/gv0/tree/main/doc): 
+- Below are current supporting APIs, please check the document above to get detailed tutorials in [gv0/doc/](https://github.com/ric2k1/gv0/tree/main/doc) (GV-API.pdf): 
     - **common** 
     ```json=
     GV Help
