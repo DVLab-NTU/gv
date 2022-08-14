@@ -21,3 +21,9 @@ cd GV/
 ```json=
 chmod +x <shell_script_filename>
 ```
+
+# GV tool's third-party tools
+- **parser** --> [yosys](https://github.com/YosysHQ/yosys), [berkeley-abc](https://github.com/berkeley-abc/abc), [V3](https://github.com/chengyinwu/V3)
+- **file format converter** --> yosys, V3
+- **formal verification engine** --> berkeley-abc 
+- **simulator** --> yosys
