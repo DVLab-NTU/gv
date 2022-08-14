@@ -57,3 +57,6 @@ chmod +x <shell_script_filename>
     ```json=
     GV Random Simulate
     ```
+
+# GV tool's set-system-mode flow
+- Please check the document above to get detailed tutorials in [gv0/doc/](https://github.com/ric2k1/gv0/tree/main/doc) (Set_System_Mode_Flow.pdf):
