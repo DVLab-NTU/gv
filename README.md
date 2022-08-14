@@ -27,3 +27,33 @@ chmod +x <shell_script_filename>
 - **file format converter** --> yosys, V3
 - **formal verification engine** --> berkeley-abc 
 - **simulator** --> yosys
+
+# GV tool's API 
+- Below are current supporting APIs, please check the document above to get detailed tutorials in gv0/doc/: 
+    - **common** 
+    ```json=
+    GV Help
+    GV History 
+    GV Usage
+    GV Dofile
+    GV Quit
+    ```
+    
+    - **setup design** 
+    ```json=
+    GV Set System Mode
+    GV Set Engine
+    GV Read Design
+    GV Print Info
+    ```
+
+    - **formal verification**
+    ```json=
+    GV Verilog2Aig
+    GV Formal Verify
+    ```
+
+    - **simulation**
+    ```json=
+    GV Random Simulate
+    ```
