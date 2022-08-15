@@ -91,50 +91,47 @@ GVSetEngineCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
-    // Missing Option
-    if(n == 0){
-        cout << "ERROR: Please input an \"Engine Name\"<(string engineName)> !" << endl;
+
+    bool engABC = false, engYOSYS = false, engV3 = false;
+    // try to match engine names
+    if (n == 0)
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string engineName)>");
+    else {
+        for (size_t i = 0; i < n; ++i) {
+            const string& token = options[i];
+            if (myStrNCmp("yosys", token, 1) == 0) {
+                if (engABC | engYOSYS | engV3)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                engYOSYS = true;
+                continue;
+            }
+            else if (myStrNCmp("abc", token, 1) == 0) {
+                if (engABC | engYOSYS | engV3)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                engABC = true; 
+                continue;
+            }
+            else if (myStrNCmp("v3", token, 1) == 0) {
+                if (engABC | engYOSYS | engV3)  
+                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                engV3 = true;
+                continue;
+            }
+            else {
+                if ( !engABC && !engYOSYS && !engV3)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+        }
     }
-    // Extra option(s)
-    if(n > 1){
-        string extraOption = "";
-        for(int i = 1; i < n ; ++i){extraOption += options[i];}
-        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, extraOption);
-    }
-    vector<string> engNameList = {"yosys","abc","v3"};
-    string& token =options[0];
-    size_t engPos = 0;
-    for (;engPos < engNameList.size(); ++engPos){
-        // convert the engine name to lower case
-        for_each(token.begin(), token.end(), [](char & c){c = ::tolower(c);});
-        //cout << "token: " << token << endl;
-        if(token == engNameList[engPos]){
-            break;
-        }
-        else if (token.size() < engNameList[engPos].size()){
-            if(token == engNameList[engPos].substr(0,token.size()))
-                break;
-        }
-        
-    }
-    switch(engPos){
-        case GV_MOD_ENGINE_YOSYS:{
-            gvModMgr->setGVEngine(GV_MOD_ENGINE_YOSYS);
-            break;
-        }
-        case GV_MOD_ENGINE_ABC:{
-            gvModMgr->setGVEngine(GV_MOD_ENGINE_ABC);
-            break;
-        }
-        case GV_MOD_ENGINE_V3:{
-            gvModMgr->setGVEngine(GV_MOD_ENGINE_V3);
-            break;
-        }
-        default:{
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-        }
-    };
+
+    // set current engine
+    if(engYOSYS)  gvModMgr->setGVEngine(GV_MOD_ENGINE_YOSYS);
+    else if (engABC) gvModMgr->setGVEngine(GV_MOD_ENGINE_ABC);
+    else if(engV3)  gvModMgr->setGVEngine(GV_MOD_ENGINE_V3);
+
+    // print the success message
+    int engPos = gvModMgr->getGVEngine();
+    string engNameList[3] = {"yosys","abc","V3"};
     cout << "Set Engine \""<< engNameList[engPos] <<"\" Success !!" <<endl;
     return GV_CMD_EXEC_DONE;
 }
@@ -166,6 +163,7 @@ GVReadDesignCmd ::exec(const string& option) {
     size_t n = options.size();
     string filename = "";
 
+    // try to match file type options
     if (n == 0)
         fileVerilog = true;
     else {
@@ -205,7 +203,10 @@ GVReadDesignCmd ::exec(const string& option) {
             }
         }
     }
+    // check filename
     if (filename == "") return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string filename)>");
+
+    // check file extension 
     if(fileVerilog){
         string fileExt =  filename.substr(filename.size()-2,2);
         if(fileExt != ".v")
@@ -229,11 +230,15 @@ GVReadDesignCmd ::exec(const string& option) {
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     }
 
+    // print the input file name
     cout << "\nfile name: " << filename << "\n";
+
+    // set input file name to Mode manager
     gvModMgr->setInputFileName(filename);
     gvModMgr->setInputFileExist(true);
-
     GVModEngine currEng = gvModMgr -> getGVEngine();
+
+    // read design
     if(currEng == GV_MOD_ENGINE_YOSYS){  
         if(fileAig | fileBtor){
             gvMsg(GV_MSG_IFO) << "[ERROR]: Engine yosys doesn't support aig file and btor file !!" << endl;
@@ -285,18 +290,17 @@ GVReadDesignCmd ::help() const {
 GVCmdExecStatus
 GVPrintInfoCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVPrintInfoCmd" << endl;
-    /*Abc_Start();
-	pAbc = Abc_FrameGetGlobalFrame();
-    Abc_Stop();*/
+
     int numFF = 0, numPI = 0, numPO = 0, numPIO = 0, numConst = 0, numNet = 0;
     int numMux = 0, numAnd = 0, numAdd = 0, numSub = 0, numMul = 0, numEq = 0, numNot = 0, numLe = 0, numGe = 0;
     bool verbose = false;
     
-    // check option 
+    // check options
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
 
+    // try to match options
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
         if (myStrNCmp("-Verbose", token, 2) == 0) {
@@ -308,6 +312,7 @@ GVPrintInfoCmd ::exec(const string& option) {
         }
     }
 
+    // print info
     GVModEngine currEng = gvModMgr -> getGVEngine(); 
     if(currEng == GV_MOD_ENGINE_YOSYS){
         gvMsg(GV_MSG_IFO) << "Modules in current design: ";
@@ -315,17 +320,10 @@ GVPrintInfoCmd ::exec(const string& option) {
         cout << moduleName <<"(" << GetSize(yosys_design->top_module()->wires()) <<" wires, " << GetSize(yosys_design->top_module()->cells()) << " cells)\n";
         for(auto wire : yosys_design->top_module()->wires()){
             //string wire_name = log_id(wire->name);
-            if(wire->port_input){
-                numPI++;
-                //gvMsg(GV_MSG_IFO) << "  PI: " + wire_name  << setw(25  - (wire->name.size()))<< "->      " << wire->width << " bits width\n";
-            }
-            if(wire->port_output){
-                numPO++;
-                //gvMsg(GV_MSG_IFO) << "  PO: " + wire_name  << setw(25  - (wire->name.size()))<< "->      " << wire->width << " bits width\n";
-            }
+            if(wire->port_input) numPI++;
+            else if(wire->port_output) numPO++;
         }
         if(verbose){
-            /**/
             for(auto cell : yosys_design->top_module()->cells()){
                 if (cell->type.in(ID($mux))) numMux++;
                 else if (cell->type.in(ID($logic_and))) numAnd++;
@@ -336,8 +334,6 @@ GVPrintInfoCmd ::exec(const string& option) {
                 else if (cell->type.in(ID($logic_not))) numNot++;
                 else if (cell->type.in(ID($lt))) numLe++;
                 else if (cell->type.in(ID($ge))) numGe++;
-
-                //log("  This is cell: %s  %s\n", log_id(cell->name), log_id(cell->type));
             }
             gvMsg(GV_MSG_IFO) << "==================================================\n";
             gvMsg(GV_MSG_IFO) << "   MUX" << setw(40) << numMux << "\n";
@@ -351,9 +347,8 @@ GVPrintInfoCmd ::exec(const string& option) {
             gvMsg(GV_MSG_IFO) << "   GE"  << setw(41) << numGe << "\n";
             gvMsg(GV_MSG_IFO) << "--------------------------------------------------\n";
             gvMsg(GV_MSG_IFO) << "   PI"  << setw(41) << numPI << "\n";
-            gvMsg(GV_MSG_IFO) << "   PO"  << setw(41) << numPI << "\n";
+            gvMsg(GV_MSG_IFO) << "   PO"  << setw(41) << numPO << "\n";
             gvMsg(GV_MSG_IFO) << "==================================================\n";
-            //gvMsg(GV_MSG_IFO) << "   PI" << setw(16) << numPI << "\n";
         }
         else
             gvMsg(GV_MSG_IFO) << "#PI = " << numPI << ", #PO = " << numPO << ", #PIO = " << numPIO << "\n";
