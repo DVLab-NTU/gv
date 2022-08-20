@@ -26,6 +26,7 @@ GVRandomSimCmd ::exec(const string& option) {
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
     string opt, rst = "reset", rst_n = "reset", clk = "clk", in_file_name, out_file_name, command = "random_sim ";
+    string stimulus_file_name;
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
 
@@ -78,6 +79,12 @@ GVRandomSimCmd ::exec(const string& option) {
             command += " -output " + out_file_name;
             continue;
         }
+        if (myStrNCmp("-file", token, 1) == 0) {
+            ++i;
+            stimulus_file_name = options[i];
+            command += " -file " + stimulus_file_name;
+            continue;
+        }
     }
     // load the random_sim plugin in yosys
     run_pass("plugin -i ./src/ext/sim.so");
@@ -92,7 +99,7 @@ GVRandomSimCmd ::exec(const string& option) {
 
 void
 GVRandomSimCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: RAndom Sim <-input file_name.v> [sim_cycle num_cycle_sim] [-rst rst_name] [-rst_n rst_n_name] [-clk clk_name] [-output out_file_name] [-v verbose print result]" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: RAndom Sim <-input file_name.v> [sim_cycle num_cycle_sim] [-rst rst_name] [-rst_n rst_n_name] [-clk clk_name] [-output out_file_name] [-v verbose print result] [-file stimulus]" << endl;
 }
 
 void

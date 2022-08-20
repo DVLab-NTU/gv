@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <vector>
 USING_YOSYS_NAMESPACE
 PRIVATE_NAMESPACE_BEGIN
 
@@ -44,18 +45,20 @@ struct randomSim : public Pass
 	void execute(std::vector<std::string> args, Design *design) override
 	{
 		int sim_cycle = 20;
-		size_t argidx;
+		size_t argidx, num_inputs = 0;
 		bool reset_set = false;
 		bool reset_n_set = false;
 		bool clk_set = false;
 		bool verbose = false, verilog_file_name_set = false;
-		bool output_file_set = false, top_module_name_set = false;
+		bool output_file_set = false, top_module_name_set = false, stimulus = false;
 		std::string reset_name = "reset";
 		std::string reset_n_name = "reset_n";
 		std::string clk_name = "clk";
 		std::string output_file_name = "sim.txt";
 		std::string verilog_file_name;
 		std::string top_module_name;
+		std::string stimulus_file_name;
+		
 		for (argidx = 1; argidx < args.size(); argidx++)
 		{
 			if (args[argidx] == "-sim_cycle" && argidx+1 < args.size()) {
@@ -81,6 +84,12 @@ struct randomSim : public Pass
 				verbose = true;
 				continue;
 			}
+			if (args[argidx] == "-file" && argidx+1 < args.size()) {
+				stimulus_file_name = args[++argidx];
+				stimulus = true;
+				// log("innnnnnnnnnnnnn %s\n", stimulus_file_name.c_str());
+				continue;
+			}
 			if (args[argidx] == "-output" && argidx+1 < args.size()) {
 				output_file_set = true;
 				output_file_name = args[++argidx];
@@ -98,14 +107,13 @@ struct randomSim : public Pass
 			}
 			break;
 		}
+		for(auto wire : design->top_module()->wires())
+		{	
+			if(wire->port_input && strcmp(wire->name.c_str(), ("\\" + reset_n_name).c_str()) && strcmp(wire->name.c_str(), ("\\" + reset_name).c_str()) && strcmp(wire->name.c_str(), ("\\" + clk_name).c_str())) // check the wire is not rst or clk
+				++num_inputs;	
+		}
 		std::string command = "yosys -p \"read_verilog " + verilog_file_name + "; hierarchy -top " + top_module_name + "; write_cxxrtl .sim.cpp;\"";
-		// log("v name = %s", verilog_file_name.c_str());
-		// log("command = %s", command.c_str());
 		run_command(command);
-		// command = "read_verilog " + verilog_file_name;
-		// run_pass(command);
-		// command = "hierarchy -top " + top_module_name;
-		// run_pass(command);
 		std::string wire_name;
         std::string module_name;
 		std::ofstream ofs;
@@ -115,6 +123,7 @@ struct randomSim : public Pass
 		ofs << "#include <stdlib.h>\n";
   		ofs << "#include <time.h>\n";
 		ofs << "#include <math.h>\n";
+		ofs << "#include <vector>\n";
 		module_name = log_id(design->top_module()->name);
 		ofs << "#include \".sim.cpp\"\n";
 		ofs << "using namespace std;\n";
@@ -123,6 +132,26 @@ struct randomSim : public Pass
 		ofs << "srand(time(NULL));";
 		ofs << "unsigned random_value = 0;\n";
 		ofs << "unsigned upper_bound = 0;\n";
+		
+		ofs << "char buffer[100];\n";
+		if(stimulus)
+		{
+			ofs << "vector<vector<unsigned>> stimulus_signal;\n";
+			ofs << "vector<unsigned> stimulus_cycle;\n";
+			ofs << "	std::ifstream ifs;\n";
+			ofs << "	ifs.open(\""; ofs << stimulus_file_name; ofs << "\");\n";
+			ofs << "	for(size_t i = 0; i < "; ofs << sim_cycle; ofs << "; ++i)\n";
+			ofs << "	{\n";
+			ofs << "		stimulus_cycle.clear();\n";
+			ofs << "		for(size_t j = 0; j < "; ofs << num_inputs; ofs << "; ++j)\n";
+			ofs << "		{\n";
+			ofs << "			ifs >> buffer;\n";
+			ofs << "			stimulus_cycle.push_back(std::stoi(std::string(buffer)));\n";
+			ofs << "		}\n";
+			ofs << "		stimulus_signal.push_back(stimulus_cycle);\n";
+			ofs << "	}\n";
+			ofs << "	ifs.close();\n";
+		}
 		if(output_file_set)
 		{
 			ofs << "ofstream ofs;\n";
@@ -133,37 +162,60 @@ struct randomSim : public Pass
 		ofs << "for(int cycle=0;cycle<"<< sim_cycle << ";++cycle){\n";
 		ofs << "top.p_" << clk_name << ".set<bool>(false);\n";
 		ofs << "top.step();\n";
-		ofs << "if(cycle == 0)\n";
-		if(reset_set)
+		if(reset_set || reset_n_set)
 		{
-			ofs << "	top.p_" << reset_name << ".set<bool>(true);\n";
-			ofs << "else\n";
-			ofs << "	top.p_" << reset_name << ".set<bool>(false);\n";
-		}
-		if(reset_n_set)
-		{
-			ofs << "	top.p_" << reset_name << ".set<bool>(false);\n";
-			ofs << "else\n";
-			ofs << "	top.p_" << reset_name << ".set<bool>(true);\n";
+			ofs << "if(cycle == 0)\n";
+			if(reset_set)
+			{
+				ofs << "	top.p_" << reset_name << ".set<bool>(true);\n";
+				ofs << "else\n";
+				ofs << "	top.p_" << reset_name << ".set<bool>(false);\n";
+			}
+			if(reset_n_set)
+			{
+				ofs << "	top.p_" << reset_name << ".set<bool>(false);\n";
+				ofs << "else\n";
+				ofs << "	top.p_" << reset_name << ".set<bool>(true);\n";
+			}
 		}
 		
 		ofs << "if(cycle > 0)\n";
 		ofs << "{\n";
+		ofs << "size_t idx = 0;\n";
 		for(auto wire : design->top_module()->wires())
 		{
 			wire_name = wire->name.str().substr(1,strlen(wire->name.c_str()) - 1);
-			// log("pos = %d, len = %d\n", wire_name.find("_"), wire_name.length());
-			if(wire_name.find("_") != -1)
-				wire_name.replace(wire_name.find("_"), 1, "__");
-			
-			if(wire->port_input && strcmp(wire->name.c_str(), "\\reset") && strcmp(wire->name.c_str(), "\\clk"))
+
+			// replace '_' with '+'
+			while (wire_name.find("_") != -1)
 			{
-				// strncpy(wire_name, &wire->name.c_str()[1], strlen(wire->name.c_str()) - 1);
-				// log("input name = %s\n", wire->name.str().substr(1,strlen(wire->name.c_str()) - 1));
-				// log("random_value = %d", random_value);
-				ofs << "upper_bound = pow(2, " << wire->width << ");\n";
-				ofs << "random_value = rand() % upper_bound;\n";
-				ofs << "top.p_" << wire_name << ".set<unsigned>(random_value)" << ";\n";
+				wire_name.replace(wire_name.find("_"), 1, "+");
+				// log("1111111111 wire_name = %s\n", wire_name.c_str());
+			}
+
+			// replace '+' with '__'
+			while (wire_name.find("+") != -1)
+			{
+				wire_name.replace(wire_name.find("+"), 1, "__");
+				// log("222222222222 wire_name = %s\n", wire_name.c_str());
+			}
+			
+			// if(wire_name.find("_") != -1)
+			// 	wire_name.replace(wire_name.find("_"), 1, "__");
+			if(wire->port_input && strcmp(wire->name.c_str(), ("\\" + reset_n_name).c_str()) && strcmp(wire->name.c_str(), ("\\" + reset_name).c_str()) && strcmp(wire->name.c_str(), ("\\" + clk_name).c_str())) // check the wire is not rst or clk
+			{
+				if(!stimulus) // if no stimulus is given, we generate a random one
+				{
+					ofs << "upper_bound = pow(2, " << wire->width << ");\n";
+					ofs << "random_value = rand() % upper_bound;\n";
+					ofs << "top.p_" << wire_name << ".set<unsigned>(random_value)" << ";\n";
+				}
+				else
+				{
+					ofs << "top.p_" << wire_name << ".set<unsigned>(stimulus_signal[cycle][idx])" << ";\n";
+					ofs << "++idx;\n";
+				}
+				
 				// log("str len = %d\n", wire_name);
 				
 			}
@@ -178,8 +230,17 @@ struct randomSim : public Pass
 		{
 			wire_name = wire->name.str().substr(1,strlen(wire->name.c_str()) - 1);
 			string wire_name_long = wire_name;
-			if(wire_name.find("_") != -1)
-				wire_name_long.replace(wire_name.find("_"), 1, "__");
+			// replace '_' with '+'
+			while (wire_name_long.find("_") != -1)
+			{
+				wire_name_long.replace(wire_name_long.find("_"), 1, "+");
+			}
+
+			// replace '+' with '__'
+			while (wire_name_long.find("+") != -1)
+			{
+				wire_name_long.replace(wire_name_long.find("+"), 1, "__");
+			}
 			
 			// char *wire_name;
 			if(wire->port_output)
@@ -230,7 +291,7 @@ struct randomSim : public Pass
 			ofs << "ofs.close();\n";
 		ofs << "}\n";
 		ofs << "\n";
-		ofs.close();		
+		ofs.close();	
 		run_command(" clang++ -g -O3 -std=c++14 -I `yosys-config --datdir`/include .sim_main.cpp -o .tb ");
         run_command(" ./.tb ");
 	}
