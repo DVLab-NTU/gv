@@ -53,6 +53,8 @@ GVFormalVerifyCmd ::exec(const string& option) {
         if (myStrNCmp("-bmc", token, 4) == 0) {
             // if no specify int_depth
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if too much option
+            else if ((i+2) < n) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
             // if int_depth not an integer 
             else if (!strspn(options[i+1].c_str(), "0123456789")) 
             {
@@ -63,10 +65,10 @@ GVFormalVerifyCmd ::exec(const string& option) {
         }
         else if (myStrNCmp("-ubmc", token, 5) == 0) 
         {
-            // if no specify PO, default set all safety
-            if ((i+1) >= n) { ubmc = true; }
-            // if only specify name or idx
-            else if ((i+2) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if not completely specify "PO_idx" and "PO_name"
+            if ((i+2) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if too much option
+            else if ((i+3) < n) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
             // if PO_idx not an integer 
             else if (!strspn(options[i+1].c_str(), "0123456789")) 
             {
