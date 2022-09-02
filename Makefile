@@ -1,5 +1,5 @@
-SRCPKGS  = cmd ntk util sim vrf abc mod
-LIBPKGS  = cmd ntk util sim vrf abc mod
+SRCPKGS  = cmd ntk util sim vrf abc mod v3
+LIBPKGS  = cmd ntk util sim vrf abc mod v3
 
 MAIN     = main
 

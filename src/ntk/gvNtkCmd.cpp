@@ -5,15 +5,13 @@
 #include "gvMsg.h"
 #include <string>
 #include "util.h"
+#include <vector>
+#include <map>
 
 #include "kernel/yosys.h"
 #include "gvModMgr.h"
 #include "gvAbcMgr.h"
-#include "v3Msg.h"
-#include "v3Usage.h"
-#include "v3CmdMgr.h"
-#include "v3StrUtil.h"
-#include "v3NtkHandler.h"
+#include "gvV3Mgr.h"
 
 USING_YOSYS_NAMESPACE
 
@@ -24,60 +22,6 @@ bool GVinitNtkCmd() {
             gvCmdMgr->regCmd("PRint Info",          2, 1, new GVPrintInfoCmd    )  &&
             gvCmdMgr->regCmd("FILE2 Aig",           4, 1, new GVFile2AigCmd  )
     );
-}
-
-string V3Msg::_allName = "";
-ofstream V3Msg::_allout;
-V3MsgMgr Msg;
-V3Usage v3Usage;
-V3CmdMgr* v3CmdMgr = new V3CmdMgr("v3");
-V3Handler v3Handler;
-V3CmdExec* e = 0;
-
-extern bool initAlgCmd();
-extern bool initDfxCmd();
-extern bool initNtkCmd();
-extern bool initStgCmd();
-extern bool initVrfCmd();
-extern bool initV3MCCmd();
-extern bool initTransCmd();
-extern bool initCommonCmd();
-
-void initV3()
-{
-    // initialize command library
-    if (!(initAlgCmd() && initDfxCmd() && initNtkCmd() && initStgCmd() && initVrfCmd() &&
-            initV3MCCmd() && initTransCmd() && initCommonCmd())) {
-        Msg(MSG_ERR) << "ERROR: Command Register Failed !!!" << endl; exit(0);
-    }
-}
-
-// parseCmd
-V3CmdExec* parseV3Cmd(string raw_cmd, string& final_cmd)
-{
-    V3CmdExec* e_temp = 0;
-    // space count: indicates how many words there are in cmd
-    unsigned spCount = 0;
-    for (size_t i = 0, n = raw_cmd.size(); i < n; ++i)
-        if (raw_cmd[i] == ' ') ++spCount;
-
-    // try to match commands
-    size_t idx = 0;
-    string cmd;
-    for (unsigned i = 0; (i < spCount + 1) && i < 2; ++i)
-    {
-        idx = raw_cmd.find(' ', idx + 1);
-        cmd = raw_cmd.substr(0, idx);
-
-        e_temp = v3CmdMgr->getCmd(cmd);
-        if (e_temp) { break; } 
-    }
-    size_t opt = raw_cmd.find_first_not_of(' ', idx);
-    if (opt != string::npos)
-        final_cmd = raw_cmd.substr(opt);
-    
-    // return 
-    return e_temp;
 }
 
 //----------------------------------------------------------------------
@@ -257,7 +201,7 @@ GVReadDesignCmd ::exec(const string& option) {
             gvMsg(GV_MSG_IFO) << "[ERROR]: Engine V3 doesn't support blif file !!" << endl;
             return GV_CMD_EXEC_NOP;
         }
-        initV3();
+        v3Mgr->init();
         char execCmd[128], inname[128]; string cmd = "" ,inname_str = "";
         if(fileVerilog) inname_str = "rtl";
         else if(fileAig) inname_str = "aig";
@@ -266,8 +210,8 @@ GVReadDesignCmd ::exec(const string& option) {
         strcpy(inname, inname_str.c_str());
         sprintf(execCmd, "read %s", inname);
         string command = string(execCmd);
-        e = parseV3Cmd(command, cmd);
-        e->exec(cmd);
+        v3_exe = v3Mgr->parseCmd(command, cmd);
+        v3_exe->exec(cmd);
     }
 
     return GV_CMD_EXEC_DONE;
@@ -357,15 +301,15 @@ GVPrintInfoCmd ::exec(const string& option) {
         return GV_CMD_EXEC_DONE;
     }
     else if(currEng == GV_MOD_ENGINE_V3){
-        initV3();
+        v3Mgr->init();
         char execCmd[128]; string cmd = "";
         if(verbose)
             sprintf(execCmd, "print ntk -verbose");
         else
             sprintf(execCmd, "print ntk");
         string command = string(execCmd);
-        e = parseV3Cmd(command, cmd);
-        e->exec(cmd);
+        v3_exe = v3Mgr->parseCmd(command, cmd);
+        v3_exe->exec(cmd);
     }
     return GV_CMD_EXEC_DONE;
 }
@@ -388,7 +332,7 @@ GVCmdExecStatus
 GVFile2AigCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVFile2AigCmd" << endl;
     
-    initV3();
+    v3Mgr->init();
     char inname[128], outname[128];
     bool infileIsVerilog = false;
 
@@ -434,23 +378,25 @@ GVFile2AigCmd ::exec(const string& option) {
 
     // refer to v3CmdMgr.cpp & main.cpp, execute the virtual layer of GVCmdExec*
     char execCmd[128];
-    string cmd1 = "", cmd2 = "", cmd3 = "";
+    string cmd = "";
 
     // verilog2 aig
     if (infileIsVerilog) { sprintf(execCmd, "read rtl %s", inname); }
     string command = string(execCmd);
-    e = parseV3Cmd(command, cmd1);
-    e->exec(cmd1);
+    v3_exe = v3Mgr->parseCmd(command, cmd);
+    v3_exe->exec(cmd);
 
     sprintf(execCmd, "blast ntk");
     command = string(execCmd);
-    e = parseV3Cmd(command, cmd2);
-    e->exec(cmd2);
+    cmd = "";
+    v3_exe = v3Mgr->parseCmd(command, cmd);
+    v3_exe->exec(cmd);
 
     sprintf(execCmd, "write aig %s", outname);
     command = string(execCmd);
-    e = parseV3Cmd(command, cmd3);
-    e->exec(cmd3);
+    cmd = "";
+    v3_exe = v3Mgr->parseCmd(command, cmd);
+    v3_exe->exec(cmd);
 
     // set the aig file name
     gvModMgr->setAigFileName(outputname);

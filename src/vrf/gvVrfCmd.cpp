@@ -5,15 +5,15 @@
 #include "gvVrfCmd.h"
 #include "gvUsage.h"
 #include "gvAbcMgr.h"
+#include "gvV3Mgr.h"
 #include "util.h"
 #include <stdio.h>
 #include <iostream>
 #include <cstring>
 #include <string>
 
-using namespace std;
 
-extern AbcMgr* abcMgr;
+using namespace std;
 
 bool GVinitVrfCmd() {
     return (
@@ -22,7 +22,7 @@ bool GVinitVrfCmd() {
 }
 
 //----------------------------------------------------------------------
-// Formal Verify [-bmc <int_depth> | -pdr | -itp]
+// Formal Verify [-bmc <int_depth> | -ubmc [<PO_idx> <PO_name>] | -pdr | -itp]
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
@@ -34,8 +34,13 @@ GVFormalVerifyCmd ::exec(const string& option) {
         return GV_CMD_EXEC_NOP;
     }
 
-    bool bmc = false, pdr = false, itp = false;
+    v3Mgr->init();
+
+    bool bmc = false, pdr = false, itp = false, ubmc = false; 
+    // bmc 
     int bmc_depth;
+    // ubmc
+    bool specifyPO = false; int PO_idx; char PO_name[128];
     char fname[128];
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
@@ -56,27 +61,73 @@ GVFormalVerifyCmd ::exec(const string& option) {
             }
             else { bmc = true; bmc_depth = stoi(options[i+1]); }
         }
+        else if (myStrNCmp("-ubmc", token, 5) == 0) 
+        {
+            // if no specify PO, default set all safety
+            if ((i+1) >= n) { ubmc = true; }
+            // if only specify name or idx
+            else if ((i+2) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if PO_idx not an integer 
+            else if (!strspn(options[i+1].c_str(), "0123456789")) 
+            {
+                cout << "[ERROR]: Please input an \"integer\" index for UBMC PO (PO_idx) !" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+            else 
+            { 
+                ubmc = true; specifyPO = true;
+                PO_idx = stoi(options[i+1]);
+                strcpy(PO_name, options[i+2].c_str());
+            }
+        }
         else if (myStrNCmp("-pdr", token, 4) == 0) { pdr = true; }
         else if (myStrNCmp("-itp", token, 4) == 0) { itp = true; }
     }
 
     // command 
     char Command[1024], inname[128];
+    string cmd = "";
     string aigFileName = gvModMgr->getAigFileName();
     strcpy(inname, aigFileName.c_str());
-    sprintf( Command, "read %s", inname ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
-    sprintf( Command, "strash" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+
+    if (bmc || pdr || itp)
+    {
+        sprintf( Command, "read %s", inname ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+        sprintf( Command, "strash" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+    }
     // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
     if (bmc) { cout << "\nSuccess: bmc " << endl; sprintf( Command, "bmc3 -F %d", bmc_depth ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
     if (pdr) { cout << "\nSuccess: pdr " << endl; sprintf( Command, "pdr" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
     if (itp) { cout << "\nSuccess: itp " << endl; sprintf( Command, "int" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    if ((!bmc) && (!pdr) && (!itp)) { cout << "\nSuccess: pdr (default) " << endl; sprintf( Command, "int" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); } // default pdr
+    if (ubmc)
+    {
+        sprintf(Command, "read aig %s", inname);
+        string command = string(Command);
+        v3_exe = v3Mgr->parseCmd(command, cmd);
+        v3_exe->exec(cmd);
+
+        if (specifyPO)
+        {
+            sprintf(Command, "set safety %d -name %s", PO_idx, PO_name);
+            command = string(Command);
+            cmd = "";
+            v3_exe = v3Mgr->parseCmd(command, cmd);
+            v3_exe->exec(cmd);
+
+            sprintf(Command, "verify umc %s", PO_name);
+            command = string(Command);
+            cmd = "";
+            v3_exe = v3Mgr->parseCmd(command, cmd);
+            v3_exe->exec(cmd);
+        }
+    }
+    if ((!bmc) && (!pdr) && (!itp) && (!ubmc)) { cout << "\nSuccess: pdr (default) " << endl; sprintf( Command, "int" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); } // default pdr
     return GV_CMD_EXEC_DONE;
 }
 
 void
 GVFormalVerifyCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: Formal Verify [-bmc <int_depth> | -pdr | -itp] " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: Formal Verify [-bmc <int_depth> | -ubmc [<PO_idx> <PO_name>] | -pdr | -itp ] " << endl;
 }
 
 void
