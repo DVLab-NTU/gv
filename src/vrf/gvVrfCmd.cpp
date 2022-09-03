@@ -42,6 +42,10 @@ GVFormalVerifyCmd ::exec(const string& option) {
     string bmc_option, bmc_L, bmc_W;
     // ubmc
     bool specifyPO = false; int PO_idx; char PO_name[128];
+    // itp
+    int itp_C, itp_F, itp_T, itp_K;
+    string itp_option, itp_L, itp_I;
+
     char fname[128];
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
@@ -150,12 +154,52 @@ GVFormalVerifyCmd ::exec(const string& option) {
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                           ITP
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!bmc) && (!ubmc) && (!pdr) && !myStrNCmp("-itp", token, 4)) 
-        { 
-            // if too much option
-            if ((i+1) < n) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
-            itp = true; 
+        if ((!bmc) && (!ubmc) && (!pdr) && !myStrNCmp("-itp", token, 4)) { itp = true; }
+        if (itp && ((!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-K", token, 2))))
+        {
+            // if no specify <num>
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if int_depth not an integer 
+            else if (!strspn(options[i+1].c_str(), "0123456789")) 
+            {
+                cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+            else 
+            { 
+                string itp_sub_option;
+                if (!myStrNCmp("-C", token, 2)) { itp_C = stoi(options[i+1]); itp_sub_option = " -C " + to_string(itp_C); }
+                else if (!myStrNCmp("-F", token, 2)) { itp_F = stoi(options[i+1]); itp_sub_option = " -F " + to_string(itp_F); }
+                else if (!myStrNCmp("-T", token, 2)) { itp_T = stoi(options[i+1]); itp_sub_option = " -T " + to_string(itp_T); }
+                else if (!myStrNCmp("-K", token, 2)) { itp_K = stoi(options[i+1]); itp_sub_option = " -K " + to_string(itp_K); }
+                itp_option += itp_sub_option;
+            }
         }
+        if (itp && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-I", token, 2))))
+        {
+            // if no specify <num>
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            else 
+            { 
+                string itp_sub_option;
+                if (!myStrNCmp("-L", token, 2)) { itp_L = options[i+1]; itp_sub_option = " -L " + itp_L; }
+                if (!myStrNCmp("-I", token, 2)) { itp_I = options[i+1]; itp_sub_option = " -I " + itp_I; }
+                itp_option += itp_sub_option;
+            }
+        }
+        if (itp && ((!myStrNCmp("-i", token, 2)))) { itp_option += " -i"; }
+        if (itp && ((!myStrNCmp("-r", token, 2)))) { itp_option += " -r"; }
+        if (itp && ((!myStrNCmp("-t", token, 2)))) { itp_option += " -t"; }
+        if (itp && ((!myStrNCmp("-p", token, 2)))) { itp_option += " -p"; }
+        if (itp && ((!myStrNCmp("-o", token, 2)))) { itp_option += " -o"; }
+        if (itp && ((!myStrNCmp("-m", token, 2)))) { itp_option += " -m"; }
+        if (itp && ((!myStrNCmp("-c", token, 2)))) { itp_option += " -c"; }
+        if (itp && ((!myStrNCmp("-g", token, 2)))) { itp_option += " -g"; }
+        if (itp && ((!myStrNCmp("-b", token, 2)))) { itp_option += " -b"; }
+        if (itp && ((!myStrNCmp("-q", token, 2)))) { itp_option += " -q"; }
+        if (itp && ((!myStrNCmp("-k", token, 2)))) { itp_option += " -k"; }
+        if (itp && ((!myStrNCmp("-d", token, 2)))) { itp_option += " -d"; }
+        if (itp && ((!myStrNCmp("-v", token, 2)))) { itp_option += " -v"; }
     }
 
     // command 
@@ -164,6 +208,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
     string aigFileName = gvModMgr->getAigFileName();
     strcpy(inname, aigFileName.c_str());
     if (bmc) { strcpy(formal_option, bmc_option.c_str()); }
+    if (itp) { strcpy(formal_option, itp_option.c_str()); }
 
     if (bmc || pdr || itp)
     {
@@ -173,7 +218,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
     // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
     if (bmc) { cout << "\nSuccess: bmc " << endl; sprintf( Command, "bmc3 -F %d%s", bmc_depth, formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
     else if (pdr) { cout << "\nSuccess: pdr " << endl; sprintf( Command, "pdr" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    else if (itp) { cout << "\nSuccess: itp " << endl; sprintf( Command, "int" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
+    else if (itp) { cout << "\nSuccess: itp " << endl; sprintf( Command, "int%s", formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
     else if (ubmc)
     {
         sprintf(Command, "read aig %s", inname);
@@ -202,37 +247,72 @@ GVFormalVerifyCmd ::exec(const string& option) {
 
 void
 GVFormalVerifyCmd ::usage(const bool& verbose) const {
-    // BMC
+    // ------------------------------------------------------------------------------------------------------------------------ //
+    //                                                           BMC
+    // ------------------------------------------------------------------------------------------------------------------------ //
     gvMsg(GV_MSG_IFO) << "Usage: Formal Verify -bmc <int_depth> [-STHGCDJIPQR <num>] [-LW <filename>] [-axdursgvzh]" << endl;
     gvMsg(GV_MSG_IFO) << "\t         performs bounded model checking with dynamic unrolling" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-S num : the starting time frame" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-T num : runtime limit, in seconds" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-H num : runtime limit per output, in miliseconds (with \"-a\")" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-G num : runtime gap since the last CEX, in seconds" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-C num : max conflicts at an output" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-D num : max conflicts after jumping (0 = infinity)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-J num : the number of timeframes to jump (0 = not used)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-I num : the number of PIs to abstract" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-P num : the max number of learned clauses to keep (0=unused)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-Q num : delta value for learned clause removal" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-R num : percentage to keep for learned clause removal" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-L file: the log file name" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-W file: the log file name with per-output details" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-a     : solve all outputs (do not stop when one is SAT)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-x     : toggle storing CEXes when solving all outputs" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-d     : toggle dropping (replacing by 0) SAT outputs" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-u     : toggle performing structural OR-decomposition" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-r     : toggle disabling periodic restarts" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-s     : toggle using Satoko by Bruno Schmitt" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-g     : toggle using Glucose 3.0 by Gilles Audemard and Laurent Simon" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-v     : toggle verbose output" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-z     : toggle suppressing report about solved outputs" << endl;
-    // UBMC
+    gvMsg(GV_MSG_IFO) << "\t-S <num> : the starting time frame" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-T <num> : runtime limit, in seconds" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-H <num> : runtime limit per output, in miliseconds (with \"-a\")" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-G <num> : runtime gap since the last CEX, in seconds" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-C <num> : max conflicts at an output" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-D <num> : max conflicts after jumping (0 = infinity)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-J <num> : the number of timeframes to jump (0 = not used)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-I <num> : the number of PIs to abstract" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-P <num> : the max number of learned clauses to keep (0=unused)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-Q <num> : delta value for learned clause removal" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-R <num> : percentage to keep for learned clause removal" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-L <filename> : the log file name" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-W <filename> : the log file name with per-output details" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-a       : solve all outputs (do not stop when one is SAT)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-x       : toggle storing CEXes when solving all outputs" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-d       : toggle dropping (replacing by 0) SAT outputs" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-u       : toggle performing structural OR-decomposition" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-r       : toggle disabling periodic restarts" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-s       : toggle using Satoko by Bruno Schmitt" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-g       : toggle using Glucose 3.0 by Gilles Audemard and Laurent Simon" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-v       : toggle verbose output" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-z       : toggle suppressing report about solved outputs" << endl;
+    
+    // ------------------------------------------------------------------------------------------------------------------------ //
+    //                                                          UBMC
+    // ------------------------------------------------------------------------------------------------------------------------ //
     gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -ubmc <PO_idx> <PO_name>" << endl;
-    // PDR
+    gvMsg(GV_MSG_IFO) << "\t         uses unbounded model checking to prove the property" << endl;
+    gvMsg(GV_MSG_IFO) << "\t<PO_idx>  : the order of specified PO (idx starts from 0)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t<PO_name> : the name of specified PO" << endl;
+
+    // ------------------------------------------------------------------------------------------------------------------------ //
+    //                                                           PDR
+    // ------------------------------------------------------------------------------------------------------------------------ //
     gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -pdr" << endl;
-    // ITP
-    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -itp" << endl;
+    
+    // ------------------------------------------------------------------------------------------------------------------------ //
+    //                                                           ITP
+    // ------------------------------------------------------------------------------------------------------------------------ //
+    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -itp [-CFTK <num>] [-LI <filename>] [-irtpomcgbqkdvh]" << endl;
+    gvMsg(GV_MSG_IFO) << "\t         uses interpolation to prove the property" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-C <num> : the limit on conflicts for one SAT run" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-F <num> : the limit on number of frames to unroll" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-T <num> : the limit on runtime per output in seconds" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-K <num> : the number of steps in inductive checking" << endl;
+    gvMsg(GV_MSG_IFO) << "\t         (K = 1 works in all cases; K > 1 works without -t and -b)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-L <filename> : the log file name" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-I <filename> : the file name for dumping interpolant" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-i       : toggle dumping interpolant/invariant into a file" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-r       : toggle rewriting of the unrolled timeframes" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-t       : toggle adding transition into the initial state" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-p       : toggle using original Pudlak's interpolation procedure" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-o       : toggle using optimized Pudlak's interpolation procedure" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-m       : toggle using MiniSat-1.14p (now, Windows-only)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-c       : toggle using inductive containment check" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-g       : toggle using bias for global variables using SAT" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-b       : toggle using backward interpolation (works with -t)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-q       : toggle using property in two last timeframes" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-k       : toggle solving each output separately" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-d       : toggle dropping (replacing by 0) SAT outputs (with -k is used)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-v       : toggle verbose output" << endl;
 }
 
 void
