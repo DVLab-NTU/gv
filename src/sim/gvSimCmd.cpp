@@ -29,7 +29,6 @@ GVRandomSimCmd ::exec(const string& option) {
     string stimulus_file_name;
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
-    bool vcd_file_set = false;
     command += "-top " + yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];

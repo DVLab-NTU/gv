@@ -171,7 +171,7 @@ struct randomSim : public Pass
 			ofs << "cxxrtl::vcd_writer vcd;\n";
 			ofs << "vcd.timescale(1, \"us\");\n";
 			ofs << "vcd.add_without_memories(all_debug_items);\n";
-			ofs << "std::ofstream waves(\"waves.vcd\");\n";
+			ofs << "std::ofstream waves(\".waves.vcd\");\n";
 			ofs << "vcd.sample(0);\n";
 		}
 
