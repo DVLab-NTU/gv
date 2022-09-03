@@ -42,6 +42,9 @@ GVFormalVerifyCmd ::exec(const string& option) {
     string bmc_option, bmc_L, bmc_W;
     // ubmc
     bool specifyPO = false; int PO_idx; char PO_name[128];
+    // pdr
+    int pdr_M, pdr_F, pdr_C, pdr_D, pdr_Q, pdr_T, pdr_H, pdr_G, pdr_S;
+    string pdr_option, pdr_L, pdr_I;
     // itp
     int itp_C, itp_F, itp_T, itp_K;
     string itp_option, itp_L, itp_I;
@@ -98,7 +101,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
         }
         if (bmc && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-W", token, 2))))
         {
-            // if no specify <num>
+            // if no specify <filename>
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
             else 
             { 
@@ -144,12 +147,67 @@ GVFormalVerifyCmd ::exec(const string& option) {
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                           PDR
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!bmc) && (!ubmc) && (!itp) && !myStrNCmp("-pdr", token, 4)) 
-        { 
-            // if too much option
-            if ((i+1) < n) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
-            pdr = true; 
+        if ((!bmc) && (!ubmc) && (!itp) && !myStrNCmp("-pdr", token, 4)) { pdr = true; }
+        if (pdr && ((!myStrNCmp("-M", token, 2)) || (!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-D", token, 2)) || (!myStrNCmp("-Q", token, 2)) ||
+                   (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-H", token, 2)) || (!myStrNCmp("-G", token, 2)) || (!myStrNCmp("-S", token, 2))))
+        {
+            // if no specify <num>
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if int_depth not an integer 
+            else if (!strspn(options[i+1].c_str(), "0123456789")) 
+            {
+                cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+            else 
+            { 
+                string pdr_sub_option;
+                if (!myStrNCmp("-M", token, 2)) { pdr_M = stoi(options[i+1]); pdr_sub_option = " -M " + to_string(pdr_M); }
+                else if (!myStrNCmp("-F", token, 2)) { pdr_F = stoi(options[i+1]); pdr_sub_option = " -F " + to_string(pdr_F); }
+                else if (!myStrNCmp("-C", token, 2)) { pdr_C = stoi(options[i+1]); pdr_sub_option = " -C " + to_string(pdr_C); }
+                else if (!myStrNCmp("-D", token, 2)) { pdr_D = stoi(options[i+1]); pdr_sub_option = " -D " + to_string(pdr_D); }
+                else if (!myStrNCmp("-Q", token, 2)) { pdr_Q = stoi(options[i+1]); pdr_sub_option = " -Q " + to_string(pdr_Q); }
+                else if (!myStrNCmp("-T", token, 2)) { pdr_T = stoi(options[i+1]); pdr_sub_option = " -T " + to_string(pdr_T); }
+                else if (!myStrNCmp("-H", token, 2)) { pdr_H = stoi(options[i+1]); pdr_sub_option = " -H " + to_string(pdr_H); }
+                else if (!myStrNCmp("-G", token, 2)) { pdr_G = stoi(options[i+1]); pdr_sub_option = " -G " + to_string(pdr_G); }
+                else if (!myStrNCmp("-S", token, 2)) { pdr_S = stoi(options[i+1]); pdr_sub_option = " -S " + to_string(pdr_S); }
+                pdr_option += pdr_sub_option;
+            }
         }
+        if (pdr && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-I", token, 2))))
+        {
+            // if no specify <filename>
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            else 
+            { 
+                string pdr_sub_option;
+                if (!myStrNCmp("-L", token, 2)) { pdr_L = options[i+1]; pdr_sub_option = " -L " + pdr_L; }
+                if (!myStrNCmp("-I", token, 2)) { pdr_I = options[i+1]; pdr_sub_option = " -I " + pdr_I; }
+                pdr_option += pdr_sub_option;
+            }
+        }
+        if (pdr && ((!myStrNCmp("-a", token, 2)))) { pdr_option += " -a"; }
+        if (pdr && ((!myStrNCmp("-x", token, 2)))) { pdr_option += " -x"; }
+        if (pdr && ((!myStrNCmp("-r", token, 2)))) { pdr_option += " -r"; }
+        if (pdr && ((!myStrNCmp("-m", token, 2)))) { pdr_option += " -m"; }
+        if (pdr && ((!myStrNCmp("-u", token, 2)))) { pdr_option += " -u"; }
+        if (pdr && ((!myStrNCmp("-y", token, 2)))) { pdr_option += " -y"; }
+        if (pdr && ((!myStrNCmp("-f", token, 2)))) { pdr_option += " -f"; }
+        if (pdr && ((!myStrNCmp("-q", token, 2)))) { pdr_option += " -q"; }
+        if (pdr && ((!myStrNCmp("-i", token, 2)))) { pdr_option += " -i"; }
+        if (pdr && ((!myStrNCmp("-p", token, 2)))) { pdr_option += " -p"; }
+        if (pdr && ((!myStrNCmp("-d", token, 2)))) { pdr_option += " -d"; }
+        if (pdr && ((!myStrNCmp("-e", token, 2)))) { pdr_option += " -e"; }
+        if (pdr && ((!myStrNCmp("-g", token, 2)))) { pdr_option += " -g"; }
+        if (pdr && ((!myStrNCmp("-j", token, 2)))) { pdr_option += " -j"; }
+        if (pdr && ((!myStrNCmp("-o", token, 2)))) { pdr_option += " -o"; }
+        if (pdr && ((!myStrNCmp("-n", token, 2)))) { pdr_option += " -n"; }
+        if (pdr && ((!myStrNCmp("-c", token, 2)))) { pdr_option += " -c"; }
+        if (pdr && ((!myStrNCmp("-t", token, 2)))) { pdr_option += " -t"; }
+        if (pdr && ((!myStrNCmp("-k", token, 2)))) { pdr_option += " -k"; }
+        if (pdr && ((!myStrNCmp("-v", token, 2)))) { pdr_option += " -v"; }
+        if (pdr && ((!myStrNCmp("-w", token, 2)))) { pdr_option += " -w"; }
+        if (pdr && ((!myStrNCmp("-z", token, 2)))) { pdr_option += " -z"; }
 
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                           ITP
@@ -177,7 +235,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
         }
         if (itp && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-I", token, 2))))
         {
-            // if no specify <num>
+            // if no specify <filename>
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
             else 
             { 
@@ -208,6 +266,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
     string aigFileName = gvModMgr->getAigFileName();
     strcpy(inname, aigFileName.c_str());
     if (bmc) { strcpy(formal_option, bmc_option.c_str()); }
+    if (pdr) { strcpy(formal_option, pdr_option.c_str()); }
     if (itp) { strcpy(formal_option, itp_option.c_str()); }
 
     if (bmc || pdr || itp)
@@ -217,7 +276,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
     }
     // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
     if (bmc) { cout << "\nSuccess: bmc " << endl; sprintf( Command, "bmc3 -F %d%s", bmc_depth, formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    else if (pdr) { cout << "\nSuccess: pdr " << endl; sprintf( Command, "pdr" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
+    else if (pdr) { cout << "\nSuccess: pdr " << endl; sprintf( Command, "pdr%s", formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
     else if (itp) { cout << "\nSuccess: itp " << endl; sprintf( Command, "int%s", formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
     else if (ubmc)
     {
@@ -286,7 +345,41 @@ GVFormalVerifyCmd ::usage(const bool& verbose) const {
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           PDR
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -pdr" << endl;
+    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -pdr [-MFCDQTHGS <num>] [-LI <filename>] [-axrmuyfqipdegjonctkvwzh]" << endl;
+    gvMsg(GV_MSG_IFO) << "\t         model checking using property directed reachability (aka IC3)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-M <num> : limit on unused vars to trigger SAT solver recycling" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-F <num> : limit on timeframes explored to stop computation" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-C <num> : limit on conflicts in one SAT call (0 = no limit)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-D <num> : limit on conflicts during ind-generalization (0 = no limit)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-Q <num> : limit on proof obligations before a restart (0 = no limit)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-T <num> : runtime limit, in seconds (0 = no limit)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-H <num> : runtime limit per output, in miliseconds (with \"-a\")" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-G <num> : runtime gap since the last CEX (0 = no limit)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-S <num> : * value to seed the SAT solver with" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-L <filename> : the log file name" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-I <filename> : the invariant file name" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-a       : toggle solving all outputs even if one of them is SAT" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-x       : toggle storing CEXes when solving all outputs" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-r       : toggle using more effort in generalization" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-m       : toggle using monolythic CNF computation" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-u       : toggle updated X-valued simulation" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-y       : toggle using structural flop priorities" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-f       : toggle ordering flops by cost before generalization" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-q       : toggle creating only shortest counter-examples" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-i       : toggle clause pushing from an intermediate timeframe" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-p       : toggle reusing proof-obligations in the last timeframe" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-d       : toggle dumping invariant (valid if init state is all-0)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-e       : toggle using only support variables in the invariant" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-g       : toggle skipping expensive generalization step" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-j       : toggle using simplified generalization step" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-o       : toggle using property output as inductive hypothesis" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-n       : * toggle skipping \'down\' in generalization" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-c       : * toggle handling CTGs in \'down\'" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-t       : toggle using abstraction" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-k       : toggle using simplified refinement" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-v       : toggle printing optimization summary" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-w       : toggle printing detailed stats" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-z       : toggle suppressing report about solved outputs" << endl;
     
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           ITP
