@@ -123,7 +123,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
             v3_exe->exec(cmd);
         }
     }
-    if ((!bmc) && (!pdr) && (!itp) && (!ubmc)) { cout << "\nSuccess: pdr (default) " << endl; sprintf( Command, "int" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); } // default pdr
+    if ((!bmc) && (!pdr) && (!itp) && (!ubmc)) { cout << "\n[ERROR]: Please specify a formal technique ([-bmc <int_depth> | -ubmc [<PO_idx> <PO_name>] | -pdr | -itp ])" << endl; } 
     return GV_CMD_EXEC_DONE;
 }
 
