@@ -82,8 +82,18 @@ GVFormalVerifyCmd ::exec(const string& option) {
                 strcpy(PO_name, options[i+2].c_str());
             }
         }
-        else if (myStrNCmp("-pdr", token, 4) == 0) { pdr = true; }
-        else if (myStrNCmp("-itp", token, 4) == 0) { itp = true; }
+        else if (myStrNCmp("-pdr", token, 4) == 0) 
+        { 
+            // if too much option
+            if ((i+1) < n) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
+            pdr = true; 
+        }
+        else if (myStrNCmp("-itp", token, 4) == 0) 
+        { 
+            // if too much option
+            if ((i+1) < n) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
+            itp = true; 
+        }
     }
 
     // command 
@@ -99,9 +109,9 @@ GVFormalVerifyCmd ::exec(const string& option) {
     }
     // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
     if (bmc) { cout << "\nSuccess: bmc " << endl; sprintf( Command, "bmc3 -F %d", bmc_depth ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    if (pdr) { cout << "\nSuccess: pdr " << endl; sprintf( Command, "pdr" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    if (itp) { cout << "\nSuccess: itp " << endl; sprintf( Command, "int" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    if (ubmc)
+    else if (pdr) { cout << "\nSuccess: pdr " << endl; sprintf( Command, "pdr" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
+    else if (itp) { cout << "\nSuccess: itp " << endl; sprintf( Command, "int" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
+    else if (ubmc)
     {
         sprintf(Command, "read aig %s", inname);
         string command = string(Command);
