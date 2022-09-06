@@ -59,6 +59,8 @@ struct randomSim : public Pass
 		std::string verilog_file_name;
 		std::string top_module_name;
 		std::string stimulus_file_name;
+		std::string vcd_file_name;
+
 		
 		for (argidx = 1; argidx < args.size(); argidx++)
 		{
@@ -107,6 +109,7 @@ struct randomSim : public Pass
 				continue;
 			}
 			if (args[argidx] == "-vcd" && argidx+1 < args.size()) {
+				vcd_file_name = args[++argidx];
 				vcd_file_set = true;
 				continue;
 			}
@@ -171,7 +174,7 @@ struct randomSim : public Pass
 			ofs << "cxxrtl::vcd_writer vcd;\n";
 			ofs << "vcd.timescale(1, \"us\");\n";
 			ofs << "vcd.add_without_memories(all_debug_items);\n";
-			ofs << "std::ofstream waves(\".waves.vcd\");\n";
+			ofs << "std::ofstream waves(\""+ vcd_file_name + "\");\n";
 			ofs << "vcd.sample(0);\n";
 		}
 

@@ -6,12 +6,14 @@
 #include "gvAbcMgr.h"                                                                                                           
 #include <string>
 #include "util.h"
+#include <fstream>
 
 #include "kernel/yosys.h"
 USING_YOSYS_NAMESPACE
 bool GVinitSimCmd() {
     return (
-         gvCmdMgr->regCmd("RAndom Sim",      2, 1, new GVRandomSimCmd   ) 
+        gvCmdMgr->regCmd("RAndom Sim",      2, 1, new GVRandomSimCmd   ), 
+        gvCmdMgr->regCmd("SHow Vcd",      2, 1, new GVShowVcdCmd   ) 
     );
 }
 
@@ -25,7 +27,8 @@ GVRandomSimCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
-    string opt, rst = "reset", rst_n = "reset", clk = "clk", in_file_name, out_file_name, command = "random_sim ";
+
+    string opt, rst = "reset", rst_n = "reset", clk = "clk", in_file_name, out_file_name, command = "random_sim ", vcd_file_name = ".waves.vcd";
     string stimulus_file_name;
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
@@ -86,7 +89,8 @@ GVRandomSimCmd ::exec(const string& option) {
         }
         if (myStrNCmp("-vcd", token, 4) == 0) {
             ++i;
-            command += " -vcd";
+            vcd_file_name = options[i];
+            command += " -vcd " + vcd_file_name;
             continue;
         }
     }
@@ -109,6 +113,66 @@ GVRandomSimCmd ::usage(const bool& verbose) const {
 void
 GVRandomSimCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "RAndom Sim: " << "Conduct random simulation and print the results." << endl;
+}
+
+
+//----------------------------------------------------------------------
+// SHow Vcd
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVShowVcdCmd ::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "I am GVSHowVCDCmd " << endl;
+
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    bool inputFile = false;
+    string vcd_file_name = ".waves.vcd";
+    if(n == 1){
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string VCDFileName)>");
+    }
+    else{
+        for (size_t i = 0; i < n; ++i) {
+            const string& token = options[i];
+            if (myStrNCmp("-File", token, 2) == 0) {
+                if (inputFile)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                inputFile = true;
+                continue;
+            }
+            else{
+                if (!inputFile)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+
+                if (vcd_file_name == ".waves.vcd") vcd_file_name = token;
+                else return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+                continue;
+            }
+        }
+    }
+
+    ifstream infile;
+    infile.open(vcd_file_name);
+    if(!infile.is_open()){
+        gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"RANDOM SIMULATION\" to create a VCD file first !!\n";
+        return GV_CMD_EXEC_NOP;
+    }
+    else
+        run_command("gtkwave .waves.vcd");
+
+    infile.close();
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVShowVcdCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "" << endl;
+}
+
+void
+GVShowVcdCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SHow Vcd: " << "Use GTKWave tool to show the waveform based on vcd file." << endl;
 }
 
 #endif
