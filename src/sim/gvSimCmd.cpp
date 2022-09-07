@@ -159,7 +159,7 @@ GVShowVcdCmd ::exec(const string& option) {
         return GV_CMD_EXEC_NOP;
     }
     else
-        run_command("gtkwave .waves.vcd");
+        run_command("gtkwave "+ vcd_file_name);
 
     infile.close();
     return GV_CMD_EXEC_DONE;
