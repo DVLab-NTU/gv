@@ -28,5 +28,5 @@ mkdir gv_src; cp ./src/*/*.h gv_src; ar rc gv_src/libv3.a src/*/*.o;
 cd ../..;
 
 # make GV and get start
-make clean; make; make; clear; ./gv;
+make clean; make; make clean; make; clear; ./gv;
 
