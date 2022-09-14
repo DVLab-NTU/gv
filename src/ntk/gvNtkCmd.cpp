@@ -324,89 +324,106 @@ GVPrintInfoCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "PRint Info: " << "Print circuit information extracted by our parser." << endl;
 }
 
-//----------------------------------------------------------------------
-// File2 Aig <-Verilog> <input_filename> <output_filename.aig>
-//----------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
+// FILE2 Aig < [-Verilog | -Blif] > -Input <infilename> -TOP <top_module_name> -Output <outfilename>.aig
+//-------------------------------------------------------------------------------------------------------
 
 GVCmdExecStatus
 GVFile2AigCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVFile2AigCmd" << endl;
     
-    v3Mgr->init();
-    char inname[128], outname[128];
-    bool infileIsVerilog = false;
+    string inname, topname, outname;
+    bool fileVerilog = false, fileBlif = false;
+    bool hasInfile = false, hasTop = false, hasOutfile = false;
 
-    // get file name
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
-    // Missing Option
-    if(n == 0){
-        cout << "[ERROR]: Please input an \"Output AIG Filename\"<(string filename).aig> !" << endl;
-        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string filename).aig>");
-    }
-    // Extra option(s)
-    if(n > 1){
-        string extraOption = "";
-        for(int i = 1; i < n ; ++i){extraOption += options[i];}
-        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, extraOption);
-    }
-    // check file name
-    string& token = options[0];
-    // (1) if not output an AIG
-    if (strncmp(token.substr(token.length()-4, token.length()).c_str(), ".aig", 4))
+
+    for (size_t i = 0; i < n; ++i) 
     {
-        cout << "[ERROR]: Please output an \"AIG\" file (<filename>.aig) !" << endl;
-        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+        const string& token = options[i];
+        if (myStrNCmp("-Verilog", token, 2) == 0) 
+        {
+            if (fileVerilog | fileBlif) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
+            fileVerilog = true;
+            continue;
+        }
+        else if (myStrNCmp("-Blif", token, 3) == 0) 
+        {
+            if (fileVerilog | fileBlif) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
+            fileBlif = true; 
+            continue;
+        }
+        else if (myStrNCmp("-Input", token, 2) == 0) 
+        {
+            // if no specify filename
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            else { inname = options[i+1]; ++i; }
+            hasInfile = true;
+            continue;
+        }
+        else if (myStrNCmp("-TOP", token, 4) == 0) 
+        {
+             // if no specify top module
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            else { topname = options[i+1]; ++i; }
+            hasTop = true;
+            continue;
+        }
+        else if (myStrNCmp("-Output", token, 2) == 0) 
+        {
+            // if no specify filename
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            else if (strncmp(options[i+1].substr(options[i+1].length()-4, options[i+1].length()).c_str(), ".aig", 4))
+            {
+                cout << "[ERROR]: Please output an \"AIG\" file (<filename>.aig) !" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+            else { outname = options[i+1]; ++i; }
+            hasOutfile = true;
+            continue;
+        }
     }
-    strcpy(outname, token.c_str()); 
-    string outputname = token;
-    // (2) read design input file needs to be supported format
-    string inputname = gvModMgr->getInputFileName();
-    strcpy(inname, inputname.c_str());
-    if (gvModMgr->getInputFileName() == "")
+
+    // command 
+    string readCmd, topCmd, outCmd;
+
+    if (!fileVerilog && !fileBlif) 
+    { 
+        cout << "[ERROR]: Please specify input file format (-Verilog | -Blif) !" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "FILE2 Aig"); 
+    }
+    else if (!hasInfile || !hasOutfile)
     {
-        gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" to read a file first !\n";
-        return GV_CMD_EXEC_NOP;
+        cout << "[ERROR]: Please specify the file options !" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "FILE2 Aig");
     }
-    else if (!strncmp(inputname.substr(inputname.length()-2, inputname.length()).c_str(), ".v", 2)) { infileIsVerilog = true; }
-    else 
-    {
-        gvMsg(GV_MSG_IFO) << "[ERROR]: Current version only support Verilog to AIG file !\n";
-        return GV_CMD_EXEC_NOP;
+    else if (fileVerilog) 
+    { 
+        if (!hasTop)
+        {
+            cout << "[ERROR]: Please specify the top module name options !" << endl;
+            return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "FILE2 Aig");
+        }   
+        readCmd = "read_verilog " + inname; 
     }
+    else if (fileBlif) { readCmd = "read_blif " + inname; }
+    topCmd = "synth -flatten -top " + topname;
+    outCmd = "write_aiger " + outname;
 
-    // refer to v3CmdMgr.cpp & main.cpp, execute the virtual layer of GVCmdExec*
-    char execCmd[128];
-    string cmd = "";
-
-    // verilog2 aig
-    if (infileIsVerilog) { sprintf(execCmd, "read rtl %s", inname); }
-    string command = string(execCmd);
-    v3_exe = v3Mgr->parseCmd(command, cmd);
-    v3_exe->exec(cmd);
-
-    sprintf(execCmd, "blast ntk");
-    command = string(execCmd);
-    cmd = "";
-    v3_exe = v3Mgr->parseCmd(command, cmd);
-    v3_exe->exec(cmd);
-
-    sprintf(execCmd, "write aig %s", outname);
-    command = string(execCmd);
-    cmd = "";
-    v3_exe = v3Mgr->parseCmd(command, cmd);
-    v3_exe->exec(cmd);
-
-    // set the aig file name
-    gvModMgr->setAigFileName(outputname);
+    run_pass(readCmd);
+    run_pass(topCmd);
+    run_pass("dffunmap");
+    run_pass("abc -g AND");
+    run_pass(outCmd);
 
     return GV_CMD_EXEC_DONE;
 }
 
 void
 GVFile2AigCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: File2 Aig <-Verilog> <input_filename> <output_filename.aig> " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: FILE2 Aig <[-Verilog|-Blif]> -Input <infilename> -TOP <top_module_name> -Output <outfilename>.aig " << endl;
 }
 
 void
