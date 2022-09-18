@@ -10,8 +10,7 @@ class GVModMgr;
 
 const string GVEngineString[] = {
     "yosys",
-    "abc",
-    "v3"
+    "abc"
 };
 
 const string GVModTypeString[] = {
@@ -28,8 +27,7 @@ enum GVModType{
 
 enum GVModEngine{
     GV_MOD_ENGINE_YOSYS = 0,
-    GV_MOD_ENGINE_ABC = 1,
-    GV_MOD_ENGINE_V3 = 2
+    GV_MOD_ENGINE_ABC = 1
 };
 
 extern GVModMgr*     gvModMgr;

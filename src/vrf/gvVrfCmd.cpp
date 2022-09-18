@@ -5,7 +5,6 @@
 #include "gvVrfCmd.h"
 #include "gvUsage.h"
 #include "gvAbcMgr.h"
-#include "gvV3Mgr.h"
 #include "util.h"
 #include <stdio.h>
 #include <iostream>
@@ -21,9 +20,9 @@ bool GVinitVrfCmd() {
     );
 }
 
-//----------------------------------------------------------------------
-// Formal Verify [-bmc <int_depth> | -ubmc [<PO_idx> <PO_name>] | -pdr | -itp]
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------
+// Formal Verify [-bmc <int_depth> [-options] | -ind <PO_idx> [-options] | -pdr [-options] | -itp [-options]]
+//------------------------------------------------------------------------------------------------------------
 
 GVCmdExecStatus
 GVFormalVerifyCmd ::exec(const string& option) {
@@ -34,14 +33,14 @@ GVFormalVerifyCmd ::exec(const string& option) {
         return GV_CMD_EXEC_NOP;
     }
 
-    v3Mgr->init();
-
-    bool bmc = false, pdr = false, itp = false, ubmc = false; 
+    bool bmc = false, pdr = false, itp = false, ind = false; 
     // bmc 
     int bmc_depth, bmc_S, bmc_T, bmc_H, bmc_G, bmc_C, bmc_D, bmc_J, bmc_I, bmc_P, bmc_Q, bmc_R;
     string bmc_option, bmc_L, bmc_W;
-    // ubmc
-    bool specifyPO = false; int PO_idx; char PO_name[128];
+    // k-induction
+    int PO_idx; 
+    int ind_F, ind_P, ind_C, ind_M, ind_L, ind_N, ind_B;
+    string ind_option;
     // pdr
     int pdr_M, pdr_F, pdr_C, pdr_D, pdr_Q, pdr_T, pdr_H, pdr_G, pdr_S;
     string pdr_option, pdr_L, pdr_I;
@@ -60,7 +59,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                           BMC
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!ubmc) && (!pdr) && (!itp) && !myStrNCmp("-bmc", token, 4)) {
+        if ((!ind) && (!pdr) && (!itp) && !myStrNCmp("-bmc", token, 4)) {
             // if no specify int_depth
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
             // if int_depth not an integer 
@@ -122,32 +121,56 @@ GVFormalVerifyCmd ::exec(const string& option) {
         if (bmc && ((!myStrNCmp("-z", token, 2)))) { bmc_option += " -z"; }
 
         // ------------------------------------------------------------------------------------------------------------------------ //
-        //                                                          UBMC
+        //                                                       k-induction
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!bmc) && (!pdr) && (!itp) && !myStrNCmp("-ubmc", token, 5)) 
-        {
-            // if not completely specify "PO_idx" and "PO_name"
-            if ((i+2) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if too much option
-            else if ((i+3) < n) { return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token); }
+        if ((!bmc) && (!itp) && (!pdr) && !myStrNCmp("-ind", token, 4)) 
+        { 
+            // if no specify <PO_idx>
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
             // if PO_idx not an integer 
             else if (!strspn(options[i+1].c_str(), "0123456789")) 
             {
-                cout << "[ERROR]: Please input an \"integer\" index for UBMC PO (PO_idx) !" << endl;
+                cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+            else { PO_idx = stoi(options[i+1]); }
+            ind = true; 
+        }
+        if (ind && ((!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-P", token, 2)) || (!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-M", token, 2)) ||
+                    (!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-N", token, 2)) || (!myStrNCmp("-B", token, 2))))
+        {
+            // if no specify <num>
+            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
+            // if int_depth not an integer 
+            else if (!strspn(options[i+1].c_str(), "0123456789")) 
+            {
+                cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
             }
             else 
             { 
-                ubmc = true; specifyPO = true;
-                PO_idx = stoi(options[i+1]);
-                strcpy(PO_name, options[i+2].c_str());
+                string ind_sub_option;
+                if (!myStrNCmp("-F", token, 2)) { ind_F = stoi(options[i+1]); ind_sub_option = " -F " + to_string(ind_F); }
+                else if (!myStrNCmp("-P", token, 2)) { ind_P = stoi(options[i+1]); ind_sub_option = " -P " + to_string(ind_P); }
+                else if (!myStrNCmp("-C", token, 2)) { ind_C = stoi(options[i+1]); ind_sub_option = " -C " + to_string(ind_C); }
+                else if (!myStrNCmp("-M", token, 2)) { ind_M = stoi(options[i+1]); ind_sub_option = " -M " + to_string(ind_M); }
+                else if (!myStrNCmp("-L", token, 2)) { ind_L = stoi(options[i+1]); ind_sub_option = " -L " + to_string(ind_L); }
+                else if (!myStrNCmp("-N", token, 2)) { ind_N = stoi(options[i+1]); ind_sub_option = " -N " + to_string(ind_N); }
+                else if (!myStrNCmp("-B", token, 2)) { ind_B = stoi(options[i+1]); ind_sub_option = " -B " + to_string(ind_B); }
+                ind_option += ind_sub_option;
             }
         }
+
+        if (ind && ((!myStrNCmp("-s", token, 2)))) { ind_option += " -s"; }
+        if (ind && ((!myStrNCmp("-b", token, 2)))) { ind_option += " -b"; }
+        if (ind && ((!myStrNCmp("-r", token, 2)))) { ind_option += " -r"; }
+        if (ind && ((!myStrNCmp("-t", token, 2)))) { ind_option += " -t"; }
+        if (ind && ((!myStrNCmp("-v", token, 2)))) { ind_option += " -v"; }       
 
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                           PDR
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!bmc) && (!ubmc) && (!itp) && !myStrNCmp("-pdr", token, 4)) { pdr = true; }
+        if ((!bmc) && (!ind) && (!itp) && !myStrNCmp("-pdr", token, 4)) { pdr = true; }
         if (pdr && ((!myStrNCmp("-M", token, 2)) || (!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-D", token, 2)) || (!myStrNCmp("-Q", token, 2)) ||
                    (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-H", token, 2)) || (!myStrNCmp("-G", token, 2)) || (!myStrNCmp("-S", token, 2))))
         {
@@ -212,7 +235,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                           ITP
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!bmc) && (!ubmc) && (!pdr) && !myStrNCmp("-itp", token, 4)) { itp = true; }
+        if ((!bmc) && (!ind) && (!pdr) && !myStrNCmp("-itp", token, 4)) { itp = true; }
         if (itp && ((!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-K", token, 2))))
         {
             // if no specify <num>
@@ -268,39 +291,27 @@ GVFormalVerifyCmd ::exec(const string& option) {
     if (bmc) { strcpy(formal_option, bmc_option.c_str()); }
     if (pdr) { strcpy(formal_option, pdr_option.c_str()); }
     if (itp) { strcpy(formal_option, itp_option.c_str()); }
+    if (ind) { strcpy(formal_option, ind_option.c_str()); }
 
-    if (bmc || pdr || itp)
-    {
-        sprintf( Command, "read %s", inname ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
-        sprintf( Command, "strash" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
-    }
+    sprintf( Command, "read %s", inname ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+    sprintf( Command, "strash" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+
     // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
     if (bmc) { cout << "\nSuccess: bmc " << endl; sprintf( Command, "bmc3 -F %d%s", bmc_depth, formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
     else if (pdr) { cout << "\nSuccess: pdr " << endl; sprintf( Command, "pdr%s", formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
     else if (itp) { cout << "\nSuccess: itp " << endl; sprintf( Command, "int%s", formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    else if (ubmc)
-    {
-        sprintf(Command, "read aig %s", inname);
-        string command = string(Command);
-        v3_exe = v3Mgr->parseCmd(command, cmd);
-        v3_exe->exec(cmd);
-
-        if (specifyPO)
-        {
-            sprintf(Command, "set safety %d -name %s", PO_idx, PO_name);
-            command = string(Command);
-            cmd = "";
-            v3_exe = v3Mgr->parseCmd(command, cmd);
-            v3_exe->exec(cmd);
-
-            sprintf(Command, "verify umc %s", PO_name);
-            command = string(Command);
-            cmd = "";
-            v3_exe = v3Mgr->parseCmd(command, cmd);
-            v3_exe->exec(cmd);
-        }
+    else if (ind) 
+    { 
+        cout << "\nSuccess: k-induction " << endl; 
+        // extract PO
+        sprintf( Command, "cone -O %d -s", PO_idx ); 
+        Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); 
+        // do k-induction
+        sprintf( Command, "indcut %s", formal_option ); 
+        Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
     }
-    if ((!bmc) && (!pdr) && (!itp) && (!ubmc)) { cout << "\n[ERROR]: Please specify a formal technique ([-bmc <int_depth> | -ubmc [<PO_idx> <PO_name>] | -pdr | -itp ])" << endl; } 
+
+    if ((!bmc) && (!pdr) && (!itp) && (!ind)) { cout << "\n[ERROR]: Please specify a formal technique ([-bmc <int_depth> | -ind <PO_idx> | -pdr | -itp ])" << endl; } 
     return GV_CMD_EXEC_DONE;
 }
 
@@ -309,7 +320,7 @@ GVFormalVerifyCmd ::usage(const bool& verbose) const {
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           BMC
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "Usage: Formal Verify -bmc <int_depth> [-STHGCDJIPQR <num>] [-LW <filename>] [-axdursgvzh]" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: Formal Verify -bmc <int_depth> [-STHGCDJIPQR <num>] [-LW <filename>] [-axdursgvz]" << endl;
     gvMsg(GV_MSG_IFO) << "\t         performs bounded model checking with dynamic unrolling" << endl;
     gvMsg(GV_MSG_IFO) << "\t-S <num> : the starting time frame" << endl;
     gvMsg(GV_MSG_IFO) << "\t-T <num> : runtime limit, in seconds" << endl;
@@ -335,17 +346,28 @@ GVFormalVerifyCmd ::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "\t-z       : toggle suppressing report about solved outputs" << endl;
     
     // ------------------------------------------------------------------------------------------------------------------------ //
-    //                                                          UBMC
+    //                                                       k-induction
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -ubmc <PO_idx> <PO_name>" << endl;
-    gvMsg(GV_MSG_IFO) << "\t         uses unbounded model checking to prove the property" << endl;
+    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -ind <PO_idx> [-FPCMLNB num] [-sbrtv]" << endl;
+    gvMsg(GV_MSG_IFO) << "\t          : K-step induction strengthened with cut properties to prove the property" << endl;
     gvMsg(GV_MSG_IFO) << "\t<PO_idx>  : the order of specified PO (idx starts from 0)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t<PO_name> : the name of specified PO" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-F num : number of time frames for induction (1=simple)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-P num : number of time frames in the prefix (0=no prefix)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-C num : the max number of clauses to use for strengthening" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-M num : the cut size (2 <= M <= 12)" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-L num : the max number of levels for cut computation" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-N num : the max number of cuts to compute at a node" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-B num : the max number of invariant batches to try" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-s     : toggle increment cut size in each batch" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-b     : toggle enabling BMC check" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-r     : toggle enabling register clauses" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-t     : toggle proving target / computing don't-cares" << endl;
+    gvMsg(GV_MSG_IFO) << "\t-v     : toggle printing verbose information" << endl;
 
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           PDR
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -pdr [-MFCDQTHGS <num>] [-LI <filename>] [-axrmuyfqipdegjonctkvwzh]" << endl;
+    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -pdr [-MFCDQTHGS <num>] [-LI <filename>] [-axrmuyfqipdegjonctkvwz]" << endl;
     gvMsg(GV_MSG_IFO) << "\t         model checking using property directed reachability (aka IC3)" << endl;
     gvMsg(GV_MSG_IFO) << "\t-M <num> : limit on unused vars to trigger SAT solver recycling" << endl;
     gvMsg(GV_MSG_IFO) << "\t-F <num> : limit on timeframes explored to stop computation" << endl;
@@ -384,7 +406,7 @@ GVFormalVerifyCmd ::usage(const bool& verbose) const {
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           ITP
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -itp [-CFTK <num>] [-LI <filename>] [-irtpomcgbqkdvh]" << endl;
+    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -itp [-CFTK <num>] [-LI <filename>] [-irtpomcgbqkdv]" << endl;
     gvMsg(GV_MSG_IFO) << "\t         uses interpolation to prove the property" << endl;
     gvMsg(GV_MSG_IFO) << "\t-C <num> : the limit on conflicts for one SAT run" << endl;
     gvMsg(GV_MSG_IFO) << "\t-F <num> : the limit on number of frames to unroll" << endl;

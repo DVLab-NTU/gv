@@ -14,11 +14,5 @@ sudo apt-get install build-essential clang bison flex \
 make config-clang; make -j8;
 sudo make install;
 
-# v3
-git clone https://github.com/HHHUUUGGGOOO/V3-fixed.git
-cd V3-fixed/
-make
-cd ../
-
 # clear
 clear

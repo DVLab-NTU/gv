@@ -11,7 +11,6 @@
 #include "kernel/yosys.h"
 #include "gvModMgr.h"
 #include "gvAbcMgr.h"
-#include "gvV3Mgr.h"
 
 USING_YOSYS_NAMESPACE
 
@@ -36,7 +35,7 @@ GVSetEngineCmd ::exec(const string& option) {
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
 
-    bool engABC = false, engYOSYS = false, engV3 = false;
+    bool engABC = false, engYOSYS = false;
     // try to match engine names
     if (n == 0)
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string engineName)>");
@@ -44,25 +43,19 @@ GVSetEngineCmd ::exec(const string& option) {
         for (size_t i = 0; i < n; ++i) {
             const string& token = options[i];
             if (myStrNCmp("yosys", token, 1) == 0) {
-                if (engABC | engYOSYS | engV3)
+                if (engABC | engYOSYS)
                     return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
                 engYOSYS = true;
                 continue;
             }
             else if (myStrNCmp("abc", token, 1) == 0) {
-                if (engABC | engYOSYS | engV3)
+                if (engABC | engYOSYS)
                     return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
                 engABC = true; 
                 continue;
             }
-            else if (myStrNCmp("v3", token, 1) == 0) {
-                if (engABC | engYOSYS | engV3)  
-                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-                engV3 = true;
-                continue;
-            }
             else {
-                if ( !engABC && !engYOSYS && !engV3)
+                if ( !engABC && !engYOSYS )
                     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
             }
         }
@@ -71,11 +64,10 @@ GVSetEngineCmd ::exec(const string& option) {
     // set current engine
     if(engYOSYS)  gvModMgr->setGVEngine(GV_MOD_ENGINE_YOSYS);
     else if (engABC) gvModMgr->setGVEngine(GV_MOD_ENGINE_ABC);
-    else if(engV3)  gvModMgr->setGVEngine(GV_MOD_ENGINE_V3);
 
     // print the success message
     int engPos = gvModMgr->getGVEngine();
-    string engNameList[3] = {"yosys","abc","V3"};
+    string engNameList[2] = {"yosys","abc"};
     cout << "Set Engine \""<< engNameList[engPos] <<"\" Success !!" <<endl;
     return GV_CMD_EXEC_DONE;
 }
@@ -83,7 +75,7 @@ GVSetEngineCmd ::exec(const string& option) {
 void
 GVSetEngineCmd ::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: SEt Engine <(string engineName)> " << endl;
-    gvMsg(GV_MSG_IFO) << "Param: <(string engineName)>  :  Name of the engine. <(yosys) | (abc) | (v3)>" << endl;
+    gvMsg(GV_MSG_IFO) << "Param: <(string engineName)>  :  Name of the engine. <(yosys) | (abc)>" << endl;
 }
 
 void
@@ -196,23 +188,6 @@ GVReadDesignCmd ::exec(const string& option) {
     else if (currEng == GV_MOD_ENGINE_ABC){
         abcMgr -> abcReadDesign(filename);
     }
-    else if(currEng == GV_MOD_ENGINE_V3){
-        if(fileBlif){
-            gvMsg(GV_MSG_IFO) << "[ERROR]: Engine V3 doesn't support blif file !!" << endl;
-            return GV_CMD_EXEC_NOP;
-        }
-        v3Mgr->init();
-        char execCmd[128], inname[128]; string cmd = "" ,inname_str = "";
-        if(fileVerilog) inname_str = "rtl";
-        else if(fileAig) inname_str = "aig";
-        else if(fileBtor) inname_str = "btor";
-        inname_str += " "+ filename;
-        strcpy(inname, inname_str.c_str());
-        sprintf(execCmd, "read %s", inname);
-        string command = string(execCmd);
-        v3_exe = v3Mgr->parseCmd(command, cmd);
-        v3_exe->exec(cmd);
-    }
 
     return GV_CMD_EXEC_DONE;
 }
@@ -299,17 +274,6 @@ GVPrintInfoCmd ::exec(const string& option) {
     }
     else if(currEng == GV_MOD_ENGINE_ABC){
         return GV_CMD_EXEC_DONE;
-    }
-    else if(currEng == GV_MOD_ENGINE_V3){
-        v3Mgr->init();
-        char execCmd[128]; string cmd = "";
-        if(verbose)
-            sprintf(execCmd, "print ntk -verbose");
-        else
-            sprintf(execCmd, "print ntk");
-        string command = string(execCmd);
-        v3_exe = v3Mgr->parseCmd(command, cmd);
-        v3_exe->exec(cmd);
     }
     return GV_CMD_EXEC_DONE;
 }
