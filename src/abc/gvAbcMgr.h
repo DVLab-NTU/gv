@@ -1,5 +1,5 @@
-#ifndef GV_ABC_MGR
-#define GV_ABC_MGR
+#ifndef GV_ABC_MGR_H
+#define GV_ABC_MGR_H
 
 #include "gvAbcNtk.h"
 #include <string>
@@ -19,8 +19,8 @@ extern "C"
     Abc_Frame_t * Abc_FrameGetGlobalFrame();
     int    Cmd_CommandExecute( Abc_Frame_t * pAbc, const char * sCommand );
     Abc_Ntk_t * Abc_FrameReadNtk( Abc_Frame_t * p );
+    void   Lsv_NtkPrintNodes(Abc_Ntk_t* pNtk);
 }
-
 
 class AbcMgr
 {
@@ -34,12 +34,17 @@ class AbcMgr
         void abcReadDesign(string&);
         void abcPrintDesign(bool);
 
-        Abc_Frame_t * get_Abc_Frame_t() { return pAbc; }
-        Abc_Ntk_t * get_Abc_Ntk_t() { return pNtk; }
+        void aigPrintDesign(bool);
+
+
+        void setNtkMgr(NtkMgr* ntkMgr) { pNtkMgr = ntkMgr; }
+
+        Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }
+        Abc_Ntk_t* get_Abc_Ntk_t() { return pNtkMgr->getNtk(); }
 
     private:
-        Abc_Frame_t * pAbc; 
-        Abc_Ntk_t * pNtk;
+        Abc_Frame_t* pAbc; 
+        NtkMgr* pNtkMgr ;
 };
 
 

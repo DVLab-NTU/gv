@@ -13,7 +13,8 @@ bool GVinitAbcCmd() {
     abcMgr = new AbcMgr;
     return (
          gvCmdMgr->regCmd("ABCRead",      4, new GVABCReadCmd   ) ,
-         gvCmdMgr->regCmd("ABCPrint",      4, new GVABCPrintCmd   ) 
+         gvCmdMgr->regCmd("ABCPrint",      4, new GVABCPrintCmd   ) ,
+         gvCmdMgr->regCmd("AIGPrint",      4, new GVAIGPrintCmd   )
     );
 }
 
@@ -77,6 +78,38 @@ GVABCPrintCmd ::usage(const bool& verbose) const {
 void
 GVABCPrintCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCPrint: " << "Print netlist information." << endl;
+}
+
+//----------------------------------------------------------------------
+// AIGPrint [-Verbose]
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVAIGPrintCmd ::exec(const string& option) {
+    // gvMsg(GV_MSG_IFO) << "I am GVABCPrintCmd  " << endl;
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    bool basic = false, verbose = false;
+    size_t n = options.size();
+
+    if (options.size() > 1) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[1]);
+    else if(options.size()) {
+        if (myStrNCmp("-Verbose", options[0], 2) == 0) verbose = true;
+        else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    }
+
+    abcMgr -> aigPrintDesign(verbose);
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVAIGPrintCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: AIGPrint " << endl;
+}
+
+void
+GVAIGPrintCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "AIGPrint: " << "Print netlist information." << endl;
 }
 
 #endif

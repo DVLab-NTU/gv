@@ -27,6 +27,8 @@ AbcMgr::abcReadDesign(string& fileName)
     char Command[1000];
     sprintf( Command, "read %s", pFileName );
     Cmd_CommandExecute( pAbc, Command );
+    NtkMgr* ntkMgr = new NtkMgr(Abc_FrameReadNtk(pAbc));
+    abcMgr->setNtkMgr(ntkMgr);
 }
 
 void
@@ -37,7 +39,15 @@ AbcMgr::abcPrintDesign(bool verbose)
     printf("\n");
     if (verbose) {
         printf("[Detailed Netlist information]\n\n");
-        Cmd_CommandExecute( pAbc, "lsv_print_nodes" );
+        // Cmd_CommandExecute( pAbc, "lsv_print_nodes" );
+        Lsv_NtkPrintNodes(abcMgr->get_Abc_Ntk_t());
     }
 }
+
+void
+AbcMgr::aigPrintDesign(bool verbose)
+{
+    pNtkMgr->Aig_AllDFS();
+}
+
 
