@@ -8,7 +8,8 @@
 #include <vector>
 #include <map>
 
-#include "kernel/yosys.h"
+// #include "kernel/yosys.h"
+#include "gvNtk.h"
 #include "gvModMgr.h"
 #include "gvAbcMgr.h"
 
@@ -16,10 +17,11 @@ USING_YOSYS_NAMESPACE
 
 bool GVinitNtkCmd() {
     return (
-            gvCmdMgr->regCmd("SEt Engine",         2, 1, new GVSetEngineCmd   )  &&
-            gvCmdMgr->regCmd("REad Design",         2, 1, new GVReadDesignCmd   )  &&
-            gvCmdMgr->regCmd("PRint Info",          2, 1, new GVPrintInfoCmd    )  &&
-            gvCmdMgr->regCmd("FILE2 Aig",           4, 1, new GVFile2AigCmd  )
+            gvCmdMgr->regCmd("SEt Engine",         2, 1, new GVSetEngineCmd   ) &&
+            gvCmdMgr->regCmd("REad Design",        2, 1, new GVReadDesignCmd  ) &&
+            gvCmdMgr->regCmd("PRint Info",         2, 1, new GVPrintInfoCmd   ) &&
+            gvCmdMgr->regCmd("FILE2 Aig",          4, 1, new GVFile2AigCmd    ) && 
+            gvCmdMgr->regCmd("YOSYSCMD",           8, new GVYosysOriginalCmd  )
     );
 }
 
@@ -235,15 +237,15 @@ GVPrintInfoCmd ::exec(const string& option) {
     GVModEngine currEng = gvModMgr -> getGVEngine(); 
     if(currEng == GV_MOD_ENGINE_YOSYS){
         gvMsg(GV_MSG_IFO) << "Modules in current design: ";
-        string moduleName = yosys_design->top_module()->name.str();
-        cout << moduleName <<"(" << GetSize(yosys_design->top_module()->wires()) <<" wires, " << GetSize(yosys_design->top_module()->cells()) << " cells)\n";
-        for(auto wire : yosys_design->top_module()->wires()){
+        string moduleName = gvRTLDesign->getDesign()->top_module()->name.str();
+        cout << moduleName <<"(" << GetSize(gvRTLDesign->getDesign()->top_module()->wires()) <<" wires, " << GetSize(gvRTLDesign->getDesign()->top_module()->cells()) << " cells)\n";
+        for(auto wire : gvRTLDesign->getDesign()->top_module()->wires()){
             //string wire_name = log_id(wire->name);
             if(wire->port_input) numPI++;
             else if(wire->port_output) numPO++;
         }
         if(verbose){
-            for(auto cell : yosys_design->top_module()->cells()){
+            for(auto cell : gvRTLDesign->getDesign()->top_module()->cells()){
                 if (cell->type.in(ID($mux))) numMux++;
                 else if (cell->type.in(ID($logic_and))) numAnd++;
                 else if(cell->type.in(ID($add))) numAdd++;
@@ -395,6 +397,38 @@ GVFile2AigCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "File2 Aig: " << "Convert verilog file into AIG. " << endl;
 }
 
+//----------------------------------------------------------------------
+// YOSYSCMD <command in ABC>
+//----------------------------------------------------------------------
 
+GVCmdExecStatus
+GVYosysOriginalCmd ::exec(const string& option) {
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    string command;
+    for (size_t i = 0; i < n; ++i) {
+      command += options[i];
+      if (i < n-1) { command += " "; }
+    }
+
+    // calling Yosys's command
+    if ((yosys_design->top_module() == NULL) && (myStrNCmp("read", command, 4))) 
+    {
+        cout << "Error: Please read in a design first !" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, command);
+    }
+    run_pass(command);
+}
+
+void
+GVYosysOriginalCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: YOSYSCMD <command in Yosys> " << endl;
+}
+
+void
+GVYosysOriginalCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "YosysCMD: " << "Directly call Yosys's command." << endl;
+}
 
 #endif
