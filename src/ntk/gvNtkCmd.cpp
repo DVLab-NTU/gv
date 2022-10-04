@@ -11,6 +11,7 @@
 #include "kernel/yosys.h"
 #include "gvModMgr.h"
 #include "gvAbcMgr.h"
+#include "gvNtk.h"
 
 USING_YOSYS_NAMESPACE
 
@@ -184,6 +185,62 @@ GVReadDesignCmd ::exec(const string& option) {
         if(fileVerilog) yosCommand += "read_verilog ";
         else if(fileBlif) yosCommand += "read_blif ";
         run_pass(yosCommand + filename);
+
+        // read the information from yosys into gv
+        // Create Network Handler
+        // GVNtkInput* rtlHandler = new GVNtkInput(false, log_id(yosys_design->top_module()->name));
+        GVBvNtk* bvNtk = new GVBvNtk();
+        // if (!rtlHandler) { gvMsg(GV_MSG_ERR) << "Create RTL Parser Failed !!" << endl; return GV_CMD_EXEC_ERROR; }
+        // if (!rtlHandler->getNtk()) { gvMsg(GV_MSG_ERR) << "Create RTL Network Failed !!" << endl; return GV_CMD_EXEC_ERROR; }
+        // GVBvNtk* const ntk = dynamic_cast<GVBvNtk*>(rtlHandler->getNtk()); assert (ntk);
+        GVNetId tmpNet;
+        for(auto wire : yosys_design->top_module()->wires()){
+            //string wire_name = log_id(wire->name);
+            if(wire->port_input && wire->port_output) 
+            {
+                // cout << "hi " << wire->port_id
+                tmpNet = bvNtk->createNet(wire->width);
+                bvNtk->createInout(tmpNet);
+            }
+            else if(wire->port_input) 
+            {
+                // cout << "hi " << wire->port_id
+                tmpNet = bvNtk->createNet(wire->width);
+                bvNtk->createInput(tmpNet);
+            }
+            else if(wire->port_output) 
+            {
+                cout << "output " << wire->width << endl;
+                tmpNet = bvNtk->createNet(wire->width);
+                bvNtk->createOutput(tmpNet);
+            }
+        }
+        for(auto cell : yosys_design->top_module()->cells()){
+            if (cell->type.in(ID($mux)))
+            {
+                // cell->connections()
+                // bvNtk->createGate(BV_MUX, );
+                // for (auto &conn : c->connections()) {
+                //     get_name(conn.first).c_str(), get_bits(conn.second).c_str();
+                //     first2 = false;
+			    // }
+            }
+            // else if (cell->type.in(ID($logic_and))) numAnd++;
+            // else if(cell->type.in(ID($add))) numAdd++;
+            // else if (cell->type.in(ID($sub))) numSub++;
+            // else if (cell->type.in(ID($mul))) numMul++;
+            // else if (cell->type.in(ID($eq))) numEq++;
+            // else if (cell->type.in(ID($logic_not))) numNot++;
+            // else if (cell->type.in(ID($lt))) numLe++;
+            // else if (cell->type.in(ID($ge))) numGe++;
+        }
+        cout << "input size = " << bvNtk -> getInputSize() << endl;
+        cout << "output size = " << bvNtk -> getOutputSize() << endl;
+        cout << "inout size = " << bvNtk -> getInoutSize() << endl;
+        // for(size_t i = 0; i < bvNtk -> getOutputSize(); ++i)
+        // {
+        //     cout << "Input width = " << bvNtk -> getNetWidth(bvNtk -> getOutput(i)) << " " << bvNtk -> getOutput(i).id << endl;
+        // }
     }   
     else if (currEng == GV_MOD_ENGINE_ABC){
         abcMgr -> abcReadDesign(filename);

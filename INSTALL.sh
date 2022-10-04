@@ -6,6 +6,14 @@ cd engine/abc; make -j12; make libabc.a;
 # copy "abc" static library to /gv_src
 mkdir gv_src; mv libabc.a gv_src;
 
+cp -r src/* gv_src
+cd gv_src/
+rm *.c
+find ./ -name "*.c" | xargs rm
+find ./ -name "*.o" | xargs rm
+find ./ -name "*.d" | xargs rm
+find ./ -name "*.make" | xargs rm
+
 # make "yosys" shared library 
 cd ../yosys; make config-gcc; make -j12; make install;
 
