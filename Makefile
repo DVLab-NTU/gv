@@ -1,5 +1,5 @@
-SRCPKGS  = cmd ntk util sim vrf abc mod 
-LIBPKGS  = cmd ntk util sim vrf abc mod 
+SRCPKGS  = cmd ntk util sim vrf abc mod  
+LIBPKGS  = cmd ntk util sim vrf abc mod  
 
 MAIN     = main
 
@@ -24,7 +24,8 @@ all:	srcLib
 	@echo "Checking $(MAIN)..."
 	@cd src/$(MAIN); make --no-print-directory EXTLIB="$(SRCLIBS) $(EXTLIBS)" EXEC=$(EXEC); cd ../.. ;
 
-srcLib:	engLib
+srcLib:	engLib 
+	@cd include; ln -fs ../src/*/*.h ./;
 	@for pkg in $(SRCPKGS); \
 	do \
 		echo "Checking $$pkg..."; \

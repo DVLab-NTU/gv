@@ -37,7 +37,7 @@ clean:
 depend: .depend.mak
 .depend.mak: $(CSRCS) $(CHDRS)
 	@echo Making dependencies ...
-	@$(YOSYSCONF) -MM $(DEPDIR) $(CSRCS) > $@
+	@$(YOSYSCONF) -MM $(DEPDIR) -DABC_USE_STDINT_H $(CSRCS) > $@
 
 ## Linking external headers
 extheader: .extheader.mak
