@@ -1,5 +1,5 @@
 PKGFLAG   =
-EXTHDRS   = gvNtkCmd.h
+EXTHDRS   = gvNtkCmd.h gvNtk.h
 
 include ../Makefile.in
 include ../Makefile.lib
