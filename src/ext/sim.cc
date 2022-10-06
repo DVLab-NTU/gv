@@ -44,9 +44,9 @@ struct randomSim : public Pass
     }
 	void execute(std::vector<std::string> args, Design *design) override
 	{
-		int sim_cycle = 20;
+		int sim_cycle = 20, property = -1;
 		size_t argidx, num_inputs = 0;
-		bool reset_set = false;
+		bool reset_set = false, property_set = false;
 		bool reset_n_set = false;
 		bool clk_set = false;
 		bool verbose = false, verilog_file_name_set = false;
@@ -103,6 +103,11 @@ struct randomSim : public Pass
 			if (args[argidx] == "-input" && argidx+1 < args.size()) {
 				verilog_file_name = args[++argidx];
 				verilog_file_name_set = true;
+				continue;
+			}
+			if (args[argidx] == "-safe" && argidx+1 < args.size()) {
+				property = stoi(args[++argidx]);
+				property_set = true;
 				continue;
 			}
 			break;
@@ -269,6 +274,28 @@ struct randomSim : public Pass
 			}
 			ofs << "cout << endl;";
 		}
+
+		size_t idx = 0;
+		if(property_set)
+		{
+			for(auto wire : design->top_module()->wires())
+			{
+				if(wire->port_output)
+				{
+					if(idx == property)
+					{
+						std::string wire_name = wire->name.str().substr(1,strlen(wire->name.c_str()) - 1);
+						ofs << "if("  + wire_name  +  " == 1)\n";
+						ofs << "{\n";
+						ofs << "cout << \"property unsafe!!!\" << endl;\n";
+						ofs << "break;\n";
+						ofs << "}\n";
+					}
+					idx ++;
+				}
+			}
+		}
+
 		if(output_file_set)
 		{
 			ofs << "ofs << \"==========================================\\n\";\n";
