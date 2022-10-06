@@ -24,14 +24,12 @@ USING_YOSYS_NAMESPACE
 // Forward Declarations
 //----------------------------------------------------------------------
 class GVRTLDesign;
-class GVABCDesign;
 
 
 //----------------------------------------------------------------------
 // Global Variables
 //----------------------------------------------------------------------
 GVRTLDesign *gvRTLDesign;
-GVABCDesign *gvABCDesign;
 
 
 //----------------------------------------------------------------------
@@ -53,24 +51,6 @@ class GVRTLDesign
 
 };
 
-//----------------------------------------------------------------------
-// Data Structure : abc
-//----------------------------------------------------------------------
-class GVABCDesign
-{
-   public : 
-      // Constructors for abc Design Instance
-      GVABCDesign() {}
-      ~GVABCDesign();
-
-      // Ntk Reference Functions
-      AbcMgr* getAbcMgr() { return abcMgr; }
-
-      // Ntk I/O Functions
-      
-   private : 
-
-};
 
 //----------------------------------------------------------------------
 // Inline Functions

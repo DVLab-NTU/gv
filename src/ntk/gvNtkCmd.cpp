@@ -189,7 +189,7 @@ GVReadDesignCmd ::exec(const string& option) {
         run_pass(yosCommand + filename);
     }   
     else if (currEng == GV_MOD_ENGINE_ABC){
-        gvABCDesign -> getAbcMgr() -> abcReadDesign(filename);
+        abcMgr -> abcReadDesign(filename);
     }
 
     return GV_CMD_EXEC_DONE;
