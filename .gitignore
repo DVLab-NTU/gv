@@ -1,3 +1,13 @@
 /src/lib/*.a
 /src/lib/*.so
 /src/lib/lib.d
+
+/engine
+/include
+*.o
+*.d
+*.a
+/gv
+/lib
+btorinfo.log
+test.btor

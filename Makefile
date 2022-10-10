@@ -8,9 +8,12 @@ YOSYSEXT = sim
 EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
-ENGPKGS	 += minisat
+
 ENGPKGS	 += quteRTL
 ENGPKGS	 += boolector
+ENGPKGS	 += lgl
+ENGPKGS	 += btor2parser
+ENGPKGS	 += minisat
 ENGPKGS	 += abc
 ENGPKGS	 += yosys
 
