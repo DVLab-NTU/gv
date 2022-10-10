@@ -108,12 +108,11 @@ struct randomSim : public Pass
 				verilog_file_name_set = true;
 				continue;
 			}
-
 			if (args[argidx] == "-vcd" && argidx+1 < args.size()) {
 				vcd_file_name = args[++argidx];
 				vcd_file_set = true;
-      }
-      
+				continue;
+      		}
 			if (args[argidx] == "-safe" && argidx+1 < args.size()) {
 				property = stoi(args[++argidx]);
 				property_set = true;

@@ -8,8 +8,7 @@
 #include "util.h"
 #include <fstream>
 
-#include "yosys.h"
-USING_YOSYS_NAMESPACE
+#include "gvNtk.h"
 bool GVinitSimCmd() {
     return (
          gvCmdMgr->regCmd("RAndom Sim",   2, 1, new GVRandomSimCmd   ) &&
@@ -22,7 +21,6 @@ bool GVinitSimCmd() {
 //----------------------------------------------------------------------
 // RAndom Sim
 //----------------------------------------------------------------------
-
 GVCmdExecStatus
 GVRandomSimCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVRandomSimCmd " << endl;
@@ -106,6 +104,7 @@ GVRandomSimCmd ::exec(const string& option) {
     if(gvModMgr -> getSafe() != -1)
         command += " -safe " + std::to_string((gvModMgr -> getSafe()));
 
+    cout << command <<"\n";
     // execute "random_sim" command
     run_pass(command);
     return GV_CMD_EXEC_DONE;
@@ -121,13 +120,11 @@ GVRandomSimCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "RAndom Sim: " << "Conduct random simulation and print the results." << endl;
 }
 
-
 //----------------------------------------------------------------------
 // SHow 
 //----------------------------------------------------------------------
-
 GVCmdExecStatus
-GVShowCmd ::exec(const string& option) {
+GVShowCmd::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVSHowVCDCmd " << endl;
 
     vector<string> options;
@@ -136,10 +133,8 @@ GVShowCmd ::exec(const string& option) {
     bool inputFile = false, vcd = false ,schematic = false;
 
     string vcd_file_name = "";
-
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
-        cout << token <<"\n";
         if (myStrNCmp("-File", token, 2) == 0) {
             if (inputFile)
                 return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
@@ -178,7 +173,7 @@ GVShowCmd ::exec(const string& option) {
         infile.close();
     }
     else if(schematic){
-        string top_module_name = yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
+        string top_module_name = gvRTLDesign->getDesign()->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
         run_pass("hierarchy -top " + top_module_name);
         run_pass("proc");
         run_pass("opt");
@@ -187,21 +182,21 @@ GVShowCmd ::exec(const string& option) {
 
     return GV_CMD_EXEC_DONE;
 }
-
-GVShowCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "" << endl;
+void
+GVShowCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: SHow <-Vcd <filname> | -SCHematic>" << endl;
 }
 
 void
-GVShowCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "SHow Vcd: " << "Use GTKWave tool to show the waveform based on vcd file." << endl;
+GVShowCmd::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SHow Vcd: " << "Use GTKWave tool to show the waveform or schematic." << endl;
 }
 //----------------------------------------------------------------------
 // RAndom Sim
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
-GVRandomSetSafe ::exec(const string& option) {
+GVRandomSetSafe::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVRandomSetSafe " << endl;
 
     vector<string> options;
@@ -217,12 +212,12 @@ GVRandomSetSafe ::exec(const string& option) {
 }
 
 void
-GVRandomSetSafe ::usage(const bool& verbose) const {
+GVRandomSetSafe::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: SEt SAfe <#PO>" << endl;
 }
 
 void
-GVRandomSetSafe ::help() const {
+GVRandomSetSafe::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt SAfe: " << "Set safe rpoperty for random sim." << endl;
 }
 
