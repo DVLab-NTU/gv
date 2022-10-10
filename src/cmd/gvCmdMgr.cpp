@@ -243,18 +243,8 @@ GVCmdMgr::execOneCmd() {
       // Check command types
       if(e){
          GVCmdType cmdType = e->getGVCmdType();
-         if(gvModMgr->getGVMode() == GV_MOD_TYPE_VERIFY){
-            if(cmdType != GV_CMD_TYPE_SIMULATE && cmdType != GV_CMD_TYPE_VERIFY && cmdType != GV_CMD_TYPE_COMMON && cmdType != GV_CMD_TYPE_MOD){
-               gvMsg(GV_MSG_ERR) << "Please switch to \"SETUP MODE\" !!" << endl;
-               return GV_CMD_EXEC_NOP;
-            }
-         }
-         else{
-            if(cmdType == GV_CMD_TYPE_SIMULATE || cmdType == GV_CMD_TYPE_VERIFY){
-               gvMsg(GV_MSG_ERR) << "Please switch to \"VRF MODE\" !!" << endl;
-               return GV_CMD_EXEC_NOP;
-            }
-         }
+         if(!gvModMgr->checkModeType(cmdType))
+            return GV_CMD_EXEC_NOP;
       }
 
       if (e) return e->exec(option);

@@ -6,13 +6,16 @@
 #include "gvAbcMgr.h"                                                                                                           
 #include <string>
 #include "util.h"
+#include <fstream>
 
-#include "kernel/yosys.h"
+#include "yosys.h"
 USING_YOSYS_NAMESPACE
 bool GVinitSimCmd() {
     return (
-         gvCmdMgr->regCmd("RAndom Sim",      2, 1, new GVRandomSimCmd   ) &&
-         gvCmdMgr->regCmd("SEt SAfe",      2, 2, new GVRandomSetSafe   ) 
+         gvCmdMgr->regCmd("RAndom Sim",   2, 1, new GVRandomSimCmd   ) &&
+         gvCmdMgr->regCmd("SEt SAfe"  ,   2, 2, new GVRandomSetSafe  ) &&
+         gvCmdMgr->regCmd("SHow"      ,   2,    new GVShowCmd        )
+
     );
 }
 
@@ -26,11 +29,12 @@ GVRandomSimCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
-    string opt, rst = "reset", rst_n = "reset", clk = "clk", in_file_name, out_file_name, command = "random_sim ";
+
+    string opt, rst = "reset", rst_n = "reset", clk = "clk", in_file_name, out_file_name, command = "random_sim ", vcd_file_name = ".waves.vcd";
     string stimulus_file_name, cycles;
+
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
-
     command += "-top " + yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
@@ -86,6 +90,12 @@ GVRandomSimCmd ::exec(const string& option) {
             command += " -file " + stimulus_file_name;
             continue;
         }
+        if (myStrNCmp("-vcd", token, 4) == 0) {
+            ++i;
+            vcd_file_name = options[i];
+            command += " -vcd " + vcd_file_name;
+            continue;
+        }
     }
     // load the random_sim plugin in yosys
     run_pass("plugin -i ./src/ext/sim.so");
@@ -111,6 +121,81 @@ GVRandomSimCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "RAndom Sim: " << "Conduct random simulation and print the results." << endl;
 }
 
+
+//----------------------------------------------------------------------
+// SHow 
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVShowCmd ::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "I am GVSHowVCDCmd " << endl;
+
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    bool inputFile = false, vcd = false ,schematic = false;
+
+    string vcd_file_name = "";
+
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        cout << token <<"\n";
+        if (myStrNCmp("-File", token, 2) == 0) {
+            if (inputFile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            inputFile = true;
+            continue;
+        }
+        else if(myStrNCmp("-SCHematic", token, 4) == 0){
+            if (schematic)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            schematic = true;
+            continue;
+        }
+        else if(myStrNCmp("-Vcd", token, 2) == 0){
+            if (vcd)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            vcd = true;
+            continue;
+        }
+        else{
+            if (vcd) vcd_file_name = token;
+            else if(!vcd) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            continue;
+        }
+    }
+    
+    if(vcd){
+        ifstream infile;
+        infile.open(vcd_file_name);
+        if(!infile.is_open()){
+            gvMsg(GV_MSG_IFO) << "[ERROR]: Please input the VCD file name !!\n";
+            return GV_CMD_EXEC_NOP;
+        }
+        else
+            run_command("gtkwave "+ vcd_file_name);
+
+        infile.close();
+    }
+    else if(schematic){
+        string top_module_name = yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
+        run_pass("hierarchy -top " + top_module_name);
+        run_pass("proc");
+        run_pass("opt");
+        run_pass("show");
+    }
+
+    return GV_CMD_EXEC_DONE;
+}
+
+GVShowCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "" << endl;
+}
+
+void
+GVShowCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SHow Vcd: " << "Use GTKWave tool to show the waveform based on vcd file." << endl;
+}
 //----------------------------------------------------------------------
 // RAndom Sim
 //----------------------------------------------------------------------

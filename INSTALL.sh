@@ -27,6 +27,6 @@ ar rc gv_src/libyosys.a backends/*/*.o frontends/*/*.o kernel/*.o libs/*/*.o pas
 # back to /gv0
 cd ../..;
 
-# make GV and get start
+# make GV and get started
 make clean; make; make; clear; ./gv;
 
