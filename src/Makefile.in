@@ -14,9 +14,11 @@ CC	= g++
 YOSYSCONF = yosys-config --exec --cxx --cxxflags
 AR	= ar cr
 
+
 ENGFLGS = -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS
 YOSYSFLGS = -D_YOSYS_ -DYOSYS_ENABLE_PLUGINS -DYOSYS_ENABLE_GLOB -DYOSYS_ENABLE_ZLIB -I/usr/include/tcl8.6 -DYOSYS_ENABLE_TCL -DYOSYS_ENABLE_ABC -DYOSYS_ENABLE_COVER
 ABCFLGS = -DABC_USE_STDINT_H
+
 
 #CFLAGS	= $(ENGFLGS) $(PKGFLAG) -pg -g -Wall -Wno-parentheses
 CFLAGS	= $(ENGFLGS) $(PKGFLAG) -O3 -DNDEBUG -Wall -Wno-parentheses -Wno-unused-function
@@ -40,6 +42,7 @@ depend: .depend.mak
 .depend.mak: $(CSRCS) $(CHDRS)
 	@echo Making dependencies ...
 	@$(CC) -MM $(DEPDIR) $(YOSYSFLGS) $(ABCFLGS) $(CSRCS) > $@
+
 
 ## Linking external headers
 extheader: .extheader.mak

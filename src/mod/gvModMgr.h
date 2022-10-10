@@ -22,8 +22,7 @@ enum GVCmdType
 
 const string GVEngineString[] = {
     "yosys",
-    "abc",
-    "v3"
+    "abc"
 };
 
 const string GVModTypeString[] = {
@@ -40,8 +39,7 @@ enum GVModType{
 
 enum GVModEngine{
     GV_MOD_ENGINE_YOSYS = 0,
-    GV_MOD_ENGINE_ABC = 1,
-    GV_MOD_ENGINE_V3 = 2
+    GV_MOD_ENGINE_ABC = 1
 };
 
 extern GVModMgr*     gvModMgr;
@@ -59,6 +57,7 @@ class GVModMgr
         GVModType    getGVMode();
         GVModEngine  getGVEngine();
         string       getModPrompt();
+        int          getSafe();
 //set functions
         void         setInputFileExist(bool exist);
         void         setInputFileName(string& filename);
@@ -66,8 +65,10 @@ class GVModMgr
         void         setGVMode(GVModType mode);
         void         setGVEngine(GVModEngine engine);
         void         setModPromt();
+        void         setSafe(int p);
 
     private:
+
         bool               _inputFileExist;
         string             _inputFileName;
         string             _aig_name;
@@ -76,6 +77,8 @@ class GVModMgr
         GVModEngine        _gvEng;
         vector<GVCmdType>  _vrfMode;
         vector<GVCmdType>  _setupMode;
+        int                _property;
+        bool               _propertySet;
 };
 
 

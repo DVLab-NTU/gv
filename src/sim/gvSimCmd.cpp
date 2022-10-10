@@ -12,8 +12,10 @@
 USING_YOSYS_NAMESPACE
 bool GVinitSimCmd() {
     return (
-        gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd   ), 
-        gvCmdMgr->regCmd("SHow"      , 2,    new GVShowCmd        ) 
+         gvCmdMgr->regCmd("RAndom Sim",   2, 1, new GVRandomSimCmd   ) &&
+         gvCmdMgr->regCmd("SEt SAfe"  ,   2, 2, new GVRandomSetSafe  ) &&
+         gvCmdMgr->regCmd("SHow"      ,   2,    new GVShowCmd        )
+
     );
 }
 
@@ -29,7 +31,8 @@ GVRandomSimCmd ::exec(const string& option) {
     size_t n = options.size();
 
     string opt, rst = "reset", rst_n = "reset", clk = "clk", in_file_name, out_file_name, command = "random_sim ", vcd_file_name = ".waves.vcd";
-    string stimulus_file_name;
+    string stimulus_file_name, cycles;
+
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
     command += "-top " + yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
@@ -64,8 +67,8 @@ GVRandomSimCmd ::exec(const string& option) {
         if (myStrNCmp("-sim_cycle", token, 1) == 0) {
             rst_n_set = true;
             ++i;
-            rst_n = options[i];
-            command += " -sim_cycle " + rst_n;
+            cycles = options[i];
+            command += " -sim_cycle " + cycles;
             continue;
         }
         if (myStrNCmp("-input", token, 1) == 0) {
@@ -99,6 +102,9 @@ GVRandomSimCmd ::exec(const string& option) {
 
     if(!file_name_set)
         command += " -input " + gvModMgr -> getInputFileName();
+    // cout << "safe  =========================== " + gvModMgr -> getSafe() << endl;
+    if(gvModMgr -> getSafe() != -1)
+        command += " -safe " + std::to_string((gvModMgr -> getSafe()));
 
     // execute "random_sim" command
     run_pass(command);
@@ -182,7 +188,6 @@ GVShowCmd ::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
 GVShowCmd ::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "" << endl;
 }
@@ -190,6 +195,35 @@ GVShowCmd ::usage(const bool& verbose) const {
 void
 GVShowCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "SHow Vcd: " << "Use GTKWave tool to show the waveform based on vcd file." << endl;
+}
+//----------------------------------------------------------------------
+// RAndom Sim
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVRandomSetSafe ::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "I am GVRandomSetSafe " << endl;
+
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+
+    if(options.size() != 1)
+    {
+        gvMsg(GV_MSG_IFO) << "Please enter a valid value!" << endl;
+        return GV_CMD_EXEC_DONE;
+    }
+    gvModMgr -> setSafe(stoi(options[0]));
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVRandomSetSafe ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: SEt SAfe <#PO>" << endl;
+}
+
+void
+GVRandomSetSafe ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt SAfe: " << "Set safe rpoperty for random sim." << endl;
 }
 
 #endif

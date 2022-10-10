@@ -4,16 +4,18 @@
 #include "gvMsg.h"
 #include "gvAbcCmd.h"
 #include "gvAbcMgr.h"
-#include <string>
-#include <vector>
 #include "util.h"
+#include <string.h>
+#include <vector>
+
 
 bool GVinitAbcCmd() {
     if (abcMgr) delete abcMgr;
     abcMgr = new AbcMgr;
     return (
-         gvCmdMgr->regCmd("ABCRead",      4, new GVABCReadCmd   ) ,
-         gvCmdMgr->regCmd("ABCPrint",      4, new GVABCPrintCmd   ) 
+         gvCmdMgr->regCmd("ABCRead",   4, new GVABCReadCmd     ),
+         gvCmdMgr->regCmd("ABCPrint",  4, new GVABCPrintCmd    ), 
+         gvCmdMgr->regCmd("ABCCMD",    6, new GVABCOriginalCmd )
     );
 }
 
@@ -77,6 +79,37 @@ GVABCPrintCmd ::usage(const bool& verbose) const {
 void
 GVABCPrintCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCPrint: " << "Print netlist information." << endl;
+}
+
+//----------------------------------------------------------------------
+// ABCCMD <command in ABC>
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVABCOriginalCmd ::exec(const string& option) {
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    string command;
+    for (size_t i = 0; i < n; ++i) {
+      command += options[i];
+      if (i < n-1) { command += " "; }
+    }
+
+    // calling abc's command
+    char Command[1024], abcCmd[128];
+    strcpy(abcCmd, command.c_str());
+    sprintf( Command, "%s", abcCmd ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+}
+
+void
+GVABCOriginalCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: ABCCMD <command in ABC> " << endl;
+}
+
+void
+GVABCOriginalCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCCMD: " << "Directly call ABC's command." << endl;
 }
 
 #endif
