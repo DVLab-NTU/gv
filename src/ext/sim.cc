@@ -182,9 +182,11 @@ struct randomSim : public Pass
 		ofs << "for(int cycle=0;cycle<"<< sim_cycle << ";++cycle){\n";
 		ofs << "top.p_" << clk_name << ".set<bool>(false);\n";
 		ofs << "top.step();\n";
+
 		// For VCD file.
 		if(vcd_file_set)
 			ofs << "vcd.sample(cycle*2 + 0);\n";
+			
 		if(reset_set || reset_n_set)
 		{
 			ofs << "if(cycle == 0)\n";

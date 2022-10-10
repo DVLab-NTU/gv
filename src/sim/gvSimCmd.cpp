@@ -12,8 +12,8 @@
 USING_YOSYS_NAMESPACE
 bool GVinitSimCmd() {
     return (
-        gvCmdMgr->regCmd("RAndom Sim",      2, 1, new GVRandomSimCmd   ), 
-        gvCmdMgr->regCmd("SHow Vcd",      2, 1, new GVShowVcdCmd   ) 
+        gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd   ), 
+        gvCmdMgr->regCmd("SHow"      , 2,    new GVShowCmd        ) 
     );
 }
 
@@ -117,61 +117,78 @@ GVRandomSimCmd ::help() const {
 
 
 //----------------------------------------------------------------------
-// SHow Vcd
+// SHow 
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
-GVShowVcdCmd ::exec(const string& option) {
+GVShowCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVSHowVCDCmd " << endl;
 
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
-    bool inputFile = false;
-    string vcd_file_name = ".waves.vcd";
-    if(n == 1){
-        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string VCDFileName)>");
-    }
-    else{
-        for (size_t i = 0; i < n; ++i) {
-            const string& token = options[i];
-            if (myStrNCmp("-File", token, 2) == 0) {
-                if (inputFile)
-                    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-                inputFile = true;
-                continue;
-            }
-            else{
-                if (!inputFile)
-                    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+    bool inputFile = false, vcd = false ,schematic = false;
 
-                if (vcd_file_name == ".waves.vcd") vcd_file_name = token;
-                else return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-                continue;
-            }
+    string vcd_file_name = "";
+
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        cout << token <<"\n";
+        if (myStrNCmp("-File", token, 2) == 0) {
+            if (inputFile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            inputFile = true;
+            continue;
+        }
+        else if(myStrNCmp("-SCHematic", token, 4) == 0){
+            if (schematic)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            schematic = true;
+            continue;
+        }
+        else if(myStrNCmp("-Vcd", token, 2) == 0){
+            if (vcd)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            vcd = true;
+            continue;
+        }
+        else{
+            if (vcd) vcd_file_name = token;
+            else if(!vcd) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            continue;
         }
     }
+    
+    if(vcd){
+        ifstream infile;
+        infile.open(vcd_file_name);
+        if(!infile.is_open()){
+            gvMsg(GV_MSG_IFO) << "[ERROR]: Please input the VCD file name !!\n";
+            return GV_CMD_EXEC_NOP;
+        }
+        else
+            run_command("gtkwave "+ vcd_file_name);
 
-    ifstream infile;
-    infile.open(vcd_file_name);
-    if(!infile.is_open()){
-        gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"RANDOM SIMULATION\" to create a VCD file first !!\n";
-        return GV_CMD_EXEC_NOP;
+        infile.close();
     }
-    else
-        run_command("gtkwave "+ vcd_file_name);
+    else if(schematic){
+        string top_module_name = yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
+        run_pass("hierarchy -top " + top_module_name);
+        run_pass("proc");
+        run_pass("opt");
+        run_pass("show");
+    }
 
-    infile.close();
     return GV_CMD_EXEC_DONE;
 }
 
 void
-GVShowVcdCmd ::usage(const bool& verbose) const {
+GVShowCmd ::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "" << endl;
 }
 
 void
-GVShowVcdCmd ::help() const {
+GVShowCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "SHow Vcd: " << "Use GTKWave tool to show the waveform based on vcd file." << endl;
 }
 
