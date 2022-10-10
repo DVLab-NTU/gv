@@ -29,7 +29,7 @@ const string GVCmdTypeString[] = {
 };
 
 // Command Categories Enum
-enum GVCmdType
+/*enum GVCmdType
 {
    // Revealed command
    GV_CMD_TYPE_REVEALED    = 0,
@@ -39,7 +39,7 @@ enum GVCmdType
    GV_CMD_TYPE_NETWORK     = 4,
    GV_CMD_TYPE_ABC         = 5,
    GV_CMD_TYPE_MOD         = 6,
-};
+};*/
 
 enum GVCmdExecStatus
 {
