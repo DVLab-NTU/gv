@@ -8,8 +8,6 @@
 #include <vector>
 #include <map>
 
-// #include "kernel/yosys.h"
-#include "gvNtk.h"
 #include "gvModMgr.h"
 #include "gvAbcMgr.h"
 #include "gvNtk.h"
@@ -279,6 +277,7 @@ GVPrintInfoCmd ::exec(const string& option) {
             gvMsg(GV_MSG_IFO) << "#PI = " << numPI << ", #PO = " << numPO << ", #PIO = " << numPIO << "\n";
     }
     else if(currEng == GV_MOD_ENGINE_ABC){
+        abcMgr -> abcPrintDesign(verbose);
         return GV_CMD_EXEC_DONE;
     }
     return GV_CMD_EXEC_DONE;

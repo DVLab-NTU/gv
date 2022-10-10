@@ -51,6 +51,7 @@ struct randomSim : public Pass
 		bool clk_set = false;
 		bool verbose = false, verilog_file_name_set = false;
 		bool output_file_set = false, top_module_name_set = false, stimulus = false;
+		bool vcd_file_set = false;
 		std::string reset_name = "reset";
 		std::string reset_n_name = "reset_n";
 		std::string clk_name = "clk";
@@ -58,6 +59,8 @@ struct randomSim : public Pass
 		std::string verilog_file_name;
 		std::string top_module_name;
 		std::string stimulus_file_name;
+		std::string vcd_file_name;
+
 		
 		for (argidx = 1; argidx < args.size(); argidx++)
 		{
@@ -105,6 +108,12 @@ struct randomSim : public Pass
 				verilog_file_name_set = true;
 				continue;
 			}
+
+			if (args[argidx] == "-vcd" && argidx+1 < args.size()) {
+				vcd_file_name = args[++argidx];
+				vcd_file_set = true;
+      }
+      
 			if (args[argidx] == "-safe" && argidx+1 < args.size()) {
 				property = stoi(args[++argidx]);
 				property_set = true;
@@ -129,6 +138,7 @@ struct randomSim : public Pass
   		ofs << "#include <time.h>\n";
 		ofs << "#include <math.h>\n";
 		ofs << "#include <vector>\n";
+		ofs << "#include <backends/cxxrtl/cxxrtl_vcd.h>\n";
 		module_name = log_id(design->top_module()->name);
 		ofs << "#include \".sim.cpp\"\n";
 		ofs << "using namespace std;\n";
@@ -163,10 +173,26 @@ struct randomSim : public Pass
 			ofs << "ofs.open(\"" << output_file_name << "\");\n";
 		}
 		ofs << "     cxxrtl_design::p_" + module_name + " top;\n";
+		// For VCD file.
+		if(vcd_file_set){
+			ofs << "cxxrtl::debug_items all_debug_items;\n";
+			ofs << "top.debug_info(all_debug_items);\n";
+			ofs << "cxxrtl::vcd_writer vcd;\n";
+			ofs << "vcd.timescale(1, \"us\");\n";
+			ofs << "vcd.add_without_memories(all_debug_items);\n";
+			ofs << "std::ofstream waves(\""+ vcd_file_name + "\");\n";
+			ofs << "vcd.sample(0);\n";
+		}
+
 		ofs << "top.step();\n";
 		ofs << "for(int cycle=0;cycle<"<< sim_cycle << ";++cycle){\n";
 		ofs << "top.p_" << clk_name << ".set<bool>(false);\n";
 		ofs << "top.step();\n";
+
+		// For VCD file.
+		if(vcd_file_set)
+			ofs << "vcd.sample(cycle*2 + 0);\n";
+			
 		if(reset_set || reset_n_set)
 		{
 			ofs << "if(cycle == 0)\n";
@@ -231,6 +257,9 @@ struct randomSim : public Pass
 		
 		ofs << "top.p_" << clk_name << ".set<bool>(true);\n";
 		ofs << "top.step();\n";
+		// For VCD file.
+		if(vcd_file_set)
+			ofs << "vcd.sample(cycle*2 + 1);\n";
 		for(auto wire : design->top_module()->wires())
 		{
 			wire_name = wire->name.str().substr(1,strlen(wire->name.c_str()) - 1);
@@ -257,6 +286,11 @@ struct randomSim : public Pass
 				// log("str len = %d\n", wire_name);
 				
 			}
+		}
+		// For VCD file.
+		if(vcd_file_set){
+			ofs << "waves << vcd.buffer;\n";
+			ofs << "vcd.buffer.clear();\n";
 		}
 		if(verbose)
 		{

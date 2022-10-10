@@ -1,8 +1,10 @@
-SRCPKGS  = cmd ntk util sim vrf abc mod  
-LIBPKGS  = cmd ntk util sim vrf abc mod  
+SRCPKGS  = cmd ntk util sim vrf abc mod ext
+LIBPKGS  = cmd ntk util sim vrf abc mod
+
 
 MAIN     = main
 
+YOSYSEXT = sim
 EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
@@ -23,7 +25,7 @@ EXEC     = gv
 LIB	     = libgv.a
 
 
-all:	srcLib
+all: srcLib
 	@echo "Checking $(MAIN)..."
 	@cd src/$(MAIN); make --no-print-directory EXTLIB="$(SRCLIBS) $(EXTLIBS)" EXEC=$(EXEC); cd ../.. ;
 
@@ -50,6 +52,7 @@ main:
 		make --no-print-directory EXTLIB="$(SRCLIBS) $(EXTLIBS)" EXEC=$(EXEC);
 	@ln -fs bin/$(EXEC) .
 #	@strip bin/$(EXEC)
+
 
 clean:	
 	@for pkg in $(SRCPKGS); \
