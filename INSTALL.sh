@@ -39,10 +39,13 @@ cd boolector ;
 #copy lib&header to src/eng
 cd ../../../
 #
-#cp ./engine/
-#cp ./engine/boolector/build/lib/libboolector.a  ./src/eng/boolector/
-#cp ./engine/boolector/src/*.h  ./src/eng/boolector/
-#cp ./engine/boolector/src/*.h  ./src/eng/boolector/
+cp ./engine/boolector/build/lib/libboolector.a  ./src/eng/boolector/
+cp ./engine/boolector/src/boolector.h  ./src/eng/boolector/
+cp ./engine/boolector/src/btortypes.h  ./src/eng/boolector/
+mkdir ./src/eng/btor2parser
+mkdir ./src/eng/lgl
+cp ./engine/boolector/deps/install/lib/libbtor2parser.a  ./src/eng/btor2parser/
+cp ./engine/boolector/deps/install/lib/liblgl.a  ./src/eng/lgl
 # make GV and get start
 make clean; make; make; clear; ./gv;
 
