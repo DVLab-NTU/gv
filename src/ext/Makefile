@@ -7,7 +7,7 @@ YOSYSCONF	= yosys-config --build
 all:	$(CSOBJS)
 
 %.so:	%.cc 
-	@echo "Compiling extension"
+	@echo "Compiling extension $@"
 	@echo "$(YOSYSCONF) $@ $< "
 	$(YOSYSCONF) $@ $< 
 
