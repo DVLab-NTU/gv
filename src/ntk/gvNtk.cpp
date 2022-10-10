@@ -8,6 +8,7 @@
 #include "gvNtk.h"
 #include "gvMsg.h"
 #include "util.h"
+GVRTLDesign *gvRTLDesign;
 
 
 //----------------------------------------------------------------------

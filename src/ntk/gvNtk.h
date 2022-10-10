@@ -9,7 +9,7 @@
 
 #ifndef GV_NTK_H
 #define GV_NTK_H
-#include "kernel/yosys.h"
+#include "yosys.h"
 #include "gvAbcMgr.h"
 
 USING_YOSYS_NAMESPACE
@@ -29,7 +29,7 @@ class GVRTLDesign;
 //----------------------------------------------------------------------
 // Global Variables
 //----------------------------------------------------------------------
-GVRTLDesign *gvRTLDesign;
+extern GVRTLDesign *gvRTLDesign;
 
 
 //----------------------------------------------------------------------
