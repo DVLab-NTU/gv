@@ -9,6 +9,9 @@ SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 ENGPKGS	 += minisat
 ENGPKGS	 += quteRTL
 ENGPKGS	 += boolector
+ENGPKGS	 += lgl
+ENGPKGS	 += btor2parser
+
 ENGPKGS	 += abc
 ENGPKGS	 += yosys
 

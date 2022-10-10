@@ -26,7 +26,23 @@ ar rc gv_src/libyosys.a backends/*/*.o frontends/*/*.o kernel/*.o libs/*/*.o pas
 
 # back to /gv0
 cd ../..;
+#ln -s  ./engine/boolector/build/lib ./src/eng/boolector
 
+#clone boolector
+cd engine/; git clone https://github.com/Boolector/boolector.git;
+cd boolector ;
+#build dependend tool
+./contrib/setup-lingeling.sh ;
+./contrib/setup-btor2tools.sh ;
+#build boolector
+./configure.sh --no-minisat ; cd build; make;
+#copy lib&header to src/eng
+cd ../../../
+#
+#cp ./engine/
+#cp ./engine/boolector/build/lib/libboolector.a  ./src/eng/boolector/
+#cp ./engine/boolector/src/*.h  ./src/eng/boolector/
+#cp ./engine/boolector/src/*.h  ./src/eng/boolector/
 # make GV and get start
 make clean; make; make; clear; ./gv;
 

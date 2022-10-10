@@ -1,0 +1,3 @@
+read design -v ./btest.v 
+FILE2 B test ./test.btor 
+q -f
