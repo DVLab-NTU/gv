@@ -24,7 +24,8 @@ bool GVinitNtkCmd() {
             gvCmdMgr->regCmd("PRint Info",         2, 1, new GVPrintInfoCmd   ) &&
             gvCmdMgr->regCmd("FILE2 Aig",          4, 1, new GVFile2AigCmd    ) && 
             gvCmdMgr->regCmd("YOSYSCMD",           8, new GVYosysOriginalCmd  )&&
-            gvCmdMgr->regCmd("FILE2 Btor",          4, 1, new GVFile2BtorCmd )
+            gvCmdMgr->regCmd("FILE2 Btor",          4, 1, new GVFile2BtorCmd ) &&
+            gvCmdMgr->regCmd("TEST Boolector",          3, 1, new GVTestBoolector )
     );
 }
 
@@ -491,7 +492,7 @@ GVFile2BtorCmd::exec(const string& option) {
     *f << stringf("; end of yosys output\n");
     f->close();
     delete f;
-    boolectorTest();
+   // boolectorTest();
     // set the aig file name
     //gvModMgr->setAigFileName(outputname);
 
@@ -507,6 +508,29 @@ void
 GVFile2BtorCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "File2 Btor: " << "Convert verilog file into btor. " << endl;
 }
+
+
+GVCmdExecStatus
+GVTestBoolector::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "Test if boolector exist/work fine" << endl;
+  
+    boolectorTest();
+    // set the aig file name
+    //gvModMgr->setAigFileName(outputname);
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVTestBoolector::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: Test if boolector exist/work fine " << endl;
+}
+
+void
+GVTestBoolector::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "Test if boolector exist/work fine" << endl;
+}
+
 
 
 #endif

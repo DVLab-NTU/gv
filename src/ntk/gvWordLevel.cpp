@@ -7,7 +7,7 @@ extern "C"{
 
 #include<gvWordLevel.h>
 
-
+using namespace std;
 #define ARRAY1_EXAMPLE_ELEM_BW 8
 #define ARRAY1_EXAMPLE_INDEX_BW 3
 #define ARRAY1_EXAMPLE_ARRAY_SIZE (1 << ARRAY1_EXAMPLE_INDEX_BW)
@@ -116,6 +116,17 @@ int boolectorTest()
   boolector_release_sort (btor, s);
   assert (boolector_get_refs (btor) == 0);
   boolector_delete (btor);
+
+  cout<<"expected output:\n"<<"Assignment to 0: 00000000"<<endl
+<<"Assignment to v1: 01111111\n"
+<<"Assignment to v2: 01000101\n"
+<<"Assignment to v1 + v2: 11000100\n"
+<<"Assignment to v1 > 0: 1\n"
+<<"Assignment to v2 > 0: 1\n"
+<<"Assignment to v1 > 0 & v2 > 0: 1\n"
+<<"Assignment to v1 + v2 > 0: 0\n"
+<<"Assignment to v1 > 0 & v2 > 0  => v1 + v2 > 0: 0\n"
+"Assignment to !(v1 > 0 & v2 > 0  => v1 + v2 > 0): 1\n"<<endl;
   return 0;
   return 0;
 }
