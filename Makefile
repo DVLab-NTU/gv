@@ -49,18 +49,6 @@ main:
 	@ln -fs bin/$(EXEC) .
 #	@strip bin/$(EXEC)
 
-# yosysExt:
-#	@echo "Checking ext..."
-#	@echo $(YOSYSEXT)
-#	@for ext in $(YOSYSEXT); \
-#	do \
-#		echo "Checking $$ext extension..."; \
-#		cd src/ext; \
-#		yosys-config --build $$ext.so $$ext.cc; \
-#		pwd; \
-#	done;
-#	@pwd;
-
 
 clean:	
 	@for pkg in $(SRCPKGS); \

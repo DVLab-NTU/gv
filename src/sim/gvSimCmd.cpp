@@ -8,7 +8,7 @@
 #include "util.h"
 #include <fstream>
 
-#include "kernel/yosys.h"
+#include "yosys.h"
 USING_YOSYS_NAMESPACE
 bool GVinitSimCmd() {
     return (

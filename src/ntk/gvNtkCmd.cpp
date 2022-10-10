@@ -6,7 +6,7 @@
 #include <string>
 #include "util.h"
 
-#include "kernel/yosys.h"
+#include "yosys.h"
 #include "gvModMgr.h"
 #include "gvAbcMgr.h"
 #include "v3Msg.h"

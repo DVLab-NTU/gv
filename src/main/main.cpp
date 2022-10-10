@@ -13,7 +13,7 @@
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
 #include "gvUsage.h"
-#include "kernel/yosys.h"
+#include "yosys.h"
 using namespace std;
 
 string GVMsg::_allName = "";
