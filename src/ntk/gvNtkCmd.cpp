@@ -93,7 +93,6 @@ GVSetEngineCmd ::help() const {
 
 GVCmdExecStatus
 GVReadDesignCmd ::exec(const string& option) {
-    gvMsg(GV_MSG_IFO) << "I am GVReadDesignCmd" << endl;
 
     // check option 
     vector<string> options;
@@ -277,7 +276,7 @@ GVPrintInfoCmd ::exec(const string& option) {
             gvMsg(GV_MSG_IFO) << "#PI = " << numPI << ", #PO = " << numPO << ", #PIO = " << numPIO << "\n";
     }
     else if(currEng == GV_MOD_ENGINE_ABC){
-        abcMgr -> abcPrintDesign(verbose);
+        (abcMgr -> get_abcNtkMgr()) -> printSummary();
         return GV_CMD_EXEC_DONE;
     }
     return GV_CMD_EXEC_DONE;

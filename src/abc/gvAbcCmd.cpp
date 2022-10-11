@@ -226,7 +226,7 @@ GVAIGRAndomSimCmd ::usage(const bool& verbose) const {
 void
 GVAIGRAndomSimCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "AIGRAndomSim: " << "Random Simulation." << endl;
-
+}
 //----------------------------------------------------------------------
 // ABCCMD <command in ABC>
 //----------------------------------------------------------------------
