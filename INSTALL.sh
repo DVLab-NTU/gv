@@ -24,8 +24,17 @@ mv libyosys.so gv_src/;
 # create "yosys" static library to /gv_src
 ar rc gv_src/libyosys.a backends/*/*.o frontends/*/*.o kernel/*.o libs/*/*.o passes/*/*.o techlibs/*/*.o ext-sim/*.o;
 
-# back to /gv0
+# back to gv0/
 cd ../..;
+
+# go to include/
+cd include/;
+
+# create yosys kernel/ symbol link
+ln -fs ../engine/yosys/share/include/kernel/ ./
+
+# back to gv0/
+cd ..;
 #ln -s  ./engine/boolector/build/lib ./src/eng/boolector
 
 #clone boolector
@@ -46,6 +55,7 @@ mkdir ./src/eng/btor2parser
 mkdir ./src/eng/lgl
 cp ./engine/boolector/deps/install/lib/libbtor2parser.a  ./src/eng/btor2parser/
 cp ./engine/boolector/deps/install/lib/liblgl.a  ./src/eng/lgl
-# make GV and get start
+
+# make GV and get started
 make clean; make; make; clear; ./gv;
 
