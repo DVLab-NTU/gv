@@ -40,6 +40,7 @@ AbcMgr::abcNtk2Aig()
     }
     else {
         pAigMgr = new abcAigMgr(pAbc, pAig);
+        cout << "Successfully transform netlist into AIG!" << endl;
     }
 }
 

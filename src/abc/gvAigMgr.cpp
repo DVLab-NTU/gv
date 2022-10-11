@@ -96,6 +96,7 @@ void abcAigMgr::Aig_AllDFS()
     // for(i = 0; i < Total_num; ++i) 
     //     cout << Aig_ObjId(DFS_List[i]) << " ";
     // cout << endl;
+    cout << "Successfully construct DFS_List!" << endl;
 
 }
 
@@ -157,6 +158,7 @@ void abcAigMgr::fraig() {
         return;
     }
     Abc_FrameReplaceCurrentNetwork( pAbc, pNtkRes );
+    cout << "Fraiging has finished.\n" << endl;
 }
 
 void abcAigMgr::randomSim() {
