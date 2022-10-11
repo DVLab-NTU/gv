@@ -1,15 +1,17 @@
-SRCPKGS  = cmd ntk util sim vrf abc mod
-LIBPKGS  = cmd ntk util sim vrf abc mod
+SRCPKGS  = cmd ntk util sim vrf abc mod ext
+LIBPKGS  = cmd ntk util sim vrf abc mod  
 
 MAIN     = main
 
 EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
-ENGPKGS	 += v3
-ENGPKGS	 += minisat
+
 ENGPKGS	 += quteRTL
 ENGPKGS	 += boolector
+ENGPKGS	 += lgl
+ENGPKGS	 += btor2parser
+ENGPKGS	 += minisat
 ENGPKGS	 += abc
 ENGPKGS	 += yosys
 
@@ -25,7 +27,8 @@ all:	srcLib
 	@echo "Checking $(MAIN)..."
 	@cd src/$(MAIN); make --no-print-directory EXTLIB="$(SRCLIBS) $(EXTLIBS)" EXEC=$(EXEC); cd ../.. ;
 
-srcLib:	engLib
+srcLib:	engLib 
+	@cd include; ln -fs ../src/*/*.h ./;
 	@for pkg in $(SRCPKGS); \
 	do \
 		echo "Checking $$pkg..."; \

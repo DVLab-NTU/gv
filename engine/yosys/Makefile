@@ -730,7 +730,7 @@ libyosys.so: $(filter-out kernel/driver.o,$(OBJS))
 ifeq ($(OS), Darwin)
 	$(P) $(LD) -o libyosys.so -shared -Wl,-install_name,$(LIBDIR)/libyosys.so $(LDFLAGS) $^ $(LDLIBS)
 else
-	$(P) $(LD) -o libyosys.so -shared -Wl,-soname,$(LIBDIR)/libyosys.so $(LDFLAGS) $^ $(LDLIBS)
+	$(P) $(LD) -o libyosys.so -shared -Wl,-soname,./lib/libyosys.so $(LDFLAGS) $^ $(LDLIBS)
 endif
 
 %.o: %.cc
