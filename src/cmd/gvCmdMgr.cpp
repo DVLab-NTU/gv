@@ -227,7 +227,6 @@ GVCmdMgr::execOneCmd() {
    char* execCmd = new char[1024];
    if (_dofile.is_open()) {
       getline(_dofile, str);
-      if (!_dofile.eof()) str = str.substr(0, str.length()-1);
       strcpy(execCmd, str.c_str());
       cout << getPrompt() << execCmd << endl;
       if (_dofile.eof()) closeDofile();

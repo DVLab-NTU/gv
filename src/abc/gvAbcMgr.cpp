@@ -27,17 +27,22 @@ AbcMgr::abcReadDesign(string& fileName)
     char Command[1000];
     sprintf( Command, "read %s", pFileName );
     Cmd_CommandExecute( pAbc, Command );
+    pNtkMgr = new abcNtkMgr(pAbc->pNtkCur);
 }
 
 void
-AbcMgr::abcPrintDesign(bool verbose)
+AbcMgr::abcNtk2Aig()
 {
-    printf("\n[Netlist information]\n\n");
-    Cmd_CommandExecute( pAbc, "print_stats" );
-    printf("\n");
-    if (verbose) {
-        printf("[Detailed Netlist information]\n\n");
-        Cmd_CommandExecute( pAbc, "lsv_print_nodes" );
+    Abc_Ntk_t* pAig = Abc_NtkStrash(pAbc->pNtkCur, 0, 0, 0);
+    if (pAig == NULL) {
+        cout << "Strashing has failed." << endl;
+        return;
+    }
+    else {
+        pAigMgr = new abcAigMgr(pAbc, pAig);
+        cout << "Successfully transform netlist into AIG!" << endl;
     }
 }
+
+
 

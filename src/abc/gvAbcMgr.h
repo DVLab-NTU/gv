@@ -2,7 +2,11 @@
 #define GV_ABC_MGR
 
 #include "gvAbcNtk.h"
+#include "gvAigMgr.h"
 #include <string>
+#include "base/abc/abc.h"
+#include "base/main/main.h"
+#include "base/main/mainInt.h"
 
 using namespace std;
 
@@ -32,14 +36,17 @@ class AbcMgr
         void reset();
 
         void abcReadDesign(string&);
-        void abcPrintDesign(bool);
+        void abcNtk2Aig();
 
         Abc_Frame_t * get_Abc_Frame_t() { return pAbc; }
-        Abc_Ntk_t * get_Abc_Ntk_t() { return pNtk; }
+        abcNtkMgr *   get_abcNtkMgr() { return pNtkMgr; }
+        abcAigMgr *   get_aigNtkMgr() { return pAigMgr; }
+
 
     private:
-        Abc_Frame_t * pAbc; 
-        Abc_Ntk_t * pNtk;
+        Abc_Frame_t *    pAbc; 
+        abcNtkMgr *      pNtkMgr;
+        abcAigMgr *      pAigMgr;
 };
 
 

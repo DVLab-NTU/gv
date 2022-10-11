@@ -3,9 +3,14 @@
 
 #include "gvCmdMgr.h"
 
-GV_COMMAND(GVABCReadCmd,         GV_CMD_TYPE_ABC);
-GV_COMMAND(GVABCPrintCmd,        GV_CMD_TYPE_ABC);
-// support for all abc's original commands 
-GV_COMMAND(GVABCOriginalCmd,     GV_CMD_TYPE_ABC);
+
+GV_COMMAND(GVABCReadCmd,          GV_CMD_TYPE_ABC);
+GV_COMMAND(GVABCPrintCmd,         GV_CMD_TYPE_ABC);
+GV_COMMAND(GVABCNtk2AigCmd,       GV_CMD_TYPE_ABC);
+GV_COMMAND(GVABCSweepCmd,         GV_CMD_TYPE_ABC);
+GV_COMMAND(GVAIGFraigCmd,         GV_CMD_TYPE_ABC);
+GV_COMMAND(GVAIGPrintCmd,         GV_CMD_TYPE_ABC);
+GV_COMMAND(GVAIGRAndomSimCmd,     GV_CMD_TYPE_ABC);
+GV_COMMAND(GVABCOriginalCmd,      GV_CMD_TYPE_ABC);
 
 #endif
