@@ -9,7 +9,7 @@
 
 #ifndef GV_NTK_H
 #define GV_NTK_H
-#include "yosys.h"
+#include "kernel/yosys.h"
 #include "gvAbcMgr.h"
 
 USING_YOSYS_NAMESPACE
