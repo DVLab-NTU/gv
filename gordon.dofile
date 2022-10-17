@@ -1,4 +1,0 @@
-read design -v ./btest.v 
-FILE2 B test ./test.btor 
-TEST B 
-q -f
