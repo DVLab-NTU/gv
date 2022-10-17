@@ -54,6 +54,7 @@ class GVModMgr
         bool         getInputFileExist();
         string       getInputFileName();
         string       getAigFileName();
+        string       getTopModuleName();
         GVModType    getGVMode();
         GVModEngine  getGVEngine();
         string       getModPrompt();
@@ -62,6 +63,7 @@ class GVModMgr
         void         setInputFileExist(bool exist);
         void         setInputFileName(string& filename);
         void         setAigFileName(string aigFileName);
+        void         setTopModuleName(string topModuleName);
         void         setGVMode(GVModType mode);
         void         setGVEngine(GVModEngine engine);
         void         setModPromt();
@@ -73,6 +75,7 @@ class GVModMgr
         string             _inputFileName;
         string             _aig_name;
         string             _modPrompt;
+        string             _top_module_name; 
         GVModType          _gvMode;
         GVModEngine        _gvEng;
         vector<GVCmdType>  _vrfMode;

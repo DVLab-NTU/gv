@@ -72,6 +72,11 @@ GVModMgr::getAigFileName(){
     return _aig_name;
 }
 
+string 
+GVModMgr::getTopModuleName(){
+    return _top_module_name;
+}
+
 GVModType    
 GVModMgr::getGVMode(){
     return _gvMode;
@@ -109,6 +114,11 @@ GVModMgr::setInputFileName(string& filename){
 void
 GVModMgr::setAigFileName(string aigFileName){
      _aig_name = aigFileName;
+}
+
+void
+GVModMgr::setTopModuleName(string topModuleName){
+     _top_module_name = topModuleName;
 }
 
 void 

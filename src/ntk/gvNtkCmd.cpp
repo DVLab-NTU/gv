@@ -100,7 +100,7 @@ GVReadDesignCmd ::exec(const string& option) {
 
     bool fileVerilog = false, fileBlif = false, fileAig = false, fileBtor = false;
     size_t n = options.size();
-    string filename = "";
+    string filename, topName;
 
     // try to match file type options
     if (n == 0)
@@ -147,24 +147,24 @@ GVReadDesignCmd ::exec(const string& option) {
 
     // check file extension 
     if(fileVerilog){
-        string fileExt =  filename.substr(filename.size()-2,2);
+        string fileExt = filename.substr(filename.size()-2,2);
         if(fileExt != ".v")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     }
     else if(fileBlif){
-        string fileExt =  filename.substr(filename.size()-5,5);
+        string fileExt = filename.substr(filename.size()-5,5);
         if(fileExt != ".blif")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     }
     else if(fileAig){
-        string fileExt =  filename.substr(filename.size()-4,4);
+        string fileExt = filename.substr(filename.size()-4,4);
         if(fileExt != ".aig")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
         // set the aig file name
         gvModMgr->setAigFileName(filename);
     }
     else if(fileBtor){
-        string fileExt =  filename.substr(filename.size()-5,5);
+        string fileExt = filename.substr(filename.size()-5,5);
         if(fileExt != ".btor")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     }
@@ -187,6 +187,11 @@ GVReadDesignCmd ::exec(const string& option) {
         if(fileVerilog) yosCommand += "read_verilog ";
         else if(fileBlif) yosCommand += "read_blif ";
         run_pass(yosCommand + filename);
+        if (gvRTLDesign->getDesign()->top_module()->name.str() != "") 
+        { 
+            topName = gvRTLDesign->getDesign()->top_module()->name.str();
+        }
+        gvModMgr->setTopModuleName(topName);
     }   
     else if (currEng == GV_MOD_ENGINE_ABC){
         abcMgr -> abcReadDesign(filename);
@@ -301,8 +306,23 @@ GVFile2AigCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVFile2AigCmd" << endl;
     
     string inname, topname, outname;
+    bool preInfile = false, preTop = false; 
     bool fileVerilog = false, fileBlif = false;
     bool hasInfile = false, hasTop = false, hasOutfile = false;
+
+    // filename exists 
+    if (gvModMgr->getInputFileExist()) 
+    {
+        // input file
+        inname = gvModMgr->getInputFileName(); 
+        preInfile = true; hasInfile = true; 
+        // top module 
+        if (gvModMgr->getTopModuleName() != "")
+        {
+            topname = gvModMgr->getTopModuleName();
+            preTop = true; hasTop = true;
+        }
+    }
 
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
@@ -323,7 +343,7 @@ GVFile2AigCmd ::exec(const string& option) {
             fileBlif = true; 
             continue;
         }
-        else if (myStrNCmp("-Input", token, 2) == 0) 
+        else if ((!preInfile) && (myStrNCmp("-Input", token, 2) == 0)) 
         {
             // if no specify filename
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
@@ -331,7 +351,7 @@ GVFile2AigCmd ::exec(const string& option) {
             hasInfile = true;
             continue;
         }
-        else if (myStrNCmp("-TOP", token, 4) == 0) 
+        else if ((!preTop) && (myStrNCmp("-TOP", token, 4) == 0)) 
         {
              // if no specify top module
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
@@ -374,7 +394,10 @@ GVFile2AigCmd ::exec(const string& option) {
             cout << "[ERROR]: Please specify the top module name options !" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "FILE2 Aig");
         }   
-        readCmd = "read_verilog " + inname; 
+        if (!preTop)
+        {
+            readCmd = "read_verilog " + inname;
+        } 
     }
     else if (fileBlif) { readCmd = "read_blif " + inname; }
     topCmd = "synth -flatten -top " + topname;
