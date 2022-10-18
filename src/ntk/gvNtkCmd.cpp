@@ -187,11 +187,12 @@ GVReadDesignCmd ::exec(const string& option) {
         if(fileVerilog) yosCommand += "read_verilog ";
         else if(fileBlif) yosCommand += "read_blif ";
         run_pass(yosCommand + filename);
+        run_pass("hierarchy -auto-top");
         if (gvRTLDesign->getDesign()->top_module()->name.str() != "") 
         { 
             topName = gvRTLDesign->getDesign()->top_module()->name.str();
-        }
-        gvModMgr->setTopModuleName(topName);
+            gvModMgr->setTopModuleName(topName);
+        }    
     }   
     else if (currEng == GV_MOD_ENGINE_ABC){
         abcMgr -> abcReadDesign(filename);
@@ -347,7 +348,9 @@ GVFile2AigCmd ::exec(const string& option) {
         {
             // if no specify filename
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            else { inname = options[i+1]; ++i; }
+            else { inname = options[i+1]; ++i; }  
+            gvModMgr->setInputFileName(inname);
+            gvModMgr->setInputFileExist(true);
             hasInfile = true;
             continue;
         }
@@ -356,6 +359,7 @@ GVFile2AigCmd ::exec(const string& option) {
              // if no specify top module
             if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
             else { topname = options[i+1]; ++i; }
+            gvModMgr->setTopModuleName(topname);
             hasTop = true;
             continue;
         }
