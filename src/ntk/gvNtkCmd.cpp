@@ -184,7 +184,7 @@ GVReadDesignCmd ::exec(const string& option) {
             return GV_CMD_EXEC_NOP;
         }
         string yosCommand = "";
-        if(fileVerilog) yosCommand += "read_verilog ";
+        if(fileVerilog) yosCommand += "read_verilog -sv ";
         else if(fileBlif) yosCommand += "read_blif ";
         run_pass(yosCommand + filename);
         run_pass("hierarchy -auto-top");
@@ -400,7 +400,7 @@ GVFile2AigCmd ::exec(const string& option) {
         }   
         if (!preTop)
         {
-            readCmd = "read_verilog " + inname;
+            readCmd = "read_verilog -sv " + inname;
         } 
     }
     else if (fileBlif) { readCmd = "read_blif " + inname; }
