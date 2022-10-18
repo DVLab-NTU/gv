@@ -12,5 +12,7 @@ GV_COMMAND(GVAIGFraigCmd,         GV_CMD_TYPE_ABC);
 GV_COMMAND(GVAIGPrintCmd,         GV_CMD_TYPE_ABC);
 GV_COMMAND(GVAIGRAndomSimCmd,     GV_CMD_TYPE_ABC);
 GV_COMMAND(GVABCOriginalCmd,      GV_CMD_TYPE_ABC);
+GV_COMMAND(GVCutEnumerate,        GV_CMD_TYPE_ABC);
+
 
 #endif
