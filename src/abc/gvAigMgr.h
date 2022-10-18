@@ -15,6 +15,8 @@ typedef struct Abc_Frame_t_ Abc_Frame_t;
 typedef struct Abc_Ntk_t_ Abc_Ntk_t;
 typedef struct Abc_Obj_t_ Abc_Obj_t;
 typedef struct Aig_Obj_t_ Aig_Obj_t;
+typedef struct Aig_ManCut_t_ Aig_ManCut_t;
+typedef struct Aig_Cut_t_ Aig_Cut_t;
 
 class abcAigMgr
 {
@@ -35,6 +37,7 @@ class abcAigMgr
         void            printPIs() const;
         void            printPOs() const;
         void            printNetlist(Aig_Obj_t*) const;
+        void            Aig_EnumerateCuts( int nCutsMax, int nLeafMax, int fTruth, bool verbose );
         Aig_Obj_t*      getObjbyId(int id) {return Aig_ManObj(pMan, id);}
         Abc_Ntk_t*      getNtk() { return pNtk; }
         Aig_Obj_t**     getPIList() { return PI_List;}    
@@ -54,5 +57,8 @@ class abcAigMgr
         unsigned                 PI_num;
         unsigned                 PO_num;
         unsigned                 Node_num; 
+
+        // for cut enumeration
+        Aig_ManCut_t*            pManCut;
 };
 #endif

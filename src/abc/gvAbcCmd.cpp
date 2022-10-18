@@ -20,7 +20,8 @@ bool GVinitAbcCmd() {
          gvCmdMgr->regCmd("AIGPrint",          4, new GVAIGPrintCmd   ) ,
          gvCmdMgr->regCmd("AIGFraig",          4, new GVAIGFraigCmd   ) ,
          gvCmdMgr->regCmd("AIGRAndomSim",      5, new GVAIGRAndomSimCmd   ),
-         gvCmdMgr->regCmd("ABCCMD",            6, new GVABCOriginalCmd )
+         gvCmdMgr->regCmd("ABCCMD",            6, new GVABCOriginalCmd ) ,
+         gvCmdMgr->regCmd("CUT ENUmerate" , 3, 3, new GVCutEnumerate )
     );
 }
 
@@ -256,6 +257,65 @@ GVABCOriginalCmd ::usage(const bool& verbose) const {
 void
 GVABCOriginalCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCCMD: " << "Directly call ABC's command." << endl;
+}
+
+//----------------------------------------------------------------------
+// Cut Sat
+//----------------------------------------------------------------------
+GVCmdExecStatus
+GVCutEnumerate::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "I am GVCutEnumerate " << endl;
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    int cut_size = 6, n_cuts_max = 16;
+    bool verbose = false;
+    for (size_t i = 0; i < n; ++i) {
+      const string& token = options[i];
+        if (myStrNCmp("-N", token, 1) == 0) {
+            ++i;
+            n_cuts_max = stoi(options[i]);
+            
+            continue;
+        }
+        if (myStrNCmp("-M", token, 1) == 0) {
+            ++i;
+            cut_size = stoi(options[i]);
+            continue;
+        }
+        if (myStrNCmp("-v", token, 1) == 0) {
+            verbose = true;
+            continue;
+        }
+    }
+    if(n_cuts_max <= 0)
+    {
+        cout << "the number of cuts at a node nust be a positive number!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+    if(cut_size <= 2 or cut_size > 16)
+    {
+        cout << "the size of the cut must between 2 and 16!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+
+    (abcMgr -> get_aigNtkMgr()) -> Aig_EnumerateCuts(n_cuts_max, cut_size, 0, verbose);
+    
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVCutEnumerate::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: CUT ENUmerate [-NM num] [-v]" << endl;
+    gvMsg(GV_MSG_IFO) << "  -N num : the maximum number of cuts at a node [default = 16]" << endl;
+    gvMsg(GV_MSG_IFO) << "  -M num : the maximum size of each cut [default = 6]" << endl;
+    gvMsg(GV_MSG_IFO) << "  -v : verbose print cut size for each cut" << endl;
+}
+
+void
+GVCutEnumerate::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "CUT ENUmerate: " << "Conduct Cut Enumeration." << endl;
 }
 
 #endif

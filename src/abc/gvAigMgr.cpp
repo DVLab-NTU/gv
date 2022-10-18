@@ -6,12 +6,14 @@
 #include "gvAigMgr.h"
 #include "rnGen.h"
 #include "proof/fraig/fraig.h"
+#include "aig/aig/aig.h"
 
 typedef struct Fraig_ParamsStruct_t_   Fraig_Params_t;
 
 extern "C" 
 {
     Aig_Man_t * Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
+    int Aig_ManCutCount( Aig_ManCut_t * p, int * pnCutsK );
 }
 
 void abcAigMgr::init()
@@ -240,5 +242,33 @@ void abcAigMgr::rewireByFanins(Aig_Obj_t * pObj, Aig_Obj_t * pFan0, Aig_Obj_t * 
         Aig_ObjConnect(pMan, pObj, pFan1, pFan0);
 }
 
+
+void abcAigMgr::Aig_EnumerateCuts( int nCutsMax, int nLeafMax, int fTruth, bool verbose ){
+    Aig_Man_t * pAig = pMan;
+    // Aig_ManCut_t * p;
+    Aig_Obj_t * pObj;
+    Aig_Cut_t * pCut;
+    int i, k;
+    int * pnCutsK;
+    if ( !Abc_NtkIsLogic(pNtk) && !Abc_NtkIsStrash(pNtk) )
+    {
+        cout << "Can only fraig a logic network or an AIG.\n" << endl;
+        return;
+    }
+    pManCut = Aig_ComputeCuts( pAig, nCutsMax, nLeafMax, fTruth, 0 );
+    if(verbose)
+    {
+        Aig_ManForEachNode( pManCut->pAig, pObj, i )
+        {
+            Aig_ObjForEachCut( pManCut, pObj, pCut, k )
+            {
+                if ( pCut->nFanins == 0 )
+                    continue;
+                cout << "cut size = " << Aig_CutLeaveNum(pCut) << endl;
+            }
+        }
+    }
+    cout << Aig_ManCutCount(pManCut, pnCutsK) << "cuts found" << endl;
+}
 
 #endif
