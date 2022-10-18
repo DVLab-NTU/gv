@@ -6,6 +6,7 @@
 #include "gvUsage.h"
 #include "util.h"
 #include <string>
+#include "gvNtk.h"
 
 
 bool GVinitCommonCmd() {
@@ -14,7 +15,9 @@ bool GVinitCommonCmd() {
          gvCmdMgr->regCmd("HELp",         3,    new GVHelpCmd     ) &&
          gvCmdMgr->regCmd("HIStory",      3,    new GVHistoryCmd  ) &&
          gvCmdMgr->regCmd("USAGE",        5,    new GVUsageCmd    ) &&
-         gvCmdMgr->regCmd("Quit",         1,    new GVQuitCmd     ) 
+         gvCmdMgr->regCmd("Quit",         1,    new GVQuitCmd     ) &&
+         gvCmdMgr->regCmd("SHow"      ,   2,    new GVShowCmd     )
+
    );
 }
 
@@ -227,6 +230,77 @@ GVUsageCmd ::usage(const bool& verbose) const {
 void
 GVUsageCmd ::help() const {
    gvMsg(GV_MSG_IFO) << setw(20) << left << "USAGE: " << "Report resource usage." << endl;
+}
+
+
+//----------------------------------------------------------------------
+// SHow 
+//----------------------------------------------------------------------
+GVCmdExecStatus
+GVShowCmd::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "I am GVSHowVCDCmd " << endl;
+
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    bool inputFile = false, vcd = false ,schematic = false;
+
+    string vcd_file_name = "";
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+         if(myStrNCmp("-SCHematic", token, 4) == 0){
+            if (schematic)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            schematic = true;
+            continue;
+        }
+        else if(myStrNCmp("-Vcd", token, 2) == 0){
+            if (vcd)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            vcd = true;
+            continue;
+        }
+        else{
+            if (vcd) vcd_file_name = token;
+            else if(!vcd) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            continue;
+        }
+    }
+    
+    if(vcd){
+        ifstream infile;
+        infile.open(vcd_file_name);
+        if(!infile.is_open()){
+            gvMsg(GV_MSG_IFO) << "[ERROR]: Please input the VCD file name !!\n";
+            return GV_CMD_EXEC_NOP;
+        }
+        else
+            run_command("gtkwave "+ vcd_file_name + " &");
+
+        infile.close();
+    }
+    else if(schematic){
+         if( !gvModMgr->getInputFileExist()){
+            gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" to read the file first !!\n";
+            return GV_CMD_EXEC_NOP;
+         }
+         string top_module_name = gvRTLDesign->getDesign()->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
+         run_pass("hierarchy -top " + top_module_name);
+         run_pass("proc");
+         run_pass("opt");
+         run_pass("show");
+    }
+
+    return GV_CMD_EXEC_DONE;
+}
+void
+GVShowCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: SHow < -Vcd <string vcd_filename> | -SCHematic >" << endl;
+}
+
+void
+GVShowCmd::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SHow : " << "Show the waveform or schematic." << endl;
 }
 
 #endif
