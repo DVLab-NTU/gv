@@ -17,6 +17,7 @@ typedef struct Abc_Obj_t_ Abc_Obj_t;
 typedef struct Aig_Obj_t_ Aig_Obj_t;
 typedef struct Aig_ManCut_t_ Aig_ManCut_t;
 typedef struct Aig_Cut_t_ Aig_Cut_t;
+typedef pair<Aig_Cut_t*, Aig_Cut_t*> cut_pair_t;
 
 class abcAigMgr
 {
@@ -29,36 +30,42 @@ class abcAigMgr
         Aig_Obj_t**     Aig_NodesDFS(Aig_Obj_t**, int) const;
         void            Aig_AllDFS();
         void            fraig();
-        void            randomSim();
-        void            simTraversal( Vec_Ptr_t*, size_t*);
+        void            randomSim(bool);
+        void            simTraversal( Vec_Ptr_t*, size_t*, bool);
         void            rewireByFanins(Aig_Obj_t*, Aig_Obj_t*, Aig_Obj_t*);
 
         void            printSummary(bool) const;
         void            printPIs() const;
         void            printPOs() const;
         void            printNetlist(Aig_Obj_t*) const;
-        void            Aig_EnumerateCuts( int nCutsMax, int nLeafMax, int fTruth, bool verbose );
+        Aig_ManCut_t*      Aig_EnumerateCuts( Aig_Man_t*, int , int , int , bool );
         Aig_Obj_t*      getObjbyId(int id) {return Aig_ManObj(pMan, id);}
         Abc_Ntk_t*      getNtk() { return pNtk; }
+        Aig_Man_t*      getAig() { return pMan; }
         Aig_Obj_t**     getPIList() { return PI_List;}    
         Aig_Obj_t**     getPOList() { return PO_List;} 
+
+        // for cut sat
+        void            simlirarity( char* ); // find the similarity of the cuts in the two circuits
 
     
     private:
         Abc_Frame_t*             pAbc;
         Abc_Ntk_t*               pNtk;
         Aig_Man_t*               pMan;
+        
 
         // for AIG
         Aig_Obj_t**              PI_List;    
         Aig_Obj_t**              PO_List; 
         Aig_Obj_t**              DFS_List;
-        unsigned                 Total_num;
+        unsigned                 Total_num; // number of aigobj
         unsigned                 PI_num;
         unsigned                 PO_num;
         unsigned                 Node_num; 
 
-        // for cut enumeration
-        Aig_ManCut_t*            pManCut;
+        // for cut sat
+        cut_pair_t*              pCutPair;                 
+
 };
 #endif

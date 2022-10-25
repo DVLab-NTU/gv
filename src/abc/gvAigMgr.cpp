@@ -10,6 +10,8 @@
 
 typedef struct Fraig_ParamsStruct_t_   Fraig_Params_t;
 
+extern void bmGateWay( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, int p_equivalence );
+
 extern "C" 
 {
     Aig_Man_t * Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
@@ -163,52 +165,53 @@ void abcAigMgr::fraig() {
     cout << "Fraiging has finished.\n" << endl;
 }
 
-void abcAigMgr::randomSim() {
+void abcAigMgr::randomSim(bool verbose) {
     int i;
     Aig_Obj_t* pObj;
     
     RandomNumGen  rnGen(0);
-    Vec_Ptr_t* vNodes = Vec_PtrAlloc(Total_num);
-    vNodes = Aig_ManDfsAll(pMan);
-    size_t* simValue = new size_t [Total_num] ();
-    vector<Aig_Obj_t* > PIs;
+    Vec_Ptr_t* vNodes = Vec_PtrAlloc(Total_num); // create a vector of the size of aigobj
+    vNodes = Aig_ManDfsAll(pMan); // get all the nodes in aig
+    size_t* simValue = new size_t [Total_num] (); // create an array to record the result of simulation
 
+    // initialize sim values to be 0
     for (unsigned i = 0; i < Total_num; ++i) {
         simValue[i] = 0;
-    }
-
-    for (unsigned i = 0; i < PI_num; ++i) {
-        PIs.push_back(Aig_ManCi(pMan, i));
     }
 
     unsigned pos = 64, same = 0;
   	size_t* sim_64 = new size_t [PI_num] ();
 
-    while(same <= 10) {
-        for (unsigned i = 0; i < pos ; ++i) {
-  			for(unsigned j = 0; j < PI_num; ++j){
-	  			sim_64[j] =  ((size_t)rnGen(2) << i) | sim_64[j];
-	  		}
+    for (unsigned i = 0; i < pos ; ++i) {
+        for(unsigned j = 0; j < PI_num; ++j){
+            sim_64[j] =  ((size_t)rnGen(2) << i) | sim_64[j];
         }
-        for (unsigned j = 0; j < PI_num; ++j) {
-  			simValue[PIs[j]->Id] =  sim_64[j];
-  			sim_64[j] = 0;
-  		}
-        simTraversal(vNodes, simValue);
+    }
+
+    Aig_ManForEachCi(this->pMan, pObj, i)
+    {
+        simValue[pObj->Id] =  sim_64[i];
+        sim_64[i] = 0;
+    }
+    simTraversal(vNodes, simValue, verbose);
+    if(verbose)
         printf("\n");
-  	    same++;
-    }
 }
 
-void convertToBinary(unsigned int n)
+void convertToBinary(size_t n)
 {
-    if (n / 2 != 0) {
-        convertToBinary(n / 2);
+    for(size_t i = 0; i < sizeof(size_t) * 8; ++i)
+    {
+        if(n == 0)
+            printf("0");
+        else{
+            printf("%d", n % 2);
+            n /= 2;
+        }
     }
-    printf("%d", n % 2);
 }
 
-void abcAigMgr::simTraversal( Vec_Ptr_t* vNodes, size_t* simValue)
+void abcAigMgr::simTraversal( Vec_Ptr_t* vNodes, size_t* simValue, bool verbose)
 {
 	int i;
     size_t fa0, fa1;
@@ -227,11 +230,37 @@ void abcAigMgr::simTraversal( Vec_Ptr_t* vNodes, size_t* simValue)
             simValue[Aig_ObjId(pObj)] = fa0;
         }
     }
-    for (unsigned i = 0; i < Total_num; ++i) {
-        convertToBinary(simValue[i]);
-        cout << "\n";
-    }  
-    cout << "\n"; 
+    if(verbose) {
+        cout << "Ci : " << endl;
+        Aig_ManForEachCi(pMan, pObj, i)
+        {
+            cout << "Node " << pObj->Id << " : ";
+            convertToBinary(simValue[pObj->Id]);
+            cout << "\n"; 
+        }
+        cout << "=========================================" << endl << endl;
+
+        cout << "Co : " << endl;
+        Aig_ManForEachCo(pMan, pObj, i)
+        {
+            cout << "Node " << pObj->Id << " : ";
+            convertToBinary(simValue[pObj->Id]);
+            cout << "\n"; 
+        }
+        cout << "=========================================" << endl << endl;
+
+        cout << "Other And Node : " << endl;
+        Aig_ManForEachNode(pMan, pObj, i)
+        {
+            if(pObj -> Type == AIG_OBJ_CI || pObj -> Type == AIG_OBJ_CO)
+                continue;
+            cout << "Node " << pObj->Id << " : ";
+            convertToBinary(simValue[pObj->Id]);
+            cout << "\n"; 
+        }
+        
+    }
+    
 }
 
 
@@ -243,9 +272,9 @@ void abcAigMgr::rewireByFanins(Aig_Obj_t * pObj, Aig_Obj_t * pFan0, Aig_Obj_t * 
 }
 
 
-void abcAigMgr::Aig_EnumerateCuts( int nCutsMax, int nLeafMax, int fTruth, bool verbose ){
-    Aig_Man_t * pAig = pMan;
-    // Aig_ManCut_t * p;
+Aig_ManCut_t* abcAigMgr::Aig_EnumerateCuts( Aig_Man_t* pAig, int nCutsMax, int nLeafMax, int fTruth, bool verbose ){
+    // Aig_Man_t * pAig = Abc_NtkToDar(pNtk1, 0, 1);
+    Aig_ManCut_t * pManCut;
     Aig_Obj_t * pObj;
     Aig_Cut_t * pCut;
     int i, k;
@@ -253,7 +282,7 @@ void abcAigMgr::Aig_EnumerateCuts( int nCutsMax, int nLeafMax, int fTruth, bool 
     if ( !Abc_NtkIsLogic(pNtk) && !Abc_NtkIsStrash(pNtk) )
     {
         cout << "Can only fraig a logic network or an AIG.\n" << endl;
-        return;
+        return pManCut;
     }
     pManCut = Aig_ComputeCuts( pAig, nCutsMax, nLeafMax, fTruth, 0 );
     if(verbose)
@@ -269,6 +298,125 @@ void abcAigMgr::Aig_EnumerateCuts( int nCutsMax, int nLeafMax, int fTruth, bool 
         }
     }
     cout << Aig_ManCutCount(pManCut, pnCutsK) << "cuts found" << endl;
+    return pManCut;
+}
+
+
+void aigRandomSim( Aig_Man_t *pMan, size_t* simValue) {
+    int i;
+    Aig_Obj_t* pObj;
+    abcAigMgr* tmpAigMgr;
+    
+    RandomNumGen  rnGen(0);
+    Vec_Ptr_t* vNodes = Vec_PtrAlloc(Aig_ManObjNum(pMan)); // create a vector of the size of aigobj
+    vNodes = Aig_ManDfsAll(pMan); // get all the nodes in aig
+    
+
+    // initialize sim values to be 0
+    for (unsigned i = 0; i < Aig_ManObjNum(pMan); ++i) {
+        simValue[i] = 0;
+    }
+
+    unsigned pos = 64, same = 0;
+  	size_t* sim_64 = new size_t [Aig_ManCiNum(pMan)] ();
+
+    for (unsigned i = 0; i < pos ; ++i) {
+        for(unsigned j = 0; j < Aig_ManCiNum(pMan); ++j){
+            sim_64[j] =  ((size_t)rnGen(2) << i) | sim_64[j];
+        }
+    }
+
+    Aig_ManForEachCi(pMan, pObj, i)
+    {
+        simValue[pObj->Id] =  sim_64[i];
+        sim_64[i] = 0;
+    }
+    tmpAigMgr->simTraversal(vNodes, simValue, 0);
+}
+
+float computeSimilarityOf2Nodes(size_t sim1, size_t sim2)
+{
+    int count = 0, num_bit = sizeof(size_t) * 4;
+    for(size_t i = 0; i < num_bit; ++i)
+    {
+        if(sim1 % 2 == sim2 % 2)
+        {
+            ++count;
+        }
+        sim1 >>= 1;
+        sim2 >>= 1;
+    }
+    return float(count) / float(num_bit);
+}
+
+void abcAigMgr::simlirarity(char* filename) {
+    Abc_Ntk_t *pNtk2;
+    Aig_Man_t *pAig1, *pAig2;
+    Aig_ManCut_t* pManCut1, *pManCut2;
+    Aig_Obj_t * pObj1, *pObj2;
+    Aig_Cut_t * pCut1, *pCut2;
+    size_t* simValue1, *simValue2;
+    int i, j, k, l, m, n, num_candidate = 0, max_candidate = 1000;
+    float similarity = 0;
+    bool stop = false;
+
+    pCutPair = new cut_pair_t [max_candidate];
+   
+    pNtk2 = Io_Read(filename, IO_FILE_AIGER, 0, 0);
+    pAig1 = Abc_NtkToDar(pNtk, 0, 1);
+    pAig2 = Abc_NtkToDar(pNtk2, 0, 1);
+
+    //  cout << "creating arrays" << Aig_ManObjNum(pAig1) << " " << Aig_ManObjNum(pAig1) << " " <<endl;
+    simValue1 = new size_t [Aig_ManObjNum(pAig1)]; // create an array to record the result of simulation
+    simValue2 = new size_t [Aig_ManObjNum(pAig2)]; // create an array to record the result of simulation
+    // cout << "arrays completed" << endl;
+
+
+    // enumerate cuts for both Ntks
+    cout << "enumerating cuts..." << endl;
+    pManCut1 = Aig_EnumerateCuts(pAig1, 50, 10, 0, 0);
+    pManCut2 = Aig_EnumerateCuts(pAig2, 50, 10, 0, 0);
+
+    // do randomsim for cut similarity
+    cout << "doing random simulation..." << endl;
+    aigRandomSim(pAig1, simValue1);
+    aigRandomSim(pAig2, simValue2);
+
+    // find high similarity cuts
+    cout << "computing similarity..." << endl;
+    Aig_ManForEachNode( pAig1, pObj1, i )
+    {
+        Aig_ManForEachNode( pAig2, pObj2, j )
+        {
+            similarity = computeSimilarityOf2Nodes(simValue1[pObj1->Id], simValue2[pObj2->Id]);
+            if(similarity > 0.85)
+            {
+                Aig_ObjForEachCut( pManCut1, pObj1, pCut1, k )
+                {
+                    if ( pCut1->nFanins == 0 )
+                        continue;
+                    Aig_ObjForEachCut( pManCut2, pObj2, pCut2, k )
+                    {
+                        if ( pCut2->nFanins == 0 || pCut1->nFanins != pCut2->nFanins)
+                            continue;
+                        pCutPair[num_candidate].first = pCut1;
+                        pCutPair[num_candidate].second = pCut2;
+                        ++num_candidate;
+                        if(num_candidate >= max_candidate)
+                        {
+                            stop = true;
+                            break;
+                        }
+                    }
+                    if(stop) break;
+                    // TODO bmGateWay();
+                }
+            }
+            if(stop) break;
+        }
+        if(stop) break;
+    }
+    cout << num_candidate << " equivalent candidates found!!!" << endl;
 }
 
 #endif

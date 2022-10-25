@@ -21,7 +21,8 @@ bool GVinitAbcCmd() {
          gvCmdMgr->regCmd("AIGFraig",          4, new GVAIGFraigCmd   ) ,
          gvCmdMgr->regCmd("AIGRAndomSim",      5, new GVAIGRAndomSimCmd   ),
          gvCmdMgr->regCmd("ABCCMD",            6, new GVABCOriginalCmd ) ,
-         gvCmdMgr->regCmd("CUT ENUmerate" , 3, 3, new GVCutEnumerate )
+         gvCmdMgr->regCmd("CUT ENUmerate" , 3, 3, new GVCutEnumerate ) ,
+         gvCmdMgr->regCmd("SIMilarity COMpute" , 3, 3, new GVSimilarityCompute )
     );
 }
 
@@ -215,13 +216,13 @@ GVAIGRAndomSimCmd ::exec(const string& option) {
         if (myStrNCmp("-Verbose", options[0], 2) == 0) verbose = true;
         else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
     }
-    (abcMgr -> get_aigNtkMgr()) -> randomSim();
+    (abcMgr -> get_aigNtkMgr()) -> randomSim(verbose);
     return GV_CMD_EXEC_DONE;
 }
 
 void
 GVAIGRAndomSimCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: AIGRAndomSim " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: AIGRAndomSim [-Verbose]" << endl;
 }
 
 void
@@ -299,7 +300,7 @@ GVCutEnumerate::exec(const string& option) {
         return GV_CMD_EXEC_ERROR;
     }
 
-    (abcMgr -> get_aigNtkMgr()) -> Aig_EnumerateCuts(n_cuts_max, cut_size, 0, verbose);
+    (abcMgr -> get_aigNtkMgr()) -> Aig_EnumerateCuts( abcMgr->get_aigNtkMgr()->getAig(), n_cuts_max, cut_size, 0, verbose);
     
 
     return GV_CMD_EXEC_DONE;
@@ -316,6 +317,71 @@ GVCutEnumerate::usage(const bool& verbose) const {
 void
 GVCutEnumerate::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "CUT ENUmerate: " << "Conduct Cut Enumeration." << endl;
+}
+
+GVCmdExecStatus
+GVSimilarityCompute::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "I am GVSimilarityCompute " << endl;
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    char* golden_file_name;
+    char* revised_file_name;
+    bool verbose = false,golden_file_set = false, revised_file_set=false;
+    for (size_t i = 0; i < n; ++i) {
+      const string& token = options[i];
+        if (myStrNCmp("-v", token, 1) == 0) {
+            verbose = true;
+            continue;
+        }
+        if (myStrNCmp("-golden", token, 4) == 0) {
+            ++i;
+            golden_file_name = new char[options[i].length() + 1];
+            strcpy(golden_file_name, options[i].c_str());
+            golden_file_set = true;
+            cout << "golden set" << endl;
+            continue;
+        }
+        if (myStrNCmp("-revised", token, 4) == 0) {
+            ++i;
+            cout << "reised set" << endl;
+            revised_file_name = new char[options[i].length() + 1];
+            strcpy(revised_file_name, options[i].c_str());
+            revised_file_set = true;
+            continue;
+        }
+    }
+    // cout << "1" << endl;
+    if(!golden_file_set ) 
+    {
+        golden_file_name = new char[gvModMgr->getInputFileName().length() + 1];
+        strcpy(golden_file_name, gvModMgr->getInputFileName().c_str());
+        golden_file_set = true;
+    }
+    // cout << "2" << endl;
+    if(!revised_file_set || !revised_file_set)
+    {
+        gvMsg(GV_MSG_ERR) << "Either golden design or revised design is not given" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+
+    (abcMgr -> get_aigNtkMgr()) -> simlirarity(revised_file_name);
+    
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVSimilarityCompute::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: CUT ENUmerate <-golden file> [-revised file] [-v]" << endl;
+    gvMsg(GV_MSG_IFO) << "  -N num : the maximum number of cuts at a node [default = 16]" << endl;
+    gvMsg(GV_MSG_IFO) << "  -M num : the maximum size of each cut [default = 6]" << endl;
+    gvMsg(GV_MSG_IFO) << "  -v : verbose print cut size for each cut" << endl;
+}
+
+void
+GVSimilarityCompute::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SIMilarity COMpute: " << "Compute the similarity between cuts from two deigns." << endl;
 }
 
 #endif
