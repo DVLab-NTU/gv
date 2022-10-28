@@ -162,6 +162,77 @@ GVmkdir(const string& folder_path){
     system(build_cmd.c_str());
 }
 
+// Extract filename
+string 
+extractFileName(const string& fullPath){
+  const size_t lastSlashIndex = fullPath.find_last_of("/\\");
+  return fullPath.substr(lastSlashIndex + 1);
+}
+
+// Reformat assertion
+vector<string>
+CRPG_reformatAssertion(vector<string> assertion_vec, string input_path, string output_path){
+    gvMsg(GV_MSG_IFO) << "[INFO] Reformat the file => " << input_path << endl;
+    ifstream input_file(input_path);
+    ofstream output_file(output_path);
+    string line;
+    string assertion_info;
+    string result;
+    regex assertion_line ("assert\s*\\((.*)\\)\s*;");
+    regex assertion_word ("assert");
+    regex semicolon_regex(";");
+    smatch m;
+    string top_module = yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
+    string dpi_template = \
+    "// DPI Header\
+    \rimport \"DPI-C\" function void set_assert_flag (input int index);\
+    \rimport \"DPI-C\" function void set_constraint_flag (input int index);\
+    \rimport \"DPI-C\" function void set_stable_flag (input int index);\n";
+    int line_num = 1;
+    int assertion_cnt = assertion_vec.size();
+
+    if (top_module + ".v" == extractFileName(input_path)){
+        output_file << dpi_template << endl;
+    }
+    while(getline(input_file, line)){
+        regex_search(line, m, assertion_line);
+        if (!m.empty()){   
+            result = regex_replace(line, assertion_word, "Assertion_" + to_string(assertion_cnt));
+            result = regex_replace(result, semicolon_regex, " else set_assert_flag\(" + to_string(assertion_cnt) + "\)");
+            assertion_info = input_path + ", " + to_string(assertion_cnt) + ", " + to_string(line_num) + ", " + m[1].str();
+            assertion_vec.push_back(assertion_info);
+            //cout << assertion_info << endl;
+            //cout << result << endl;
+            assertion_cnt += 1;
+        }
+        output_file << line << endl;
+        line_num += 1;
+    }
+    input_file.close();
+    output_file.close();
+    gvMsg(GV_MSG_IFO) << "[INFO] Finish => "  << output_path << endl;
+    return assertion_vec;
+}
+
+// Generate hpp file for verilator
+void
+CRPG_genAssertionFile(string output_path, vector<string> assertion_vec){
+    ofstream output_file(output_path);
+    output_file << "#ifndef assertion_hpp" << endl;
+    output_file << "#define assertion_hpp" << endl;
+    output_file << "#include \"crpg.hpp\"\n" << endl;
+    output_file << "class Assertion{" << endl;
+    output_file << "public:" << endl;
+    output_file << "\tAssertion(){" << endl;
+    for(string assertion : assertion_vec){
+        output_file << "\t\tassertion.emplace(assertion.end(), " << assertion << ")" << endl;
+    }
+    output_file << "\t}" << endl;
+    output_file << "\tstd::vector<Property> assertion;" << endl;
+    output_file << "};" << endl;
+    output_file << "#endif /* assertion_hpp */" << endl;
+}
+
 // CRPG step 1. Initialize
 void
 CRPG_init(string build_path, string work_path){
@@ -190,19 +261,21 @@ CRPG_getDesignInfo(string top_module, string build_path){
 
 // CRPG step 3. DUT preprocessing
 void
-CRPG_dutPreprocessing(string build_path){
+CRPG_dutPreprocessing(string build_path, vector<string> filelist){
     gvMsg(GV_MSG_IFO) << "[INFO] DUT preprocessing..." << endl;
     ofstream ofs_assertion_hpp;
-    string dpi_template = \
-    "// DPI Header\
-    import \"DPI-C\" function void set_assert_flag (input int index);\
-    import \"DPI-C\" function void set_constraint_flag (input int index);\
-    import \"DPI-C\" function void set_stable_flag (input int index);\
-    ";
-    vector<RTLIL::Module*> modules_vec = yosys_design->modules().to_vector();
-    for(int i= 0; i< modules_vec.size(); i++){
-        cout << modules_vec[i]->name.str() << endl;
+    vector<string> assertion_vec;
+    
+    //vector<RTLIL::Module*> modules_vec = yosys_design->modules().to_vector();
+    //for(int i= 0; i< modules_vec.size(); i++){
+    //    cout << modules_vec[i]->name.str() << endl;
+    //}
+    for (string file : filelist){    
+        assertion_vec = CRPG_reformatAssertion(assertion_vec, file, build_path + "/" + extractFileName(file));
     }
+
+    CRPG_genAssertionFile(build_path + "/obj_dir/assertion.hpp", assertion_vec);
+
 }
 
 GVCmdExecStatus
@@ -215,12 +288,26 @@ GVCRPG ::exec(const string& option) {
     string build_path = curr_path + "/build";
     string work_path = curr_path + "/work";
     
+    // temp
+    vector<string> options;
+    vector<string> filelist;
+    string line;
+    GVCmdExec::lexOptions(option, options);
+    ifstream input_file(options[1]);
+
+    if (myStrNCmp("-f", options[0], 1) == 0) {   
+        while (getline(input_file, line)){
+        filelist.push_back(line);
+        }
+    }
+    input_file.close();
+    
     // Step 1. Initialize
-    CRPG_init(build_path, work_path);
+    //CRPG_init(build_path, work_path);
     // Step 2. Extract RTL info
-    CRPG_getDesignInfo(top_module, build_path);
+    //CRPG_getDesignInfo(top_module, build_path);
     // Step 3. DUT preprocessing
-    CRPG_dutPreprocessing(build_path);
+    CRPG_dutPreprocessing(build_path, filelist);
     
     /*
     // TODO
