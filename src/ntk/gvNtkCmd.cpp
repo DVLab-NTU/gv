@@ -527,7 +527,7 @@ GVFile2BtorCmd::exec(const string& option) {
 
 void
 GVFile2BtorCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: File2 Btor <-Verilog> <input_filename> <output_filename.btor> " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: FILE2 Btor <top module name>  <output_filename.btor> "  << endl;
 }
 
 void
@@ -587,12 +587,12 @@ GVWhiteBoxSignalCmd::exec(const string& option) {
 
 void
 GVWhiteBoxSignalCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: File2 Btor <-Verilog> <input_filename> <output_filename.btor> " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: WHITE Box <top module name>  <output_filename.v> " << endl;
 }
 
 void
 GVWhiteBoxSignalCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "File2 Btor: " << "Convert verilog file into btor. " << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "WHITE Box: " << "Convert Hrc verilog  into white box flatten verilog. " << endl;
 }
 
 GVCmdExecStatus
