@@ -621,7 +621,7 @@ GVCmdExecStatus
 GVWriteAigCmd::exec(const string& option) {
 
     if (!gvRTLDesign->getDesign() || gvRTLDesign->getDesign()->top_module() == NULL) {
-        gvMsg(GV_MSG_ERR) << "Empty design. Try command \033[1;36mFILE2 Aig\033[0m." << endl;
+        gvMsg(GV_MSG_ERR) << "Empty design. Try command \"FILE2 AIG\"." << endl;
         return GV_CMD_EXEC_ERROR;
     }
     
@@ -661,7 +661,7 @@ GVWriteAigCmd::usage(const bool& verbose) const {
 
 void
 GVWriteAigCmd::help() const {
-    gvMsg(GV_MSG_IFO) << "Write out the processing deisng into AIGER file" << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: " << "Write out the processing deisng into AIGER file" << endl;
 }
 
 #endif
