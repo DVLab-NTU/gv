@@ -47,6 +47,9 @@ class abcAigMgr
 
         // for cut sat
         void            simlirarity( char* ); // find the similarity of the cuts in the two circuits
+        void            set_similarity_lookup();
+        void            delete_similarity_lookup();
+        float           computeSimilarityOf2Nodes(size_t sim1, size_t sim2);
 
     
     private:
@@ -65,7 +68,8 @@ class abcAigMgr
         unsigned                 Node_num; 
 
         // for cut sat
-        cut_pair_t*              pCutPair;                 
+        cut_pair_t*              pCutPair;  
+        size_t**                 similarity_lookup;                
 
 };
 #endif

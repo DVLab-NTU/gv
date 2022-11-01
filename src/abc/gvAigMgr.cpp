@@ -334,18 +334,54 @@ void aigRandomSim( Aig_Man_t *pMan, size_t* simValue) {
     tmpAigMgr->simTraversal(vNodes, simValue, 0);
 }
 
-float computeSimilarityOf2Nodes(size_t sim1, size_t sim2)
+void abcAigMgr::set_similarity_lookup()
+{
+    // new the dynamic array
+    similarity_lookup = new size_t* [256];
+    size_t tmp_i, tmp_j;
+    for(size_t i = 0; i < 256; ++i)
+    {
+        similarity_lookup[i] = new size_t[256];
+    }
+
+    for(size_t i = 0; i < 256; ++i)
+    {
+        for(size_t j = 0; j < 256; ++j)
+        {
+            similarity_lookup[i][j] = 0;
+            tmp_i = i;
+            tmp_j = j;
+            for(size_t k = 0; k < 8; ++k)
+            {
+                similarity_lookup[i][j] += (tmp_i % 2 == tmp_j % 2);
+                tmp_i >>= 1;
+                tmp_j >>= 1;
+            }
+        }
+    }
+}
+
+void abcAigMgr::delete_similarity_lookup()
+{
+    // new the dynamic array
+    size_t tmp_i, tmp_j;
+    for(size_t i = 0; i < 256; ++i)
+    {
+        delete [] similarity_lookup[i];
+    }
+    delete [] similarity_lookup;
+}
+
+float abcAigMgr::computeSimilarityOf2Nodes(size_t sim1, size_t sim2)
 {
     int count = 0, num_bit = sizeof(size_t) * 4;
-    for(size_t i = 0; i < num_bit; ++i)
+    for(size_t i = 0; i < num_bit / 8; ++i)
     {
-        if(sim1 % 2 == sim2 % 2)
-        {
-            ++count;
-        }
-        sim1 >>= 1;
-        sim2 >>= 1;
+        count += similarity_lookup[sim1 % 256][sim2 % 256];
+        sim1 >>= 8;
+        sim2 >>= 8;
     }
+
     return float(count) / float(num_bit);
 }
 
@@ -356,11 +392,13 @@ void abcAigMgr::simlirarity(char* filename) {
     Aig_Obj_t * pObj1, *pObj2;
     Aig_Cut_t * pCut1, *pCut2;
     size_t* simValue1, *simValue2;
-    int i, j, k, l, m, n, num_candidate = 0, max_candidate = 1000;
+    int i, j, k, l, m, n, num_candidate = 0, max_candidate = 10000;
     float similarity = 0;
     bool stop = false;
 
     pCutPair = new cut_pair_t [max_candidate];
+
+    set_similarity_lookup(); // setup simulation lookup table
    
     pNtk2 = Io_Read(filename, IO_FILE_AIGER, 0, 0);
     pAig1 = Abc_NtkToDar(pNtk, 0, 1);
@@ -417,6 +455,7 @@ void abcAigMgr::simlirarity(char* filename) {
         if(stop) break;
     }
     cout << num_candidate << " equivalent candidates found!!!" << endl;
+    delete_similarity_lookup();
 }
 
 #endif
