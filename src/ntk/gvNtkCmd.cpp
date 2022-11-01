@@ -407,7 +407,7 @@ GVFile2AigCmd ::exec(const string& option) {
     }
     else if (fileBlif) { readCmd = "read_blif " + inname; }
     topCmd = "synth -flatten -top " + topname;
-    outCmd = "write_aiger " + outname;
+    outCmd = "write_aiger -symbols " + outname;
 
     run_pass(readCmd);
     run_pass(topCmd);
