@@ -24,7 +24,8 @@ bool GVinitNtkCmd() {
             gvCmdMgr->regCmd("YOSYSCMD",           8, new GVYosysOriginalCmd  )&&
             gvCmdMgr->regCmd("FILE2 Btor",          4, 1, new GVFile2BtorCmd ) &&
             gvCmdMgr->regCmd("WHITE Box",          4, 1, new GVWhiteBoxSignalCmd ) &&
-            gvCmdMgr->regCmd("TEST Boolector",          3, 1, new GVTestBoolector )
+            gvCmdMgr->regCmd("TEST Boolector",     3, 1, new GVTestBoolector  ) &&
+            gvCmdMgr->regCmd("WRite Aig",          2, 1, new GVWriteAigCmd    )
     );
 }
 
@@ -616,6 +617,51 @@ GVTestBoolector::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "Test if boolector exist/work fine" << endl;
 }
 
+GVCmdExecStatus
+GVWriteAigCmd::exec(const string& option) {
 
+    if (!gvRTLDesign->getDesign() || gvRTLDesign->getDesign()->top_module() == NULL) {
+        gvMsg(GV_MSG_ERR) << "Empty design. Try command \033[1;36mFILE2 Aig\033[0m." << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+    
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+
+    if (options.size() > 1) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[1]);
+    }
+
+    if (options.size() == 0) {
+        if (gvModMgr->getAigFileName() == "") {
+            return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "AIG filename");
+        }
+    }
+
+    else {
+        gvModMgr->setAigFileName(options[0]);
+    }
+
+    string filename = options[0];
+
+    run_pass("synth -flatten -top " + gvModMgr->getTopModuleName());
+    run_pass("dffunmap");
+    run_pass("abc -g AND");
+    run_pass("write_aiger -symbols " + filename);
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVWriteAigCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: WRite Aig <filename>" << endl;
+    gvMsg(GV_MSG_IFO) << "Param: <(string filename)>  :  Name of the output aig file." << endl;
+    gvMsg(GV_MSG_IFO) << "                               It could be <stdout>, or it can be skipped if specified before." << endl;
+}
+
+void
+GVWriteAigCmd::help() const {
+    gvMsg(GV_MSG_IFO) << "Write out the processing deisng into AIGER file" << endl;
+}
 
 #endif

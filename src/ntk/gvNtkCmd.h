@@ -11,6 +11,7 @@ GV_COMMAND(GVYosysOriginalCmd,     GV_CMD_TYPE_NETWORK);
 GV_COMMAND(GVFile2BtorCmd,         GV_CMD_TYPE_NETWORK);
 GV_COMMAND(GVTestBoolector,         GV_CMD_TYPE_NETWORK);
 GV_COMMAND(GVWhiteBoxSignalCmd,         GV_CMD_TYPE_NETWORK);
+GV_COMMAND(GVWriteAigCmd,          GV_CMD_TYPE_NETWORK);
 
 
 #endif
