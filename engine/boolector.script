@@ -1,0 +1,41 @@
+#boolector
+git clone https://github.com/Boolector/boolector.git
+cd boolector
+
+#build dependend tool
+./contrib/setup-lingeling.sh
+./contrib/setup-btor2tools.sh
+
+#build boolector
+./configure.sh --no-minisat; cd build; make;
+
+# back to engine/boolector
+cd ../
+mkdir gv_src_boolector/
+mkdir gv_src_btor2parser/
+mkdir gv_src_lgl/
+
+cp ./build/lib/libboolector.a  gv_src_boolector/
+cp ./src/boolector.h  gv_src_boolector/
+cp ./src/btortypes.h  gv_src_boolector/
+
+cp ./deps/install/lib/libbtor2parser.a  gv_src_btor2parser/
+cp ./deps/install/lib/liblgl.a  gv_src_lgl
+
+# go to src/eng and create symbol link
+echo "Creating softlink from engine/boolector/gv_src to src/eng/boolector ...";
+cd ../../src/eng; ln -fs ../../engine/boolector/gv_src_boolector ./boolector
+cd ../../src/eng; ln -fs ../../engine/boolector/gv_src_btor2parser ./btor2parser
+cd ../../src/eng; ln -fs ../../engine/boolector/gv_src_lgl ./lgl
+
+#copy lib&header to src/eng
+#cd ../../../
+#
+#cp ./engine/boolector/build/lib/libboolector.a  ./src/eng/boolector/
+#cp ./engine/boolector/src/boolector.h  ./src/eng/boolector/
+#cp ./engine/boolector/src/btortypes.h  ./src/eng/boolector/
+
+#mkdir ./src/eng/btor2parser
+#mkdir ./src/eng/lgl
+#cp ./engine/boolector/deps/install/lib/libbtor2parser.a  ./src/eng/btor2parser/
+#cp ./engine/boolector/deps/install/lib/liblgl.a  ./src/eng/lgl
