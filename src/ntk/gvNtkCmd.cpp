@@ -23,6 +23,7 @@ bool GVinitNtkCmd() {
             gvCmdMgr->regCmd("FILE2 Aig",          4, 1, new GVFile2AigCmd    ) && 
             gvCmdMgr->regCmd("YOSYSCMD",           8, new GVYosysOriginalCmd  )&&
             gvCmdMgr->regCmd("FILE2 Btor",          4, 1, new GVFile2BtorCmd ) &&
+            gvCmdMgr->regCmd("WHITE Box",          4, 1, new GVWhiteBoxSignalCmd ) &&
             gvCmdMgr->regCmd("TEST Boolector",          3, 1, new GVTestBoolector )
     );
 }
@@ -526,7 +527,7 @@ GVFile2BtorCmd::exec(const string& option) {
 
 void
 GVFile2BtorCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: File2 Btor <-Verilog> <input_filename> <output_filename.btor> " << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: FILE2 Btor <top module name>  <output_filename.btor> "  << endl;
 }
 
 void
@@ -534,6 +535,65 @@ GVFile2BtorCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "File2 Btor: " << "Convert verilog file into btor. " << endl;
 }
 
+GVCmdExecStatus
+GVWhiteBoxSignalCmd::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "Create flatten verilog from RTL " << endl;
+  
+    // gvMsg(GV_MSG_IFO) << "I am GVFile2AigCmd" << endl;
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    if(n!=2)cout<<"wrong arg number\n";
+    string top=options[0];
+    string outputf=options[1];
+    cout<<"top = "<<top<<" outputf = "<<outputf<<endl;
+    string commend;
+    commend="hierarchy -top ";
+    commend+=top;
+    run_pass(commend);
+    commend="hierarchy -check";
+    run_pass(commend);
+    commend="proc";
+    run_pass(commend);
+    
+    commend="flatten";
+    run_pass(commend);
+    
+    std::ofstream* f= new std::ofstream;
+    //std::ofstream& fo=f;
+    f->open(outputf.c_str(),std::ofstream::trunc);
+    string patch=whiteBoxAllSignal(f,outputf,yosys_design,"");
+    
+    //generate PO patch;
+    *f << stringf("; not this\n");
+    f->close();
+    delete f;
+    f= new std::ofstream;
+    //std::ofstream& fo=f;
+    f->open(outputf.c_str(),std::ofstream::trunc);
+    whiteBoxAllSignal(f,outputf,yosys_design,patch);
+    
+    //Write PO patch;
+    *f << stringf("\n");
+    f->close();
+    delete f;
+
+   // boolectorTest();
+    // set the aig file name
+    //gvModMgr->setAigFileName(outputname);
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVWhiteBoxSignalCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: WHITE Box <top module name>  <output_filename.v> " << endl;
+}
+
+void
+GVWhiteBoxSignalCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "WHITE Box: " << "Convert Hrc verilog  into white box flatten verilog. " << endl;
+}
 
 GVCmdExecStatus
 GVTestBoolector::exec(const string& option) {

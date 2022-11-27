@@ -4,9 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-extern "C"{
-#include "boolector.h"
-}
+
 
 #include<gvWordLevel.h>
 

@@ -11,3 +11,9 @@
 /lib
 btorinfo.log
 test.btor
+*.dofile
+*.v
+*.btor
+*.aig
+.vscode
+

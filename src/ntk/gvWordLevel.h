@@ -31,16 +31,21 @@
 #include "kernel/celltypes.h"
 #include "kernel/log.h"
 #include "kernel/mem.h"
+#include "kernel/ff.h"
+extern "C"{
+#include "boolector.h"
+}
 #include <string>
 USING_YOSYS_NAMESPACE
 int CallBtorWorker(std::ostream &f, RTLIL::Module *module, bool verbose, bool single_bad, bool cover_mode, bool print_internal_names, string info_filename);
+string whiteBoxAllSignal(std::ofstream *&f, std::string filename,RTLIL::Design *design,string patch);
+int  patchOutput(string file,string top,string patch);
 int boolectorTest();
 class wordWrapper{
 	public:
 	wordWrapper();
 	private:
 	
-
 };
 
 
