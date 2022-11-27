@@ -27,7 +27,6 @@ CFLAGS	= $(ENGFLGS) $(PKGFLAG) -O3 -DNDEBUG -Wall -Wno-parentheses -Wno-unused-f
 
 %.o:	%.cpp
 	@echo "> compiling: $<"
-#	@$(YOSYSCONF) $(CFLAGS) -I$(INCDIR) -c -o $@ $<
 	@$(CC) $(CFLAGS) $(YOSYSFLGS) $(ABCFLGS) -I$(INCDIR) -c -o $@ $<
 
 top:	$(EXTLINK) target
@@ -41,7 +40,6 @@ clean:
 depend: .depend.mak
 .depend.mak: $(CSRCS) $(CHDRS)
 	@echo Making dependencies ...
-#	@$(YOSYSCONF) -MM $(DEPDIR) -DABC_USE_STDINT_H $(CSRCS) > $@
 	@$(CC) -MM $(DEPDIR) $(YOSYSFLGS) $(ABCFLGS) $(CSRCS) > $@
 
 ## Linking external headers
