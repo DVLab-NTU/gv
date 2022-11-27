@@ -15,8 +15,6 @@ ENGPKGS	 += minisat
 ENGPKGS	 += abc
 ENGPKGS	 += yosys
 
-
-
 ENGSSRC	 = eng
 
 EXEC     = gv
