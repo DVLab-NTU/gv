@@ -271,11 +271,12 @@ GVCmdExecStatus
 GVCutEnumerate::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVCutEnumerate " << endl;
     vector<string> options;
-    
     GVCmdExec::lexOptions(option, options);
+
     size_t n        = options.size();
     int    cut_size = 6, n_cuts_max = 16;
     bool   verbose = false;
+
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
         if (myStrNCmp("-N", token, 1) == 0) {

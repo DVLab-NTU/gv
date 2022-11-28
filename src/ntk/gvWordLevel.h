@@ -24,30 +24,30 @@
 #ifndef GV_WNTK_H
 #define GV_WNTK_H
 
-
-#include "kernel/rtlil.h"
-#include "kernel/register.h"
-#include "kernel/sigtools.h"
 #include "kernel/celltypes.h"
+#include "kernel/ff.h"
 #include "kernel/log.h"
 #include "kernel/mem.h"
-#include "kernel/ff.h"
-extern "C"{
+#include "kernel/register.h"
+#include "kernel/rtlil.h"
+#include "kernel/sigtools.h"
+extern "C"
+{
 #include "boolector.h"
 }
 #include <string>
 USING_YOSYS_NAMESPACE
-int CallBtorWorker(std::ostream &f, RTLIL::Module *module, bool verbose, bool single_bad, bool cover_mode, bool print_internal_names, string info_filename);
-string whiteBoxAllSignal(std::ofstream *&f, std::string filename,RTLIL::Design *design,string patch);
-int  patchOutput(string file,string top,string patch);
-int boolectorTest();
-class wordWrapper{
-	public:
-	wordWrapper();
-	private:
-	
+int    CallBtorWorker(std::ostream& f, RTLIL::Module* module, bool verbose, bool single_bad, bool cover_mode, bool print_internal_names,
+                      string info_filename);
+string whiteBoxAllSignal(std::ofstream*& f, std::string filename, RTLIL::Design* design, string patch);
+int    patchOutput(string file, string top, string patch);
+int    boolectorTest();
+class wordWrapper
+{
+    public:
+        wordWrapper();
+
+    private:
 };
-
-
 
 #endif
