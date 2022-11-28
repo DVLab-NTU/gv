@@ -24,6 +24,12 @@ mv libyosys.so gv_src/;
 # copy "yosys" header files to gv_src/ directory
 cp -rf share/include/kernel gv_src/;
 
+# back to gv0/
+cd ../../
+
+# create the the yosys-config symbolink
+ln -fs engine/yosys/yosys-config ./yosys-config
+
 # go to src/eng and create symbol link
 echo "Creating softlink from engine/yosys/gv_src to src/eng/yosys ...";
-cd ../../src/eng; ln -fs ../../engine/yosys/gv_src ./yosys
+cd ./src/eng/; ln -fs ../../engine/yosys/gv_src ./yosys
