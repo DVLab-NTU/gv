@@ -24,4 +24,4 @@ jobs:
       run: ldd ./gv
 
     - name: Run tests
-      run: ./gv -f test.dofile
+      run: ./gv -f tests/test.dofile
