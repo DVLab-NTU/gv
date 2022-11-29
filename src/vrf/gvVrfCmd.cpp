@@ -1,23 +1,21 @@
 #ifndef GV_VRF_CMD_C
 #define GV_VRF_CMD_C
 
-#include "gvMsg.h"
 #include "gvVrfCmd.h"
-#include "gvUsage.h"
 #include "gvAbcMgr.h"
+#include "gvMsg.h"
+#include "gvUsage.h"
 #include "util.h"
-#include <stdio.h>
-#include <iostream>
 #include <cstring>
+#include <iostream>
+#include <stdio.h>
 #include <string>
-
 
 using namespace std;
 
-bool GVinitVrfCmd() {
-    return (
-         gvCmdMgr->regCmd("Formal Verify",      1, 1, new GVFormalVerifyCmd   ) 
-    );
+bool
+GVinitVrfCmd() {
+    return (gvCmdMgr->regCmd("Formal Verify", 1, 1, new GVFormalVerifyCmd));
 }
 
 //------------------------------------------------------------------------------------------------------------
@@ -28,32 +26,32 @@ GVCmdExecStatus
 GVFormalVerifyCmd ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "I am GVFormalVerifyCmd " << endl;
 
-    if( gvModMgr->getAigFileName() == "" ){
+    if (gvModMgr->getAigFileName() == "") {
         gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" or \"VErilog2 Aig\" to read/make the aig file first !!\n";
         return GV_CMD_EXEC_NOP;
     }
 
-    bool bmc = false, pdr = false, itp = false, ind = false; 
-    // bmc 
-    int bmc_depth, bmc_S, bmc_T, bmc_H, bmc_G, bmc_C, bmc_D, bmc_J, bmc_I, bmc_P, bmc_Q, bmc_R;
+    bool bmc = false, pdr = false, itp = false, ind = false;
+    // bmc
+    int    bmc_depth, bmc_S, bmc_T, bmc_H, bmc_G, bmc_C, bmc_D, bmc_J, bmc_I, bmc_P, bmc_Q, bmc_R;
     string bmc_option, bmc_L, bmc_W;
     // k-induction
-    int PO_idx; 
-    int ind_F, ind_P, ind_C, ind_M, ind_L, ind_N, ind_B;
+    int    PO_idx;
+    int    ind_F, ind_P, ind_C, ind_M, ind_L, ind_N, ind_B;
     string ind_option;
     // pdr
-    int pdr_M, pdr_F, pdr_C, pdr_D, pdr_Q, pdr_T, pdr_H, pdr_G, pdr_S;
+    int    pdr_M, pdr_F, pdr_C, pdr_D, pdr_Q, pdr_T, pdr_H, pdr_G, pdr_S;
     string pdr_option, pdr_L, pdr_I;
     // itp
-    int itp_C, itp_F, itp_T, itp_K;
+    int    itp_C, itp_F, itp_T, itp_K;
     string itp_option, itp_L, itp_I;
 
-    char fname[128];
+    char           fname[128];
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
-	// get filename, formal method (can keep doing error handling) 
-	size_t n = options.size();
+    // get filename, formal method (can keep doing error handling)
+    size_t n = options.size();
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
         // ------------------------------------------------------------------------------------------------------------------------ //
@@ -61,257 +59,458 @@ GVFormalVerifyCmd ::exec(const string& option) {
         // ------------------------------------------------------------------------------------------------------------------------ //
         if ((!ind) && (!pdr) && (!itp) && !myStrNCmp("-bmc", token, 4)) {
             // if no specify int_depth
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if int_depth not an integer 
-            else if (!strspn(options[i+1].c_str(), "0123456789")) 
-            {
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            }
+            // if int_depth not an integer
+            else if (!strspn(options[i + 1].c_str(), "0123456789")) {
                 cout << "[ERROR]: Please input an \"integer\" time frame for BMC (int_depth) !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            } else {
+                bmc       = true;
+                bmc_depth = stoi(options[i + 1]);
             }
-            else { bmc = true; bmc_depth = stoi(options[i+1]); }
         }
-        if (bmc && ((!myStrNCmp("-S", token, 2)) || (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-H", token, 2)) || (!myStrNCmp("-G", token, 2)) || (!myStrNCmp("-C", token, 2)) ||
-                   (!myStrNCmp("-D", token, 2)) || (!myStrNCmp("-J", token, 2)) || (!myStrNCmp("-I", token, 2)) || (!myStrNCmp("-P", token, 2)) || (!myStrNCmp("-Q", token, 2)) || (!myStrNCmp("-R", token, 2))))
-        {
+        if (bmc && ((!myStrNCmp("-S", token, 2)) || (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-H", token, 2)) || (!myStrNCmp("-G", token, 2)) ||
+                    (!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-D", token, 2)) || (!myStrNCmp("-J", token, 2)) || (!myStrNCmp("-I", token, 2)) ||
+                    (!myStrNCmp("-P", token, 2)) || (!myStrNCmp("-Q", token, 2)) || (!myStrNCmp("-R", token, 2)))) {
             // if no specify <num>
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if int_depth not an integer 
-            else if (!strspn(options[i+1].c_str(), "0123456789")) 
-            {
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            }
+            // if int_depth not an integer
+            else if (!strspn(options[i + 1].c_str(), "0123456789")) {
                 cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-            }
-            else 
-            { 
+            } else {
                 string bmc_sub_option;
-                if (!myStrNCmp("-S", token, 2)) { bmc_S = stoi(options[i+1]); bmc_sub_option = " -S " + to_string(bmc_S); }
-                else if (!myStrNCmp("-T", token, 2)) { bmc_T = stoi(options[i+1]); bmc_sub_option = " -T " + to_string(bmc_T); }
-                else if (!myStrNCmp("-H", token, 2)) { bmc_H = stoi(options[i+1]); bmc_sub_option = " -H " + to_string(bmc_H); }
-                else if (!myStrNCmp("-G", token, 2)) { bmc_G = stoi(options[i+1]); bmc_sub_option = " -G " + to_string(bmc_G); }
-                else if (!myStrNCmp("-C", token, 2)) { bmc_C = stoi(options[i+1]); bmc_sub_option = " -C " + to_string(bmc_C); }
-                else if (!myStrNCmp("-D", token, 2)) { bmc_D = stoi(options[i+1]); bmc_sub_option = " -D " + to_string(bmc_D); }
-                else if (!myStrNCmp("-J", token, 2)) { bmc_J = stoi(options[i+1]); bmc_sub_option = " -J " + to_string(bmc_J); }
-                else if (!myStrNCmp("-I", token, 2)) { bmc_I = stoi(options[i+1]); bmc_sub_option = " -I " + to_string(bmc_I); }
-                else if (!myStrNCmp("-P", token, 2)) { bmc_P = stoi(options[i+1]); bmc_sub_option = " -P " + to_string(bmc_P); }
-                else if (!myStrNCmp("-Q", token, 2)) { bmc_Q = stoi(options[i+1]); bmc_sub_option = " -Q " + to_string(bmc_Q); }
-                else if (!myStrNCmp("-R", token, 2)) { bmc_R = stoi(options[i+1]); bmc_sub_option = " -R " + to_string(bmc_R); } 
+                if (!myStrNCmp("-S", token, 2)) {
+                    bmc_S          = stoi(options[i + 1]);
+                    bmc_sub_option = " -S " + to_string(bmc_S);
+                } else if (!myStrNCmp("-T", token, 2)) {
+                    bmc_T          = stoi(options[i + 1]);
+                    bmc_sub_option = " -T " + to_string(bmc_T);
+                } else if (!myStrNCmp("-H", token, 2)) {
+                    bmc_H          = stoi(options[i + 1]);
+                    bmc_sub_option = " -H " + to_string(bmc_H);
+                } else if (!myStrNCmp("-G", token, 2)) {
+                    bmc_G          = stoi(options[i + 1]);
+                    bmc_sub_option = " -G " + to_string(bmc_G);
+                } else if (!myStrNCmp("-C", token, 2)) {
+                    bmc_C          = stoi(options[i + 1]);
+                    bmc_sub_option = " -C " + to_string(bmc_C);
+                } else if (!myStrNCmp("-D", token, 2)) {
+                    bmc_D          = stoi(options[i + 1]);
+                    bmc_sub_option = " -D " + to_string(bmc_D);
+                } else if (!myStrNCmp("-J", token, 2)) {
+                    bmc_J          = stoi(options[i + 1]);
+                    bmc_sub_option = " -J " + to_string(bmc_J);
+                } else if (!myStrNCmp("-I", token, 2)) {
+                    bmc_I          = stoi(options[i + 1]);
+                    bmc_sub_option = " -I " + to_string(bmc_I);
+                } else if (!myStrNCmp("-P", token, 2)) {
+                    bmc_P          = stoi(options[i + 1]);
+                    bmc_sub_option = " -P " + to_string(bmc_P);
+                } else if (!myStrNCmp("-Q", token, 2)) {
+                    bmc_Q          = stoi(options[i + 1]);
+                    bmc_sub_option = " -Q " + to_string(bmc_Q);
+                } else if (!myStrNCmp("-R", token, 2)) {
+                    bmc_R          = stoi(options[i + 1]);
+                    bmc_sub_option = " -R " + to_string(bmc_R);
+                }
                 bmc_option += bmc_sub_option;
             }
         }
-        if (bmc && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-W", token, 2))))
-        {
+        if (bmc && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-W", token, 2)))) {
             // if no specify <filename>
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            else 
-            { 
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            } else {
                 string bmc_sub_option;
-                if (!myStrNCmp("-L", token, 2)) { bmc_L = options[i+1]; bmc_sub_option = " -L " + bmc_L; }
-                if (!myStrNCmp("-W", token, 2)) { bmc_W = options[i+1]; bmc_sub_option = " -W " + bmc_W; }
+                if (!myStrNCmp("-L", token, 2)) {
+                    bmc_L          = options[i + 1];
+                    bmc_sub_option = " -L " + bmc_L;
+                }
+                if (!myStrNCmp("-W", token, 2)) {
+                    bmc_W          = options[i + 1];
+                    bmc_sub_option = " -W " + bmc_W;
+                }
                 bmc_option += bmc_sub_option;
             }
         }
-        if (bmc && ((!myStrNCmp("-a", token, 2)))) { bmc_option += " -a"; }
-        if (bmc && ((!myStrNCmp("-x", token, 2)))) { bmc_option += " -x"; }
-        if (bmc && ((!myStrNCmp("-d", token, 2)))) { bmc_option += " -d"; }
-        if (bmc && ((!myStrNCmp("-u", token, 2)))) { bmc_option += " -u"; }
-        if (bmc && ((!myStrNCmp("-r", token, 2)))) { bmc_option += " -r"; }
-        if (bmc && ((!myStrNCmp("-s", token, 2)))) { bmc_option += " -s"; }
-        if (bmc && ((!myStrNCmp("-g", token, 2)))) { bmc_option += " -g"; }
-        if (bmc && ((!myStrNCmp("-v", token, 2)))) { bmc_option += " -v"; }
-        if (bmc && ((!myStrNCmp("-z", token, 2)))) { bmc_option += " -z"; }
+        if (bmc && ((!myStrNCmp("-a", token, 2)))) {
+            bmc_option += " -a";
+        }
+        if (bmc && ((!myStrNCmp("-x", token, 2)))) {
+            bmc_option += " -x";
+        }
+        if (bmc && ((!myStrNCmp("-d", token, 2)))) {
+            bmc_option += " -d";
+        }
+        if (bmc && ((!myStrNCmp("-u", token, 2)))) {
+            bmc_option += " -u";
+        }
+        if (bmc && ((!myStrNCmp("-r", token, 2)))) {
+            bmc_option += " -r";
+        }
+        if (bmc && ((!myStrNCmp("-s", token, 2)))) {
+            bmc_option += " -s";
+        }
+        if (bmc && ((!myStrNCmp("-g", token, 2)))) {
+            bmc_option += " -g";
+        }
+        if (bmc && ((!myStrNCmp("-v", token, 2)))) {
+            bmc_option += " -v";
+        }
+        if (bmc && ((!myStrNCmp("-z", token, 2)))) {
+            bmc_option += " -z";
+        }
 
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                       k-induction
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!bmc) && (!itp) && (!pdr) && !myStrNCmp("-ind", token, 4)) 
-        { 
+        if ((!bmc) && (!itp) && (!pdr) && !myStrNCmp("-ind", token, 4)) {
             // if no specify <PO_idx>
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if PO_idx not an integer 
-            else if (!strspn(options[i+1].c_str(), "0123456789")) 
-            {
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            }
+            // if PO_idx not an integer
+            else if (!strspn(options[i + 1].c_str(), "0123456789")) {
                 cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            } else {
+                PO_idx = stoi(options[i + 1]);
             }
-            else { PO_idx = stoi(options[i+1]); }
-            ind = true; 
+            ind = true;
         }
         if (ind && ((!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-P", token, 2)) || (!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-M", token, 2)) ||
-                    (!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-N", token, 2)) || (!myStrNCmp("-B", token, 2))))
-        {
+                    (!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-N", token, 2)) || (!myStrNCmp("-B", token, 2)))) {
             // if no specify <num>
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if int_depth not an integer 
-            else if (!strspn(options[i+1].c_str(), "0123456789")) 
-            {
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            }
+            // if int_depth not an integer
+            else if (!strspn(options[i + 1].c_str(), "0123456789")) {
                 cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-            }
-            else 
-            { 
+            } else {
                 string ind_sub_option;
-                if (!myStrNCmp("-F", token, 2)) { ind_F = stoi(options[i+1]); ind_sub_option = " -F " + to_string(ind_F); }
-                else if (!myStrNCmp("-P", token, 2)) { ind_P = stoi(options[i+1]); ind_sub_option = " -P " + to_string(ind_P); }
-                else if (!myStrNCmp("-C", token, 2)) { ind_C = stoi(options[i+1]); ind_sub_option = " -C " + to_string(ind_C); }
-                else if (!myStrNCmp("-M", token, 2)) { ind_M = stoi(options[i+1]); ind_sub_option = " -M " + to_string(ind_M); }
-                else if (!myStrNCmp("-L", token, 2)) { ind_L = stoi(options[i+1]); ind_sub_option = " -L " + to_string(ind_L); }
-                else if (!myStrNCmp("-N", token, 2)) { ind_N = stoi(options[i+1]); ind_sub_option = " -N " + to_string(ind_N); }
-                else if (!myStrNCmp("-B", token, 2)) { ind_B = stoi(options[i+1]); ind_sub_option = " -B " + to_string(ind_B); }
+                if (!myStrNCmp("-F", token, 2)) {
+                    ind_F          = stoi(options[i + 1]);
+                    ind_sub_option = " -F " + to_string(ind_F);
+                } else if (!myStrNCmp("-P", token, 2)) {
+                    ind_P          = stoi(options[i + 1]);
+                    ind_sub_option = " -P " + to_string(ind_P);
+                } else if (!myStrNCmp("-C", token, 2)) {
+                    ind_C          = stoi(options[i + 1]);
+                    ind_sub_option = " -C " + to_string(ind_C);
+                } else if (!myStrNCmp("-M", token, 2)) {
+                    ind_M          = stoi(options[i + 1]);
+                    ind_sub_option = " -M " + to_string(ind_M);
+                } else if (!myStrNCmp("-L", token, 2)) {
+                    ind_L          = stoi(options[i + 1]);
+                    ind_sub_option = " -L " + to_string(ind_L);
+                } else if (!myStrNCmp("-N", token, 2)) {
+                    ind_N          = stoi(options[i + 1]);
+                    ind_sub_option = " -N " + to_string(ind_N);
+                } else if (!myStrNCmp("-B", token, 2)) {
+                    ind_B          = stoi(options[i + 1]);
+                    ind_sub_option = " -B " + to_string(ind_B);
+                }
                 ind_option += ind_sub_option;
             }
         }
 
-        if (ind && ((!myStrNCmp("-s", token, 2)))) { ind_option += " -s"; }
-        if (ind && ((!myStrNCmp("-b", token, 2)))) { ind_option += " -b"; }
-        if (ind && ((!myStrNCmp("-r", token, 2)))) { ind_option += " -r"; }
-        if (ind && ((!myStrNCmp("-t", token, 2)))) { ind_option += " -t"; }
-        if (ind && ((!myStrNCmp("-v", token, 2)))) { ind_option += " -v"; }       
+        if (ind && ((!myStrNCmp("-s", token, 2)))) {
+            ind_option += " -s";
+        }
+        if (ind && ((!myStrNCmp("-b", token, 2)))) {
+            ind_option += " -b";
+        }
+        if (ind && ((!myStrNCmp("-r", token, 2)))) {
+            ind_option += " -r";
+        }
+        if (ind && ((!myStrNCmp("-t", token, 2)))) {
+            ind_option += " -t";
+        }
+        if (ind && ((!myStrNCmp("-v", token, 2)))) {
+            ind_option += " -v";
+        }
 
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                           PDR
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!bmc) && (!ind) && (!itp) && !myStrNCmp("-pdr", token, 4)) { pdr = true; }
-        if (pdr && ((!myStrNCmp("-M", token, 2)) || (!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-D", token, 2)) || (!myStrNCmp("-Q", token, 2)) ||
-                   (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-H", token, 2)) || (!myStrNCmp("-G", token, 2)) || (!myStrNCmp("-S", token, 2))))
-        {
+        if ((!bmc) && (!ind) && (!itp) && !myStrNCmp("-pdr", token, 4)) {
+            pdr = true;
+        }
+        if (pdr && ((!myStrNCmp("-M", token, 2)) || (!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-D", token, 2)) ||
+                    (!myStrNCmp("-Q", token, 2)) || (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-H", token, 2)) || (!myStrNCmp("-G", token, 2)) ||
+                    (!myStrNCmp("-S", token, 2)))) {
             // if no specify <num>
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if int_depth not an integer 
-            else if (!strspn(options[i+1].c_str(), "0123456789")) 
-            {
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            }
+            // if int_depth not an integer
+            else if (!strspn(options[i + 1].c_str(), "0123456789")) {
                 cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-            }
-            else 
-            { 
+            } else {
                 string pdr_sub_option;
-                if (!myStrNCmp("-M", token, 2)) { pdr_M = stoi(options[i+1]); pdr_sub_option = " -M " + to_string(pdr_M); }
-                else if (!myStrNCmp("-F", token, 2)) { pdr_F = stoi(options[i+1]); pdr_sub_option = " -F " + to_string(pdr_F); }
-                else if (!myStrNCmp("-C", token, 2)) { pdr_C = stoi(options[i+1]); pdr_sub_option = " -C " + to_string(pdr_C); }
-                else if (!myStrNCmp("-D", token, 2)) { pdr_D = stoi(options[i+1]); pdr_sub_option = " -D " + to_string(pdr_D); }
-                else if (!myStrNCmp("-Q", token, 2)) { pdr_Q = stoi(options[i+1]); pdr_sub_option = " -Q " + to_string(pdr_Q); }
-                else if (!myStrNCmp("-T", token, 2)) { pdr_T = stoi(options[i+1]); pdr_sub_option = " -T " + to_string(pdr_T); }
-                else if (!myStrNCmp("-H", token, 2)) { pdr_H = stoi(options[i+1]); pdr_sub_option = " -H " + to_string(pdr_H); }
-                else if (!myStrNCmp("-G", token, 2)) { pdr_G = stoi(options[i+1]); pdr_sub_option = " -G " + to_string(pdr_G); }
-                else if (!myStrNCmp("-S", token, 2)) { pdr_S = stoi(options[i+1]); pdr_sub_option = " -S " + to_string(pdr_S); }
+                if (!myStrNCmp("-M", token, 2)) {
+                    pdr_M          = stoi(options[i + 1]);
+                    pdr_sub_option = " -M " + to_string(pdr_M);
+                } else if (!myStrNCmp("-F", token, 2)) {
+                    pdr_F          = stoi(options[i + 1]);
+                    pdr_sub_option = " -F " + to_string(pdr_F);
+                } else if (!myStrNCmp("-C", token, 2)) {
+                    pdr_C          = stoi(options[i + 1]);
+                    pdr_sub_option = " -C " + to_string(pdr_C);
+                } else if (!myStrNCmp("-D", token, 2)) {
+                    pdr_D          = stoi(options[i + 1]);
+                    pdr_sub_option = " -D " + to_string(pdr_D);
+                } else if (!myStrNCmp("-Q", token, 2)) {
+                    pdr_Q          = stoi(options[i + 1]);
+                    pdr_sub_option = " -Q " + to_string(pdr_Q);
+                } else if (!myStrNCmp("-T", token, 2)) {
+                    pdr_T          = stoi(options[i + 1]);
+                    pdr_sub_option = " -T " + to_string(pdr_T);
+                } else if (!myStrNCmp("-H", token, 2)) {
+                    pdr_H          = stoi(options[i + 1]);
+                    pdr_sub_option = " -H " + to_string(pdr_H);
+                } else if (!myStrNCmp("-G", token, 2)) {
+                    pdr_G          = stoi(options[i + 1]);
+                    pdr_sub_option = " -G " + to_string(pdr_G);
+                } else if (!myStrNCmp("-S", token, 2)) {
+                    pdr_S          = stoi(options[i + 1]);
+                    pdr_sub_option = " -S " + to_string(pdr_S);
+                }
                 pdr_option += pdr_sub_option;
             }
         }
-        if (pdr && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-I", token, 2))))
-        {
+        if (pdr && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-I", token, 2)))) {
             // if no specify <filename>
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            else 
-            { 
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            } else {
                 string pdr_sub_option;
-                if (!myStrNCmp("-L", token, 2)) { pdr_L = options[i+1]; pdr_sub_option = " -L " + pdr_L; }
-                if (!myStrNCmp("-I", token, 2)) { pdr_I = options[i+1]; pdr_sub_option = " -I " + pdr_I; }
+                if (!myStrNCmp("-L", token, 2)) {
+                    pdr_L          = options[i + 1];
+                    pdr_sub_option = " -L " + pdr_L;
+                }
+                if (!myStrNCmp("-I", token, 2)) {
+                    pdr_I          = options[i + 1];
+                    pdr_sub_option = " -I " + pdr_I;
+                }
                 pdr_option += pdr_sub_option;
             }
         }
-        if (pdr && ((!myStrNCmp("-a", token, 2)))) { pdr_option += " -a"; }
-        if (pdr && ((!myStrNCmp("-x", token, 2)))) { pdr_option += " -x"; }
-        if (pdr && ((!myStrNCmp("-r", token, 2)))) { pdr_option += " -r"; }
-        if (pdr && ((!myStrNCmp("-m", token, 2)))) { pdr_option += " -m"; }
-        if (pdr && ((!myStrNCmp("-u", token, 2)))) { pdr_option += " -u"; }
-        if (pdr && ((!myStrNCmp("-y", token, 2)))) { pdr_option += " -y"; }
-        if (pdr && ((!myStrNCmp("-f", token, 2)))) { pdr_option += " -f"; }
-        if (pdr && ((!myStrNCmp("-q", token, 2)))) { pdr_option += " -q"; }
-        if (pdr && ((!myStrNCmp("-i", token, 2)))) { pdr_option += " -i"; }
-        if (pdr && ((!myStrNCmp("-p", token, 2)))) { pdr_option += " -p"; }
-        if (pdr && ((!myStrNCmp("-d", token, 2)))) { pdr_option += " -d"; }
-        if (pdr && ((!myStrNCmp("-e", token, 2)))) { pdr_option += " -e"; }
-        if (pdr && ((!myStrNCmp("-g", token, 2)))) { pdr_option += " -g"; }
-        if (pdr && ((!myStrNCmp("-j", token, 2)))) { pdr_option += " -j"; }
-        if (pdr && ((!myStrNCmp("-o", token, 2)))) { pdr_option += " -o"; }
-        if (pdr && ((!myStrNCmp("-n", token, 2)))) { pdr_option += " -n"; }
-        if (pdr && ((!myStrNCmp("-c", token, 2)))) { pdr_option += " -c"; }
-        if (pdr && ((!myStrNCmp("-t", token, 2)))) { pdr_option += " -t"; }
-        if (pdr && ((!myStrNCmp("-k", token, 2)))) { pdr_option += " -k"; }
-        if (pdr && ((!myStrNCmp("-v", token, 2)))) { pdr_option += " -v"; }
-        if (pdr && ((!myStrNCmp("-w", token, 2)))) { pdr_option += " -w"; }
-        if (pdr && ((!myStrNCmp("-z", token, 2)))) { pdr_option += " -z"; }
+        if (pdr && ((!myStrNCmp("-a", token, 2)))) {
+            pdr_option += " -a";
+        }
+        if (pdr && ((!myStrNCmp("-x", token, 2)))) {
+            pdr_option += " -x";
+        }
+        if (pdr && ((!myStrNCmp("-r", token, 2)))) {
+            pdr_option += " -r";
+        }
+        if (pdr && ((!myStrNCmp("-m", token, 2)))) {
+            pdr_option += " -m";
+        }
+        if (pdr && ((!myStrNCmp("-u", token, 2)))) {
+            pdr_option += " -u";
+        }
+        if (pdr && ((!myStrNCmp("-y", token, 2)))) {
+            pdr_option += " -y";
+        }
+        if (pdr && ((!myStrNCmp("-f", token, 2)))) {
+            pdr_option += " -f";
+        }
+        if (pdr && ((!myStrNCmp("-q", token, 2)))) {
+            pdr_option += " -q";
+        }
+        if (pdr && ((!myStrNCmp("-i", token, 2)))) {
+            pdr_option += " -i";
+        }
+        if (pdr && ((!myStrNCmp("-p", token, 2)))) {
+            pdr_option += " -p";
+        }
+        if (pdr && ((!myStrNCmp("-d", token, 2)))) {
+            pdr_option += " -d";
+        }
+        if (pdr && ((!myStrNCmp("-e", token, 2)))) {
+            pdr_option += " -e";
+        }
+        if (pdr && ((!myStrNCmp("-g", token, 2)))) {
+            pdr_option += " -g";
+        }
+        if (pdr && ((!myStrNCmp("-j", token, 2)))) {
+            pdr_option += " -j";
+        }
+        if (pdr && ((!myStrNCmp("-o", token, 2)))) {
+            pdr_option += " -o";
+        }
+        if (pdr && ((!myStrNCmp("-n", token, 2)))) {
+            pdr_option += " -n";
+        }
+        if (pdr && ((!myStrNCmp("-c", token, 2)))) {
+            pdr_option += " -c";
+        }
+        if (pdr && ((!myStrNCmp("-t", token, 2)))) {
+            pdr_option += " -t";
+        }
+        if (pdr && ((!myStrNCmp("-k", token, 2)))) {
+            pdr_option += " -k";
+        }
+        if (pdr && ((!myStrNCmp("-v", token, 2)))) {
+            pdr_option += " -v";
+        }
+        if (pdr && ((!myStrNCmp("-w", token, 2)))) {
+            pdr_option += " -w";
+        }
+        if (pdr && ((!myStrNCmp("-z", token, 2)))) {
+            pdr_option += " -z";
+        }
 
         // ------------------------------------------------------------------------------------------------------------------------ //
         //                                                           ITP
         // ------------------------------------------------------------------------------------------------------------------------ //
-        if ((!bmc) && (!ind) && (!pdr) && !myStrNCmp("-itp", token, 4)) { itp = true; }
-        if (itp && ((!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-K", token, 2))))
-        {
+        if ((!bmc) && (!ind) && (!pdr) && !myStrNCmp("-itp", token, 4)) {
+            itp = true;
+        }
+        if (itp && ((!myStrNCmp("-C", token, 2)) || (!myStrNCmp("-F", token, 2)) || (!myStrNCmp("-T", token, 2)) || (!myStrNCmp("-K", token, 2)))) {
             // if no specify <num>
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            // if int_depth not an integer 
-            else if (!strspn(options[i+1].c_str(), "0123456789")) 
-            {
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            }
+            // if int_depth not an integer
+            else if (!strspn(options[i + 1].c_str(), "0123456789")) {
                 cout << "[ERROR]: Please input an \"integer\" for options !" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-            }
-            else 
-            { 
+            } else {
                 string itp_sub_option;
-                if (!myStrNCmp("-C", token, 2)) { itp_C = stoi(options[i+1]); itp_sub_option = " -C " + to_string(itp_C); }
-                else if (!myStrNCmp("-F", token, 2)) { itp_F = stoi(options[i+1]); itp_sub_option = " -F " + to_string(itp_F); }
-                else if (!myStrNCmp("-T", token, 2)) { itp_T = stoi(options[i+1]); itp_sub_option = " -T " + to_string(itp_T); }
-                else if (!myStrNCmp("-K", token, 2)) { itp_K = stoi(options[i+1]); itp_sub_option = " -K " + to_string(itp_K); }
+                if (!myStrNCmp("-C", token, 2)) {
+                    itp_C          = stoi(options[i + 1]);
+                    itp_sub_option = " -C " + to_string(itp_C);
+                } else if (!myStrNCmp("-F", token, 2)) {
+                    itp_F          = stoi(options[i + 1]);
+                    itp_sub_option = " -F " + to_string(itp_F);
+                } else if (!myStrNCmp("-T", token, 2)) {
+                    itp_T          = stoi(options[i + 1]);
+                    itp_sub_option = " -T " + to_string(itp_T);
+                } else if (!myStrNCmp("-K", token, 2)) {
+                    itp_K          = stoi(options[i + 1]);
+                    itp_sub_option = " -K " + to_string(itp_K);
+                }
                 itp_option += itp_sub_option;
             }
         }
-        if (itp && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-I", token, 2))))
-        {
+        if (itp && ((!myStrNCmp("-L", token, 2)) || (!myStrNCmp("-I", token, 2)))) {
             // if no specify <filename>
-            if ((i+1) >= n) { return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token); }
-            else 
-            { 
+            if ((i + 1) >= n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, token);
+            } else {
                 string itp_sub_option;
-                if (!myStrNCmp("-L", token, 2)) { itp_L = options[i+1]; itp_sub_option = " -L " + itp_L; }
-                if (!myStrNCmp("-I", token, 2)) { itp_I = options[i+1]; itp_sub_option = " -I " + itp_I; }
+                if (!myStrNCmp("-L", token, 2)) {
+                    itp_L          = options[i + 1];
+                    itp_sub_option = " -L " + itp_L;
+                }
+                if (!myStrNCmp("-I", token, 2)) {
+                    itp_I          = options[i + 1];
+                    itp_sub_option = " -I " + itp_I;
+                }
                 itp_option += itp_sub_option;
             }
         }
-        if (itp && ((!myStrNCmp("-i", token, 2)))) { itp_option += " -i"; }
-        if (itp && ((!myStrNCmp("-r", token, 2)))) { itp_option += " -r"; }
-        if (itp && ((!myStrNCmp("-t", token, 2)))) { itp_option += " -t"; }
-        if (itp && ((!myStrNCmp("-p", token, 2)))) { itp_option += " -p"; }
-        if (itp && ((!myStrNCmp("-o", token, 2)))) { itp_option += " -o"; }
-        if (itp && ((!myStrNCmp("-m", token, 2)))) { itp_option += " -m"; }
-        if (itp && ((!myStrNCmp("-c", token, 2)))) { itp_option += " -c"; }
-        if (itp && ((!myStrNCmp("-g", token, 2)))) { itp_option += " -g"; }
-        if (itp && ((!myStrNCmp("-b", token, 2)))) { itp_option += " -b"; }
-        if (itp && ((!myStrNCmp("-q", token, 2)))) { itp_option += " -q"; }
-        if (itp && ((!myStrNCmp("-k", token, 2)))) { itp_option += " -k"; }
-        if (itp && ((!myStrNCmp("-d", token, 2)))) { itp_option += " -d"; }
-        if (itp && ((!myStrNCmp("-v", token, 2)))) { itp_option += " -v"; }
+        if (itp && ((!myStrNCmp("-i", token, 2)))) {
+            itp_option += " -i";
+        }
+        if (itp && ((!myStrNCmp("-r", token, 2)))) {
+            itp_option += " -r";
+        }
+        if (itp && ((!myStrNCmp("-t", token, 2)))) {
+            itp_option += " -t";
+        }
+        if (itp && ((!myStrNCmp("-p", token, 2)))) {
+            itp_option += " -p";
+        }
+        if (itp && ((!myStrNCmp("-o", token, 2)))) {
+            itp_option += " -o";
+        }
+        if (itp && ((!myStrNCmp("-m", token, 2)))) {
+            itp_option += " -m";
+        }
+        if (itp && ((!myStrNCmp("-c", token, 2)))) {
+            itp_option += " -c";
+        }
+        if (itp && ((!myStrNCmp("-g", token, 2)))) {
+            itp_option += " -g";
+        }
+        if (itp && ((!myStrNCmp("-b", token, 2)))) {
+            itp_option += " -b";
+        }
+        if (itp && ((!myStrNCmp("-q", token, 2)))) {
+            itp_option += " -q";
+        }
+        if (itp && ((!myStrNCmp("-k", token, 2)))) {
+            itp_option += " -k";
+        }
+        if (itp && ((!myStrNCmp("-d", token, 2)))) {
+            itp_option += " -d";
+        }
+        if (itp && ((!myStrNCmp("-v", token, 2)))) {
+            itp_option += " -v";
+        }
     }
 
-    // command 
-    char Command[1024], inname[128], formal_option[1024];
-    string cmd = "";
+    // command
+    char   Command[1024], inname[128], formal_option[1024];
+    string cmd         = "";
     string aigFileName = gvModMgr->getAigFileName();
     strcpy(inname, aigFileName.c_str());
-    if (bmc) { strcpy(formal_option, bmc_option.c_str()); }
-    if (pdr) { strcpy(formal_option, pdr_option.c_str()); }
-    if (itp) { strcpy(formal_option, itp_option.c_str()); }
-    if (ind) { strcpy(formal_option, ind_option.c_str()); }
-
-    sprintf( Command, "read %s", inname ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
-    sprintf( Command, "strash" ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
-
-    // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
-    if (bmc) { cout << "\nSuccess: bmc " << endl; sprintf( Command, "bmc3 -F %d%s", bmc_depth, formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    else if (pdr) { cout << "\nSuccess: pdr " << endl; sprintf( Command, "pdr%s", formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    else if (itp) { cout << "\nSuccess: itp " << endl; sprintf( Command, "int%s", formal_option ); Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); }
-    else if (ind) 
-    { 
-        cout << "\nSuccess: k-induction " << endl; 
-        // extract PO
-        sprintf( Command, "cone -O %d -s", PO_idx ); 
-        Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command ); 
-        // do k-induction
-        sprintf( Command, "indcut %s", formal_option ); 
-        Cmd_CommandExecute( abcMgr->get_Abc_Frame_t(), Command );
+    if (bmc) {
+        strcpy(formal_option, bmc_option.c_str());
+    }
+    if (pdr) {
+        strcpy(formal_option, pdr_option.c_str());
+    }
+    if (itp) {
+        strcpy(formal_option, itp_option.c_str());
+    }
+    if (ind) {
+        strcpy(formal_option, ind_option.c_str());
     }
 
-    if ((!bmc) && (!pdr) && (!itp) && (!ind)) { cout << "\n[ERROR]: Please specify a formal technique ([-bmc <int_depth> | -ind <PO_idx> | -pdr | -itp ])" << endl; } 
+    sprintf(Command, "read %s", inname);
+    Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+    sprintf(Command, "strash");
+    Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+
+    // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
+    if (bmc) {
+        cout << "\nSuccess: bmc " << endl;
+        sprintf(Command, "bmc3 -F %d%s", bmc_depth, formal_option);
+        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+    } else if (pdr) {
+        cout << "\nSuccess: pdr " << endl;
+        sprintf(Command, "pdr%s", formal_option);
+        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+    } else if (itp) {
+        cout << "\nSuccess: itp " << endl;
+        sprintf(Command, "int%s", formal_option);
+        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+    } else if (ind) {
+        cout << "\nSuccess: k-induction " << endl;
+        // extract PO
+        sprintf(Command, "cone -O %d -s", PO_idx);
+        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+        // do k-induction
+        sprintf(Command, "indcut %s", formal_option);
+        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+    }
+
+    if ((!bmc) && (!pdr) && (!itp) && (!ind)) {
+        cout << "\n[ERROR]: Please specify a formal technique ([-bmc <int_depth> | -ind <PO_idx> | -pdr | -itp ])" << endl;
+    }
     return GV_CMD_EXEC_DONE;
 }
 
@@ -344,7 +543,7 @@ GVFormalVerifyCmd ::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "\t-g       : toggle using Glucose 3.0 by Gilles Audemard and Laurent Simon" << endl;
     gvMsg(GV_MSG_IFO) << "\t-v       : toggle verbose output" << endl;
     gvMsg(GV_MSG_IFO) << "\t-z       : toggle suppressing report about solved outputs" << endl;
-    
+
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                       k-induction
     // ------------------------------------------------------------------------------------------------------------------------ //
@@ -402,7 +601,7 @@ GVFormalVerifyCmd ::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "\t-v       : toggle printing optimization summary" << endl;
     gvMsg(GV_MSG_IFO) << "\t-w       : toggle printing detailed stats" << endl;
     gvMsg(GV_MSG_IFO) << "\t-z       : toggle suppressing report about solved outputs" << endl;
-    
+
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           ITP
     // ------------------------------------------------------------------------------------------------------------------------ //
@@ -432,7 +631,8 @@ GVFormalVerifyCmd ::usage(const bool& verbose) const {
 
 void
 GVFormalVerifyCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "Formal Verify: " << "Use options to execute specific formal engine." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "Formal Verify: "
+                      << "Use options to execute specific formal engine." << endl;
 }
 
 #endif

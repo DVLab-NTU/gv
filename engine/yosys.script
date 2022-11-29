@@ -13,7 +13,7 @@ sed -i "s/ENABLE_LIBYOSYS := 0/ENABLE_LIBYOSYS := 1/g" Makefile;
 sed -i "s/-Wl,-soname,\$(LIBDIR)\/libyosys.so//g" Makefile;
 
 # make "yosys" shared library 
-make config-gcc; make -j12;
+make config-gcc; make -j12; make install;
 
 # create gv_src/ directory
 mkdir gv_src;
@@ -24,6 +24,12 @@ mv libyosys.so gv_src/;
 # copy "yosys" header files to gv_src/ directory
 cp -rf share/include/kernel gv_src/;
 
+# back to gv0/
+cd ../../
+
+# create the the yosys-config symbolink
+ln -fs engine/yosys/yosys-config ./yosys-config
+
 # go to src/eng and create symbol link
 echo "Creating softlink from engine/yosys/gv_src to src/eng/yosys ...";
-cd ../../src/eng; ln -fs ../../engine/yosys/gv_src ./yosys
+cd ./src/eng/; ln -fs ../../engine/yosys/gv_src ./yosys
