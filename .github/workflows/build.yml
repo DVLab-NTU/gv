@@ -10,9 +10,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Replace ./gv  
+    - name: Modify INSTALL.sh
       run: |
-        sed -i "s/.\/gv;//g" ./INSTALL.sh
+        sed -i "s/ clear; .\/gv;//g" ./INSTALL.sh
         
     - name: Install Dependencies
       shell: bash
