@@ -507,7 +507,6 @@ void vec_swap(vector<obj_similarity_t>& vec, int i, int j)
 
 void abcAigMgr::simlirarity(char* filename) {
     Abc_Ntk_t *pNtk2;
-    // Aig_Man_t *pAig1, *pAig2;
     Aig_ManCut_t* pManCut1, *pManCut2;
     Aig_Obj_t * pObj1, *pObj2;
     Aig_Cut_t * pCut1, *pCut2;
@@ -549,47 +548,6 @@ void abcAigMgr::simlirarity(char* filename) {
     // build the lookup table
     buildSimilarityLookup(lookupTable);
 
-    // Aig_ManForEachNodeReverse(pAig1, pObj1, i)
-    // {
-    //     cout << "Obj " << pObj1->Id << endl;
-    //     cout <<  "phase = " << Aig_IsComplement(pObj1) << endl;
-    //     cout << "\tfanin0 " << Aig_ObjFanin0(pObj1)->Id <<  " ,phase = " << Aig_ObjFaninC0(pObj1) << endl;
-    //     cout << "\tfanin1 " << Aig_ObjFanin1(pObj1)->Id <<  " ,phase = " << Aig_ObjFaninC1(pObj1) << endl;
-    //     cout << " value ";
-    //     convertToBinary2(simValue1[pObj1->Id], num_words);
-    //     cout << endl;
-    // }
-    // Aig_ManForEachCi(pAig1, pObj1, i)
-    // {
-    //     cout << "Ci " << pObj1->Id << endl;
-    //     cout << " value ";
-    //     convertToBinary2(simValue1[pObj1->Id], num_words);
-    //     cout << endl;
-    // }
-    // cout << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=" << endl;
-    // Aig_ManForEachNodeReverse(pAig2, pObj1, i)
-    // {
-    //     cout << "Obj " << pObj1->Id << endl;
-    //     cout <<  "phase = " << Aig_IsComplement(pObj1) << endl;
-    //     cout << "\tfanin0 " << Aig_ObjFanin0(pObj1)->Id <<  " ,phase = " << Aig_ObjFaninC0(pObj1) << endl;
-    //     cout << "\tfanin1 " << Aig_ObjFanin1(pObj1)->Id <<  " ,phase = " << Aig_ObjFaninC1(pObj1) << endl;
-    //     cout << " value ";
-    //     convertToBinary2(simValue2[pObj1->Id], num_words);
-    //     cout << endl;
-    // }
-    // Aig_ManForEachCi(pAig2, pObj1, i)
-    // {
-    //     cout << "Ci " << pObj1->Id << endl;
-    //     cout << " value ";
-    //     convertToBinary2(simValue2[pObj1->Id], num_words);
-    //     cout << endl;
-    // }
-
-
-    // enumerate cuts for both Ntks
-    cout << "enumerating cuts..." << endl;
-    // pManCut1 = Aig_EnumerateCuts(pAig1, 50, 10, 0, 0);
-    // pManCut2 = Aig_EnumerateCuts(pAig2, 50, 10, 0, 0);
 
 
     // find high similarity cuts
@@ -630,20 +588,10 @@ void abcAigMgr::simlirarity(char* filename) {
         match_priority.push_back(tmp_obj_similarity);
     }
     sort(match_priority.begin(), match_priority.end(), similarity_vec_compare);
-    // Aig_ManForEachNodeReverse( pAig1, pObj1, i )
-    // {
-    //     if(Aig_ManLevelNum(pAig1) == Aig_ObjLevel(pObj1)) continue; // we don't compute the similarity of CO
-    //     for(j = 0; j < Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2); ++j)
-    //     {
-    //         // cout << "j = " << j << endl;
-    //         cout << "node1 " << pObj1->Id << " node2 " << similarity_table[pObj1->Id][j].first << " similarity " << similarity_table[pObj1->Id][j].second << endl;
-    //     }
-    // }
     
     Aig_ManIncrementTravId(pAig2);
     for(i = 0; i < Aig_ManNodeNum(pAig1) - Aig_ManCoNum(pAig1); ++i)
     {
-        // cout << match_priority[i].first << " " << match_priority[i].second << endl;
         for(j = 0; j < Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2); ++j)
         {
             if(Aig_ObjIsTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first))) continue;
@@ -664,7 +612,6 @@ void abcAigMgr::simlirarity(char* filename) {
             Aig_ManIncrementTravId(pAig2);
             for(i = 0; i < Aig_ManNodeNum(pAig1) - Aig_ManCoNum(pAig1); ++i)
             {
-                // cout << match_priority[i].first << " " << match_priority[i].second << endl;
                 for(j = 0; j < Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2); ++j)
                 {
                     if(Aig_ObjIsTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first))) continue;
@@ -690,7 +637,6 @@ void abcAigMgr::cutMatching() {
         if(Aig_ManLevelNum(pAig1) == Aig_ObjLevel(pObj1)) continue; // we don't compute the similarity of CO
         for(j = 0; j < Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2); ++j)
         {
-            // cout << "j = " << j << endl;
             cout << "node1 " << pObj1->Id << " node2 " << similarity_table[pObj1->Id][j].first << " similarity " << similarity_table[pObj1->Id][j].second << endl;
         }
     }
