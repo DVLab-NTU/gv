@@ -7,12 +7,15 @@
 #include "util.h"
 #include <fstream>
 #include <string>
+#include "gvVerilator.hpp"
 
 #include "gvNtk.h"
 bool
 GVinitSimCmd() {
     return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) && gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
-            gvCmdMgr->regCmd("CRP G", 3, 1, new GVCRPG));
+            gvCmdMgr->regCmd("CRP G", 3, 1, new GVCRPG) &&
+            gvCmdMgr->regCmd("Verilator Env", 1, 1, new GVVerilatorEnv) &&
+            gvCmdMgr->regCmd("Verilator Read", 1, 1, new GVVerilatorRead));
 }
 
 //----------------------------------------------------------------------
@@ -331,5 +334,52 @@ void
 GVCRPG ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "CRPG: "
                       << "Constrained Random Pattern Generation" << endl;
+}
+
+//----------------------------------------------------------------------
+// Verilator Env.
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVVerilatorEnv::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "[INFO] I am GVVerilatorEnv" << endl;
+    gvMsg(GV_MSG_IFO) << "[INFO] Compile file -> " << gvModMgr->getInputFileName() << endl;
+    system("mkdir obj_dir");
+    getDesignInfo();
+    genInterfaceFile();
+    verilogModeling(option);
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVVerilatorEnv::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: Verilator Env" << endl;
+}
+
+void
+GVVerilatorEnv::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "Verilator Env: "
+                      << "Build Verilator Environment for simulation use." << endl;
+}
+//----------------------------------------------------------------------
+// Verilator Read
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVVerilatorRead::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "[INFO] I am GVVerilatorRead" << endl;
+    verilator_readPattern();
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVVerilatorRead::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: Verilator Read" << endl;
+}
+
+void
+GVVerilatorRead::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "Verilator Read: "
+                      << "Read pattern from shared memory." << endl;
 }
 #endif

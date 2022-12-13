@@ -17,10 +17,10 @@
 #include <verilated.h>
 
 //#include "svdpi.h"
-#include "Vtest.h"
-#include "Vtest___024root.h"
+#include "Vtestf.h"
+#include "Vtestf___024root.h"
 #include "interface.hpp"
-//#include "Vtest__Dpi.h"
+//#include "Vtestf__Dpi.h"
 
 //#include "NumCpp.hpp"
 
@@ -28,7 +28,7 @@ class Simulator{
 public:
     Simulator():
         contextp(std::make_unique<VerilatedContext>()),
-        duv(std::make_unique<Vtest>()),
+        duv(std::make_unique<Vtestf>()),
         count(0)
     {
         contextp->debug(0);
@@ -41,7 +41,7 @@ public:
     }
     
     std::unique_ptr<VerilatedContext> contextp;
-    std::unique_ptr<Vtest> duv;
+    std::unique_ptr<Vtestf> duv;
     Interface *signalMap;
     long long unsigned count;
     
@@ -130,6 +130,19 @@ public:
                 piPattern.push_back(*(QData*)(signalMap->pi[i]->value));
             else
                 piPattern.push_back(*(SData*)(signalMap->pi[i]->value));
+        }
+    };
+
+    void getPoPattern(std::vector<unsigned> &poPattern){
+        for(unsigned i=0; i<signalMap->po.size(); i++){
+            if(signalMap->po[i]->getType() == 'C')
+                poPattern.push_back(*(CData*)(signalMap->po[i]->value));
+            else if(signalMap->po[i]->getType() == 'I')
+                poPattern.push_back(*(IData*)(signalMap->po[i]->value));
+            else if(signalMap->po[i]->getType() == 'Q')
+                poPattern.push_back(*(QData*)(signalMap->po[i]->value));
+            else
+                poPattern.push_back(*(SData*)(signalMap->po[i]->value));
         }
     };
     

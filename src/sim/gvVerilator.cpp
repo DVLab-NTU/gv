@@ -7,8 +7,53 @@
 #include "gvMsg.h"
 #include "gvNtk.h"
 #include "json.hpp"
+#include <sys/types.h>
+#include <sys/shm.h>
+#include <sys/ipc.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+
 
 using json = nlohmann::json;
+
+void verilator_readPattern(){
+    int shmid;
+    key_t key;
+    char *shm, *s;
+
+    // IPC - Shared Memory
+    key= 7899;
+    shmid= shmget(key, 1, 0666);
+    if(shmid == -1) {
+        cout << strerror(errno) << endl;;
+        perror("Error in Shared Memory get statement");
+        exit(1);
+    }
+
+    shm= (char*) shmat(shmid, NULL, 0);
+    if(shm == (char*) -1) {
+        cout << strerror(errno) << endl;
+        perror("Error in Shared Memory attachment");
+        exit(1);
+    }
+
+    string pattern_str(shm);
+    cout << "[GV] Read Pattern => " << pattern_str << endl;
+    *shm= '*';
+}
+
+void verilator_reset(){
+    // IPC - Shared Memory
+    int shmid;
+    key_t key;
+    char *shm, *s;
+
+    key= 109;
+    shmid= shmget(key, 482, 0666);
+
+}
 
 // Extracting all key from map
 vector<string>
@@ -221,7 +266,7 @@ genInterfaceFile(){
         output_file << endl;
         output_file << "class Interface{" << endl;
         output_file << "public:" << endl;
-        output_file << "\tInterface( Vtest___024root* rootp ){" << endl;
+        output_file << "\tInterface( Vtestf___024root* rootp ){" << endl;
         output_file << "\t\t// Primary Input" << endl;
         for (string pi : input_vec){
             size_t clk_found = pi.find("clk");
@@ -243,7 +288,7 @@ genInterfaceFile(){
         // Search registers
         output_file << "\t\t// Registers" << endl;
         smatch m;
-        regex reg_line ("gvEx");
+        regex reg_line ("gvEx_r");
         for (string reg : output_vec){
             regex_search(reg, m, reg_line);
             if (!m.empty())
@@ -326,3 +371,5 @@ genAssertionFile(vector<string> assertion_vec){
     output_file << "};" << endl;
     output_file << "#endif /* assertion_hpp */" << endl;
 }
+
+
