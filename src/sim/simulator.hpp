@@ -78,6 +78,11 @@ public:
             return *(QData*)(signalMap->pi[index]->value);
         return *(SData*)(signalMap->pi[index]->value);
     }
+
+    std::string getPiName(unsigned index){
+        return signalMap->pi[index]->name;
+    }
+
     unsigned getPO(unsigned index){
         if(signalMap->po[index]->getType() == 'C')
             return *(CData*)(signalMap->po[index]->value);
@@ -87,6 +92,11 @@ public:
             return *(QData*)(signalMap->po[index]->value);
         return *(SData*)(signalMap->po[index]->value);
     }
+
+    std::string getPoName(unsigned index){
+        return signalMap->po[index]->name;
+    }
+
     unsigned getREG(unsigned index){
         if(signalMap->reg[index]->getType() == 'C')
             return *(CData*)(signalMap->reg[index]->value);
@@ -96,6 +106,11 @@ public:
             return *(QData*)(signalMap->reg[index]->value);
         return *(SData*)(signalMap->reg[index]->value);
     }
+
+    std::string getRegName(unsigned index){
+        return signalMap->reg[index]->name;
+    }
+
     void getRegPattern(std::vector<unsigned> &regPattern){
         for(unsigned i=0; i<signalMap->reg.size(); i++){
             if(signalMap->reg[i]->getType() == 'C')
