@@ -1,22 +1,22 @@
 #ifndef GV_AIG_MGR_H
 #define GV_AIG_MGR_H
 
-#include <vector>
-#include "gvAbcNtk.h"
 #include "base/abc/abc.h"
 #include "base/main/main.h"
 #include "base/main/mainInt.h"
+#include "gvAbcNtk.h"
+#include <vector>
 
 using namespace std;
 
 class abcAigMgr;
 
-typedef struct Abc_Frame_t_ Abc_Frame_t;
-typedef struct Abc_Ntk_t_ Abc_Ntk_t;
-typedef struct Abc_Obj_t_ Abc_Obj_t;
-typedef struct Aig_Obj_t_ Aig_Obj_t;
-typedef struct Aig_ManCut_t_ Aig_ManCut_t;
-typedef struct Aig_Cut_t_ Aig_Cut_t;
+typedef struct Abc_Frame_t_          Abc_Frame_t;
+typedef struct Abc_Ntk_t_            Abc_Ntk_t;
+typedef struct Abc_Obj_t_            Abc_Obj_t;
+typedef struct Aig_Obj_t_            Aig_Obj_t;
+typedef struct Aig_ManCut_t_         Aig_ManCut_t;
+typedef struct Aig_Cut_t_            Aig_Cut_t;
 typedef pair<Aig_Cut_t*, Aig_Cut_t*> cut_pair_t;
 typedef pair<float, float> similarity_t;
 typedef pair<int, float> obj_similarity_t; // The first element is similarity, the second element is node Id
@@ -53,27 +53,26 @@ class abcAigMgr
         void            simlirarity( char* ); // find the similarity of the cuts in the two circuits
         void            cutMatching();
 
-    
     private:
-        Abc_Frame_t*             pAbc;
-        Abc_Ntk_t*               pNtk;
-        Aig_Man_t*               pMan;
-        
+        Abc_Frame_t* pAbc;
+        Abc_Ntk_t*   pNtk;
+        Aig_Man_t*   pMan;
 
         // for AIG
-        Aig_Obj_t**              PI_List;    
-        Aig_Obj_t**              PO_List; 
-        Aig_Obj_t**              DFS_List;
-        unsigned                 Total_num; // number of aigobj
-        unsigned                 PI_num;
-        unsigned                 PO_num;
-        unsigned                 Node_num; 
+        Aig_Obj_t** PI_List;
+        Aig_Obj_t** PO_List;
+        Aig_Obj_t** DFS_List;
+        unsigned    Total_num; // number of aigobj
+        unsigned    PI_num;
+        unsigned    PO_num;
+        unsigned    Node_num;
 
         // for cut sat
         cut_pair_t*              pCutPair;      
         similarity_vec_t*        similarity_table; 
         Aig_Man_t                *pAig1, *pAig2;
         int*                     match_table;          
+
 
 };
 #endif

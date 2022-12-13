@@ -1,20 +1,18 @@
 #ifndef GV_SIM_CMD_C
 #define GV_SIM_CMD_C
 
-#include "gvMsg.h"
 #include "gvSimCmd.h"
-#include "gvAbcMgr.h"                                                                                                           
-#include <string>
+#include "gvAbcMgr.h"
+#include "gvMsg.h"
 #include "util.h"
 #include <fstream>
+#include <string>
 
 #include "gvNtk.h"
-bool GVinitSimCmd() {
-    return (
-         gvCmdMgr->regCmd("RAndom Sim",   2, 1, new GVRandomSimCmd   ) &&
-         gvCmdMgr->regCmd("SEt SAfe"  ,   2, 2, new GVRandomSetSafe  ) &&
-         gvCmdMgr->regCmd("CRP G",        3, 1, new GVCRPG)
-    );
+bool
+GVinitSimCmd() {
+    return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) && gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
+            gvCmdMgr->regCmd("CRP G", 3, 1, new GVCRPG));
 }
 
 //----------------------------------------------------------------------
@@ -32,7 +30,7 @@ GVRandomSimCmd ::exec(const string& option) {
 
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
-    command += "-top " + yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
+    command += "-top " + yosys_design->top_module()->name.str().substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
         if (myStrNCmp("-v", token, 1) == 0) {
@@ -70,7 +68,7 @@ GVRandomSimCmd ::exec(const string& option) {
         }
         if (myStrNCmp("-input", token, 1) == 0) {
             ++i;
-            in_file_name = options[i];
+            in_file_name  = options[i];
             file_name_set = true;
             command += " -input " + in_file_name;
             continue;
@@ -97,13 +95,11 @@ GVRandomSimCmd ::exec(const string& option) {
     // load the random_sim plugin in yosys
     run_pass("plugin -i ./src/ext/sim.so");
 
-    if(!file_name_set)
-        command += " -input " + gvModMgr -> getInputFileName();
+    if (!file_name_set) command += " -input " + gvModMgr->getInputFileName();
     // cout << "safe  =========================== " + gvModMgr -> getSafe() << endl;
-    if(gvModMgr -> getSafe() != -1)
-        command += " -safe " + std::to_string((gvModMgr -> getSafe()));
+    if (gvModMgr->getSafe() != -1) command += " -safe " + std::to_string((gvModMgr->getSafe()));
 
-    cout << command <<"\n";
+    cout << command << "\n";
     // execute "random_sim" command
     run_pass(command);
     return GV_CMD_EXEC_DONE;
@@ -111,12 +107,15 @@ GVRandomSimCmd ::exec(const string& option) {
 
 void
 GVRandomSimCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: RAndom Sim <-input file_name.v> [sim_cycle num_cycle_sim] [-rst rst_name] [-rst_n rst_n_name] [-clk clk_name] [-output out_file_name] [-v verbose print result] [-file stimulus]" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: RAndom Sim <-input file_name.v> [sim_cycle num_cycle_sim] [-rst rst_name] [-rst_n rst_n_name] [-clk clk_name] "
+                         "[-output out_file_name] [-v verbose print result] [-file stimulus]"
+                      << endl;
 }
 
 void
 GVRandomSimCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "RAndom Sim: " << "Conduct random simulation and print the results." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "RAndom Sim: "
+                      << "Conduct random simulation and print the results." << endl;
 }
 
 //----------------------------------------------------------------------
@@ -130,12 +129,11 @@ GVRandomSetSafe::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
-    if(options.size() != 1)
-    {
+    if (options.size() != 1) {
         gvMsg(GV_MSG_IFO) << "Please enter a valid value!" << endl;
         return GV_CMD_EXEC_DONE;
     }
-    gvModMgr -> setSafe(stoi(options[0]));
+    gvModMgr->setSafe(stoi(options[0]));
     return GV_CMD_EXEC_DONE;
 }
 
@@ -146,7 +144,8 @@ GVRandomSetSafe::usage(const bool& verbose) const {
 
 void
 GVRandomSetSafe::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt SAfe: " << "Set safe rpoperty for random sim." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt SAfe: "
+                      << "Set safe rpoperty for random sim." << endl;
 }
 
 //----------------------------------------------------------------------
@@ -155,54 +154,53 @@ GVRandomSetSafe::help() const {
 
 // simplest mkdir
 void
-GVmkdir(const string& folder_path){
+GVmkdir(const string& folder_path) {
     string remove_cmd = "rm -fr " + folder_path;
-    string build_cmd = "mkdir -p " + folder_path;
+    string build_cmd  = "mkdir -p " + folder_path;
     system(remove_cmd.c_str());
     system(build_cmd.c_str());
 }
 
 // Extract filename
-string 
-extractFileName(const string& fullPath){
-  const size_t lastSlashIndex = fullPath.find_last_of("/\\");
-  return fullPath.substr(lastSlashIndex + 1);
+string
+extractFileName(const string& fullPath) {
+    const size_t lastSlashIndex = fullPath.find_last_of("/\\");
+    return fullPath.substr(lastSlashIndex + 1);
 }
 
 // Reformat assertion
 vector<string>
-CRPG_reformatAssertion(vector<string> assertion_vec, string input_path, string output_path){
+CRPG_reformatAssertion(vector<string> assertion_vec, string input_path, string output_path) {
     gvMsg(GV_MSG_IFO) << "[INFO] Reformat the file => " << input_path << endl;
     ifstream input_file(input_path);
     ofstream output_file(output_path);
-    string line;
-    string assertion_info;
-    string result;
-    regex assertion_line ("assert\s*\\((.*)\\)\s*;");
-    regex assertion_word ("assert");
-    regex semicolon_regex(";");
-    smatch m;
-    string top_module = yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
-    string dpi_template = \
-    "// DPI Header\
+    string   line;
+    string   assertion_info;
+    string   result;
+    regex    assertion_line("assert\s*\\((.*)\\)\s*;");
+    regex    assertion_word("assert");
+    regex    semicolon_regex(";");
+    smatch   m;
+    string   top_module    = yosys_design->top_module()->name.str().substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
+    string   dpi_template  = "// DPI Header\
     \rimport \"DPI-C\" function void set_assert_flag (input int index);\
     \rimport \"DPI-C\" function void set_constraint_flag (input int index);\
     \rimport \"DPI-C\" function void set_stable_flag (input int index);\n";
-    int line_num = 1;
-    int assertion_cnt = assertion_vec.size();
+    int      line_num      = 1;
+    int      assertion_cnt = assertion_vec.size();
 
-    if (top_module + ".v" == extractFileName(input_path)){
+    if (top_module + ".v" == extractFileName(input_path)) {
         output_file << dpi_template << endl;
     }
-    while(getline(input_file, line)){
+    while (getline(input_file, line)) {
         regex_search(line, m, assertion_line);
-        if (!m.empty()){   
-            result = regex_replace(line, assertion_word, "Assertion_" + to_string(assertion_cnt));
-            result = regex_replace(result, semicolon_regex, " else set_assert_flag\(" + to_string(assertion_cnt) + "\)");
+        if (!m.empty()) {
+            result         = regex_replace(line, assertion_word, "Assertion_" + to_string(assertion_cnt));
+            result         = regex_replace(result, semicolon_regex, " else set_assert_flag\(" + to_string(assertion_cnt) + "\)");
             assertion_info = input_path + ", " + to_string(assertion_cnt) + ", " + to_string(line_num) + ", " + m[1].str();
             assertion_vec.push_back(assertion_info);
-            //cout << assertion_info << endl;
-            //cout << result << endl;
+            // cout << assertion_info << endl;
+            // cout << result << endl;
             assertion_cnt += 1;
         }
         output_file << line << endl;
@@ -210,13 +208,13 @@ CRPG_reformatAssertion(vector<string> assertion_vec, string input_path, string o
     }
     input_file.close();
     output_file.close();
-    gvMsg(GV_MSG_IFO) << "[INFO] Finish => "  << output_path << endl;
+    gvMsg(GV_MSG_IFO) << "[INFO] Finish => " << output_path << endl;
     return assertion_vec;
 }
 
 // Generate hpp file for verilator
 void
-CRPG_genAssertionFile(string output_path, vector<string> assertion_vec){
+CRPG_genAssertionFile(string output_path, vector<string> assertion_vec) {
     ofstream output_file(output_path);
     output_file << "#ifndef assertion_hpp" << endl;
     output_file << "#define assertion_hpp" << endl;
@@ -224,7 +222,7 @@ CRPG_genAssertionFile(string output_path, vector<string> assertion_vec){
     output_file << "class Assertion{" << endl;
     output_file << "public:" << endl;
     output_file << "\tAssertion(){" << endl;
-    for(string assertion : assertion_vec){
+    for (string assertion : assertion_vec) {
         output_file << "\t\tassertion.emplace(assertion.end(), " << assertion << ")" << endl;
     }
     output_file << "\t}" << endl;
@@ -235,7 +233,7 @@ CRPG_genAssertionFile(string output_path, vector<string> assertion_vec){
 
 // CRPG step 1. Initialize
 void
-CRPG_init(string build_path, string work_path){
+CRPG_init(string build_path, string work_path) {
     gvMsg(GV_MSG_IFO) << "[INFO] Initializing build file" << endl;
     GVmkdir(build_path);
     GVmkdir(work_path);
@@ -243,7 +241,7 @@ CRPG_init(string build_path, string work_path){
 
 // CRPG step 2. Extract RTL info
 void
-CRPG_getDesignInfo(string top_module, string build_path){
+CRPG_getDesignInfo(string top_module, string build_path) {
     gvMsg(GV_MSG_IFO) << "[INFO] Extracting information from design" << endl;
     run_pass("prep -top " + top_module);
     run_pass("proc_clean");
@@ -261,54 +259,53 @@ CRPG_getDesignInfo(string top_module, string build_path){
 
 // CRPG step 3. DUT preprocessing
 void
-CRPG_dutPreprocessing(string build_path, vector<string> filelist){
+CRPG_dutPreprocessing(string build_path, vector<string> filelist) {
     gvMsg(GV_MSG_IFO) << "[INFO] DUT preprocessing..." << endl;
-    ofstream ofs_assertion_hpp;
+    ofstream       ofs_assertion_hpp;
     vector<string> assertion_vec;
-    
-    //vector<RTLIL::Module*> modules_vec = yosys_design->modules().to_vector();
-    //for(int i= 0; i< modules_vec.size(); i++){
-    //    cout << modules_vec[i]->name.str() << endl;
-    //}
-    for (string file : filelist){    
+
+    // vector<RTLIL::Module*> modules_vec = yosys_design->modules().to_vector();
+    // for(int i= 0; i< modules_vec.size(); i++){
+    //     cout << modules_vec[i]->name.str() << endl;
+    // }
+    for (string file : filelist) {
         assertion_vec = CRPG_reformatAssertion(assertion_vec, file, build_path + "/" + extractFileName(file));
     }
 
     CRPG_genAssertionFile(build_path + "/obj_dir/assertion.hpp", assertion_vec);
-
 }
 
 GVCmdExecStatus
 GVCRPG ::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "[INFO] I am GVCRPG " << endl;
-    
-    string top_module = yosys_design->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
-    
-    string curr_path = getcwd(NULL, 0);
+
+    string top_module = yosys_design->top_module()->name.str().substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
+
+    string curr_path  = getcwd(NULL, 0);
     string build_path = curr_path + "/build";
-    string work_path = curr_path + "/work";
-    
+    string work_path  = curr_path + "/work";
+
     // temp
     vector<string> options;
     vector<string> filelist;
-    string line;
+    string         line;
     GVCmdExec::lexOptions(option, options);
     ifstream input_file(options[1]);
 
-    if (myStrNCmp("-f", options[0], 1) == 0) {   
-        while (getline(input_file, line)){
-        filelist.push_back(line);
+    if (myStrNCmp("-f", options[0], 1) == 0) {
+        while (getline(input_file, line)) {
+            filelist.push_back(line);
         }
     }
     input_file.close();
-    
+
     // Step 1. Initialize
-    //CRPG_init(build_path, work_path);
+    // CRPG_init(build_path, work_path);
     // Step 2. Extract RTL info
-    //CRPG_getDesignInfo(top_module, build_path);
+    // CRPG_getDesignInfo(top_module, build_path);
     // Step 3. DUT preprocessing
     CRPG_dutPreprocessing(build_path, filelist);
-    
+
     /*
     // TODO
     // 3. Use verilator to generate C++ simulator code
@@ -332,6 +329,7 @@ GVCRPG ::usage(const bool& verbose) const {
 
 void
 GVCRPG ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "CRPG: " << "Constrained Random Pattern Generation" << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "CRPG: "
+                      << "Constrained Random Pattern Generation" << endl;
 }
 #endif

@@ -7,10 +7,9 @@ using namespace std;
 class AbcMgr;
 class abcNtkMgr;
 typedef struct Abc_Frame_t_ Abc_Frame_t;
-typedef struct Abc_Ntk_t_ Abc_Ntk_t;
-typedef struct Abc_Obj_t_ Abc_Obj_t;
-typedef struct Aig_Obj_t_ Aig_Obj_t;
-
+typedef struct Abc_Ntk_t_   Abc_Ntk_t;
+typedef struct Abc_Obj_t_   Abc_Obj_t;
+typedef struct Aig_Obj_t_   Aig_Obj_t;
 
 class abcNtkMgr
 {
@@ -19,22 +18,22 @@ class abcNtkMgr
         ~abcNtkMgr() {}
 
         void init();
-        
-        void        sweep(bool);
 
-        void        printSummary() const;
-        Abc_Ntk_t * getNtk() { return pNtk; }
-    
+        void sweep(bool);
+
+        void       printSummary() const;
+        Abc_Ntk_t* getNtk() { return pNtk; }
+
     private:
-        Abc_Ntk_t*               pNtk;
-        static AbcMgr*           _AbcMgr;
+        Abc_Ntk_t*     pNtk;
+        static AbcMgr* _AbcMgr;
 
-        vector<Abc_Obj_t*>       PI_List;
-        vector<Abc_Obj_t*>       PO_List; 
-        vector<Abc_Obj_t*>       DFS_List;     
-        unsigned                 Total_num;
-        unsigned                 PI_num;
-        unsigned                 PO_num;
-        unsigned                 Node_num; 
+        vector<Abc_Obj_t*> PI_List;
+        vector<Abc_Obj_t*> PO_List;
+        vector<Abc_Obj_t*> DFS_List;
+        unsigned           Total_num;
+        unsigned           PI_num;
+        unsigned           PO_num;
+        unsigned           Node_num;
 };
 #endif
