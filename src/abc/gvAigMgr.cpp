@@ -3,10 +3,15 @@
 
 #include "gvAigMgr.h"
 #include "aig/aig/aig.h"
+#include <stdlib.h>  
+#include <time.h>
+#include <math.h>
+#include <algorithm>
 #include "proof/fraig/fraig.h"
 #include "rnGen.h"
 #include <iomanip>
 #include <iostream>
+using namespace std;
 
 typedef struct Fraig_ParamsStruct_t_ Fraig_Params_t;
 
@@ -311,114 +316,306 @@ aigRandomSim(Aig_Man_t* pMan, size_t* simValue) {
     tmpAigMgr->simTraversal(vNodes, simValue, 0);
 }
 
-void
-abcAigMgr::set_similarity_lookup() {
-    // new the dynamic array
-    similarity_lookup = new size_t*[256];
-    size_t tmp_i, tmp_j;
-    for (size_t i = 0; i < 256; ++i) {
-        similarity_lookup[i] = new size_t[256];
+void abcAigMgr::simTraversal2( Vec_Ptr_t* vNodes, size_t** simValue, size_t num_words, bool verbose)
+{
+	int j;
+    size_t fa0, fa1;
+    Aig_Obj_t* pObj;
+    for(size_t i = 0; i < num_words; ++i) {
+        Vec_PtrForEachEntry(Aig_Obj_t*, vNodes, pObj, j) {
+            if (Aig_ObjIsAnd(pObj)) {
+                fa0 = simValue[Aig_ObjFaninId0(pObj)][i];
+                fa1 = simValue[Aig_ObjFaninId1(pObj)][i];
+                if (Aig_ObjFaninC0(pObj)) fa0 = ~fa0;
+                if (Aig_ObjFaninC1(pObj)) fa1 = ~fa1;
+                simValue[Aig_ObjId(pObj)][i] = fa0 & fa1;
+            }
+            else if (Aig_ObjIsCo(pObj)) {
+                fa0 = simValue[Aig_ObjFaninId0(pObj)][i];
+                if (Aig_ObjFaninC0(pObj)) fa0 = ~fa0;
+                simValue[Aig_ObjId(pObj)][i] = fa0;
+            }
+        }
+    }
+    
+}
+
+
+void aigRandomSim2( Aig_Man_t *pMan1, Aig_Man_t *pMan2, size_t** simValue1, size_t** simValue2, size_t num_words) {
+    assert(pMan1->nObjs[AIG_OBJ_CI] == pMan2->nObjs[AIG_OBJ_CI]); // the CI of two circuits should be matched
+    int i, j;
+    Aig_Obj_t* pObj;
+    abcAigMgr* tmpAigMgr;
+    
+    RandomNumGen2  rnGen(3);
+    Vec_Ptr_t* vNodes1 = Vec_PtrAlloc(Aig_ManObjNum(pMan1)); // create a vector of the size of aigobj
+    Vec_Ptr_t* vNodes2 = Vec_PtrAlloc(Aig_ManObjNum(pMan2)); // create a vector of the size of aigobj
+    vNodes1 = Aig_ManDfsAll(pMan1); // get all the nodes in aig
+    vNodes2 = Aig_ManDfsAll(pMan2); // get all the nodes in aig
+    
+
+    // initialize sim values to be 0
+    for (unsigned i = 0; i < Aig_ManObjNum(pMan1); ++i) {
+        for (unsigned j = 0; j < Aig_ManObjNum(pMan1); ++j) {
+            simValue1[i][j] = 0;
+            simValue2[i][j] = 0;
+        }
     }
 
-    for (size_t i = 0; i < 256; ++i) {
-        for (size_t j = 0; j < 256; ++j) {
-            similarity_lookup[i][j] = 0;
-            tmp_i                   = i;
-            tmp_j                   = j;
-            for (size_t k = 0; k < 8; ++k) {
-                similarity_lookup[i][j] += (tmp_i % 2 == tmp_j % 2);
-                tmp_i >>= 1;
-                tmp_j >>= 1;
+    unsigned pos = 64;
+    size_t** sim_64;
+  	sim_64 = new size_t* [Aig_ManCiNum(pMan1)] ();
+    for(unsigned i = 0; i < Aig_ManCiNum(pMan1); ++i) {
+        sim_64[i] = new size_t [num_words] ();
+    }
+    random_vec_t random_vec;
+    for (unsigned i = 0; i < Aig_ManCiNum(pMan1) ; ++i) {
+        random_vec = rnGen(num_words);
+        for(unsigned j = 0; j < num_words; ++j){
+            sim_64[i][j] =  (random_vec[j]);
+        }
+    }
+
+    for(unsigned i = 0; i < num_words; ++i) {
+        Aig_ManForEachCi(pMan1, pObj, j)
+        {
+            simValue1[pObj->Id][i] =  sim_64[j][i];
+        }
+    }
+
+    for(unsigned i = 0; i < num_words; ++i) {
+        Aig_ManForEachCi(pMan2, pObj, j)
+        {
+            simValue2[pObj->Id][i] =  sim_64[j][i];
+            sim_64[j][i] = 0;
+        }
+    }
+    tmpAigMgr->simTraversal2(vNodes1, simValue1, num_words, 0);
+    tmpAigMgr->simTraversal2(vNodes2, simValue2, num_words, 0);
+}
+
+void buildSimilarityLookup(size_t* lookupTable)
+{
+    // lookupTable = new size_t* [sizeof(size_t)];
+    size_t tmp = 0;
+    
+    for(size_t i = 0; i < pow(2, sizeof(size_t) * 2); ++i)
+    {
+        lookupTable[i] = 0;
+        tmp = i;
+        for(size_t j = 0; j < sizeof(size_t) * 2; ++j)
+        {
+            if(tmp % 2 == 1)
+            {
+                ++lookupTable[i];
+            }
+            tmp >>= 1;
+        }
+    }
+}
+
+void convertToBinary2(size_t* n, size_t num_words)
+{
+    size_t tmp;
+    for(size_t i = 0; i < num_words; ++i)
+    {
+        tmp = n[i];
+        for(size_t j = 0; j < sizeof(size_t) * 8; ++j)
+        {
+            if(tmp == 0)
+                printf("0");
+            else{
+                printf("%d", tmp % 2);
+                tmp /= 2;
             }
         }
     }
 }
 
-void
-abcAigMgr::delete_similarity_lookup() {
-    // new the dynamic array
-    size_t tmp_i, tmp_j;
-    for (size_t i = 0; i < 256; ++i) {
-        delete[] similarity_lookup[i];
+similarity_t computeSimilarityOf2Nodes(const size_t* sim1, const size_t* sim2, const size_t* output1, const size_t* output2, const size_t * lookupTable, size_t num_words)
+{
+    size_t count = 0, num_bit = sizeof(size_t) * 8, cofactor_count = 0, good_vector_count = 0;
+    similarity_t similarity;
+    size_t equal, miter, good_vector;
+    size_t mask[4];
+    // const size_t * sim1 = sim_1, * sim2 = sim_2, * output1 = output_1, * output2 = output_2;
+    mask[0] = pow(2, sizeof(size_t) * 2) - 1;
+    mask[1] = pow(2, sizeof(size_t) * 4) - pow(2, sizeof(size_t) * 2);
+    mask[2] = pow(2, sizeof(size_t) * 6) - pow(2, sizeof(size_t) * 4);
+    mask[3] = pow(2, sizeof(size_t) * 8) - pow(2, sizeof(size_t) * 6);
+    
+    for(size_t i = 0; i < num_words; ++i)
+    {
+        equal = ~(sim1[i] ^ sim2[i]);
+        miter = ~(output1[i] ^ output2[i]);
+        good_vector = equal & miter;
+        for(size_t j = 0; j < 4; ++j)
+        {
+            count += lookupTable[(good_vector & mask[j]) >> (j * sizeof(size_t) * 2)];
+            cofactor_count += lookupTable[(equal & mask[j]) >> (j * sizeof(size_t) * 2)];
+            good_vector_count += lookupTable[(miter & mask[j]) >> (j * sizeof(size_t) * 2)];
+        }
     }
-    delete[] similarity_lookup;
+    // cout << "] cofactor equal count = " << cofactor_count << " miter equal count  " << good_vector_count << endl;
+    if(!cofactor_count)
+        similarity.first = 0;
+    else
+        similarity.first = float(count) / float(cofactor_count);
+    if(!good_vector_count)
+        similarity.second = 0;
+    else
+        similarity.second = float(count) / float(good_vector_count);
+    return similarity;
 }
 
-float
-abcAigMgr::computeSimilarityOf2Nodes(size_t sim1, size_t sim2) {
-    int count = 0, num_bit = sizeof(size_t) * 4;
-    for (size_t i = 0; i < num_bit / 8; ++i) {
-        count += similarity_lookup[sim1 % 256][sim2 % 256];
-        sim1 >>= 8;
-        sim2 >>= 8;
-    }
-
-    return float(count) / float(num_bit);
+bool similarity_vec_compare(obj_similarity_t obj1, obj_similarity_t obj2)
+{
+    return obj1.second > obj2.second;
 }
 
-void
-abcAigMgr::simlirarity(char* filename) {
-    Abc_Ntk_t*    pNtk2;
-    Aig_Man_t *   pAig1, *pAig2;
-    Aig_ManCut_t *pManCut1, *pManCut2;
-    Aig_Obj_t *   pObj1, *pObj2;
-    Aig_Cut_t *   pCut1, *pCut2;
-    size_t *      simValue1, *simValue2;
-    int           i, j, k, l, m, n, num_candidate = 0, max_candidate = 10000;
-    float         similarity = 0;
-    bool          stop       = false;
+void vec_swap(vector<obj_similarity_t>& vec, int i, int j)
+{
+    obj_similarity_t tmp = vec[i];
+    vec[i] = vec[j];
+    vec[j] = tmp;
 
-    pCutPair = new cut_pair_t[max_candidate];
+}
 
-    set_similarity_lookup(); // setup simulation lookup table
-
-    pNtk2 = Io_Read(filename, IO_FILE_AIGER, 0, 0);
+void abcAigMgr::simlirarity(char* filename) {
+    Abc_Ntk_t *pNtk2;
+    Aig_ManCut_t* pManCut1, *pManCut2;
+    Aig_Obj_t * pObj1, *pObj2;
+    Aig_Cut_t * pCut1, *pCut2;
+    size_t ** simValue1, **simValue2;
+    int i, j;
+    similarity_t similarity;
+    bool stop = false;
+    size_t* lookupTable;
+    size_t num_words = 1000; // number of words simulated
+    clock_t time_start;
+    obj_similarity_t tmp_obj_similarity;
+    lookupTable = new size_t[(size_t)pow(2, sizeof(size_t) * 2)];
+   
+    pNtk2 = Io_Read(filename, IO_FILE_VERILOG, 0, 0);
+    pNtk2 = Abc_NtkStrash(pNtk2, 0, 1, 0);
     pAig1 = Abc_NtkToDar(pNtk, 0, 1);
     pAig2 = Abc_NtkToDar(pNtk2, 0, 1);
 
     //  cout << "creating arrays" << Aig_ManObjNum(pAig1) << " " << Aig_ManObjNum(pAig1) << " " <<endl;
-    simValue1 = new size_t[Aig_ManObjNum(pAig1)]; // create an array to record the result of simulation
-    simValue2 = new size_t[Aig_ManObjNum(pAig2)]; // create an array to record the result of simulation
+    similarity_table = new similarity_vec_t [Aig_ManObjNum(pAig1)];
+    simValue1 = new size_t* [Aig_ManObjNum(pAig1)]; // create an array to record the result of simulation
+    simValue2 = new size_t* [Aig_ManObjNum(pAig2)]; // create an array to record the result of simulation
+    for(i = 0; i < Aig_ManObjNum(pAig1); ++i)
+    {
+        simValue1[i] = new size_t [num_words];
+    }
+    for(i = 0; i < Aig_ManObjNum(pAig2); ++i)
+    {
+        simValue2[i] = new size_t [num_words];
+    }
     // cout << "arrays completed" << endl;
 
-    // enumerate cuts for both Ntks
-    cout << "enumerating cuts..." << endl;
-    pManCut1 = Aig_EnumerateCuts(pAig1, 50, 10, 0, 0);
-    pManCut2 = Aig_EnumerateCuts(pAig2, 50, 10, 0, 0);
-
     // do randomsim for cut similarity
-    cout << "doing random simulation..." << endl;
-    aigRandomSim(pAig1, simValue1);
-    aigRandomSim(pAig2, simValue2);
+    cout << "doing random simulation with " << num_words << " words!" << endl;
+    time_start = clock();
+    aigRandomSim2(pAig1, pAig2, simValue1, simValue2, num_words);
+    cout << "simulation is completed in " <<  float(clock() - time_start) / CLOCKS_PER_SEC << " seconds" << endl;
+
+    // build the lookup table
+    buildSimilarityLookup(lookupTable);
+
+
 
     // find high similarity cuts
     cout << "computing similarity..." << endl;
-    Aig_ManForEachNode(pAig1, pObj1, i) {
-        Aig_ManForEachNode(pAig2, pObj2, j) {
-            similarity = computeSimilarityOf2Nodes(simValue1[pObj1->Id], simValue2[pObj2->Id]);
-            if (similarity > 0.85) {
-                Aig_ObjForEachCut(pManCut1, pObj1, pCut1, k) {
-                    if (pCut1->nFanins == 0) continue;
-                    Aig_ObjForEachCut(pManCut2, pObj2, pCut2, k) {
-                        if (pCut2->nFanins == 0 || pCut1->nFanins != pCut2->nFanins) continue;
-                        pCutPair[num_candidate].first  = pCut1;
-                        pCutPair[num_candidate].second = pCut2;
-                        ++num_candidate;
-                        if (num_candidate >= max_candidate) {
-                            stop = true;
-                            break;
-                        }
-                    }
-                    if (stop) break;
-                    // TODO bmGateWay();
-                }
-            }
-            if (stop) break;
+    time_start = clock();
+    Aig_ManForEachNodeReverse( pAig1, pObj1, i )
+    {
+        // cout << Aig_ManLevelNum(pAig1) << " " << Aig_ObjLevel(pObj1) << endl;
+        if(Aig_ManLevelNum(pAig1) == Aig_ObjLevel(pObj1)) continue; // we don't compute the similarity of CO
+        Aig_ManForEachNodeReverse( pAig2, pObj2, j )
+        {
+            if(Aig_ManLevelNum(pAig2) == Aig_ObjLevel(pObj2)) continue; // we don't compute the similarity of CO
+            // cout << "[r1 n" << pObj1->Id << "] [r2 n" << pObj2->Id;
+            similarity = computeSimilarityOf2Nodes(simValue1[pObj1->Id], simValue2[pObj2->Id], simValue1[Aig_ManCo(pAig1, 0)->Id], simValue2[Aig_ManCo(pAig2, 0)->Id], lookupTable, num_words);
+            tmp_obj_similarity.second = similarity.first;
+            tmp_obj_similarity.first = pObj2->Id;
+            similarity_table[pObj1->Id].push_back(tmp_obj_similarity);
+            // cout << similarity_table[pObj1->Id].back().first << " " << similarity_table[pObj1->Id].back().second << endl;
+            // cout << "similarity cofactor = " << similarity.first << " similarity good vector " << similarity.second<< endl;
         }
         if (stop) break;
     }
-    cout << num_candidate << " equivalent candidates found!!!" << endl;
-    delete_similarity_lookup();
+    for(i = 0; i < Aig_ManObjNum(pAig1); ++i)
+    {
+        sort(similarity_table[i].begin(), similarity_table[i].end(), similarity_vec_compare);
+    }
+    cout << "similarity is completed in " <<  float(clock() - time_start) / CLOCKS_PER_SEC << " seconds" << endl;
+
+
+    match_table = new int[Aig_ManObjNum(pAig1)];
+    vector<obj_similarity_t> match_priority;
+    vector<obj_similarity_t> match_priority_copy;
+    Aig_ManForEachNodeReverse( pAig1, pObj1, i )
+    {
+        if(Aig_ManLevelNum(pAig1) == Aig_ObjLevel(pObj1)) continue;
+        tmp_obj_similarity.second = similarity_table[pObj1->Id].front().second;
+        tmp_obj_similarity.first = pObj1 -> Id;
+        match_priority.push_back(tmp_obj_similarity);
+    }
+    sort(match_priority.begin(), match_priority.end(), similarity_vec_compare);
+    
+    Aig_ManIncrementTravId(pAig2);
+    for(i = 0; i < Aig_ManNodeNum(pAig1) - Aig_ManCoNum(pAig1); ++i)
+    {
+        for(j = 0; j < Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2); ++j)
+        {
+            if(Aig_ObjIsTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first))) continue;
+            match_table[match_priority[i].first] = similarity_table[match_priority[i].first][j].first;
+            Aig_ObjSetTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first));
+            cout << match_priority[i].first << " " << similarity_table[match_priority[i].first][j].first << endl;
+            break;
+        }
+    }
+    cout << "=======================================================" << endl;
+    match_priority_copy = match_priority;
+    for(int m = Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2) - 1; m > 0; --m)
+    {
+        match_priority = match_priority_copy;
+        for(int n = m; n > 0; --n)
+        {
+            vec_swap(match_priority, n - 1, n);
+            Aig_ManIncrementTravId(pAig2);
+            for(i = 0; i < Aig_ManNodeNum(pAig1) - Aig_ManCoNum(pAig1); ++i)
+            {
+                for(j = 0; j < Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2); ++j)
+                {
+                    if(Aig_ObjIsTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first))) continue;
+                    match_table[match_priority[i].first] = similarity_table[match_priority[i].first][j].first;
+                    Aig_ObjSetTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first));
+                    cout << match_priority[i].first << " " << similarity_table[match_priority[i].first][j].first << endl;
+                    break;
+                }
+            }
+            cout << "=======================================================" << endl;
+        }
+    }
+    
+}
+
+void abcAigMgr::cutMatching() {
+    int i, j;
+    Aig_Obj_t * pObj1, *pObj2;
+    similarity_vec_t match_queue;
+    obj_similarity_t tmp_obj_similarity;
+    Aig_ManForEachNodeReverse( pAig1, pObj1, i )
+    {
+        if(Aig_ManLevelNum(pAig1) == Aig_ObjLevel(pObj1)) continue; // we don't compute the similarity of CO
+        for(j = 0; j < Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2); ++j)
+        {
+            cout << "node1 " << pObj1->Id << " node2 " << similarity_table[pObj1->Id][j].first << " similarity " << similarity_table[pObj1->Id][j].second << endl;
+        }
+    }
 }
 
 #endif
