@@ -1,5 +1,6 @@
 #include "gvModMgr.h"
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -14,10 +15,12 @@ GVModMgr::GVModMgr() {
     _propertySet    = false;
     _inputFileName  = "";
     _aig_name       = "";
-    _gvMode         = GVModType::GV_MOD_TYPE_SETUP;     // default mode   :  Setup
-    _gvEng          = GVModEngine::GV_MOD_ENGINE_YOSYS; // default engine :  yosys
-    _vrfMode        = {GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON, GV_CMD_TYPE_MOD};
-    _setupMode      = {GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_VERIFY};
+    _gvMode         = GVModType::GV_MOD_TYPE_SETUP; // default mode   :  Setup
+    _gvEng     = GVModEngine::GV_MOD_ENGINE_YOSYS;  // default engine :  yosys
+    _vrfMode   = {GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON,
+                  GV_CMD_TYPE_MOD};
+    _setupMode = {GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_VERIFY};
+    _wizard    = false;
     setModPromt();
 }
 
@@ -78,13 +81,36 @@ GVModMgr::getGVEngine() {
 
 string
 GVModMgr::getModPrompt() {
-    setModPromt(); // update mod prompt
+    setModPromt(); // update mode prompt
     return _modPrompt;
 }
 
 int
 GVModMgr::getSafe() {
     return _property;
+}
+
+void
+GVModMgr::printWizardPrompt(int promptStart, int promptLength) {
+    /*string prompt_r1 =
+        " ==================================================\n\n";
+    vector<string> prompt_content = {
+        "       Welcome to the GV tutorial wizard !!\n            (press enter "
+        "to continue)\n\n",
+        "STEP 1\n\n",
+        "STEP 2\n\n",
+        "STEP 3\n\n",
+        "STEP 4\n\n",
+        "STEP 5\n\n",
+        "STEP 6\n\n"};
+
+    string newPrompt = prompt_r1 + prompt_content[promptPos] + prompt_r1;
+    cout << prompt_r1 << setfill(' ')
+         << setw((50 - prompt_content[promptPos].size()) / 2) << ' '
+         << prompt_content[promptPos] << prompt_r1;*/
+    int idx = 0;
+    // cout << promptStart << " -> " << promptLength << "\n";
+    while (idx++ < promptLength) cout << _wizardContent[promptStart++] << "\n";
 }
 
 /* ------------------------- *\
@@ -120,11 +146,17 @@ GVModMgr::setGVEngine(GVModEngine engine) {
 }
 void
 GVModMgr::setModPromt() {
-    if (_gvMode == GVModType::GV_MOD_TYPE_SETUP) _modPrompt = GVEngineString[_gvEng] + GVModTypeString[_gvMode];
+    if (_gvMode == GVModType::GV_MOD_TYPE_SETUP)
+        _modPrompt = GVEngineString[_gvEng] + GVModTypeString[_gvMode];
     else _modPrompt = GVModTypeString[_gvMode];
 }
 void
 GVModMgr::setSafe(int p) {
     _property    = p;
     _propertySet = true;
+}
+
+void
+GVModMgr::setWizardContent(string prompt) {
+    _wizardContent.push_back(prompt);
 }

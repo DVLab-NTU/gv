@@ -128,9 +128,8 @@ class GVCmdMgr
         void closeDofile() { _dofile.close(); _dofile.clear(); }
 
         inline const string& getPrompt() const { return _prompt; }
-        inline void setPrompt() { 
-            //_prompt = _defaultPrompt + "> "; 
-            _prompt = gvModMgr->getModPrompt() + "> "; 
+        inline void setPrompt() {
+            _prompt = gvModMgr->getModPrompt() + "> ";
         }
     
     private :

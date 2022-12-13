@@ -5,5 +5,6 @@
 #include "gvModMgr.h"
 
 GV_COMMAND(GVSetSystemCmd, GV_CMD_TYPE_MOD);
+GV_COMMAND(GVSetWizardCmd, GV_CMD_TYPE_MOD);
 
 #endif

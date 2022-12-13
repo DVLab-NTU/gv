@@ -303,7 +303,7 @@ GVCmdMgr::parseCmd(string& option) {
       }
       for (idx = 0; idx < str.size(); ++idx) { if (str[idx] == ' ') break; }
       _cmd = str.substr(0, idx);
-      if ((_cmd == "ls") || (_cmd == "vi") || (_cmd == "vim") || (_cmd == "echo") || (_cmd == "cat")) 
+      if ((_cmd == "ls") || (_cmd == "vi") || (_cmd == "vim") || (_cmd == "echo") || (_cmd == "cat") || (_cmd == "clear")) 
          system(str.c_str());
       else gvMsg(GV_MSG_ERR) << "Illegal command!! (" << str << ")" << endl;
    }
