@@ -114,6 +114,12 @@ public:
         return signalMap->reg[index]->name;
     }
 
+    void getAllPattern(vector<unsigned> &AllPattern){
+        getPiPattern(AllPattern);
+        getRegPattern(AllPattern);
+        getPoPattern(AllPattern);
+    }
+
     void getRegPattern(vector<unsigned> &regPattern){
         for(unsigned i=0; i<signalMap->reg.size(); i++){
             if(signalMap->reg[i]->getType() == 'C')
@@ -223,6 +229,44 @@ public:
         }
     };
     
+    void setAllPattern(vector<unsigned> &AllPattern){
+        cout << "[INFO] Verilator - setAllPattern (size=" << AllPattern.size() << ")" << endl;
+        unsigned i, j=0;
+        for(i=0; i<getPiNum(); i++){
+            if(signalMap->pi[i]->getType() == 'C')
+                *(CData*)(signalMap->pi[i]->value) = AllPattern[j];
+            else if(signalMap->pi[i]->getType() == 'I')
+                *(IData*)(signalMap->pi[i]->value) = AllPattern[j];
+            else if(signalMap->pi[i]->getType() == 'Q')
+                *(QData*)(signalMap->pi[i]->value) = AllPattern[j];
+            else
+                *(SData*)(signalMap->pi[i]->value) = AllPattern[j];
+            j++;
+        }
+        for(i=0; i<getRegNum(); i++){
+            if(signalMap->reg[i]->getType() == 'C')
+                *(CData*)(signalMap->reg[i]->value) = AllPattern[j];
+            else if(signalMap->reg[i]->getType() == 'I')
+                *(IData*)(signalMap->reg[i]->value) = AllPattern[j];
+            else if(signalMap->reg[i]->getType() == 'Q')
+                *(QData*)(signalMap->reg[i]->value) = AllPattern[j];
+            else
+                *(SData*)(signalMap->reg[i]->value) = AllPattern[j];
+            j++;
+        }
+        for(i=0; i<getPoNum(); i++){
+            if(signalMap->po[i]->getType() == 'C')
+                *(CData*)(signalMap->po[i]->value) = AllPattern[j];
+            else if(signalMap->po[i]->getType() == 'I')
+                *(IData*)(signalMap->po[i]->value) = AllPattern[j];
+            else if(signalMap->po[i]->getType() == 'Q')
+                *(QData*)(signalMap->po[i]->value) = AllPattern[j];
+            else
+                *(SData*)(signalMap->po[i]->value) = AllPattern[j];
+            j++;
+        }
+    };
+    
     void printPI(unsigned i){
         unsigned value;
         if(signalMap->pi[i]->getType() == 'C')
@@ -317,7 +361,7 @@ public:
         string tok;
 
         while (getline(ss, tok, delimiter)) {
-            cout << "[Warning] Verilator - convert string to integer instead of unsigned" << endl;
+            // cout << "[Warning] Verilator - convert string to integer instead of unsigned" << endl;
             result.push_back(atoi(tok.c_str()));
         }
         return result;

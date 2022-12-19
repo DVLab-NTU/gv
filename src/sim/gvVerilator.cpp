@@ -14,45 +14,69 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include "gvVerilator.hpp"
 
 
 using json = nlohmann::json;
 
-void verilator_readPattern(){
-    int shmid;
-    key_t key;
-    char *shm, *s;
-
-    // IPC - Shared Memory
-    key= 7899;
-    shmid= shmget(key, 1, 0666);
-    if(shmid == -1) {
-        cout << strerror(errno) << endl;;
-        perror("Error in Shared Memory get statement");
-        exit(1);
-    }
-
-    shm= (char*) shmat(shmid, NULL, 0);
-    if(shm == (char*) -1) {
+void
+VerilatorAPI::writeData(string data){
+    //// IPC - Shared Memory
+    VerilatorAPI::shm= (char*) shmat(VerilatorAPI::get_shmid(), NULL, 0);
+    if(VerilatorAPI::shm == (char*) -1) {
         cout << strerror(errno) << endl;
         perror("Error in Shared Memory attachment");
         exit(1);
     }
 
-    string pattern_str(shm);
-    cout << "[GV] Read Pattern => " << pattern_str << endl;
-    *shm= '*';
+    string pattern_str = data + " ";
+    cout << "[INFO] GV - Write data (size=" << pattern_str.size() - 1 << ") => Shared memory (id=" << VerilatorAPI::get_shmid() << ")" << endl;
+    cout << pattern_str << endl;
+    memcpy(VerilatorAPI::shm, pattern_str.c_str(), pattern_str.size());
 }
 
-void verilator_reset(){
-    // IPC - Shared Memory
-    int shmid;
-    key_t key;
-    char *shm, *s;
+void
+VerilatorAPI::update(){
+    system("obj_dir/Vtestf --update");
+}
 
-    key= 109;
-    shmid= shmget(key, 482, 0666);
+void
+VerilatorAPI::evalOneCycle() {
+    system("obj_dir/Vtestf --eval 1");
+}
 
+void
+VerilatorAPI::printState() {
+    system("obj_dir/Vtestf --print");
+}
+
+string
+VerilatorAPI::readData(){
+    //// IPC - Shared Memory
+    VerilatorAPI::shm= (char*) shmat(VerilatorAPI::get_shmid(), NULL, 0);
+    if(VerilatorAPI::shm == (char*) -1) {
+        cout << strerror(errno) << endl;
+        perror("Error in Shared Memory attachment");
+        exit(1);
+    }
+
+    string pattern_str(VerilatorAPI::shm);
+    string token;
+    size_t pos = pattern_str.find(" ");
+    token = pattern_str.substr(0, pos);
+    cout << "[INFO] GV - Shared memory (id=" << VerilatorAPI::get_shmid() << ") => Read data (size=" << token.size() << ")" << endl;
+    cout << token << endl;
+    return token;
+}
+
+void
+VerilatorAPI::getSequence(){
+    system("obj_dir/Vtestf --sequence");
+}
+
+void 
+VerilatorAPI::reset(){
+    system("obj_dir/Vtestf --reset");
 }
 
 // Extracting all key from map
@@ -84,10 +108,10 @@ signalWidth2Type(string width){
 }
 
 void 
-verilogModeling(string testbed) {
+VerilatorAPI::verilogModeling(string testbed) {
     gvMsg(GV_MSG_IFO) << "[INFO] Generating Verilator simulator code" << endl;
 
-    string VFLAGS, script_cmd;
+    string VFLAGS, system_cmd;
     VFLAGS = "--cc -sv -Wno-lint --build --public --trace --assert -O3 ";
     VFLAGS += "--exe " + testbed;
     VFLAGS += " -CFLAGS -o3 ";
@@ -96,15 +120,15 @@ verilogModeling(string testbed) {
     //VFLAGS += "--Mdir build/obj_dir ";
     //VFLAGS += "--main ";
     //VFLAGS += "--top-module " + top_module;
-    //script_cmd = "verilator " + VFLAGS + " build/design_under_test.v";
-    script_cmd = "verilator " + VFLAGS + gvModMgr->getInputFileName();
-    gvMsg(GV_MSG_DBG) << "[DBG] Verilator command -> " << script_cmd << endl;
-    system(script_cmd.c_str());  
+    //system_cmd = "verilator " + VFLAGS + " build/design_under_test.v";
+    system_cmd = "verilator " + VFLAGS + gvModMgr->getInputFileName();
+    gvMsg(GV_MSG_DBG) << "[DBG] Verilator command -> " << system_cmd << endl;
+    system(system_cmd.c_str());  
 }
 
 // Extracting RTL info by yosys
 string
-getDesignInfo(){
+VerilatorAPI::getDesignInfo(){
     string output_path = "obj_dir/design_under_test.json";
     gvMsg(GV_MSG_IFO) << "[INFO] Extracting information from design => " << output_path << endl;
     run_pass("prep"); 
@@ -123,7 +147,7 @@ getDesignInfo(){
 }
 
 void
-genInterfaceFile(){
+VerilatorAPI::genInterfaceFile(){
     gvMsg(GV_MSG_IFO) << "[INFO] Generating interface.hpp ..." << endl;
     ifstream input_file("obj_dir/design_under_test.json");
     ofstream output_file("obj_dir/interface.hpp");
@@ -311,7 +335,7 @@ genInterfaceFile(){
 
 // Collecting assertion for all file
 vector<string>
-collectAssertion(string filename){
+VerilatorAPI::collectAssertion(string filename){
     ifstream input_file(filename);
     ofstream output_file("obj_dir/design_under_test.v");
     vector<string> assertion_vec;
@@ -354,7 +378,7 @@ collectAssertion(string filename){
 }
 
 void
-genAssertionFile(vector<string> assertion_vec){
+VerilatorAPI::genAssertionFile(vector<string> assertion_vec){
     gvMsg(GV_MSG_IFO) << "[INFO] Generating assertion.hpp ..." << endl;
     ofstream output_file("/obj_dir/assertion.hpp");
     output_file << "#ifndef assertion_hpp" << endl;
@@ -372,4 +396,34 @@ genAssertionFile(vector<string> assertion_vec){
     output_file << "#endif /* assertion_hpp */" << endl;
 }
 
+VerilatorAPI::VerilatorAPI(string testbench, int shm_size){
+    key_t key;
+
+    // IPC - Shared Memory
+    key= 7899;
+    VerilatorAPI::_shmid= shmget(key, shm_size, IPC_CREAT|0666);
+    if(VerilatorAPI::_shmid == -1) {
+        cout << strerror(errno) << endl;;
+        perror("[ERR] GV - Error in Shared Memory get statement");
+        exit(1);
+    }
+    // Init.
+    system("mkdir obj_dir");
+    VerilatorAPI::getDesignInfo();
+    VerilatorAPI::genInterfaceFile();
+    VerilatorAPI::verilogModeling(testbench); 
+    cout << "[INFO] GV - Build Verilator Env." << endl;
+}
+
+VerilatorAPI::~VerilatorAPI() {
+    cout << "[INFO] Delete shared memory => (id=" << VerilatorAPI::get_shmid() << ")"<< endl;
+    //string system_cmd;
+    //system_cmd = "ipcrm -m " + to_string(VerilatorAPI::get_shmid());
+    //cout << "[DBG] GV - Deconstruct " << system_cmd << endl;
+    //system(system_cmd.c_str());
+    if (shmctl(VerilatorAPI::get_shmid(), IPC_RMID, 0) == -1) {
+        fprintf(stderr, "[ERR] GV - shmctl(IPC_RMID) failed\n");
+        exit(EXIT_FAILURE);
+    }
+}
 

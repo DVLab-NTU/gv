@@ -51,7 +51,25 @@ int main(int argc, char *argv[]) {
     // sequence
     program.add_argument("-S", "--sequence")
         .default_value(false)
-        .help("get pattern sequence of design")
+        .help("return pattern sequence of design")
+        .implicit_value(true);
+
+    // update
+    program.add_argument("-U", "--update")
+        .default_value(false)
+        .help("update current state to verilator")
+        .implicit_value(true);
+
+    // eval
+    program.add_argument("-E", "--eval")
+        .default_value(0)
+        .help("eval n cycle")
+        .scan<'i', int>();
+
+    // printState
+    program.add_argument("-P", "--print")
+        .default_value(false)
+        .help("print simulator info")
         .implicit_value(true);
 
     try {
@@ -67,41 +85,67 @@ int main(int argc, char *argv[]) {
         cout << "[INFO] Verilator - Reset" << endl;
         simulator->resetDUV();
         vector<unsigned> pattern;
-        simulator->getPiPattern(pattern);
-        simulator->getRegPattern(pattern);
-        simulator->getPoPattern(pattern);
-
-        //simulator->printPiPattern();
-        //simulator->printRegPattern();
-        //simulator->printPoPattern();
-        cout << "[INFO] Verilator - Write data => Shared memory (id=" << shmid << ")" << endl;
+        simulator->getAllPattern(pattern);
         string pattern_str = simulator->pattern2str(pattern) + " ";
+        cout << "[INFO] Verilator - Write data (size=" << pattern_str.size() - 1 << ") => Shared memory (id=" << shmid << ")" << endl;
         cout << pattern_str << endl;
         memcpy(shm, pattern_str.c_str(), pattern_str.size());
     }
 
     if (program["--sequence"] == true) {
-        cout << "[INFO] Verilator - Write data => Shared memory (id=" << shmid << ")" << endl;
         string sequence = simulator->getSequence() + " ";
+        cout << "[INFO] Verilator - Write data (size=" << sequence.size() - 1 << ") => Shared memory (id=" << shmid << ")" << endl;
         cout << sequence << endl;
         memcpy(shm, sequence.c_str(), sequence.size());
     }
 
-    /*
-    //cout << "PiNum: " << PiNum << endl;
+    if (program["--update"] == true) {
+        string pattern_str(shm);
+        string token;
+        size_t pos = pattern_str.find(" ");
+        token = pattern_str.substr(0, pos);
+        cout << "[INFO] Verilator - Shared memory (id=" << shmid << ") => Read data (size=" << token.size() << ")" << endl;
+        cout << token << endl;
+        vector<unsigned> pattern = simulator->str2pattern(token);
+        simulator->setAllPattern(pattern);
+    }
 
     
-    string data(shm);
-    cout << "[Verilator] Shared Memory (id=" << shmid << ") => Read data " << data << endl;
-    cout << "[Verilator] ACK" << endl;
-    
-	*shm= '*';
-    shmctl(shmid, IPC_RMID, 0);
-    for (unsigned i=0 ; i < PiNum ; i++){
-        simulator->setPI(i, (unsigned)data[i]);
+    auto eval_cycle = program.get<int>("eval");
+    if (eval_cycle != 0) {
+        string pattern_str(shm);
+        string token;
+        size_t pos = pattern_str.find(" ");
+        token = pattern_str.substr(0, pos);
+        cout << "[INFO] Verilator - Shared memory (id=" << shmid << ") => Read data (size=" << token.size() << ")" << endl;
+        cout << token << endl;
+        vector<unsigned> pattern = simulator->str2pattern(token);
+        simulator->setAllPattern(pattern);
+        cout << "[INFO] Verilator - eval " << eval_cycle << " cycle" << endl;
+        for (unsigned i=0; i<eval_cycle; i++){
+            simulator->evalOneClock();
+        }
+        vector<unsigned> AllPattern;
+        simulator->getAllPattern(AllPattern);
+        pattern_str = simulator->pattern2str(AllPattern) + " ";
+        cout << "[INFO] Verilator - Write data (size=" << pattern_str.size() - 1 << ") => Shared memory (id=" << shmid << ")" << endl;
+        cout << pattern_str << endl;
+        memcpy(shm, pattern_str.c_str(), pattern_str.size());
     }
-    simulator->printPO(1);
-    simulator->evalOneClock();
-    simulator->printPO(1);*/
+
+    if (program["--print"] == true) {
+        string pattern_str(shm);
+        string token;
+        size_t pos = pattern_str.find(" ");
+        token = pattern_str.substr(0, pos);
+        cout << "[INFO] Verilator - Shared memory (id=" << shmid << ") => Read data (size=" << token.size() << ")" << endl;
+        cout << token << endl;
+        vector<unsigned> pattern = simulator->str2pattern(token);
+        simulator->setAllPattern(pattern);
+        simulator->printPiPattern();
+        simulator->printRegPattern();
+        //simulator->printPoPattern();
+    }
+
     return 0;
 }
