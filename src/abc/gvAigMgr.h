@@ -22,6 +22,10 @@ typedef pair<float, float> similarity_t;
 typedef pair<int, float> obj_similarity_t; // The first element is similarity, the second element is node Id
 typedef vector<obj_similarity_t> similarity_vec_t;
 
+static inline int          Aig_ManCandNum( Aig_Man_t * p )        { return p->nObjs[AIG_OBJ_CI] + p->nObjs[AIG_OBJ_AND]+p->nObjs[AIG_OBJ_EXOR];  }
+// iterators over all nodes
+#define Aig_ManForEachCand( p, pObj, i )                                        \
+    Vec_PtrForEachEntry( Aig_Obj_t *, p->vObjs, pObj, i ) if ( (pObj) == NULL || (!Aig_ObjIsNode(pObj) &&  !Aig_ObjIsCi(pObj)) ) {} else
 class abcAigMgr
 {
     public:
