@@ -20,7 +20,8 @@ YOSYSFLGS = -D_YOSYS_ -DYOSYS_ENABLE_PLUGINS -DYOSYS_ENABLE_GLOB -DYOSYS_ENABLE_
 ABCFLGS = -DABC_USE_STDINT_H
 
 #CFLAGS	= $(ENGFLGS) $(PKGFLAG) -pg -g -Wall -Wno-parentheses
-CFLAGS	= $(ENGFLGS) $(PKGFLAG) -O3 -DNDEBUG -Wall -Wno-parentheses -Wno-unused-function
+#CFLAGS	= $(ENGFLGS) $(PKGFLAG) -O3 -DNDEBUG -Wall -Wno-parentheses -Wno-unused-function
+CFLAGS	= $(ENGFLGS) $(PKGFLAG) -O0 -DDEBUG -Wall -Wno-parentheses -Wno-unused-function
 #CFLAGS	= $(ENGFLGS) $(PKGFLAG) -g -Wall -Wno-parentheses
 
 .PHONY: depend extheader
