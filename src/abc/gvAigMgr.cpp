@@ -600,7 +600,7 @@ void abcAigMgr::simlirarity(char* filename) {
         }
         e.push_back(e_row); // push the row into the chart
     }
-    pSat->fPrintClause =  1; // for debug use
+    // pSat->fPrintClause =  1; // for debug use
     // Add constraint 1 - Every row can only have one 1
     cout << "adding constraint1..." << endl;
     for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
@@ -612,11 +612,9 @@ void abcAigMgr::simlirarity(char* filename) {
             {
                 Lits[1] = Abc_Var2Lit(i * Aig_ManCandNum(pAig2) + k, 1);
                 sat_solver_addclause(pSat, Lits, Lits + 2);
-                // cout << "lits 0 " << Abc_Lit2Var(Lits[0]) << " Lits 1 " << Abc_Lit2Var(Lits[1]) << endl;
             }
         }
     }
-    // cout << "num clause : " << pSat- << endl;
 
     // Add constraint 2 - Every column can only have one 1
     cout << "adding constraint2..." << endl;
@@ -639,15 +637,12 @@ void abcAigMgr::simlirarity(char* filename) {
     
     Aig2Cnf(pAig1, pAig2, Cnf_obj, true);
     WriteCnf(pSat, Cnf_obj);
-    cout << "obj num " << Aig_ManObjNum(pAig1) << endl;
     Cnf_obj.cnf_data_lift(Aig_ManCandNum(pAig1)); // one is const
     
-    cout << "fnkwefviouewfchewbifhiweofhciowehfiowe " <<  Aig_ManCandNum(pAig1)<< endl;
     Aig2Cnf(pAig1, pAig2, Cnf_obj, false);
     WriteCnf(pSat, Cnf_obj);
     // pSat->fPrintClause =  0;
     Cnf_obj.cnf_data_lift(Aig_ManCandNum(pAig2)); // one is const
-    // cout << Aig_ManCandNum(pAig1) << " " << Aig_ManCandNum(pAig2) << endl;
 
     // add constraint 4
     cout << "adding constraint 4" << endl;
@@ -664,14 +659,17 @@ void abcAigMgr::simlirarity(char* filename) {
     //     assump.push_back(Abc_Var2Lit(i + i * Aig_ManCandNum(pAig2), 0));
     // }
     assump.push_back(Abc_Var2Lit(0, 0));
-    assump.push_back(Abc_Var2Lit(6, 0));
     assump.push_back(Abc_Var2Lit(12, 0));
+    assump.push_back(Abc_Var2Lit(24, 0));
+    assump.push_back(Abc_Var2Lit(36, 0));
+    assump.push_back(Abc_Var2Lit(48, 0));
+    assump.push_back(Abc_Var2Lit(60, 0));
     status = sat_solver_solve(pSat, &assump.front(), &assump.back() + 1 , 0, 0, 0, 0);
-    if ( status == l_False ) cout << "bbb unsat" << endl;
-    if ( status == l_True ) cout << "bbb sat" << endl;
+    if ( status == l_False ) cout << "unsat, cut found!!!" << endl;
+    if ( status == l_True ) cout << "sat, cut not found!!!" << endl;
     int *pfinal;
     int nfinal = sat_solver_final(pSat, &pfinal);
-    cout << "nfinal = " << nfinal << endl;
+    cout << "eij assignment" << endl;
     for(i = 0; i < nfinal; ++i)
     {
         cout << ((pfinal[i] % 2 == 0) ? "" : "!") << Abc_Lit2Var(pfinal[i]) << endl;
@@ -687,13 +685,13 @@ void abcAigMgr::simlirarity(char* filename) {
             }
             cout << endl;
         }
-        cout << "oiwehfoiewoifhweiofhwiofhioewhfoiwehfow" << endl;
-        for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+        cout << "circuit 1 assignment" << endl;
+        for(i = 1; i < Aig_ManCandNum(pAig1) + 1; ++i)
         {
             cout << sat_solver_var_value(pSat, Aig_ManCandNum(pAig2) + Aig_ManCandNum(pAig1) + i) <<  " ";
         }
         cout << endl;
-        cout << "oiwehfoiewoifhweiofhwiofhioewhfoiwehfow" << endl;
+        cout << "circuit 2 assignment" << endl;
         for(i = 0; i < Aig_ManCandNum(pAig2); ++i)
         {
             cout << sat_solver_var_value(pSat, Aig_ManCandNum(pAig2) + Aig_ManCandNum(pAig1) + Aig_ManCandNum(pAig1) + i) <<  " ";

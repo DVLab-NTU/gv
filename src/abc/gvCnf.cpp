@@ -13,7 +13,6 @@ void Aig2Cnf(Aig_Man_t * pAig1, Aig_Man_t * pAig2,  cnf_obj_t& cnf_obj, bool old
     // constraint 5
     Aig_ManForEachNode((old ? pAig1 : pAig2), pObj, i)
     {
-        cout << "old" << " " << Aig_IsComplement(Aig_ObjFanout0((old ? pAig1 : pAig2), pObj)->pFanin0) << endl;
         clause.clear();
         clause.push_back((Aig_IsComplement(Aig_ObjFanout0((old ? pAig1 : pAig2), pObj)->pFanin0) ? Abc_Var2Lit(pObj->Id, 1) : Abc_Var2Lit(pObj->Id, 0)) + 2 * (cnf_obj.nVars));
         clause.push_back((Aig_ObjFaninC0(pObj) ? Abc_Var2Lit(Aig_ObjFanin0(pObj)->Id, 0) : Abc_Var2Lit(Aig_ObjFanin0(pObj)->Id, 1)) + 2 * (cnf_obj.nVars));
@@ -35,7 +34,6 @@ void Aig2Cnf(Aig_Man_t * pAig1, Aig_Man_t * pAig2,  cnf_obj_t& cnf_obj, bool old
     }
 
     // constraint 6
-    cout << "con 6" << endl;
     Aig_ManForEachCi((old ? pAig1 : pAig2), pObj, i)
     {
         // cout << "PI id = " <<  pObj -> Id << endl;
@@ -149,18 +147,18 @@ void constraint4(sat_solver * pSat, Aig_Man_t * pAig1, Aig_Man_t * pAig2)
     // }
 
     // match po
-    Aig_ManForEachCo(pAig1, pObj1, i)
+    for(i = 0; i < Aig_ManCoNum(pAig1); ++i)
     {
         // cout << "hihihihihiihihihi " << Aig_ObjFaninC0(pObj1) << " " << Aig_IsComplement(pObj1->pFanin0) << " id " << Aig_ObjFanin0(pObj1)->Id << " " << previous_var_num_1 << " " << previous_var_num_2 << endl;
         clause.clear();
-        clause.push_back(Abc_Var2Lit(previous_var_num_1 + Aig_ObjFanin0(pObj1)->Id, 0)); // a
-        clause.push_back(Abc_Var2Lit(previous_var_num_2 + Aig_ObjFanin0(pObj1)->Id , 0)); // b
+        clause.push_back(Abc_Var2Lit(previous_var_num_1 + Aig_ObjFanin0(Aig_ManCo(pAig1, i))->Id, 0)); // a
+        clause.push_back(Abc_Var2Lit(previous_var_num_2 + Aig_ObjFanin0(Aig_ManCo(pAig2, i))->Id , 0)); // b
         // clause.push_back(Abc_Var2Lit((j - Aig_ManCiNum(pAig2) - 1) + (i - Aig_ManCiNum(pAig1) - 1) * Aig_ManCandNum(pAig2), 1)); // ~eij
         sat_solver_addclause(pSat, &clause.front(), &clause.back() + 1);
 
         clause.clear();
-        clause.push_back(Abc_Var2Lit(previous_var_num_1 + Aig_ObjFanin0(pObj1)->Id, 1)); // ~a
-        clause.push_back(Abc_Var2Lit(previous_var_num_2 + Aig_ObjFanin0(pObj1)->Id, 1)); // ~b
+        clause.push_back(Abc_Var2Lit(previous_var_num_1 + Aig_ObjFanin0(Aig_ManCo(pAig1, i))->Id, 1)); // ~a
+        clause.push_back(Abc_Var2Lit(previous_var_num_2 + Aig_ObjFanin0(Aig_ManCo(pAig2, i))->Id, 1)); // ~b
         // clause.push_back(Abc_Var2Lit((j - Aig_ManCiNum(pAig2) - 1) + (i - Aig_ManCiNum(pAig1) - 1) * Aig_ManCandNum(pAig2), 1)); // ~eij
         sat_solver_addclause(pSat, &clause.front(), &clause.back() + 1);
     }

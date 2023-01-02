@@ -1,4 +1,4 @@
-PKGFLAG   =
+PKGFLAG   = $(DEBUG_FLAG)
 EXTHDRS   = gvSimCmd.h
 
 include ../Makefile.in

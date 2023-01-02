@@ -1,4 +1,4 @@
-PKGFLAG   =
+PKGFLAG   = $(DEBUG_FLAG)
 
 EXTHDRS   = gvNtkCmd.h gvNtk.h
 

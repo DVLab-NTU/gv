@@ -18,10 +18,18 @@ ENGPKGS	 += yosys
 ENGSSRC	 = eng
 
 EXEC     = gv
+.PHONY : all debug
+
+all : EXEC     = gv
+debug : EXEC     = gv.debug
+
+all:  DEBUG_FLAG =
+debug:DEBUG_FLAG = -DGV_DEBUG
+
 LIB	     = libgv.a
 
 
-all:	srcLib
+all debug:	srcLib
 	@echo "Checking $(MAIN)..."
 	@cd src/$(MAIN); make --no-print-directory EXTLIB="$(SRCLIBS) $(EXTLIBS)" EXEC=$(EXEC); cd ../.. ;
 
@@ -30,7 +38,7 @@ srcLib:	engLib
 	@for pkg in $(SRCPKGS); \
 	do \
 		echo "Checking $$pkg..."; \
-		cd src/$$pkg; make --no-print-directory PKGNAME=$$pkg; \
+		cd src/$$pkg; make --no-print-directory DEBUG_FLAG=$(DEBUG_FLAG) PKGNAME=$$pkg; \
 		cd ../.. ; \
 	done
 
