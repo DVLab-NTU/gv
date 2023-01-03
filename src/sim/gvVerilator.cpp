@@ -106,7 +106,7 @@ VerilatorAPI::verilogModeling(string testbed) {
     gvMsg(GV_MSG_IFO) << "[INFO] Generating Verilator simulator code" << endl;
 
     string VFLAGS, system_cmd;
-    VFLAGS = "--cc -sv -Wno-lint --build --public --trace --assert -O3 ";
+    VFLAGS = "--cc -sv -Wno-lint --build --public --trace --assert -O3 --debug ";
     VFLAGS += "--exe " + testbed;
     VFLAGS += " -CFLAGS -o3 ";
     // VFLAGS += "-CFLAGS -I/home/clare/gv0/src/sim/include ";

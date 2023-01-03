@@ -345,7 +345,7 @@ GVCmdExecStatus
 GVVerilatorEnv::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "[INFO] I am GVVerilatorEnv" << endl;
     gvMsg(GV_MSG_IFO) << "[INFO] Compile file -> " << gvModMgr->getInputFileName() << endl;
-    VerilatorAPI* verilator = new VerilatorAPI(option, 1);
+    VerilatorAPI verilator(option, 1000000);
     return GV_CMD_EXEC_DONE;
 }
 
@@ -366,37 +366,38 @@ GVVerilatorEnv::help() const {
 GVCmdExecStatus
 GVVerilatorTest::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "[INFO] I am GVVerilatorTest" << endl;
-    VerilatorAPI* verilator = new VerilatorAPI(option, 1000000);
+    //VerilatorAPI* verilator = new VerilatorAPI(option, 1000000);
+    VerilatorAPI verilator(option, 1000000);
 
     // 1. reset
-    verilator->reset();
+    verilator.reset();
     // 2. read data from shared memory
-    string pattern = verilator->readData();
+    string pattern = verilator.readData();
     // 3.1 use verilator to write data into shared memory
-    verilator->getSequence();
+    verilator.getSequence();
     // 3.2 check writing correct
-    string sequence = verilator->readData();
+    string sequence = verilator.readData();
     
     // 4.1 modify pattern value
     pattern.insert(0, "3,");
     // 4.2 wrtie new pattern to shared memory 
-    verilator->writeData(pattern);
+    verilator.writeData(pattern);
     // 4.3 print current state
-    verilator->printState();
+    // verilator->printState();
     // 4.4 update new pattern to verilator
-    verilator->update();
+    verilator.update();
     // 4.5 Confirm successful update or not
-    verilator->printState();
+    verilator.printState();
 
     // 5.1 print current state
-    verilator->printState();
+    verilator.printState();
     // 5.2 simulate one cycle
-    verilator->evalOneCycle();
+    verilator.evalOneCycle();
     // 5.3 Confirm result
-    pattern = verilator->readData();
+    pattern = verilator.readData();
 
 
-    delete verilator;
+    //delete verilator;
     return GV_CMD_EXEC_DONE;
 }
 
