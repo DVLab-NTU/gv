@@ -70,6 +70,7 @@ class GVModMgr
 
         // GV tutorial wizard
         void printWizardPrompt(int promptStart, int promptLength);
+        void printWizardProgress(int pos, int promptNum);
 
     private:
         bool              _inputFileExist;

@@ -27,6 +27,7 @@ GVSetSystemCmd::exec(const string& option) {
 
     bool           setup = false, vrf = false;
     vector<string> options;
+
     GVCmdExec::lexOptions(option, options);
     if (options.size() == 0)
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string mode)>");
@@ -36,16 +37,14 @@ GVSetSystemCmd::exec(const string& option) {
         const string& token = options[i];
         if (myStrNCmp("setup", token, 3) == 0) {
             if (vrf) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else {
-                setup = true;
-            }
+            else setup = true;
+
         } else if (myStrNCmp("vrf", token, 3) == 0) {
             if (setup) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else {
-                vrf = true;
-            }
+            else vrf = true;
         } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
+
     if (setup) gvModMgr->setGVMode(GV_MOD_TYPE_SETUP);
     else if (vrf) gvModMgr->setGVMode(GV_MOD_TYPE_VERIFY);
 
@@ -102,8 +101,8 @@ GVSetWizardCmd::exec(const string& option) {
 
     string      prompt = "";
     vector<int> promptBound;
-    // int         bound;
-    string bound;
+    string      bound;
+
     while (1) {
         getline(infile, bound);
         if (stoi(bound) == 0) break;
@@ -112,23 +111,39 @@ GVSetWizardCmd::exec(const string& option) {
         for (int i = 0; i < stoi(bound); ++i) {
             getline(infile, prompt);
             gvModMgr->setWizardContent(prompt);
-            cout << "Prompt : " << i << " -> " << prompt << endl;
         }
     }
 
     // Start the GV tutorial wizard
-    int promptPos = 0;
-    int wizardIdx = 0;
+    int  promptPos = 0, wizardIdx = 0, progress = 1;
+    bool firstPrompt = true, debug = false;
+    system("clear");
     while (status != GV_CMD_EXEC_QUIT) {
-        system("clear");
         gvModMgr->printWizardPrompt(promptPos, promptBound[wizardIdx]);
+        if (!firstPrompt)
+            gvModMgr->printWizardProgress(progress, promptBound.size());
+
         status = gvCmdMgr->execOneCmd();
-        if (status == GV_CMD_EXEC_DONE || true) {
+
+        if (wizardIdx == promptBound.size() - 1) {
+            system("clear");
+            break;
+        }
+
+        if (status == GV_CMD_EXEC_DONE || firstPrompt || debug) {
             promptPos = promptBound[wizardIdx] + promptPos;
             wizardIdx++;
         }
-        if (wizardIdx == promptBound.size()) break;
         cout << endl;
+
+        if (!firstPrompt) {
+            if (status == GV_CMD_EXEC_DONE || debug) {
+                gvModMgr->printWizardPrompt(-1, promptBound[wizardIdx]);
+                progress++;
+            } else gvModMgr->printWizardPrompt(-2, promptBound[wizardIdx]);
+        } else firstPrompt = false;
+
+        system("clear");
     }
     return GV_CMD_EXEC_DONE;
 }

@@ -92,25 +92,35 @@ GVModMgr::getSafe() {
 
 void
 GVModMgr::printWizardPrompt(int promptStart, int promptLength) {
-    /*string prompt_r1 =
-        " ==================================================\n\n";
-    vector<string> prompt_content = {
-        "       Welcome to the GV tutorial wizard !!\n            (press enter "
-        "to continue)\n\n",
-        "STEP 1\n\n",
-        "STEP 2\n\n",
-        "STEP 3\n\n",
-        "STEP 4\n\n",
-        "STEP 5\n\n",
-        "STEP 6\n\n"};
+    if (promptStart < 0) {
+        if (promptStart == -1) {
+            cout << "[CORRECT COMMAND] !! ";
+            cout << "(press Enter to continue) ...";
+        } else if (promptStart == -2) {
+            // cout << "[ERROR COMMAND] !! ";
+            cout << "(press Enter to type the command again) ...";
+        }
+        cin.get();
+        return;
+    }
 
-    string newPrompt = prompt_r1 + prompt_content[promptPos] + prompt_r1;
-    cout << prompt_r1 << setfill(' ')
-         << setw((50 - prompt_content[promptPos].size()) / 2) << ' '
-         << prompt_content[promptPos] << prompt_r1;*/
     int idx = 0;
-    // cout << promptStart << " -> " << promptLength << "\n";
     while (idx++ < promptLength) cout << _wizardContent[promptStart++] << "\n";
+}
+
+void
+GVModMgr::printWizardProgress(int pos, int promptNum) {
+    float float_percent = (static_cast<float>(pos) / (promptNum - 1)) * 100;
+    int   int_percent   = float_percent;
+    int   idx           = 0;
+    cout << "progress : [";
+    while (idx++ < pos) cout << "=";
+    cout << ">";
+    idx = 0;
+    while (idx++ < promptNum - pos - 1) cout << " ";
+    cout << "] ";
+
+    cout << int_percent << "%\n\n";
 }
 
 /* ------------------------- *\
