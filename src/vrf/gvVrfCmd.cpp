@@ -5,6 +5,7 @@
 #include "gvAbcMgr.h"
 #include "gvMsg.h"
 #include "gvUsage.h"
+#include "gvModMgr.h"
 #include "util.h"
 #include <cstring>
 #include <iostream>

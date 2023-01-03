@@ -6,6 +6,7 @@
 #include "gvMsg.h"
 #include "gvNtk.h"
 #include "gvSimCmd.h"
+#include "gvModMgr.h"
 #include "gvVerilator.hpp"
 #include "json.hpp"
 #include <errno.h>

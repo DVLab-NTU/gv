@@ -3,6 +3,7 @@
 
 #include "gvSimCmd.h"
 #include "gvAbcMgr.h"
+#include "gvModMgr.h"
 #include "gvMsg.h"
 #include "util.h"
 #include <fstream>

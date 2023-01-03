@@ -280,10 +280,11 @@ GVShowCmd::exec(const string& option) {
         infile.close();
     }
     else if(schematic){
-         if( !gvModMgr->getInputFileExist()){
+         // Problem!! --- (2)
+         /*if( !gvModMgr->getInputFileExist()){
             gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" to read the file first !!\n";
             return GV_CMD_EXEC_NOP;
-         }
+         }*/
          string top_module_name = gvRTLDesign->getDesign()->top_module()->name.str().substr(1,strlen(yosys_design->top_module()->name.c_str()) - 1);
          run_pass("hierarchy -top " + top_module_name);
          run_pass("proc");
