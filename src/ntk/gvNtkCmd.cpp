@@ -12,6 +12,7 @@
 #include "gvModMgr.h"
 #include "gvNtk.h"
 #include "gvWordLevel.h"
+#include "gvCone.h"
 
 USING_YOSYS_NAMESPACE
 
@@ -25,7 +26,8 @@ bool GVinitNtkCmd() {
             gvCmdMgr->regCmd("FILE2 Btor",          4, 1, new GVFile2BtorCmd ) &&
             gvCmdMgr->regCmd("WHITE Box",          4, 1, new GVWhiteBoxSignalCmd ) &&
             gvCmdMgr->regCmd("TEST Boolector",     3, 1, new GVTestBoolector  ) &&
-            gvCmdMgr->regCmd("WRite Aig",          2, 1, new GVWriteAigCmd    )
+            gvCmdMgr->regCmd("WRite Aig",          2, 1, new GVWriteAigCmd    ) &&
+            gvCmdMgr->regCmd("Test", 1 , new GVNtkFuctionTestCmd )
     );
 }
 
@@ -425,6 +427,8 @@ GVYosysOriginalCmd ::exec(const string& option) {
         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, command);
     }
     run_pass(command);
+
+    return GV_CMD_EXEC_DONE;
 }
 
 void
@@ -639,4 +643,43 @@ GVWriteAigCmd::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: " << "Write out the processing deisng into AIGER file" << endl;
 }
 
+//----------------------------------------------------------------------
+// Test: internal function testing
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVNtkFuctionTestCmd::exec(const string& option) {
+
+    string testFilename = "little.v";
+
+    if (!gvRTLDesign->getDesign() || gvRTLDesign->getDesign()->top_module() == NULL) {
+        run_pass("read_verilog " + testFilename);
+    }
+
+    GVRTLConeMgr gvConeMgr(gvRTLDesign);
+
+    gvConeMgr.genConelist();
+
+    cout << "========================================" << endl;
+
+    if(!Abc_FrameReadNtk(abcMgr->get_Abc_Frame_t())){
+        abcMgr -> abcReadDesign(testFilename);
+    }
+
+    GVAbcConeMgr gvAbcConeMgr(Abc_FrameReadNtk(abcMgr->get_Abc_Frame_t()));
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVNtkFuctionTestCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: WRite Aig <filename>" << endl;
+    gvMsg(GV_MSG_IFO) << "Param: <(string filename)>  :  Name of the output aig file." << endl;
+    gvMsg(GV_MSG_IFO) << "                               It could be <stdout>, or it can be skipped if specified before." << endl;
+}
+
+void
+GVNtkFuctionTestCmd::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: " << "Write out the processing deisng into AIGER file" << endl;
+}
 #endif
