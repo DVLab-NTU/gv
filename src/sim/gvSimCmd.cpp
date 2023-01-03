@@ -14,7 +14,7 @@ bool
 GVinitSimCmd() {
     return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) && gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
             //gvCmdMgr->regCmd("CRP G", 3, 1, new GVCRPG) &&
-            gvCmdMgr->regCmd("Verilator Env", 1, 1, new GVVerilatorEnv) &&
+            //gvCmdMgr->regCmd("Verilator Env", 1, 1, new GVVerilatorEnv) &&
             gvCmdMgr->regCmd("Verilator Test", 1, 1, new GVVerilatorTest));
 }
 
@@ -341,24 +341,24 @@ GVRandomSetSafe::help() const {
 // Verilator Env.
 //----------------------------------------------------------------------
 
-GVCmdExecStatus
-GVVerilatorEnv::exec(const string& option) {
-    gvMsg(GV_MSG_IFO) << "[INFO] I am GVVerilatorEnv" << endl;
-    gvMsg(GV_MSG_IFO) << "[INFO] Compile file -> " << gvModMgr->getInputFileName() << endl;
-    VerilatorAPI verilator(option, 1000000);
-    return GV_CMD_EXEC_DONE;
-}
+//GVCmdExecStatus
+//GVVerilatorEnv::exec(const string& option) {
+//    gvMsg(GV_MSG_IFO) << "[INFO] I am GVVerilatorEnv" << endl;
+//    gvMsg(GV_MSG_IFO) << "[INFO] Compile file -> " << gvModMgr->getInputFileName() << endl;
+//    VerilatorAPI verilator(option, 1000000);
+//    return GV_CMD_EXEC_DONE;
+//}
 
-void
-GVVerilatorEnv::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: Verilator Env" << endl;
-}
+//void
+//GVVerilatorEnv::usage(const bool& verbose) const {
+//    gvMsg(GV_MSG_IFO) << "Usage: Verilator Env" << endl;
+//}
 
-void
-GVVerilatorEnv::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "Verilator Env: "
-                      << "Build Verilator Environment for simulation use." << endl;
-}
+//void
+//GVVerilatorEnv::help() const {
+//    gvMsg(GV_MSG_IFO) << setw(20) << left << "Verilator Env: "
+//                      << "Build Verilator Environment for simulation use." << endl;
+//}
 //----------------------------------------------------------------------
 // Verilator Test
 //----------------------------------------------------------------------
@@ -409,6 +409,6 @@ GVVerilatorTest::usage(const bool& verbose) const {
 void
 GVVerilatorTest::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "Verilator Test: "
-                      << "Verilator for internal test" << endl;
+                      << "Internal test for Verilator" << endl;
 }
 #endif
