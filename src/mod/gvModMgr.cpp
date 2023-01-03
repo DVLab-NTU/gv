@@ -24,27 +24,6 @@ GVModMgr::GVModMgr() {
 
 GVModMgr::~GVModMgr() {}
 
-bool
-GVModMgr::checkModeType(GVCmdType& currCmdType) {
-    /*
-    if (getGVMode() == GV_MOD_TYPE_VERIFY) {
-        // for (size_t i = 0; i < _vrfMode.size(); ++i) {
-        //     if (currCmdType == _vrfMode[i]) return true;
-        // }
-        if(_vrfMode.find(currCmdType) != _vrfMode.end()) return true;
-        cout << "Please switch to \"SETUP MODE\" !!" << endl;
-    } else {
-        for (size_t i = 0; i < _setupMode.size(); ++i) {
-            if (currCmdType == _setupMode[i]) {
-                cout << "Please switch to \"VRF MODE\" !!" << endl;
-                return false;
-            }
-        }
-        return true;
-    }*/
-    return false;
-}
-
 /* ------------------------- *\
  * GET functions
 \* ------------------------- */
