@@ -14,7 +14,7 @@ $(TARGET): $(COBJS) $(LIBDEP)
 	@echo $(TOPPATH);
 	@echo $(LIBABSPATH);
 
-	$(CC) $(CFLAGS) -no-pie -I$(INCDIR) $(COBJS) $(LIBPATH) -Wl,-rpath $(LIBABSPATH) -L$(LIBDIR)  $(EXTLIB) -lyosys -lpthread -o $@
+	$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) $(LIBPATH) -Wl,-rpath $(LIBABSPATH) -L$(LIBDIR)  $(EXTLIB) -lyosys -lpthread -o $@
 
 #	@$(YOSYSCONF) -o $@  --cxxflags -rdynamic -I$(INCDIR) $(COBJS) -L$(LIBDIR) --ldlibs -lstdc++ $(EXTLIB) -pthread -lyosys
 #	@$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) -L$(LIBDIR) $(EXTLIB) -static -lpthread -o $@
