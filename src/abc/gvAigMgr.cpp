@@ -11,6 +11,9 @@
 #include "rnGen.h"
 #include <iomanip>
 #include <iostream>
+#include "sat/cnf/cnf.h"
+#include "sat/bsat/satSolver.h"
+#include "gvCnf.h"
 using namespace std;
 
 typedef struct Fraig_ParamsStruct_t_ Fraig_Params_t;
@@ -21,6 +24,7 @@ extern "C"
 {
     Aig_Man_t* Abc_NtkToDar(Abc_Ntk_t* pNtk, int fExors, int fRegisters);
     int        Aig_ManCutCount(Aig_ManCut_t* p, int* pnCutsK);
+    Aig_Obj_t * Aig_ManDup_rec( Aig_Man_t * pNew, Aig_Man_t * p, Aig_Obj_t * pObj );
 }
 
 void
@@ -432,12 +436,44 @@ void convertToBinary2(size_t* n, size_t num_words)
     }
 }
 
-similarity_t computeSimilarityOf2Nodes(const size_t* sim1, const size_t* sim2, const size_t* output1, const size_t* output2, const size_t * lookupTable, size_t num_words)
+
+// Create the aig cone
+// This function is modified from Abc_NtkCreateCone
+Aig_Man_t * Aig_ManCreateCone( Aig_Man_t * p, Aig_Obj_t * pNode)
+{
+    Aig_Man_t * pNew;
+    Aig_Obj_t * pObj;
+    int i;
+
+    pNew = Aig_ManStart( Aig_ManObjNumMax(p) );
+    pNew->pName = Abc_UtilStrsav( p->pName );
+    pNew->pSpec = Abc_UtilStrsav( p->pSpec );
+
+    // create the PIs
+    Aig_ManCleanData( p );
+    Aig_ManConst1(p)->pData = Aig_ManConst1(pNew);
+    Aig_ManForEachCi( p, pObj, i )
+        pObj->pData = Aig_ObjCreateCi(pNew);
+    Aig_ManForEachNode( p, pObj, i )
+        pObj->pData = Aig_And( pNew, Aig_ObjChild0Copy(pObj), Aig_ObjChild1Copy(pObj) );
+    // add the PO
+    Aig_ObjCreateCo( pNew, (Aig_Obj_t *)pNode->pData );
+    Aig_ManCleanup( pNew );
+    // check the resulting network
+    if ( !Aig_ManCheck(pNew) )
+        printf( "Aig_ManExtractMiter(): The check has failed.\n" );
+
+    return pNew;
+}
+
+similarity_t computeSimilarityOf2Nodes(Aig_Man_t * pAig1, Aig_Man_t * pAig2, const size_t* sim1, const size_t* sim2, size_t** simValue1, size_t**  simValue2, const size_t * lookupTable, size_t num_words)
 {
     size_t count = 0, num_bit = sizeof(size_t) * 8, cofactor_count = 0, good_vector_count = 0;
     similarity_t similarity;
     size_t equal, miter, good_vector;
     size_t mask[4];
+    // int j;
+    Aig_Obj_t * pObj1, *pObj2;
     // const size_t * sim1 = sim_1, * sim2 = sim_2, * output1 = output_1, * output2 = output_2;
     mask[0] = pow(2, sizeof(size_t) * 2) - 1;
     mask[1] = pow(2, sizeof(size_t) * 4) - pow(2, sizeof(size_t) * 2);
@@ -447,13 +483,17 @@ similarity_t computeSimilarityOf2Nodes(const size_t* sim1, const size_t* sim2, c
     for(size_t i = 0; i < num_words; ++i)
     {
         equal = ~(sim1[i] ^ sim2[i]);
-        miter = ~(output1[i] ^ output2[i]);
-        good_vector = equal & miter;
-        for(size_t j = 0; j < 4; ++j)
+        for(size_t j = 0; j < Aig_ManCoNum(pAig1); ++j)
         {
-            count += lookupTable[(good_vector & mask[j]) >> (j * sizeof(size_t) * 2)];
-            cofactor_count += lookupTable[(equal & mask[j]) >> (j * sizeof(size_t) * 2)];
-            good_vector_count += lookupTable[(miter & mask[j]) >> (j * sizeof(size_t) * 2)];
+            
+            miter = ~(simValue1[Aig_ManCo(pAig1, j)->Id][i] ^ simValue2[Aig_ManCo(pAig2, j)->Id][i]);
+            good_vector = equal & miter;
+            for(size_t k = 0; k < 4; ++k)
+            {
+                count += lookupTable[(good_vector & mask[k]) >> (k * sizeof(size_t) * 2)];
+                cofactor_count += lookupTable[(equal & mask[k]) >> (k * sizeof(size_t) * 2)];
+                good_vector_count += lookupTable[(miter & mask[k]) >> (k * sizeof(size_t) * 2)];
+            }
         }
     }
     // cout << "] cofactor equal count = " << cofactor_count << " miter equal count  " << good_vector_count << endl;
@@ -487,19 +527,35 @@ void abcAigMgr::simlirarity(char* filename) {
     Aig_Obj_t * pObj1, *pObj2;
     Aig_Cut_t * pCut1, *pCut2;
     size_t ** simValue1, **simValue2;
-    int i, j;
+    int i, j, k, status;
     similarity_t similarity;
     bool stop = false;
     size_t* lookupTable;
     size_t num_words = 1000; // number of words simulated
     clock_t time_start;
     obj_similarity_t tmp_obj_similarity;
+    Aig_Man_t * pAigCone1, * pAigCone2, * pMiter;
+    Cnf_Dat_t * pCnf;
+    sat_solver * pSat = sat_solver_new();
+    lit Lits[2]; // literals for temparary use
+    int * pBeg, * pEnd;
+    cnf_t Cnf;
+    cnf_obj_t Cnf_obj = {Cnf, 0};
+    vector<vector<int>> e;
+    vector<int>         e_row, assump;
+
+
     lookupTable = new size_t[(size_t)pow(2, sizeof(size_t) * 2)];
    
     pNtk2 = Io_Read(filename, IO_FILE_VERILOG, 0, 0);
     pNtk2 = Abc_NtkStrash(pNtk2, 0, 1, 0);
     pAig1 = Abc_NtkToDar(pNtk, 0, 1);
     pAig2 = Abc_NtkToDar(pNtk2, 0, 1);
+    
+    // record the fanout information of the two aigs
+    Aig_ManFanoutStart(pAig1);
+    Aig_ManFanoutStart(pAig2);
+    
 
     //  cout << "creating arrays" << Aig_ManObjNum(pAig1) << " " << Aig_ManObjNum(pAig1) << " " <<endl;
     similarity_table = new similarity_vec_t [Aig_ManObjNum(pAig1)];
@@ -529,6 +585,150 @@ void abcAigMgr::simlirarity(char* filename) {
     // find high similarity cuts
     cout << "computing similarity..." << endl;
     time_start = clock();
+
+    // Set the number of vars as #candidates in old circuit * #candidates in golden circuit
+    sat_solver_setnvars(pSat, Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2)); // set the vars for eij
+    Cnf_obj.cnf_data_lift(Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2));  // add the nuber of vars into the Cnf_obj
+
+    // set the table of eij
+    for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+    {
+        e_row.clear(); // create each row for eij
+        for(j = 0; j < Aig_ManCandNum(pAig2) - 1; ++j)
+        {
+            e_row.push_back(i * Aig_ManCandNum(pAig2) + j);
+        }
+        e.push_back(e_row); // push the row into the chart
+    }
+    // pSat->fPrintClause =  1; // for debug use
+    // Add constraint 1 - Every row can only have one 1
+    cout << "adding constraint1..." << endl;
+    for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+    {
+        for(j = 0; j < Aig_ManCandNum(pAig2) - 1; ++j)
+        {
+            Lits[0] = Abc_Var2Lit(i * Aig_ManCandNum(pAig2) + j, 1);
+            for(k = j + 1; k < Aig_ManCandNum(pAig2); ++k)
+            {
+                Lits[1] = Abc_Var2Lit(i * Aig_ManCandNum(pAig2) + k, 1);
+                sat_solver_addclause(pSat, Lits, Lits + 2);
+            }
+        }
+    }
+
+    // Add constraint 2 - Every column can only have one 1
+    cout << "adding constraint2..." << endl;
+    for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+    {
+        for(j = 0; j < Aig_ManCandNum(pAig2) - 1; ++j)
+        {
+            Lits[0] = Abc_Var2Lit(i + Aig_ManCandNum(pAig2) * j, 1);
+            for(k = j + 1; k < Aig_ManCandNum(pAig2); ++k)
+            {
+                Lits[1] = Abc_Var2Lit(i + Aig_ManCandNum(pAig2) * k, 1);
+                sat_solver_addclause(pSat, Lits, Lits + 2);
+            }
+        }
+    }
+
+    // Write the circuit constraints (constraint 5 and 6)
+    cout << "adding circuit constraint..." << endl;
+    sat_solver_setnvars(pSat, Aig_ManObjNum(pAig1) + Aig_ManObjNum(pAig2));
+    
+    Aig2Cnf(pAig1, pAig2, Cnf_obj, true);
+    WriteCnf(pSat, Cnf_obj);
+    Cnf_obj.cnf_data_lift(Aig_ManCandNum(pAig1)); // one is const
+    
+    Aig2Cnf(pAig1, pAig2, Cnf_obj, false);
+    WriteCnf(pSat, Cnf_obj);
+    // pSat->fPrintClause =  0;
+    Cnf_obj.cnf_data_lift(Aig_ManCandNum(pAig2)); // one is const
+
+    // add constraint 4
+    cout << "adding constraint 4" << endl;
+    constraint4(pSat, pAig1, pAig2);
+
+    constraint7(pSat, pAig1, pAig2);
+
+
+    // add assumption
+    // for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+    // {
+    //     // cout << "i = " << i << " " <<  << endl;
+    //     cout << "assump " <<  Abc_Var2Lit(i + i * Aig_ManCandNum(pAig2), 0) << endl;
+    //     assump.push_back(Abc_Var2Lit(i + i * Aig_ManCandNum(pAig2), 0));
+    // }
+    assump.push_back(Abc_Var2Lit(0, 0));
+    assump.push_back(Abc_Var2Lit(12, 0));
+    assump.push_back(Abc_Var2Lit(24, 0));
+    assump.push_back(Abc_Var2Lit(36, 0));
+    assump.push_back(Abc_Var2Lit(48, 0));
+    assump.push_back(Abc_Var2Lit(60, 0));
+    status = sat_solver_solve(pSat, &assump.front(), &assump.back() + 1 , 0, 0, 0, 0);
+    if ( status == l_False ) cout << "unsat, cut found!!!" << endl;
+    if ( status == l_True ) cout << "sat, cut not found!!!" << endl;
+    int *pfinal;
+    int nfinal = sat_solver_final(pSat, &pfinal);
+    cout << "eij assignment" << endl;
+    for(i = 0; i < nfinal; ++i)
+    {
+        cout << ((pfinal[i] % 2 == 0) ? "" : "!") << Abc_Lit2Var(pfinal[i]) << endl;
+    }
+    if ( status == l_True )
+    {
+        for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+        {
+            for(j = 0; j < Aig_ManCandNum(pAig2); ++j)
+            {
+                // cout << i * Aig_ManCandNum(pAig2) + j << endl;
+                cout << sat_solver_var_value(pSat, i * Aig_ManCandNum(pAig2) + j) << " ";
+            }
+            cout << endl;
+        }
+        cout << "circuit 1 assignment" << endl;
+        for(i = 1; i < Aig_ManCandNum(pAig1) + 1; ++i)
+        {
+            cout << sat_solver_var_value(pSat, Aig_ManCandNum(pAig2) + Aig_ManCandNum(pAig1) + i) <<  " ";
+        }
+        cout << endl;
+        cout << "circuit 2 assignment" << endl;
+        for(i = 0; i < Aig_ManCandNum(pAig2); ++i)
+        {
+            cout << sat_solver_var_value(pSat, Aig_ManCandNum(pAig2) + Aig_ManCandNum(pAig1) + Aig_ManCandNum(pAig1) + i) <<  " ";
+        }
+        cout << endl;
+    }
+    return;
+    
+    Cnf_CnfForClause( pCnf, pBeg, pEnd, i ) 
+    {
+        for(int * p = pBeg; p < pEnd; ++p)
+            cout << Abc_Lit2Var(*p) << " ";
+        cout << endl;
+        // for(int * p = pBeg; p < pEnd; ++p)
+        //     cout << *p << " ";
+        // cout << endl;
+        // cout << endl;
+    }
+    cout << "#clauses " << pCnf->nClauses << endl;
+    
+    return;
+    
+    
+
+    // Add constraint 6 - At least one of the TFO of each PI is chosen
+    Aig_ManForEachNodeReverse(pAig1, pObj1, i)
+    {
+        cout << "node id = " << pObj1->Id << endl;
+    }
+    cout << "PI num = " << Aig_ManCiNum(pAig1) << endl;
+
+    status = sat_solver_solve(pSat, 0, 0 , 0, 0, 0, 0);
+    if ( status == l_False ) cout << "bbb unsat" << endl;
+    if ( status == l_True ) cout << "bbb sat" << endl;
+    return;
+
+    // cout << "hwioeshfioewhfiheiohfsiocho " << pSat -> size << " " << Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2) << endl;
     Aig_ManForEachNodeReverse( pAig1, pObj1, i )
     {
         // cout << Aig_ManLevelNum(pAig1) << " " << Aig_ObjLevel(pObj1) << endl;
@@ -537,11 +737,12 @@ void abcAigMgr::simlirarity(char* filename) {
         {
             if(Aig_ManLevelNum(pAig2) == Aig_ObjLevel(pObj2)) continue; // we don't compute the similarity of CO
             // cout << "[r1 n" << pObj1->Id << "] [r2 n" << pObj2->Id;
-            similarity = computeSimilarityOf2Nodes(simValue1[pObj1->Id], simValue2[pObj2->Id], simValue1[Aig_ManCo(pAig1, 0)->Id], simValue2[Aig_ManCo(pAig2, 0)->Id], lookupTable, num_words);
+            // similarity = computeSimilarityOf2Nodes(simValue1[pObj1->Id], simValue2[pObj2->Id], simValue1[Aig_ManCo(pAig1, 0)->Id], simValue2[Aig_ManCo(pAig2, 0)->Id], lookupTable, num_words);
+            similarity = computeSimilarityOf2Nodes(pAig1, pAig2, simValue1[pObj1->Id], simValue2[pObj2->Id], simValue1, simValue2, lookupTable, num_words);
             tmp_obj_similarity.second = similarity.first;
             tmp_obj_similarity.first = pObj2->Id;
             similarity_table[pObj1->Id].push_back(tmp_obj_similarity);
-            // cout << similarity_table[pObj1->Id].back().first << " " << similarity_table[pObj1->Id].back().second << endl;
+            // cout << similarity_table[pObj1->Id].back() + 1.first << " " << similarity_table[pObj1->Id].back() + 1.second << endl;
             // cout << "similarity cofactor = " << similarity.first << " similarity good vector " << similarity.second<< endl;
         }
         if (stop) break;
@@ -574,6 +775,15 @@ void abcAigMgr::simlirarity(char* filename) {
             match_table[match_priority[i].first] = similarity_table[match_priority[i].first][j].first;
             Aig_ObjSetTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first));
             cout << match_priority[i].first << " " << similarity_table[match_priority[i].first][j].first << endl;
+            pAigCone1 = Aig_ManCreateCone(pAig1, Aig_ManObj(pAig1, match_priority[i].first));
+            pAigCone2 = Aig_ManCreateCone(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first));
+            pMiter = Aig_ManCreateMiter(pAigCone1, pAigCone2, 0); // the third parameter 0 means the miter is adding an xor
+            pCnf = Cnf_Derive(pMiter,Aig_ManCoNum(pMiter));
+            pSat = (sat_solver*)Cnf_DataWriteIntoSolver(pCnf, 1, 0);
+            status = sat_solver_solve(pSat, 0, 0 , 0, 0, 0, 0);
+            if ( status == l_False ) cout << "unsat" << endl;
+            if ( status == l_True ) cout << "sat" << endl;
+            // cout << "cone size = " << Aig_ManObjNum(pAigCone1) << endl;
             break;
         }
     }
@@ -594,9 +804,11 @@ void abcAigMgr::simlirarity(char* filename) {
                     match_table[match_priority[i].first] = similarity_table[match_priority[i].first][j].first;
                     Aig_ObjSetTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first));
                     cout << match_priority[i].first << " " << similarity_table[match_priority[i].first][j].first << endl;
+                    // pAigCone1 = Aig_ManObj(pAig1, match_priority[i].first);
                     break;
                 }
             }
+            
             cout << "=======================================================" << endl;
         }
     }
