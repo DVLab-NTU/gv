@@ -1,16 +1,16 @@
 #ifndef GV_MOD_CMD_C
 #define GV_MOD_CMD_C
 
-#include "gvMsg.h"
-#include "gvModMgr.h"
 #include "gvModCmd.h"
 #include "gvAbcMgr.h"
 #include "kernel/yosys.h"
+#include "gvModMgr.h"
+#include "gvMsg.h"
+#include "util.h"
 #include <string>
 #include <vector>
-#include "util.h"
 
-bool 
+bool
 GVinitModCmd() {
     if (gvModMgr) delete gvModMgr;
     gvModMgr = new GVModMgr;
@@ -22,12 +22,12 @@ GVinitModCmd() {
 
 GVCmdExecStatus
 GVSetSystemCmd ::exec(const string& option) {
-    if(!gvModMgr->getInputFileExist()){
+    if (!gvModMgr->getInputFileExist()) {
         gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" to read the input file first !!\n";
         return GV_CMD_EXEC_NOP;
     }
-    bool setup = false, vrf = false;
-    string systemPromptStr;
+    bool           setup = false, vrf = false;
+    string         systemPromptStr;
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     if (options.size() == 0) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "<(string mode)>");
@@ -36,18 +36,18 @@ GVSetSystemCmd ::exec(const string& option) {
         const string& token = options[i];
         if (myStrNCmp("setup", token, 3) == 0) {
             if (vrf) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else {setup = true;}
-        }
-        else if (myStrNCmp("vrf", token, 3) == 0) {
+            else {
+                setup = true;
+            }
+        } else if (myStrNCmp("vrf", token, 3) == 0) {
             if (setup) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else {vrf = true;}
-        }
-        else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            else {
+                vrf = true;
+            }
+        } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
-    if(setup)
-        gvModMgr->setGVMode(GV_MOD_TYPE_SETUP);
-    else if(vrf)
-        gvModMgr->setGVMode(GV_MOD_TYPE_VERIFY);
+    if (setup) gvModMgr->setGVMode(GV_MOD_TYPE_SETUP);
+    else if (vrf) gvModMgr->setGVMode(GV_MOD_TYPE_VERIFY);
 
     return GV_CMD_EXEC_DONE;
 }
@@ -59,7 +59,8 @@ GVSetSystemCmd ::usage(const bool& verbose) const {
 
 void
 GVSetSystemCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt System: " << "Switch to setup/vrf mode." << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt System: "
+                      << "Switch to setup/vrf mode." << endl;
 }
 
 GVCmdExecStatus

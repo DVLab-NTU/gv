@@ -9,11 +9,8 @@
 #include "gvMsg.h"
 #include "util.h"
 
-GVRTLDesign *gvRTLDesign;
-
+GVRTLDesign* gvRTLDesign;
 
 //----------------------------------------------------------------------
 // Class GVNtk Implementations
 //----------------------------------------------------------------------
-
-
