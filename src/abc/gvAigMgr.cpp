@@ -527,7 +527,7 @@ void abcAigMgr::simlirarity(char* filename) {
     Aig_Obj_t * pObj1, *pObj2;
     Aig_Cut_t * pCut1, *pCut2;
     size_t ** simValue1, **simValue2;
-    int i, j, k, status;
+    int i, j, k, status, status_cut;
     similarity_t similarity;
     bool stop = false;
     size_t* lookupTable;
@@ -658,24 +658,62 @@ void abcAigMgr::simlirarity(char* filename) {
     //     cout << "assump " <<  Abc_Var2Lit(i + i * Aig_ManCandNum(pAig2), 0) << endl;
     //     assump.push_back(Abc_Var2Lit(i + i * Aig_ManCandNum(pAig2), 0));
     // }
-    assump.push_back(Abc_Var2Lit(0, 0));
-    assump.push_back(Abc_Var2Lit(12, 0));
-    assump.push_back(Abc_Var2Lit(24, 0));
-    assump.push_back(Abc_Var2Lit(36, 0));
-    assump.push_back(Abc_Var2Lit(48, 0));
+    // assump.push_back(Abc_Var2Lit(0, 0));
+    // assump.push_back(Abc_Var2Lit(12, 0));
+    // assump.push_back(Abc_Var2Lit(24, 0));
+    // assump.push_back(Abc_Var2Lit(36, 0));
+    // assump.push_back(Abc_Var2Lit(48, 0));
     assump.push_back(Abc_Var2Lit(60, 0));
+    assump.push_back(Abc_Var2Lit(72, 0));
+    assump.push_back(Abc_Var2Lit(84, 0));
+    assump.push_back(Abc_Var2Lit(96, 0));
     status = sat_solver_solve(pSat, &assump.front(), &assump.back() + 1 , 0, 0, 0, 0);
     if ( status == l_False ) cout << "unsat, cut found!!!" << endl;
     if ( status == l_True ) cout << "sat, cut not found!!!" << endl;
     int *pfinal;
     int nfinal = sat_solver_final(pSat, &pfinal);
-    cout << "eij assignment" << endl;
-    for(i = 0; i < nfinal; ++i)
+    if(status == l_False) // The cut may exist, analysis if it is a cuts
     {
-        cout << ((pfinal[i] % 2 == 0) ? "" : "!") << Abc_Lit2Var(pfinal[i]) << endl;
+        for(i = 0; i < nfinal; ++i)
+        {
+            cout << ((pfinal[i] % 2 == 0) ? "" : "!") << Abc_Lit2Var(pfinal[i]) << endl;
+        }
+        cout << "UNSAT, start cut checking!!!" << endl;
+        sat_solver * pSatCut = sat_solver_new();
+        sat_solver_setnvars(pSatCut, Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2)); // set the vars for eij
+        vector<lit> cut_clause;
+        // add constrinat 6
+        // constraint 6
+        // Aig1
+        Aig_ManForEachCi(pAig1, pObj1, i)
+        {
+            // cout << "PI id = " <<  pObj -> Id << endl;
+            cut_clause.clear(); // make sure the clause is empty
+            constraint6(cut_clause, pAig1, pAig2, pObj1, Cnf_obj, true);
+            sat_solver_addclause(pSatCut, &cut_clause.front(), &cut_clause.back() + 1);
+        }
+
+        // Aig2
+        Aig_ManForEachCi(pAig2, pObj1, i)
+        {
+            // cout << "PI id = " <<  pObj -> Id << endl;
+            cut_clause.clear(); // make sure the clause is empty
+            constraint6(cut_clause, pAig1, pAig2, pObj1, Cnf_obj, false);
+            sat_solver_addclause(pSatCut, &cut_clause.front(), &cut_clause.back() + 1);
+        }
+
+        // constraint7
+        constraint7(pSatCut, pAig1, pAig2);
+
+        // solve the cut constraint
+        status_cut = sat_solver_solve(pSatCut, &assump.front(), &assump.back() + 1 , 0, 0, 0, 0);
+        if ( status_cut == l_False ) cout << "unsat, this is not a cut!!!" << endl;
+        if ( status_cut == l_True ) cout << "sat!!! Congratulations, cut found!!!" << endl;
     }
+    
     if ( status == l_True )
     {
+        cout << "eij assignment" << endl;
         for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
         {
             for(j = 0; j < Aig_ManCandNum(pAig2); ++j)
@@ -698,34 +736,6 @@ void abcAigMgr::simlirarity(char* filename) {
         }
         cout << endl;
     }
-    return;
-    
-    Cnf_CnfForClause( pCnf, pBeg, pEnd, i ) 
-    {
-        for(int * p = pBeg; p < pEnd; ++p)
-            cout << Abc_Lit2Var(*p) << " ";
-        cout << endl;
-        // for(int * p = pBeg; p < pEnd; ++p)
-        //     cout << *p << " ";
-        // cout << endl;
-        // cout << endl;
-    }
-    cout << "#clauses " << pCnf->nClauses << endl;
-    
-    return;
-    
-    
-
-    // Add constraint 6 - At least one of the TFO of each PI is chosen
-    Aig_ManForEachNodeReverse(pAig1, pObj1, i)
-    {
-        cout << "node id = " << pObj1->Id << endl;
-    }
-    cout << "PI num = " << Aig_ManCiNum(pAig1) << endl;
-
-    status = sat_solver_solve(pSat, 0, 0 , 0, 0, 0, 0);
-    if ( status == l_False ) cout << "bbb unsat" << endl;
-    if ( status == l_True ) cout << "bbb sat" << endl;
     return;
 
     // cout << "hwioeshfioewhfiheiohfsiocho " << pSat -> size << " " << Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2) << endl;
