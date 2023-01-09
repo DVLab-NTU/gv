@@ -527,7 +527,7 @@ void abcAigMgr::simlirarity(char* filename) {
     Aig_Obj_t * pObj1, *pObj2;
     Aig_Cut_t * pCut1, *pCut2;
     size_t ** simValue1, **simValue2;
-    int i, j, k, status, status_cut;
+    int i, j, k, status = l_True;
     similarity_t similarity;
     bool stop = false;
     size_t* lookupTable;
@@ -537,12 +537,14 @@ void abcAigMgr::simlirarity(char* filename) {
     Aig_Man_t * pAigCone1, * pAigCone2, * pMiter;
     Cnf_Dat_t * pCnf;
     sat_solver * pSat = sat_solver_new();
+    sat_solver * pSatCut = sat_solver_new();
     lit Lits[2]; // literals for temparary use
     int * pBeg, * pEnd;
     cnf_t Cnf;
     cnf_obj_t Cnf_obj = {Cnf, 0};
     vector<vector<int>> e;
     vector<int>         e_row, assump;
+    vector<lit> cut_clause;
 
 
     lookupTable = new size_t[(size_t)pow(2, sizeof(size_t) * 2)];
@@ -588,6 +590,7 @@ void abcAigMgr::simlirarity(char* filename) {
 
     // Set the number of vars as #candidates in old circuit * #candidates in golden circuit
     sat_solver_setnvars(pSat, Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2)); // set the vars for eij
+    sat_solver_setnvars(pSatCut, Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2)); // set the vars for eij
     Cnf_obj.cnf_data_lift(Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2));  // add the nuber of vars into the Cnf_obj
 
     // set the table of eij
@@ -651,109 +654,19 @@ void abcAigMgr::simlirarity(char* filename) {
     constraint7(pSat, pAig1, pAig2);
 
 
-    // add assumption
-    // for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
-    // {
-    //     // cout << "i = " << i << " " <<  << endl;
-    //     cout << "assump " <<  Abc_Var2Lit(i + i * Aig_ManCandNum(pAig2), 0) << endl;
-    //     assump.push_back(Abc_Var2Lit(i + i * Aig_ManCandNum(pAig2), 0));
-    // }
-    // assump.push_back(Abc_Var2Lit(0, 0));
-    // assump.push_back(Abc_Var2Lit(12, 0));
-    // assump.push_back(Abc_Var2Lit(24, 0));
-    // assump.push_back(Abc_Var2Lit(36, 0));
-    // assump.push_back(Abc_Var2Lit(48, 0));
-    assump.push_back(Abc_Var2Lit(60, 0));
-    assump.push_back(Abc_Var2Lit(72, 0));
-    assump.push_back(Abc_Var2Lit(84, 0));
-    assump.push_back(Abc_Var2Lit(96, 0));
-    status = sat_solver_solve(pSat, &assump.front(), &assump.back() + 1 , 0, 0, 0, 0);
-    if ( status == l_False ) cout << "unsat, cut found!!!" << endl;
-    if ( status == l_True ) cout << "sat, cut not found!!!" << endl;
-    int *pfinal;
-    int nfinal = sat_solver_final(pSat, &pfinal);
-    if(status == l_False) // The cut may exist, analysis if it is a cuts
-    {
-        for(i = 0; i < nfinal; ++i)
-        {
-            cout << ((pfinal[i] % 2 == 0) ? "" : "!") << Abc_Lit2Var(pfinal[i]) << endl;
-        }
-        cout << "UNSAT, start cut checking!!!" << endl;
-        sat_solver * pSatCut = sat_solver_new();
-        sat_solver_setnvars(pSatCut, Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2)); // set the vars for eij
-        vector<lit> cut_clause;
-        // add constrinat 6
-        // constraint 6
-        // Aig1
-        Aig_ManForEachCi(pAig1, pObj1, i)
-        {
-            // cout << "PI id = " <<  pObj -> Id << endl;
-            cut_clause.clear(); // make sure the clause is empty
-            constraint6(cut_clause, pAig1, pAig2, pObj1, Cnf_obj, true);
-            sat_solver_addclause(pSatCut, &cut_clause.front(), &cut_clause.back() + 1);
-        }
-
-        // Aig2
-        Aig_ManForEachCi(pAig2, pObj1, i)
-        {
-            // cout << "PI id = " <<  pObj -> Id << endl;
-            cut_clause.clear(); // make sure the clause is empty
-            constraint6(cut_clause, pAig1, pAig2, pObj1, Cnf_obj, false);
-            sat_solver_addclause(pSatCut, &cut_clause.front(), &cut_clause.back() + 1);
-        }
-
-        // constraint7
-        constraint7(pSatCut, pAig1, pAig2);
-
-        // solve the cut constraint
-        status_cut = sat_solver_solve(pSatCut, &assump.front(), &assump.back() + 1 , 0, 0, 0, 0);
-        if ( status_cut == l_False ) cout << "unsat, this is not a cut!!!" << endl;
-        if ( status_cut == l_True ) cout << "sat!!! Congratulations, cut found!!!" << endl;
-    }
-    
-    if ( status == l_True )
-    {
-        cout << "eij assignment" << endl;
-        for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
-        {
-            for(j = 0; j < Aig_ManCandNum(pAig2); ++j)
-            {
-                // cout << i * Aig_ManCandNum(pAig2) + j << endl;
-                cout << sat_solver_var_value(pSat, i * Aig_ManCandNum(pAig2) + j) << " ";
-            }
-            cout << endl;
-        }
-        cout << "circuit 1 assignment" << endl;
-        for(i = 1; i < Aig_ManCandNum(pAig1) + 1; ++i)
-        {
-            cout << sat_solver_var_value(pSat, Aig_ManCandNum(pAig2) + Aig_ManCandNum(pAig1) + i) <<  " ";
-        }
-        cout << endl;
-        cout << "circuit 2 assignment" << endl;
-        for(i = 0; i < Aig_ManCandNum(pAig2); ++i)
-        {
-            cout << sat_solver_var_value(pSat, Aig_ManCandNum(pAig2) + Aig_ManCandNum(pAig1) + Aig_ManCandNum(pAig1) + i) <<  " ";
-        }
-        cout << endl;
-    }
-    return;
-
-    // cout << "hwioeshfioewhfiheiohfsiocho " << pSat -> size << " " << Aig_ManCandNum(pAig1) * Aig_ManCandNum(pAig2) << endl;
+    // compute similarity
+    // cout << "bbb = " << aigIds2var(7, 7, pAig1, pAig2) << endl;
+    // return;
     Aig_ManForEachNodeReverse( pAig1, pObj1, i )
     {
-        // cout << Aig_ManLevelNum(pAig1) << " " << Aig_ObjLevel(pObj1) << endl;
         if(Aig_ManLevelNum(pAig1) == Aig_ObjLevel(pObj1)) continue; // we don't compute the similarity of CO
         Aig_ManForEachNodeReverse( pAig2, pObj2, j )
         {
             if(Aig_ManLevelNum(pAig2) == Aig_ObjLevel(pObj2)) continue; // we don't compute the similarity of CO
-            // cout << "[r1 n" << pObj1->Id << "] [r2 n" << pObj2->Id;
-            // similarity = computeSimilarityOf2Nodes(simValue1[pObj1->Id], simValue2[pObj2->Id], simValue1[Aig_ManCo(pAig1, 0)->Id], simValue2[Aig_ManCo(pAig2, 0)->Id], lookupTable, num_words);
             similarity = computeSimilarityOf2Nodes(pAig1, pAig2, simValue1[pObj1->Id], simValue2[pObj2->Id], simValue1, simValue2, lookupTable, num_words);
             tmp_obj_similarity.second = similarity.first;
             tmp_obj_similarity.first = pObj2->Id;
             similarity_table[pObj1->Id].push_back(tmp_obj_similarity);
-            // cout << similarity_table[pObj1->Id].back() + 1.first << " " << similarity_table[pObj1->Id].back() + 1.second << endl;
-            // cout << "similarity cofactor = " << similarity.first << " similarity good vector " << similarity.second<< endl;
         }
         if (stop) break;
     }
@@ -785,43 +698,118 @@ void abcAigMgr::simlirarity(char* filename) {
             match_table[match_priority[i].first] = similarity_table[match_priority[i].first][j].first;
             Aig_ObjSetTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first));
             cout << match_priority[i].first << " " << similarity_table[match_priority[i].first][j].first << endl;
-            pAigCone1 = Aig_ManCreateCone(pAig1, Aig_ManObj(pAig1, match_priority[i].first));
-            pAigCone2 = Aig_ManCreateCone(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first));
-            pMiter = Aig_ManCreateMiter(pAigCone1, pAigCone2, 0); // the third parameter 0 means the miter is adding an xor
-            pCnf = Cnf_Derive(pMiter,Aig_ManCoNum(pMiter));
-            pSat = (sat_solver*)Cnf_DataWriteIntoSolver(pCnf, 1, 0);
-            status = sat_solver_solve(pSat, 0, 0 , 0, 0, 0, 0);
-            if ( status == l_False ) cout << "unsat" << endl;
-            if ( status == l_True ) cout << "sat" << endl;
-            // cout << "cone size = " << Aig_ManObjNum(pAigCone1) << endl;
+            assump.push_back(Abc_Var2Lit(aigIds2var(match_priority[i].first, similarity_table[match_priority[i].first][j].first, pAig1, pAig2), 0));
             break;
         }
     }
-    cout << "=======================================================" << endl;
-    match_priority_copy = match_priority;
-    for(int m = Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2) - 1; m > 0; --m)
+
+    // add constrinat 6
+    // Aig1
+    Aig_ManForEachCi(pAig1, pObj1, i)
     {
-        match_priority = match_priority_copy;
-        for(int n = m; n > 0; --n)
+        cut_clause.clear(); // make sure the clause is empty
+        constraint6(cut_clause, pAig1, pAig2, pObj1, Cnf_obj, true);
+        sat_solver_addclause(pSatCut, &cut_clause.front(), &cut_clause.back() + 1);
+    }
+
+    // Aig2
+    Aig_ManForEachCi(pAig2, pObj1, i)
+    {
+        // cout << "PI id = " <<  pObj -> Id << endl;
+        cut_clause.clear(); // make sure the clause is empty
+        constraint6(cut_clause, pAig1, pAig2, pObj1, Cnf_obj, false);
+        sat_solver_addclause(pSatCut, &cut_clause.front(), &cut_clause.back() + 1);
+    }
+
+    // constraint7
+    constraint7(pSatCut, pAig1, pAig2);
+
+    // Add constraint 1 - Every row can only have one 1
+    cout << "adding constraint1..." << endl;
+    for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+    {
+        for(j = 0; j < Aig_ManCandNum(pAig2) - 1; ++j)
         {
-            vec_swap(match_priority, n - 1, n);
-            Aig_ManIncrementTravId(pAig2);
-            for(i = 0; i < Aig_ManNodeNum(pAig1) - Aig_ManCoNum(pAig1); ++i)
+            Lits[0] = Abc_Var2Lit(i * Aig_ManCandNum(pAig2) + j, 1);
+            for(k = j + 1; k < Aig_ManCandNum(pAig2); ++k)
             {
-                for(j = 0; j < Aig_ManNodeNum(pAig2) - Aig_ManCoNum(pAig2); ++j)
-                {
-                    if(Aig_ObjIsTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first))) continue;
-                    match_table[match_priority[i].first] = similarity_table[match_priority[i].first][j].first;
-                    Aig_ObjSetTravIdCurrent(pAig2, Aig_ManObj(pAig2, similarity_table[match_priority[i].first][j].first));
-                    cout << match_priority[i].first << " " << similarity_table[match_priority[i].first][j].first << endl;
-                    // pAigCone1 = Aig_ManObj(pAig1, match_priority[i].first);
-                    break;
-                }
+                Lits[1] = Abc_Var2Lit(i * Aig_ManCandNum(pAig2) + k, 1);
+                sat_solver_addclause(pSatCut, Lits, Lits + 2);
             }
-            
-            cout << "=======================================================" << endl;
         }
     }
+
+    // Add constraint 2 - Every column can only have one 1
+    cout << "adding constraint2..." << endl;
+    for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+    {
+        for(j = 0; j < Aig_ManCandNum(pAig2) - 1; ++j)
+        {
+            Lits[0] = Abc_Var2Lit(i + Aig_ManCandNum(pAig2) * j, 1);
+            for(k = j + 1; k < Aig_ManCandNum(pAig2); ++k)
+            {
+                Lits[1] = Abc_Var2Lit(i + Aig_ManCandNum(pAig2) * k, 1);
+                sat_solver_addclause(pSatCut, Lits, Lits + 2);
+            }
+        }
+    }
+
+    while(status == l_True)
+    {
+        // check if the assignment is a legal cut
+        cutCheck(pSatCut, pAig1, pAig2, assump);
+
+        status = sat_solver_solve(pSat, &assump.front(), &assump.back() + 1 , 0, 0, 0, 0);
+        if ( status == l_False ) cout << "unsat, cut found!!!" << endl;
+        if ( status == l_True ) cout << "sat, cut not found!!!" << endl;
+        int *pfinal;
+        int nfinal = sat_solver_final(pSat, &pfinal);
+        if(status == l_False) // The cut may exist, analysis if it is a cuts
+        {
+            for(i = 0; i < nfinal; ++i)
+            {
+                cout << ((pfinal[i] % 2 == 0) ? "" : "!") << Abc_Lit2Var(pfinal[i]) << endl;
+            }
+            cout << "UNSAT, an EQ cut found!!!" << endl;
+            break;
+        }
+        
+        if ( status == l_True )
+        {
+            cout << "eij assignment" << endl;
+            for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+            {
+                for(j = 0; j < Aig_ManCandNum(pAig2); ++j)
+                {
+                    // cout << i * Aig_ManCandNum(pAig2) + j << endl;
+                    cout << sat_solver_var_value(pSat, i * Aig_ManCandNum(pAig2) + j) << " ";
+                }
+                cout << endl;
+            }
+            cout << "circuit 1 assignment" << endl;
+            for(i = 1; i < Aig_ManCandNum(pAig1) + 1; ++i)
+            {
+                cout << sat_solver_var_value(pSat, Aig_ManCandNum(pAig2) + Aig_ManCandNum(pAig1) + i) <<  " ";
+            }
+            cout << endl;
+            cout << "circuit 2 assignment" << endl;
+            for(i = 0; i < Aig_ManCandNum(pAig2); ++i)
+            {
+                cout << sat_solver_var_value(pSat, Aig_ManCandNum(pAig2) + Aig_ManCandNum(pAig1) + Aig_ManCandNum(pAig1) + i) <<  " ";
+            }
+            cout << endl;
+        }
+        if(assump.size() == 0)
+        {
+            cout << "sat but assump size is zero, no cut exists!!!" << endl;
+            break;
+        }
+        cout << "start sat analysis!!!!" << endl;
+        satAnalysis(pSat, pSatCut, pAig1, pAig2, assump);
+        // break;
+
+    }
+    
     
 }
 

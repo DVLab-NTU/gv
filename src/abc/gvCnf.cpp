@@ -277,3 +277,81 @@ void add_TFO_eij(sat_solver * pSat, vector<lit>& clause, Aig_Man_t * pAig1, Aig_
         }
     }
 }
+
+int  aigIds2var(int IdOld, int IdGol, Aig_Man_t * pAig1, Aig_Man_t * pAig2)
+{
+    return (IdOld - 1) * Aig_ManCandNum(pAig2) + IdGol - 1;
+}
+
+void cutCheck(sat_solver * pSat, Aig_Man_t * pAig1, Aig_Man_t * pAig2, vector<int>& assump)
+{
+    Aig_Obj_t * pObj1, *pObj2;
+    int i, j, status_cut = l_False;
+    vector<lit> cut_clause;
+    cnf_obj_t Cnf_obj;
+    
+
+    // solve the cut constraint
+    while(status_cut == l_False)
+    {
+        status_cut = sat_solver_solve(pSat, &assump.front(), &assump.back() + 1 , 0, 0, 0, 0);
+        int *pfinal;
+        int nfinal = sat_solver_final(pSat, &pfinal);
+        if ( status_cut == l_False ) 
+        {
+            cout << "unsat core" << endl;
+            for(i = 0; i < nfinal; ++i)
+            {
+                cout << ((pfinal[i] % 2 == 0) ? "" : "!") << Abc_Lit2Var(pfinal[i]) << endl;
+            }
+            assump.pop_back();
+        }
+        if ( status_cut == l_True )
+        {
+            cout << "eij assignment" << endl;
+            for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+            {
+                for(j = 0; j < Aig_ManCandNum(pAig2); ++j)
+                {
+                    // cout << i * Aig_ManCandNum(pAig2) + j << endl;
+                    cout << sat_solver_var_value(pSat, i * Aig_ManCandNum(pAig2) + j) << " ";
+                }
+                cout << endl;
+            }
+        }
+    }
+}
+
+void satAnalysis(sat_solver * pSat, sat_solver * pSatCut, Aig_Man_t * pAig1, Aig_Man_t * pAig2, vector<int>& assump)
+{
+    vector<int> learnt_clause;
+    int i, j, k;
+    bool in_assump = false;
+
+    for(i = 0; i < Aig_ManCandNum(pAig1); ++i)
+    {
+        for(j = 0; j < Aig_ManCandNum(pAig2); ++j)
+        {
+            if(sat_solver_var_value(pSat, i * Aig_ManCandNum(pAig2) + j))
+            {
+                // in_assump = false;
+                // for(k = 0; k < assump.size(); ++k)
+                // {
+                //     if(Abc_Var2Lit(aigIds2var(i + 1, j + 1, pAig1, pAig2), 0) == assump[k])
+                //     {
+                //         in_assump = true;
+                //         break;
+                //     }
+                // }
+                // if(!in_assump)
+                // {
+                    learnt_clause.push_back(Abc_Var2Lit(aigIds2var(i + 1, j + 1, pAig1, pAig2), 1));
+                // }
+            }
+        }
+    }
+    pSat->fPrintClause =  1; // for debug use
+    sat_solver_addclause(pSat, &learnt_clause.front(), &learnt_clause.back() + 1);
+    sat_solver_addclause(pSatCut, &learnt_clause.front(), &learnt_clause.back() + 1);
+    pSat->fPrintClause =  0; // for debug use
+}
