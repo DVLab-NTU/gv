@@ -28,4 +28,7 @@ void constraint4(sat_solver * pSat, Aig_Man_t * pAig1, Aig_Man_t * pAig2);
 void constraint6(vector<lit>& clause, Aig_Man_t * pAig1, Aig_Man_t * pAig2, Aig_Obj_t * pObj, cnf_obj_t& cnf_obj, bool old);
 void constraint7(sat_solver * pSat, Aig_Man_t * pAig1, Aig_Man_t * pAig2);
 void add_TFO_eij(sat_solver * pSat, vector<lit>& clause, Aig_Man_t * pAig1, Aig_Man_t * pAig2, Aig_Obj_t * pObj, bool old, bool is_self);
+int  aigIds2var(int IdOld, int IdGol, Aig_Man_t * pAig1, Aig_Man_t * pAig2);
+void cutCheck(sat_solver * pSat, Aig_Man_t * pAig1, Aig_Man_t * pAig2, vector<int>& assump);
+void satAnalysis(sat_solver * pSat, sat_solver * pSatCut, Aig_Man_t * pAig1, Aig_Man_t * pAig2, vector<int>& assump);
 #endif
