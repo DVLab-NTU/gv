@@ -303,8 +303,8 @@ GVAbcConeMgr::runSecondStepSim(GVAbcCone* pCone) {
 
     Sim_UtilInfoFlip(_simMgr, (Abc_Obj_t*)pCone->getRootNode());
 
-    for ( i = 0; i < tfoList.size(); ++i) {
-        pNode  = tfoList[i];
+    for (i = 0; i < tfoList.size(); ++i) {
+        pNode = tfoList[i];
         if (!pNode) continue;
         fType0 = Abc_NodeIsTravIdCurrent(Abc_ObjFanin0(pNode));
         fType1 = Abc_NodeIsTravIdCurrent(Abc_ObjFanin1(pNode));
@@ -314,7 +314,7 @@ GVAbcConeMgr::runSecondStepSim(GVAbcCone* pCone) {
         if (!Abc_NodeIsTravIdCurrent(Abc_ObjFanin0(pNode))) continue;
         cout << Abc_ObjName(pNode) << " : " << Abc_ObjName(Abc_ObjFanin0(pNode)) << endl;
         Sim_UtilSimulateNode(_simMgr, pNode, 1, 1, 1);
-        int k;
+        int       k;
         unsigned* pSimInfo1 = (unsigned*)_simMgr->vSim0->pArray[pNode->Id];
         unsigned* pSimInfo2 = (unsigned*)_simMgr->vSim1->pArray[pNode->Id];
         for (k = 0; k < _simMgr->nSimWords; k++) {
@@ -327,9 +327,9 @@ GVAbcConeMgr::runSecondStepSim(GVAbcCone* pCone) {
 }
 
 void
-structCandidate(GVRTLConeMgr* pRTLConeMgr, GVAbcConeMgr* pAbcConeMgr){
+structCandidate(GVRTLConeMgr* pRTLConeMgr, GVAbcConeMgr* pAbcConeMgr) {
     map<Abc_Obj_t*, GVAbcCone*> abcConeList = pAbcConeMgr->getConeList();
-    map<SigBit, GVRTLCone*> rtlConeList = pRTLConeMgr->getConeList();
+    map<SigBit, GVRTLCone*>     rtlConeList = pRTLConeMgr->getConeList();
 
     for (auto abcCone : abcConeList) {
         unsigned abcHash = abcCone.second->getHash();

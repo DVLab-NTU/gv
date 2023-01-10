@@ -66,11 +66,11 @@ class GVCone
 {
     public:
         virtual int   genHash() = 0;
-        unsigned           getHash() { return _structuralHash; }
+        unsigned      getHash() { return _structuralHash; }
         virtual int   runTwoStepSim() { cout << "Not yet developped" << endl; }
         virtual int   runFirstStepSim(int pattern) { cout << "Not yet developped" << endl; }
         virtual int   runSecondStepSim(int pattern) { cout << "Not yet developped" << endl; }
-        unsigned           getSimValue() { return _simPoValue; }
+        unsigned      getSimValue() { return _simPoValue; }
         void          setSimValue(unsigned v) { _simPoValue = v; }
         virtual void* getRootNode() = 0;
 

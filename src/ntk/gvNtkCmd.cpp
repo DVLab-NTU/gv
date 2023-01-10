@@ -656,7 +656,7 @@ GVNtkFuctionTestCmd::exec(const string& option) {
     if (options.size() > 2) {
         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
     }
-    
+
     if (options.size() > 0) {
         testFilename1 = testFilename2 = options[0];
     }
