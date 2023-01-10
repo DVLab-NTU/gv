@@ -45,8 +45,6 @@ GVBddInitCmd ::exec(const string& option) {
     else {
         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[1]);
     }
-
-    
     return GV_CMD_EXEC_DONE;
 }
 
