@@ -9,26 +9,20 @@
 #include <vector>
 
 #include "gvAbcMgr.h"
+#include "gvCone.h"
 #include "gvModMgr.h"
 #include "gvNtk.h"
 #include "gvWordLevel.h"
-#include "gvCone.h"
 
 USING_YOSYS_NAMESPACE
 
-bool GVinitNtkCmd() {
-    return (
-            gvCmdMgr->regCmd("SEt Engine",         2, 1, new GVSetEngineCmd   ) &&
-            gvCmdMgr->regCmd("REad Design",        2, 1, new GVReadDesignCmd  ) &&
-            gvCmdMgr->regCmd("PRint Info",         2, 1, new GVPrintInfoCmd   ) &&
-            gvCmdMgr->regCmd("FILE2 Aig",          4, 1, new GVFile2AigCmd    ) && 
-            gvCmdMgr->regCmd("YOSYSCMD",           8, new GVYosysOriginalCmd  )&&
-            gvCmdMgr->regCmd("FILE2 Btor",          4, 1, new GVFile2BtorCmd ) &&
-            gvCmdMgr->regCmd("WHITE Box",          4, 1, new GVWhiteBoxSignalCmd ) &&
-            gvCmdMgr->regCmd("TEST Boolector",     3, 1, new GVTestBoolector  ) &&
-            gvCmdMgr->regCmd("WRite Aig",          2, 1, new GVWriteAigCmd    ) &&
-            gvCmdMgr->regCmd("Test", 1 , new GVNtkFuctionTestCmd )
-    );
+bool
+GVinitNtkCmd() {
+    return (gvCmdMgr->regCmd("SEt Engine", 2, 1, new GVSetEngineCmd) && gvCmdMgr->regCmd("REad Design", 2, 1, new GVReadDesignCmd) &&
+            gvCmdMgr->regCmd("PRint Info", 2, 1, new GVPrintInfoCmd) && gvCmdMgr->regCmd("FILE2 Aig", 4, 1, new GVFile2AigCmd) &&
+            gvCmdMgr->regCmd("YOSYSCMD", 8, new GVYosysOriginalCmd) && gvCmdMgr->regCmd("FILE2 Btor", 4, 1, new GVFile2BtorCmd) &&
+            gvCmdMgr->regCmd("WHITE Box", 4, 1, new GVWhiteBoxSignalCmd) && gvCmdMgr->regCmd("TEST Boolector", 3, 1, new GVTestBoolector) &&
+            gvCmdMgr->regCmd("WRite Aig", 2, 1, new GVWriteAigCmd) && gvCmdMgr->regCmd("TEST Sig", 1, 1, new GVNtkFuctionTestCmd));
 }
 
 //----------------------------------------------------------------------
@@ -603,7 +597,7 @@ GVWriteAigCmd::exec(const string& option) {
         gvMsg(GV_MSG_ERR) << "Empty design. Try command \"FILE2 AIG\"." << endl;
         return GV_CMD_EXEC_ERROR;
     }
-    
+
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
@@ -640,20 +634,41 @@ GVWriteAigCmd::usage(const bool& verbose) const {
 
 void
 GVWriteAigCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: " << "Write out the processing deisng into AIGER file" << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: "
+                      << "Write out the processing deisng into AIGER file" << endl;
 }
 
 //----------------------------------------------------------------------
 // Test: internal function testing
 //----------------------------------------------------------------------
-
+extern GVConeComparitor gvConeComparitor;
 GVCmdExecStatus
 GVNtkFuctionTestCmd::exec(const string& option) {
 
-    string testFilename = "little.v";
+    string testFilename1 = "little.v";
+    string testFilename2 = "little.v";
+    // testFilename = "design/V3/alu/alu.v";
+    // testFilename        = "design/2022_CAD_Contest/test01/top_primitive.v";
+
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+
+    if (options.size() > 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
+    }
+    
+    if (options.size() > 0) {
+        testFilename1 = testFilename2 = options[0];
+    }
+    if (options.size() > 1) {
+        testFilename2 = options[1];
+    }
 
     if (!gvRTLDesign->getDesign() || gvRTLDesign->getDesign()->top_module() == NULL) {
-        run_pass("read_verilog " + testFilename);
+        run_pass("read_verilog -sv " + testFilename1);
+        run_pass("proc; opt");
+        gvModMgr->setInputFileName(testFilename1);
+        gvModMgr->setInputFileExist(true);
     }
 
     GVRTLConeMgr gvConeMgr(gvRTLDesign);
@@ -662,11 +677,28 @@ GVNtkFuctionTestCmd::exec(const string& option) {
 
     cout << "========================================" << endl;
 
-    if(!Abc_FrameReadNtk(abcMgr->get_Abc_Frame_t())){
-        abcMgr -> abcReadDesign(testFilename);
+    // testFilename = "design/V3/alu/alu.aig";
+
+    if (!Abc_FrameReadNtk(abcMgr->get_Abc_Frame_t())) {
+        abcMgr->abcReadDesign(testFilename2);
+    }
+    if (!abcMgr->get_aigNtkMgr()) {
+        abcMgr->abcNtk2Aig();
     }
 
-    GVAbcConeMgr gvAbcConeMgr(Abc_FrameReadNtk(abcMgr->get_Abc_Frame_t()));
+    GVAbcConeMgr gvAbcConeMgr(abcMgr->get_aigNtkMgr()->getNtk());
+
+    // gvAbcConeMgr.runTwoStepSim();
+
+    cout << "========================================" << endl;
+
+    // for (auto item : gvConeComparitor._mapOfPiPo) {
+    //     cout << item.first << " " << item.second << endl;
+    // }
+
+    structCandidate(&gvConeMgr, &gvAbcConeMgr);
+
+    cout << "========================================" << endl;
 
     return GV_CMD_EXEC_DONE;
 }
@@ -680,6 +712,7 @@ GVNtkFuctionTestCmd::usage(const bool& verbose) const {
 
 void
 GVNtkFuctionTestCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: " << "Write out the processing deisng into AIGER file" << endl;
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: "
+                      << "Write out the processing deisng into AIGER file" << endl;
 }
 #endif
