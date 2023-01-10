@@ -36,6 +36,7 @@ class AbcMgr
 
         void abcReadDesign(string&);
         void abcNtk2Aig();
+        void abcNtk2Bdd();
 
         Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }
         abcNtkMgr*   get_abcNtkMgr() { return pNtkMgr; }

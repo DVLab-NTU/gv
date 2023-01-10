@@ -17,7 +17,8 @@ enum GVCmdType
     GV_CMD_TYPE_SIMULATE = 3,
     GV_CMD_TYPE_NETWORK  = 4,
     GV_CMD_TYPE_ABC      = 5,
-    GV_CMD_TYPE_MOD      = 6,
+    GV_CMD_TYPE_BDD      = 6,
+    GV_CMD_TYPE_MOD      = 7,
 };
 
 const string GVEngineString[] = {"yosys", "abc"};
