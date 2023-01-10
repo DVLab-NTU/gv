@@ -28,7 +28,7 @@ AlignConsecutiveAssignments: Consecutive
 AlwaysBreakAfterDefinitionReturnType: TopLevel
 
 # The column limit.
-ColumnLimit: 150
+ColumnLimit: 80
 
 # Extern and Class indent setting
 BreakBeforeBraces: Custom
