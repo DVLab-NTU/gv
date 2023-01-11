@@ -1,5 +1,9 @@
 #include "gvAbcMgr.h"
 #include "gvAbcNtk.h"
+#include "gvBddMgr.h"
+#include "base/abc/abc.h"
+#include "bdd/cudd/cudd.h"
+#include "sat/cnf/cnf.h"
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -36,5 +40,20 @@ AbcMgr::abcNtk2Aig() {
     } else {
         pAigMgr = new abcAigMgr(pAbc, pAig);
         cout << "Successfully transform netlist into AIG!" << endl;
+    }
+}
+
+void
+AbcMgr::abcNtk2Bdd() {
+    int i;
+    int pBdd = Abc_NtkToBdd(pAbc->pNtkCur);
+    DdManager* DdMgr = (DdManager*) pAbc->pNtkCur->pManFunc; 
+    bddMgr->init(DdMgr, pAbc->pNtkCur);
+    bddMgr->construct();
+    if (pBdd == 0) {
+        cout << "Transforming has failed." << endl;
+        return;
+    } else {
+        cout << "Successfully transform netlist into BDD!" << endl;
     }
 }

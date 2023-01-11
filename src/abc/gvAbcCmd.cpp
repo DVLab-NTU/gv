@@ -16,7 +16,8 @@ GVinitAbcCmd() {
             gvCmdMgr->regCmd("ABCNtk2Aig", 4, new GVABCNtk2AigCmd), gvCmdMgr->regCmd("ABCSweep", 4, new GVABCSweepCmd),
             gvCmdMgr->regCmd("AIGPrint", 4, new GVAIGPrintCmd), gvCmdMgr->regCmd("AIGFraig", 4, new GVAIGFraigCmd),
             gvCmdMgr->regCmd("AIGRAndomSim", 5, new GVAIGRAndomSimCmd), gvCmdMgr->regCmd("ABCCMD", 6, new GVABCOriginalCmd),
-            gvCmdMgr->regCmd("CUT ENUmerate", 3, 3, new GVCutEnumerate), gvCmdMgr->regCmd("SIMilarity COMpute", 3, 3, new GVSimilarityCompute));
+            gvCmdMgr->regCmd("CUT ENUmerate", 3, 3, new GVCutEnumerate), gvCmdMgr->regCmd("SIMilarity COMpute", 3, 3, new GVSimilarityCompute),
+            gvCmdMgr->regCmd("ABCQBF",      4, new GVABCQBFCmd), gvCmdMgr->regCmd("ABCNTk2Bdd", 5, new GVABCNtk2BddCmd));
 }
 
 //----------------------------------------------------------------------
@@ -384,6 +385,75 @@ void
 GVSimilarityCompute::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "SIMilarity COMpute: "
                       << "Compute the similarity between cuts from two deigns." << endl;
+}
+
+
+//----------------------------------------------------------------------
+// ABCQBF <-p int paras> <-i int iters>
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVABCQBFCmd ::exec(const string& option) {
+    vector<string> options;
+    int nPars = -1, nIters = 500;
+    bool fVerbose = false;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    for (size_t i = 0; i < n; ++i) {
+      const string& token = options[i];
+      if (myStrNCmp("-p", token, 1) == 0) {
+        ++i;
+        nPars = stoi(options[i]);
+        continue;
+      }
+      if (myStrNCmp("-i", token, 1) == 0) {
+        ++i;
+        nIters = stoi(options[i]);
+        continue;
+      }
+      if (myStrNCmp("-v", token, 1) == 0) {
+        fVerbose = true;
+        continue;
+      }
+    }
+
+    (abcMgr->get_abcNtkMgr()) -> abcQBF(nPars, nIters, fVerbose);
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVABCQBFCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: ABCRead " << endl;
+}
+
+void
+GVABCQBFCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCRead: " << "Read netlist by ABC." << endl;
+}
+
+//----------------------------------------------------------------------
+// ABCNtk2Bdd
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVABCNtk2BddCmd ::exec(const string& option) {
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    bool   basic = false, verbose = false;
+    size_t n = options.size();
+    abcMgr->abcNtk2Bdd();
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVABCNtk2BddCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: ABCNtk2Bdd " << endl;
+}
+
+void
+GVABCNtk2BddCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCNtk2Bdd: "
+                      << "Transform netlist into BDD." << endl;
 }
 
 #endif
