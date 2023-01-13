@@ -16,7 +16,7 @@
 #include "util.h"
 using namespace std;
 
-string   GVMsg::_allName = "";
+string GVMsg::_allName = "";
 ofstream GVMsg::_allout;
 GVMsgMgr gvMsg;
 

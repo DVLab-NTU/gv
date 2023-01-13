@@ -247,7 +247,6 @@ GVCmdMgr::execOneCmd() {
         GVCmdExec* e      = parseCmd(option);
         // Check command types
         if (e) {
-            // Problem!! --- (1)
             GVCmdType cmdType = e->getGVCmdType();
             if (getPrompt().find("vrf") != string::npos) {
                 if (_vrfMode.find(cmdType) == _vrfMode.end()) {
