@@ -54,26 +54,38 @@ class GVModMgr
         GVModEngine getGVEngine();
         string      getModPrompt();
         int         getSafe();
+        bool        getWizard() { return _wizard; };
+
         // set functions
-        void        setInputFileExist(bool exist);
-        void        setInputFileName(string& filename);
-        void        setAigFileName(string aigFileName);
-        void        setTopModuleName(string topModuleName);
-        void        setGVMode(GVModType mode);
-        void        setGVEngine(GVModEngine engine);
-        void        setModPromt();
-        void        setSafe(int p);
+        void setInputFileExist(bool exist);
+        void setInputFileName(string& filename);
+        void setAigFileName(string aigFileName);
+        void setTopModuleName(string topModuleName);
+        void setGVMode(GVModType mode);
+        void setGVEngine(GVModEngine engine);
+        void setModPromt();
+        void setSafe(int p);
+        void setWizard(bool wiz) { _wizard = wiz; };
+        void setWizardContent(string prompt);
+
+        // GV tutorial wizard
+        void printWizardPrompt(int promptStart, int promptLength);
+        void printWizardProgress(int pos, int promptNum);
 
     private:
-        bool        _inputFileExist;
-        string      _inputFileName;
-        string      _aig_name;
-        string      _modPrompt;
-        string      _top_module_name;
-        GVModType   _gvMode;
-        GVModEngine _gvEng;
-        bool        _propertySet;
-        int         _property;
+        bool              _inputFileExist;
+        string            _inputFileName;
+        string            _aig_name;
+        string            _modPrompt;
+        string            _top_module_name;
+        GVModType         _gvMode;
+        GVModEngine       _gvEng;
+        vector<GVCmdType> _vrfMode;
+        vector<GVCmdType> _setupMode;
+        vector<string>    _wizardContent;
+        int               _property;
+        bool              _propertySet;
+        bool              _wizard;
 };
 
 #endif

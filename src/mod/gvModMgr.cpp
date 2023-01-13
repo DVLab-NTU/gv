@@ -1,6 +1,7 @@
 #include "gvModMgr.h"
 #include "gvCmdMgr.h"
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -15,10 +16,8 @@ GVModMgr::GVModMgr() {
     _propertySet    = false;
     _inputFileName  = "";
     _aig_name       = "";
-    _gvMode         = GVModType::GV_MOD_TYPE_SETUP;     // default mode   :  Setup
-    _gvEng          = GVModEngine::GV_MOD_ENGINE_YOSYS; // default engine :  yosys
-    //_vrfMode        = {GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON, GV_CMD_TYPE_MOD};
-    //_setupMode      = {GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_VERIFY};
+    _gvMode         = GVModType::GV_MOD_TYPE_SETUP; // default mode   :  Setup
+    _gvEng = GVModEngine::GV_MOD_ENGINE_YOSYS;      // default engine :  yosys
     setModPromt();
 }
 
@@ -59,13 +58,46 @@ GVModMgr::getGVEngine() {
 
 string
 GVModMgr::getModPrompt() {
-    setModPromt(); // update mod prompt
+    setModPromt(); // update mode prompt
     return _modPrompt;
 }
 
 int
 GVModMgr::getSafe() {
     return _property;
+}
+
+void
+GVModMgr::printWizardPrompt(int promptStart, int promptLength) {
+    if (promptStart < 0) {
+        if (promptStart == -1) {
+            cout << "[CORRECT COMMAND] !! ";
+            cout << "(press Enter to continue) ...";
+        } else if (promptStart == -2) {
+            // cout << "[ERROR COMMAND] !! ";
+            cout << "(press Enter to type the command again) ...";
+        }
+        cin.get();
+        return;
+    }
+
+    int idx = 0;
+    while (idx++ < promptLength) cout << _wizardContent[promptStart++] << "\n";
+}
+
+void
+GVModMgr::printWizardProgress(int pos, int promptNum) {
+    float float_percent = (static_cast<float>(pos) / (promptNum - 1)) * 100;
+    int   int_percent   = float_percent;
+    int   idx           = 0;
+    cout << "progress : [";
+    while (idx++ < pos) cout << "=";
+    cout << ">";
+    idx = 0;
+    while (idx++ < promptNum - pos - 1) cout << " ";
+    cout << "] ";
+
+    cout << int_percent << "%\n\n";
 }
 
 /* ------------------------- *\
@@ -103,7 +135,8 @@ GVModMgr::setGVEngine(GVModEngine engine) {
 }
 void
 GVModMgr::setModPromt() {
-    if (_gvMode == GVModType::GV_MOD_TYPE_SETUP) _modPrompt = GVEngineString[_gvEng] + GVModTypeString[_gvMode];
+    if (_gvMode == GVModType::GV_MOD_TYPE_SETUP)
+        _modPrompt = GVEngineString[_gvEng] + GVModTypeString[_gvMode];
     else _modPrompt = GVModTypeString[_gvMode];
     gvCmdMgr->updateModPrompt(_modPrompt);
 }
@@ -111,4 +144,9 @@ void
 GVModMgr::setSafe(int p) {
     _property    = p;
     _propertySet = true;
+}
+
+void
+GVModMgr::setWizardContent(string prompt) {
+    _wizardContent.push_back(prompt);
 }

@@ -16,7 +16,7 @@
 #include "util.h"
 using namespace std;
 
-string GVMsg::_allName = "";
+string   GVMsg::_allName = "";
 ofstream GVMsg::_allout;
 GVMsgMgr gvMsg;
 
@@ -32,6 +32,7 @@ extern bool GVinitNtkCmd();
 extern bool GVinitSimCmd();
 extern bool GVinitVrfCmd();
 extern bool GVinitAbcCmd();
+extern bool GVinitBddCmd();
 extern bool GVinitModCmd();
 
 static void

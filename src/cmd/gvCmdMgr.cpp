@@ -315,7 +315,7 @@ GVCmdMgr::parseCmd(string& option) {
         }
         _cmd = str.substr(0, idx);
         if ((_cmd == "ls") || (_cmd == "vi") || (_cmd == "vim") ||
-            (_cmd == "echo") || (_cmd == "cat"))
+            (_cmd == "echo") || (_cmd == "cat") || (_cmd == "clear"))
             system(str.c_str());
         else gvMsg(GV_MSG_ERR) << "Illegal command!! (" << str << ")" << endl;
     } else if (idx != string::npos) {
