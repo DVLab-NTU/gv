@@ -366,38 +366,26 @@ GVRandomSetSafe::help() const {
 GVCmdExecStatus
 GVVerilatorTest::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "[INFO] I am GVVerilatorTest" << endl;
-    //VerilatorAPI* verilator = new VerilatorAPI(option, 1000000);
-    VerilatorAPI verilator(option, 1000000);
-
-    // 1. reset
-    verilator.reset();
-    // 2. read data from shared memory
-    string pattern = verilator.readData();
-    // 3.1 use verilator to write data into shared memory
-    verilator.getSequence();
-    // 3.2 check writing correct
-    string sequence = verilator.readData();
+    size_t shm_size = std::stoi(option);
+    VerilatorAPI verilator(shm_size);
     
-    // 4.1 modify pattern value
-    pattern.insert(0, "3,");
-    // 4.2 wrtie new pattern to shared memory 
-    verilator.writeData(pattern);
-    // 4.3 print current state
-    // verilator->printState();
-    // 4.4 update new pattern to verilator
-    verilator.update();
-    // 4.5 Confirm successful update or not
-    verilator.printState();
+    map<string, string> myMap;
+    
+    // reset
+    verilator.reset(myMap);
+    verilator.printMap(myMap);
+    
+    // modify value
+    myMap["coinInA"] = "1";
 
-    // 5.1 print current state
-    verilator.printState();
-    // 5.2 simulate one cycle
-    verilator.evalOneCycle();
-    // 5.3 Confirm result
-    pattern = verilator.readData();
+    verilator.write(myMap);
 
+    verilator.evalCycle("10");
+    verilator.update(myMap);
+    verilator.printMap(myMap);
+    //free shared memory
+    verilator.rm_shm();
 
-    //delete verilator;
     return GV_CMD_EXEC_DONE;
 }
 

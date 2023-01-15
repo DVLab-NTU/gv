@@ -30,18 +30,37 @@ VerilatorAPI::writeData(string data) {
 
     string pattern_str = data + " ";
     cout << "[INFO] GV - Write data (size=" << pattern_str.size() - 1 << ") => Shared memory (id=" << VerilatorAPI::get_shmid() << ")" << endl;
-    cout << pattern_str << endl;
+    //cout << pattern_str << endl;
     memcpy(VerilatorAPI::shm, pattern_str.c_str(), pattern_str.size());
 }
 
 void
-VerilatorAPI::update() {
-    system("obj_dir/Vtestf --update");
+VerilatorAPI::write(map<string, string>& map) {
+    string data("");
+    for (auto& elem : map) {
+        data+=elem.second+",";
+    }
+    data.pop_back();
+    data+=" ";
+    //cout << data;
+    VerilatorAPI::writeData(data);
+    //system("obj_dir/Vtestf --update");
 }
 
 void
-VerilatorAPI::evalOneCycle() {
-    system("obj_dir/Vtestf --eval 1");
+VerilatorAPI::update(map<string, string>& map){
+    string data = VerilatorAPI::readData();
+    string seq("");
+    for (auto& elem : map)
+        seq+=elem.first+",";
+    seq.pop_back();
+    map = VerilatorAPI::string2map(seq, data);
+}
+
+void
+VerilatorAPI::evalCycle(const string& num) {
+    string cmd = "obj_dir/Vtestf --eval " + num;
+    system(cmd.c_str());
 }
 
 void
@@ -64,7 +83,7 @@ VerilatorAPI::readData() {
     size_t pos = pattern_str.find(" ");
     token      = pattern_str.substr(0, pos);
     cout << "[INFO] GV - Shared memory (id=" << VerilatorAPI::get_shmid() << ") => Read data (size=" << token.size() << ")" << endl;
-    cout << token << endl;
+    //cout << token << endl;
     return token;
 }
 
@@ -74,8 +93,12 @@ VerilatorAPI::getSequence() {
 }
 
 void
-VerilatorAPI::reset() {
+VerilatorAPI::reset(map<string, string>& map) {
+    system("obj_dir/Vtestf --sequence");
+    string sequence = VerilatorAPI::readData();
     system("obj_dir/Vtestf --reset");
+    string data = VerilatorAPI::readData();
+    map = VerilatorAPI::string2map(sequence, data);
 }
 
 // Extracting all key from map
@@ -389,9 +412,10 @@ VerilatorAPI::genAssertionFile(vector<string> assertion_vec) {
     output_file << "#endif /* assertion_hpp */" << endl;
 }
 
-VerilatorAPI::VerilatorAPI(string testbench, int shm_size) {
+VerilatorAPI::VerilatorAPI(int shm_size) {
     key_t key;
 
+    string testbench = "src/sim/verilator_api/verilator_api.cpp";
     // IPC - Shared Memory
     key                  = 7899;
     VerilatorAPI::_shmid = shmget(key, shm_size, IPC_CREAT | 0666);
@@ -409,7 +433,8 @@ VerilatorAPI::VerilatorAPI(string testbench, int shm_size) {
     cout << "[INFO] GV - Build Verilator Env." << endl;
 }
 
-VerilatorAPI::~VerilatorAPI() {
+void
+VerilatorAPI::rm_shm() {
     cout << "[INFO] Delete shared memory => (id=" << VerilatorAPI::get_shmid() << ")" << endl;
     // string system_cmd;
     // system_cmd = "ipcrm -m " + to_string(VerilatorAPI::get_shmid());
@@ -420,3 +445,57 @@ VerilatorAPI::~VerilatorAPI() {
         exit(EXIT_FAILURE);
     }
 }
+
+vector<string>
+VerilatorAPI::csv2vec(string& str){
+    std::vector<std::string> result;
+    std::string::size_type begin, end;
+
+    string pattern = ",";
+    end = str.find(pattern);
+    begin = 0;
+
+    while (end != std::string::npos) {
+        if (end - begin != 0) {
+            result.push_back(str.substr(begin, end-begin)); 
+        }    
+        begin = end + pattern.size();
+        end = str.find(pattern, begin);
+    }
+
+    if (begin != str.length()) {
+        result.push_back(str.substr(begin));
+    }
+    return result;   
+}
+
+string
+VerilatorAPI::vec2csv(vector<string>& vec){
+    string str("");
+    for(string& item : vec){
+        if (item != vec.back())
+            str+=item + ",";
+        else
+            str+=item;
+    }
+    return str;
+}
+
+map<string, string> 
+VerilatorAPI::string2map(string& str1, string& str2){
+    std::vector<std::string> vec1 = csv2vec(str1);
+    std::vector<std::string> vec2 = csv2vec(str2);
+    std::map<string, string> map;
+    assert(vec1.size() == vec2.size());
+    for (size_t i = 0; i < vec1.size(); ++i)
+        map[vec1[i]] = vec2[i];
+    return map;
+}
+
+void
+VerilatorAPI::printMap(map<string, string>& map){
+    for(const auto& elem : map) {
+        std::cout << elem.first << " " << elem.second << "\n";
+    }
+}
+
