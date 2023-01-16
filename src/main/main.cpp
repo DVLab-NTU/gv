@@ -68,7 +68,9 @@ main(int argc, char** argv) {
     }
     Yosys::yosys_setup();                     // initial yosys command
     Yosys::log_streams.push_back(&std::cout); // log yosys message
-    if (!(GVinitCommonCmd() && GVinitNtkCmd() && GVinitSimCmd() && GVinitVrfCmd() && GVinitAbcCmd() && GVinitModCmd() && GVinitBddCmd())) return 1;
+    if (!(GVinitCommonCmd() && GVinitNtkCmd() && GVinitSimCmd() &&
+          GVinitVrfCmd() && GVinitAbcCmd() && GVinitModCmd()))
+        return 1;
 
     GVCmdExecStatus status = GV_CMD_EXEC_DONE;
     while (status != GV_CMD_EXEC_QUIT) {

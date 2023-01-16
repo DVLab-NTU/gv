@@ -1,6 +1,7 @@
 #ifndef GV_ABC_CMD_C
 #define GV_ABC_CMD_C
 
+#include "gvModMgr.h"
 #include "gvAbcCmd.h"
 #include "gvAbcMgr.h"
 #include "gvMsg.h"

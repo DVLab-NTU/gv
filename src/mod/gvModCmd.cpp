@@ -117,7 +117,6 @@ GVResetCmd ::help() const {
                       << endl;
 }
 
-
 GVCmdExecStatus
 GVSetWizardCmd::exec(const string& option) {
     GVCmdExecStatus status         = GV_CMD_EXEC_DONE;
@@ -175,6 +174,7 @@ GVSetWizardCmd::exec(const string& option) {
     bool firstPrompt = true, debug = false;
     system("clear");
     while (status != GV_CMD_EXEC_QUIT) {
+        gvCmdMgr->setPrompt();
         gvModMgr->printWizardPrompt(promptPos, promptBound[wizardIdx]);
         if (!firstPrompt)
             gvModMgr->printWizardProgress(progress, promptBound.size());

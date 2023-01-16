@@ -1,4 +1,5 @@
 #include "gvModMgr.h"
+#include "gvCmdMgr.h"
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -16,35 +17,11 @@ GVModMgr::GVModMgr() {
     _inputFileName  = "";
     _aig_name       = "";
     _gvMode         = GVModType::GV_MOD_TYPE_SETUP; // default mode   :  Setup
-    _gvEng     = GVModEngine::GV_MOD_ENGINE_YOSYS;  // default engine :  yosys
-    _vrfMode   = {GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON,
-                  GV_CMD_TYPE_MOD};
-    _setupMode = {GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_VERIFY};
-    _wizard    = false;
+    _gvEng = GVModEngine::GV_MOD_ENGINE_YOSYS;      // default engine :  yosys
     setModPromt();
 }
 
 GVModMgr::~GVModMgr() {}
-
-bool
-GVModMgr::checkModeType(GVCmdType& currCmdType) {
-    if (getGVMode() == GV_MOD_TYPE_VERIFY) {
-        for (size_t i = 0; i < _vrfMode.size(); ++i) {
-            if (currCmdType == _vrfMode[i]) return true;
-        }
-        cout << "Please switch to \"SETUP MODE\" !!" << endl;
-    } else {
-        for (size_t i = 0; i < _setupMode.size(); ++i) {
-            if (currCmdType == _setupMode[i]) {
-                cout << "Please switch to \"VRF MODE\" !!" << endl;
-                return false;
-            }
-        }
-        return true;
-    }
-
-    return false;
-}
 
 /* ------------------------- *\
  * GET functions
@@ -149,16 +126,19 @@ GVModMgr::setTopModuleName(string topModuleName) {
 void
 GVModMgr::setGVMode(GVModType mode) {
     _gvMode = mode;
+    setModPromt();
 }
 void
 GVModMgr::setGVEngine(GVModEngine engine) {
     _gvEng = engine;
+    setModPromt();
 }
 void
 GVModMgr::setModPromt() {
     if (_gvMode == GVModType::GV_MOD_TYPE_SETUP)
         _modPrompt = GVEngineString[_gvEng] + GVModTypeString[_gvMode];
     else _modPrompt = GVModTypeString[_gvMode];
+    gvCmdMgr->updateModPrompt(_modPrompt);
 }
 void
 GVModMgr::setSafe(int p) {

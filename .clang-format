@@ -19,7 +19,10 @@ AllowShortFunctionsOnASingleLine: Inline
 AlignAfterOpenBracket: Align
 
 # Align consecutive declarations
-AlignConsecutiveDeclarations: Consecutive  
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossComments: true
+  Consecutive: true
 
 # Align consecutive assignments.
 AlignConsecutiveAssignments: Consecutive

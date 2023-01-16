@@ -71,7 +71,7 @@ GVSetEngineCmd ::exec(const string& option) {
     if (engYOSYS) gvModMgr->setGVEngine(GV_MOD_ENGINE_YOSYS);
     else if (engABC) gvModMgr->setGVEngine(GV_MOD_ENGINE_ABC);
 
-    // print the success message
+    // print the successful message
     int    engPos         = gvModMgr->getGVEngine();
     string engNameList[2] = {"yosys", "abc"};
     cout << "Set Engine \"" << engNameList[engPos] << "\" Success !!" << endl;
