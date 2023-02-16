@@ -23,6 +23,7 @@ class abcNtkMgr
 
         void       printSummary() const;
         Abc_Ntk_t* getNtk() { return pNtk; }
+        void       abcQBF(int, int, bool);
 
     private:
         Abc_Ntk_t*     pNtk;

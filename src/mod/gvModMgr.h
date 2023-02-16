@@ -1,24 +1,12 @@
 #ifndef GV_MOD_MGR
 #define GV_MOD_MGR
 
+#include "gvCmdMgr.h"
 #include <string>
 #include <vector>
 using namespace std;
 
 class GVModMgr;
-
-// Command Categories Enum
-enum GVCmdType
-{
-    // Revealed command
-    GV_CMD_TYPE_REVEALED = 0,
-    GV_CMD_TYPE_COMMON   = 1,
-    GV_CMD_TYPE_VERIFY   = 2,
-    GV_CMD_TYPE_SIMULATE = 3,
-    GV_CMD_TYPE_NETWORK  = 4,
-    GV_CMD_TYPE_ABC      = 5,
-    GV_CMD_TYPE_MOD      = 6,
-};
 
 const string GVEngineString[] = {"yosys", "abc"};
 
@@ -44,7 +32,6 @@ class GVModMgr
     public:
         GVModMgr();
         ~GVModMgr();
-        bool checkModeType(GVCmdType& currCmdType);
         // get functions
         bool        getInputFileExist();
         string      getInputFileName();
@@ -54,6 +41,8 @@ class GVModMgr
         GVModEngine getGVEngine();
         string      getModPrompt();
         int         getSafe();
+        bool        getWizard() { return _wizard; };
+
         // set functions
         void setInputFileExist(bool exist);
         void setInputFileName(string& filename);
@@ -63,6 +52,12 @@ class GVModMgr
         void setGVEngine(GVModEngine engine);
         void setModPromt();
         void setSafe(int p);
+        void setWizard(bool wiz) { _wizard = wiz; };
+        void setWizardContent(string prompt);
+
+        // GV tutorial wizard
+        void printWizardPrompt(int promptStart, int promptLength);
+        void printWizardProgress(int pos, int promptNum);
 
     private:
         bool              _inputFileExist;
@@ -74,8 +69,10 @@ class GVModMgr
         GVModEngine       _gvEng;
         vector<GVCmdType> _vrfMode;
         vector<GVCmdType> _setupMode;
+        vector<string>    _wizardContent;
         int               _property;
         bool              _propertySet;
+        bool              _wizard;
 };
 
 #endif
