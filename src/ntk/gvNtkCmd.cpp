@@ -79,7 +79,7 @@ GVSetEngineCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// REad Design <-Verilog | -Blif  | -Aig> <(string fileName)>
+// REad Design <-Verilog | -Blif | -Aig | -btor> <(string fileName)>
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
@@ -432,6 +432,9 @@ GVYosysOriginalCmd ::help() const {
                       << "Directly call Yosys's command." << endl;
 }
 
+//----------------------------------------------------------------------
+// FILE2 BTOR
+//----------------------------------------------------------------------
 GVCmdExecStatus
 GVFile2BtorCmd::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "Create Btor from RTL " << endl;
