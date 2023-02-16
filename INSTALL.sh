@@ -14,5 +14,5 @@ cd engine/;
 cd ../;
 
 # make GV and get started
-make clean; make; clear; ./gv;
+make; ./gv;
 

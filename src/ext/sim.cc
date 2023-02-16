@@ -336,7 +336,7 @@ struct randomSim : public Pass {
             ofs << "}\n";
             ofs << "\n";
             ofs.close();
-            run_command(" clang++ -g -O3 -std=c++14 -I `yosys-config --datdir`/include .sim_main.cpp -o .tb ");
+            run_command(" g++ -g -O3 -std=c++14 -I `yosys-config --datdir`/include .sim_main.cpp -o .tb ");
             run_command(" ./.tb ");
         }
 } randomSim;
