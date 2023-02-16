@@ -18,7 +18,7 @@ extern GVCmdMgr* gvCmdMgr;
 
 // Command Categories to String
 const string GVCmdTypeString[] = {"Revealed", "Common", "Verify", "Simulate",
-                                  "Network",  "Abc",    "Mode"};
+                                  "Network",  "Abc",    "Bdd",    "Mode"};
 
 // Command Categories Enum
 enum GVCmdType

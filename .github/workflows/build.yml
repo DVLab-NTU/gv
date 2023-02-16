@@ -12,7 +12,7 @@ jobs:
 
     - name: Modify INSTALL.sh
       run: |
-        sed -i "s/ clear; .\/gv;//g" ./INSTALL.sh
+        sed -i "s/.\/gv;//g" ./INSTALL.sh
         
     - name: Install Dependencies
       shell: bash

@@ -13,7 +13,7 @@ sed -i "s/ENABLE_LIBYOSYS := 0/ENABLE_LIBYOSYS := 1/g" Makefile;
 sed -i "s/-Wl,-soname,\$(LIBDIR)\/libyosys.so//g" Makefile;
 
 # make "yosys" shared library 
-make config-gcc; make -j12; make install;
+make config-gcc; make -j12; make libyosys.so;
 
 # create gv_src/ directory
 mkdir gv_src;
