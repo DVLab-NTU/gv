@@ -23,7 +23,8 @@ GVinitNtkCmd() {
             gvCmdMgr->regCmd("PRint Info", 2, 1, new GVPrintInfoCmd) &&
             gvCmdMgr->regCmd("FILE2 Aig", 4, 1, new GVFile2AigCmd) &&
             gvCmdMgr->regCmd("YOSYSCMD", 8, new GVYosysOriginalCmd) &&
-            gvCmdMgr->regCmd("FILE2 Btor", 4, 1, new GVFile2BtorCmd) &&
+            gvCmdMgr->regCmd("FILE2 BTOR", 4, 4, new GVFile2BtorCmd) &&
+            gvCmdMgr->regCmd("FILE2 BLIF", 4, 4, new GVFile2BlifCmd) &&
             gvCmdMgr->regCmd("WHITE Box", 4, 1, new GVWhiteBoxSignalCmd) &&
             gvCmdMgr->regCmd("TEST Boolector", 3, 1, new GVTestBoolector) &&
             gvCmdMgr->regCmd("WRite Aig", 2, 1, new GVWriteAigCmd) &&
@@ -502,40 +503,40 @@ GVFile2BtorCmd::exec(const string& option) {
     string top     = options[0];
     string outputf = options[1];
     cout << "top = " << top << " outputf = " << outputf << endl;
-    string commend;
-    commend = "hierarchy -top ";
-    commend += top;
-    run_pass(commend);
-    commend = "hierarchy -check";
-    run_pass(commend);
-    commend = "proc";
-    run_pass(commend);
-    commend = "opt";
-    run_pass(commend);
-    commend = "opt_expr -mux_undef";
-    run_pass(commend);
-    commend = "opt";
-    run_pass(commend);
-    commend = "rename -hide";
-    run_pass(commend);
-    commend = "opt";
-    run_pass(commend);
-    commend = "memory_collect";
-    run_pass(commend);
-    commend = "flatten";
-    run_pass(commend);
-    commend = "memory_unpack";
-    run_pass(commend);
-    commend = "splitnets -driver";
-    run_pass(commend);
-    commend = "setundef -zero -undriven";
-    run_pass(commend);
-    commend = "dffunmap";
-    run_pass(commend);
-    commend = "opt -fast -noff";
-    run_pass(commend);
-    commend = "write_btor ";
-    commend += outputf;
+    string command;
+    command = "hierarchy -top ";
+    command += top;
+    run_pass(command);
+    command = "hierarchy -check";
+    run_pass(command);
+    command = "proc";
+    run_pass(command);
+    command = "opt";
+    run_pass(command);
+    command = "opt_expr -mux_undef";
+    run_pass(command);
+    command = "opt";
+    run_pass(command);
+    command = "rename -hide";
+    run_pass(command);
+    command = "opt";
+    run_pass(command);
+    command = "memory_collect";
+    run_pass(command);
+    command = "flatten";
+    run_pass(command);
+    command = "memory_unpack";
+    run_pass(command);
+    command = "splitnets -driver";
+    run_pass(command);
+    command = "setundef -zero -undriven";
+    run_pass(command);
+    command = "dffunmap";
+    run_pass(command);
+    command = "opt -fast -noff";
+    run_pass(command);
+    command = "write_btor ";
+    command += outputf;
     std::ofstream* f = new std::ofstream;
     f->open(outputf.c_str(), std::ofstream::trunc);
     RTLIL::Module* topmod = yosys_design->top_module();
@@ -554,7 +555,7 @@ GVFile2BtorCmd::exec(const string& option) {
 void
 GVFile2BtorCmd ::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO)
-        << "Usage: FILE2 Btor <top module name>  <output_filename.btor> "
+        << "Usage: FILE2 Btor <top module name> <output_filename.btor> "
         << endl;
 }
 
@@ -564,6 +565,76 @@ GVFile2BtorCmd ::help() const {
                       << "Convert verilog file into btor. " << endl;
 }
 
+//----------------------------------------------------------------------
+// FILE2 Blif
+//----------------------------------------------------------------------
+GVCmdExecStatus
+GVFile2BlifCmd::exec(const string& option) {
+    gvMsg(GV_MSG_IFO) << "Create Blif from RTL " << endl;
+
+    // gvMsg(GV_MSG_IFO) << "I am GVFile2AigCmd" << endl;
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    if (n != 2) cout << "wrong arg number\n";
+    string top     = options[0];
+    string outputf = options[1];
+    cout << "top = " << top << " outputf = " << outputf << endl;
+    string command;
+    command = "hierarchy -top ";
+    command += top;
+    run_pass(command);
+    command = "hierarchy -check";
+    run_pass(command);
+    command = "proc";
+    run_pass(command);
+    command = "opt";
+    run_pass(command);
+    command = "opt_expr -mux_undef";
+    run_pass(command);
+    command = "opt";
+    run_pass(command);
+    command = "rename -hide";
+    run_pass(command);
+    command = "opt";
+    run_pass(command);
+    command = "memory_collect";
+    run_pass(command);
+    command = "flatten";
+    run_pass(command);
+    command = "memory_unpack";
+    run_pass(command);
+    command = "splitnets -driver";
+    run_pass(command);
+    command = "setundef -zero -undriven";
+    run_pass(command);
+    command = "dffunmap";
+    run_pass(command);
+    command = "opt -fast -noff";
+    run_pass(command);
+    command = "write_blif ";
+    command += outputf;
+    run_pass(command);
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVFile2BlifCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO)
+        << "Usage: FILE2 Blif <top module name> <output_filename.blif> "
+        << endl;
+}
+
+void
+GVFile2BlifCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "File2 Blif: "
+                      << "Convert verilog file into blif. " << endl;
+}
+
+//----------------------------------------------------------------------
+// White Box
+//----------------------------------------------------------------------
 GVCmdExecStatus
 GVWhiteBoxSignalCmd::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "Create flatten verilog from RTL " << endl;
@@ -576,17 +647,17 @@ GVWhiteBoxSignalCmd::exec(const string& option) {
     string top     = options[0];
     string outputf = options[1];
     cout << "top = " << top << " outputf = " << outputf << endl;
-    string commend;
-    commend = "hierarchy -top ";
-    commend += top;
-    run_pass(commend);
-    commend = "hierarchy -check";
-    run_pass(commend);
-    commend = "proc";
-    run_pass(commend);
+    string command;
+    command = "hierarchy -top ";
+    command += top;
+    run_pass(command);
+    command = "hierarchy -check";
+    run_pass(command);
+    command = "proc";
+    run_pass(command);
 
-    commend = "flatten";
-    run_pass(commend);
+    command = "flatten";
+    run_pass(command);
 
     std::ofstream* f = new std::ofstream;
     // std::ofstream& fo=f;
@@ -627,6 +698,9 @@ GVWhiteBoxSignalCmd ::help() const {
                       << endl;
 }
 
+//----------------------------------------------------------------------
+// Test Boolector
+//----------------------------------------------------------------------
 GVCmdExecStatus
 GVTestBoolector::exec(const string& option) {
     gvMsg(GV_MSG_IFO) << "Test if boolector exist/work fine" << endl;
@@ -649,6 +723,9 @@ GVTestBoolector::help() const {
                       << endl;
 }
 
+//----------------------------------------------------------------------
+// Write Aig
+//----------------------------------------------------------------------
 GVCmdExecStatus
 GVWriteAigCmd::exec(const string& option) {
 
