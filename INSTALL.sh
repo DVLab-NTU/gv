@@ -13,6 +13,5 @@ cd engine/
 # back to gv0/
 cd ../
 
-# make GV and get started
-make clean
+# make GV
 make
