@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # go to engine/
-cd engine/;
+cd engine/
 
 # install "abc"
-./abc.script;
+./abc.script
 # install "yosys"
-./yosys.script;
+./yosys.script
 # install "boolector"
 ./boolector.script
 
 # back to gv0/
-cd ../;
+cd ../
 
 # make GV and get started
-make clean; make; clear; ./gv;
-
+make clean
+make
