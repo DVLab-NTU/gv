@@ -11,10 +11,13 @@ LIBABSPATH = $(patsubst %src/main/Makefile, %lib/,$(TOPPATH))
 
 $(TARGET): $(COBJS) $(LIBDEP)
 	@echo "> building $(EXEC)..."
-	@echo $(TOPPATH);
-	@echo $(LIBABSPATH);
+#	@echo $(TOPPATH);
+#       @echo $(LIBABSPATH);
 
-	$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) $(LIBPATH) -Wl,-rpath $(LIBABSPATH) -L$(LIBDIR)  $(EXTLIB) -lyosys -lpthread -o $@
+	@$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) $(LIBPATH) -Wl,-rpath $(LIBABSPATH) -L$(LIBDIR)  $(EXTLIB) -lyosys -lpthread -o $@
+
+	@echo ""
+	@echo "  Build Successful !!"
 
 #	@$(YOSYSCONF) -o $@  --cxxflags -rdynamic -I$(INCDIR) $(COBJS) -L$(LIBDIR) --ldlibs -lstdc++ $(EXTLIB) -pthread -lyosys
 #	@$(CC) $(CFLAGS) -I$(INCDIR) $(COBJS) -L$(LIBDIR) $(EXTLIB) -static -lpthread -o $@
