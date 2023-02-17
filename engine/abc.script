@@ -1,6 +1,11 @@
 # abc
 git clone https://github.com/berkeley-abc/abc
 cd abc
+
+# switch to stable commit(581c58b)
+git reset 581c58b 
+
+# make abc 
 make -j12
 
 # make "abc" static library
