@@ -1,295 +1,266 @@
 /* 
    Source   : vending/vending.v
-   Synopsis : Written by Cheng-Yin Wu for SoCV Assignments
+   Synopsis : A sample vending machine design.
+   Authors  : Cheng-Yin Wu, NTUGIEE
    Date     : 2013/02/20
    Version  : 1.0
-   revised  : Simplified by Chu Chen-Kai @ 2013/02/26
 */
 
 // Service Types
-`define SERVICE_OFF     2'b00
-`define SERVICE_ON      2'b01
-`define SERVICE_BUSY    2'b10
+`define SERVICE_OFF     2'b00  // vending machine outputs items and changes
+`define SERVICE_ON      2'b01  // vending machine waits external requests
+`define SERVICE_BUSY    2'b10  // vending machine processes requests
 // Coin Types
-`define NTD_50          2'b00
-`define NTD_10          2'b01
-`define NTD_5           2'b10
-`define NTD_1           2'b11
+`define COIN_A          2'b00
+`define COIN_B          2'b01
+`define COIN_C          2'b10
+`define COIN_D          2'b11
 // Coin Values
-`define VALUE_NTD_50    8'd50
-`define VALUE_NTD_10    8'd10
-`define VALUE_NTD_5     8'd5
-`define VALUE_NTD_1     8'd1
+`define VALUE_COIN_A    13'd50
+`define VALUE_COIN_B    13'd10
+`define VALUE_COIN_C    13'd5
+`define VALUE_COIN_D    13'd1
 // Item Types
-`define ITEM_NONE       2'b00
-`define ITEM_A          2'b01
-`define ITEM_B          2'b10
-`define ITEM_C          2'b11
+`define ITEM_A          2'b00
+`define ITEM_B          2'b01
+`define ITEM_C          2'b10
+`define ITEM_D          2'b11
 // Item Costs
-`define COST_A          8'd8
-`define COST_B          8'd15
-`define COST_C          8'd22
+`define COST_ITEM_A     13'd15
+`define COST_ITEM_B     13'd25
+`define COST_ITEM_C     13'd75
+`define COST_ITEM_D     13'd100
 
 module vendingMachine(
    // General I/O Ports
    clk,
    reset,
    // Input Ports
-   coinInNTD_50,
-   coinInNTD_10,
-   coinInNTD_5,
-   coinInNTD_1,
+   coinInA,
+   coinInB,
+   coinInC,
+   coinInD,
    itemTypeIn,
+   itemNumberIn,
+   forceIn,
    // Output Ports
-   coinOutNTD_50,
-   coinOutNTD_10,
-   coinOutNTD_5,
-   coinOutNTD_1,
+   coinOutA,
+   coinOutB,
+   coinOutC,
+   coinOutD,
    itemTypeOut,
-   serviceTypeOut,
-   // Property Output Ports
-   p1, p2, p3, p4
+   itemNumberOut,
+   serviceTypeOut
 );
 
 // General I/O Ports
-input  clk;
-input  reset;
+input          clk;
+input          reset;
 // Input Ports
-input  [1:0] coinInNTD_50;     // input number of NTD_50
-input  [1:0] coinInNTD_10;     // input number of NTD_10
-input  [1:0] coinInNTD_5;      // input number of NTD_5
-input  [1:0] coinInNTD_1;      // input number of NTD_1
-input  [1:0] itemTypeIn;       // type of an item
+input  [5:0]   coinInA;          // input number of COIN_A
+input  [5:0]   coinInB;          // input number of COIN_B
+input  [5:0]   coinInC;          // input number of COIN_C
+input  [5:0]   coinInD;          // input number of COIN_D
+input  [1:0]   itemTypeIn;       // type of an item
+input  [2:0]   itemNumberIn;     // number of the item
+input          forceIn;          // service max as possible
 // Output Ports
-output [2:0] coinOutNTD_50;    // output number of NTD_50
-output [2:0] coinOutNTD_10;    // output number of NTD_10
-output [2:0] coinOutNTD_5;     // output number of NTD_5
-output [2:0] coinOutNTD_1;     // output number of NTD_1
-output [1:0] itemTypeOut;      // type of an item
-output [1:0] serviceTypeOut;   // type of the service
-// Property Output Ports (Hugo added)
-output p1, p2, p3, p4;
+output [5:0]   coinOutA;         // output number of COIN_A
+output [5:0]   coinOutB;         // output number of COIN_B
+output [5:0]   coinOutC;         // output number of COIN_C
+output [5:0]   coinOutD;         // output number of COIN_D
+output [1:0]   itemTypeOut;      // type of an item
+output [2:0]   itemNumberOut;    // number of the item
+output [1:0]   serviceTypeOut;   // type of the service
 
-reg    [2:0] coinOutNTD_50;    // output number of NTD_50
-reg    [2:0] coinOutNTD_10;    // output number of NTD_10
-reg    [2:0] coinOutNTD_5;     // output number of NTD_5
-reg    [2:0] coinOutNTD_1;     // output number of NTD_1
-reg    [1:0] itemTypeOut;      // type of an item
-reg    [1:0] serviceTypeOut;   // type of the service
+reg    [5:0]   coinOutA;         // number of COIN_A
+reg    [5:0]   coinOutB;         // number of COIN_B
+reg    [5:0]   coinOutC;         // number of COIN_C
+reg    [5:0]   coinOutD;         // number of COIN_D
 
-reg    [2:0] countNTD_50;      // number of NTD_50
-reg    [2:0] countNTD_10;      // number of NTD_10
-reg    [2:0] countNTD_5;       // number of NTD_5
-reg    [2:0] countNTD_1;       // number of NTD_1
+reg    [1:0]   itemTypeOut;      // type of an item
+reg    [2:0]   itemNumberOut;    // number of the item
+reg    [1:0]   serviceTypeOut;   // type of the service
+reg            forceService;     // service max as possible
 
-reg    [7:0] inputValue;       // total amount of input money
-reg    [7:0] serviceValue;     // total amount of service money
-reg    [1:0] serviceCoinType;  // type of the coin for the service
-reg          exchangeReady;    // ready for exchange in BUSY
-reg          initialized;      // initialized or not (i.e. reset)
+reg    [5:0]   countA;           // number of stored COIN_A
+reg    [5:0]   countB;           // number of stored COIN_B
+reg    [5:0]   countC;           // number of stored COIN_C
+reg    [5:0]   countD;           // number of stored COIN_D
 
-reg    [2:0] coinOutNTD_50_w;  // output number of NTD_50
-reg    [2:0] coinOutNTD_10_w;  // output number of NTD_10
-reg    [2:0] coinOutNTD_5_w;   // output number of NTD_5
-reg    [2:0] coinOutNTD_1_w;   // output number of NTD_1
-reg    [1:0] itemTypeOut_w;    // type of an item
-reg    [1:0] serviceTypeOut_w; // type of the service
+reg    [12:0]  inputValue;       // total value of input coins
+reg    [12:0]  serviceValue;     // total cost of items to be serviced
 
-reg    [2:0] countNTD_50_w;    // number of NTD_50
-reg    [2:0] countNTD_10_w;    // number of NTD_10
-reg    [2:0] countNTD_5_w;     // number of NTD_5
-reg    [2:0] countNTD_1_w;     // number of NTD_1
-
-reg    [7:0] inputValue_w;     // total amount of input money
-reg    [7:0] serviceValue_w;   // total amount of service money
-reg    [1:0] serviceCoinType_w;// type of the coin for the service
-reg          exchangeReady_w;  // ready for exchange in BUSY
-
-wire   [7:0] outExchange;      // the output exchange amount, for verification
-
-// Property Logic
-/***** whether the change is right *****/
-  // (1) 如果販賣機沒有零錢找時, 應退還正確的 inputValue, 否則就錯了 (含買東西不投錢, 含付錢不買東西)
-  // (2) 正常情況 inputValue = 飲料錢 + outExchange, 否則就錯了
-  // (3) 每次開始要算零錢時, 必須確保演算法會從最大幣值開始找錢, 以免小幣值找不夠導致經常退還錢給消費者
-  // (4) 確認每次沒退錢情況下, 投出來的飲料應該要和消費者選擇的飲料一樣, 否則就錯了
-assign p1 = ((initialized) && (serviceTypeOut == `SERVICE_OFF) && (itemTypeOut == `ITEM_NONE) && (outExchange != inputValue));
-assign p2 = ((initialized) && (serviceTypeOut == `SERVICE_OFF) && (itemTypeOut != `ITEM_NONE) && (inputValue != outExchange + ((itemTypeOut == `ITEM_A) ? `COST_A : (itemTypeOut == `ITEM_B) ? `COST_B : (itemTypeOut == `ITEM_C) ? `COST_C : 8'd0)));
-assign p3 = ((serviceTypeOut == `SERVICE_ON) && (itemTypeOut != `ITEM_NONE) && (serviceCoinType != `NTD_50));
-assign p4 = ((serviceTypeOut == `SERVICE_ON) && (itemTypeOut != `ITEM_NONE) && (itemTypeOut != itemTypeIn));
-
-assign outExchange = (`VALUE_NTD_50 * {5'd0, coinOutNTD_50}) + 
-                     (`VALUE_NTD_10 * {5'd0, coinOutNTD_10}) + 
-                     (`VALUE_NTD_5  * {5'd0, coinOutNTD_5 }) + 
-                     (`VALUE_NTD_1  * {5'd0, coinOutNTD_1 });
-
-always @ (*) begin
-  coinOutNTD_50_w   = coinOutNTD_50;
-  coinOutNTD_10_w   = coinOutNTD_10;
-  coinOutNTD_5_w    = coinOutNTD_5;
-  coinOutNTD_1_w    = coinOutNTD_1;
-  itemTypeOut_w     = itemTypeOut;
-  serviceTypeOut_w  = serviceTypeOut;
-  countNTD_50_w     = countNTD_50;
-  countNTD_10_w     = countNTD_10;
-  countNTD_5_w      = countNTD_5;
-  countNTD_1_w      = countNTD_1;
-  inputValue_w      = inputValue;
-  serviceValue_w    = serviceValue;
-  serviceCoinType_w = serviceCoinType;
-  exchangeReady_w   = exchangeReady;
-
-  case (serviceTypeOut)
-    `SERVICE_ON   : begin
-      if (itemTypeIn != `ITEM_NONE) begin  // valid request
-        coinOutNTD_50_w   = 3'd0;
-        coinOutNTD_10_w   = 3'd0;
-        coinOutNTD_5_w    = 3'd0;
-        coinOutNTD_1_w    = 3'd0;
-        itemTypeOut_w     = itemTypeIn;
-        serviceTypeOut_w  = `SERVICE_BUSY;
-        countNTD_50_w     = (({1'b0, countNTD_50} + {2'd0, coinInNTD_50}) >= {1'b0, 3'b111}) ? 
-                             3'b111 : (countNTD_50 + {1'b0, coinInNTD_50});
-        countNTD_10_w     = (({1'b0, countNTD_10} + {2'd0, coinInNTD_10}) >= {1'b0, 3'b111}) ? 
-                             3'b111 : (countNTD_10 + {1'b0, coinInNTD_10});
-        countNTD_5_w      = (({1'b0, countNTD_5 } + {2'd0, coinInNTD_5 }) >= {1'b0, 3'b111}) ? 
-                             3'b111 : (countNTD_5  + {1'b0, coinInNTD_5 });
-        countNTD_1_w      = (({1'b0, countNTD_1 } + {2'd0, coinInNTD_1 }) >= {1'b0, 3'b111}) ? 
-                             3'b111 : (countNTD_1  + {1'b0, coinInNTD_1 });
-        inputValue_w      = (`VALUE_NTD_50 * {6'd0, coinInNTD_50}) + 
-                             (`VALUE_NTD_10 * {6'd0, coinInNTD_10}) + 
-                             (`VALUE_NTD_5  * {6'd0, coinInNTD_5 }) + 
-                             (`VALUE_NTD_1  * {6'd0, coinInNTD_1 });
-        serviceValue_w    = (itemTypeIn == `ITEM_A) ? `COST_A : 
-                             (itemTypeIn == `ITEM_B) ? `COST_B : 
-                             (itemTypeIn == `ITEM_C) ? `COST_C : 8'd0; 
-        serviceCoinType_w = `NTD_50;
-        exchangeReady_w   = 1'b0;
-      end
-    end
-    `SERVICE_OFF  : begin  // Output change and item
-      coinOutNTD_50_w   = 3'd0;
-      coinOutNTD_10_w   = 3'd0;
-      coinOutNTD_5_w    = 3'd0;
-      coinOutNTD_1_w    = 3'd0;
-      itemTypeOut_w     = `ITEM_NONE;
-      serviceTypeOut_w  = `SERVICE_ON;
-    end
-    default       : begin  // check change for the item
-      if (!exchangeReady) begin
-        if (inputValue < serviceValue) begin  // too few money for the item
-          serviceValue_w  = inputValue;
-          itemTypeOut_w   = `ITEM_NONE;
-          exchangeReady_w = 1'b1;
-        end else begin
-          serviceValue_w  = inputValue - serviceValue;
-          exchangeReady_w = 1'b1;
-        end
-      end else begin
-        case (serviceCoinType)
-          `NTD_50 : begin
-            if (serviceValue >= `VALUE_NTD_50) begin
-              if (countNTD_50 == 3'd0) begin
-                serviceCoinType_w = `NTD_10;
-              end else begin
-                coinOutNTD_50_w = coinOutNTD_50 + 3'd1;
-                countNTD_50_w   = countNTD_50 - 3'd1;
-                serviceValue_w  = serviceValue - `VALUE_NTD_50;
-              end
-            end else begin
-              serviceCoinType_w = `NTD_10;
-            end
-          end
-          `NTD_10 : begin
-            if (serviceValue >= `VALUE_NTD_10) begin
-              if (countNTD_10 == 3'd0) begin
-                serviceCoinType_w = `NTD_5;
-              end else begin
-                coinOutNTD_10_w = coinOutNTD_10 + 3'd1;
-                countNTD_10_w   = countNTD_10 - 3'd1;
-                serviceValue_w  = serviceValue - `VALUE_NTD_10;
-              end
-            end else begin
-              serviceCoinType_w = `NTD_5;
-            end
-          end
-          `NTD_5  : begin
-            if (serviceValue >= `VALUE_NTD_5) begin
-              if (countNTD_5 == 3'd0) begin
-                serviceCoinType_w = `NTD_1;
-              end else begin
-                coinOutNTD_5_w = coinOutNTD_5 + 3'd1;
-                countNTD_5_w   = countNTD_5 - 3'd1;
-                serviceValue_w = serviceValue - `VALUE_NTD_5;
-              end
-            end else begin
-              serviceCoinType_w = `NTD_1;
-            end
-          end
-          `NTD_1  : begin
-            if (serviceValue >= `VALUE_NTD_1) begin
-              if (countNTD_1 == 3'd0) begin
-                serviceValue_w    = inputValue;
-                itemTypeOut_w     = `ITEM_NONE;
-                serviceCoinType_w = `NTD_50;
-                countNTD_50_w     = countNTD_50 + coinOutNTD_50;
-                countNTD_10_w     = countNTD_10 + coinOutNTD_10;
-                countNTD_5_w      = countNTD_5 + coinOutNTD_5;
-                countNTD_1_w      = countNTD_1 + coinOutNTD_1;
-                coinOutNTD_50_w   = 3'd0;
-                coinOutNTD_10_w   = 3'd0;
-                coinOutNTD_5_w    = 3'd0;
-                coinOutNTD_1_w    = 3'd0;
-                serviceTypeOut_w  = `SERVICE_OFF;   // bug 1 
-              end else begin
-                coinOutNTD_1_w = coinOutNTD_1 + 3'd1;
-                countNTD_1_w   = countNTD_1 - 3'd1;
-                serviceValue_w = serviceValue - `VALUE_NTD_1;
-              end
-            end else begin  // exchangeable
-              serviceTypeOut_w = `SERVICE_OFF;
-            end
-          end
-        endcase
-      end
-    end
-  endcase
-end
+reg    [1:0]   serviceCoinType;  // type of the coin for the service
+reg            changeReady;      // ready for change in SERVICE_BUSY
+reg            initialized;      // system initialized or not (i.e. reset)
 
 always @ (posedge clk) begin
    if (!reset) begin
-      coinOutNTD_50     <= 3'd0;
-      coinOutNTD_10     <= 3'd0;
-      coinOutNTD_5      <= 3'd0;
-      coinOutNTD_1      <= 3'd0;
-      itemTypeOut       <= `ITEM_NONE;
+      coinOutA          <= 6'd0;
+      coinOutB          <= 6'd0;
+      coinOutC          <= 6'd0;
+      coinOutD          <= 6'd0;
+      itemTypeOut       <= `ITEM_A;
+      itemNumberOut     <= 3'd0;
       serviceTypeOut    <= `SERVICE_ON;
-      countNTD_50       <= 3'd2;
-      countNTD_10       <= 3'd2;
-      countNTD_5        <= 3'd2;
-      countNTD_1        <= 3'd2;
-      inputValue        <= 8'd0;
-      serviceValue      <= 8'd0;
-      serviceCoinType   <= `NTD_50;
-      exchangeReady     <= 1'b0;
+      forceService      <= 1'b0;
+      countA            <= 6'd5;
+      countB            <= 6'd30;
+      countC            <= 6'd10;
+      countD            <= 6'd20;
+      inputValue        <= 13'd0;
+      serviceValue      <= 13'd0;
+      serviceCoinType   <= 2'd0;
+      changeReady       <= 1'b0;
       initialized       <= 1'b1;
    end
-   else begin
-      coinOutNTD_50     <= coinOutNTD_50_w;
-      coinOutNTD_10     <= coinOutNTD_10_w;
-      coinOutNTD_5      <= coinOutNTD_5_w;
-      coinOutNTD_1      <= coinOutNTD_1_w;
-      itemTypeOut       <= itemTypeOut_w;
-      serviceTypeOut    <= serviceTypeOut_w;
-      countNTD_50       <= countNTD_50_w;
-      countNTD_10       <= countNTD_10_w;
-      countNTD_5        <= countNTD_5_w;
-      countNTD_1        <= countNTD_1_w;
-      inputValue        <= inputValue_w;
-      serviceValue      <= serviceValue_w;
-      serviceCoinType   <= serviceCoinType_w;
-      exchangeReady     <= exchangeReady_w;
-      initialized       <= initialized;
+   else if (initialized) begin
+      case (serviceTypeOut)
+         `SERVICE_ON   : begin
+            if (itemNumberIn != 3'd0) begin  // valid request
+               coinOutA          <= 6'd0;
+               coinOutB          <= 6'd0;
+               coinOutC          <= 6'd0;
+               coinOutD          <= 6'd0;
+               itemTypeOut       <= itemTypeIn;
+               itemNumberOut     <= itemNumberIn;
+               serviceTypeOut    <= `SERVICE_BUSY;
+               forceService      <= forceIn;
+               countA            <= (({1'b0, countA} + {1'b0, coinInA}) >= {1'b0, 6'b111111}) ? 6'b111111 : 
+                                    (countA + coinInA);
+               countB            <= (({1'b0, countB} + {1'b0, coinInB}) >= {1'b0, 6'b111111}) ? 6'b111111 : 
+                                    (countB + coinInB);
+               countC            <= (({1'b0, countC} + {1'b0, coinInC}) >= {1'b0, 6'b111111}) ? 6'b111111 : 
+                                    (countC + coinInC);
+               countD            <= (({1'b0, countD} + {1'b0, coinInD}) >= {1'b0, 6'b111111}) ? 6'b111111 : 
+                                    (countD + coinInD);
+               inputValue        <= (`VALUE_COIN_A * {7'd0, coinInA}) + 
+                                    (`VALUE_COIN_B * {7'd0, coinInB}) + 
+                                    (`VALUE_COIN_C * {7'd0, coinInC}) + 
+                                    (`VALUE_COIN_D * {7'd0, coinInD});
+               serviceValue      <= (itemTypeIn == `ITEM_A) ? ({10'd0, itemNumberIn} * `COST_ITEM_A) : 
+                                    (itemTypeIn == `ITEM_B) ? ({10'd0, itemNumberIn} * `COST_ITEM_B) : 
+                                    (itemTypeIn == `ITEM_C) ? ({10'd0, itemNumberIn} * `COST_ITEM_C) : 
+                                    (itemTypeIn == `ITEM_D) ? ({10'd0, itemNumberIn} * `COST_ITEM_D) : 13'd0;
+               serviceCoinType   <= `COIN_A;
+               changeReady       <= 1'b0;
+            end
+         end
+         `SERVICE_OFF  : begin
+            serviceTypeOut <= `SERVICE_ON;
+         end
+         default       : begin
+            if (!changeReady) begin
+               if (inputValue < serviceValue) begin
+                  if (forceService) begin
+                     itemNumberOut <= itemNumberOut - 3'd1;
+                     serviceValue  <= (itemTypeOut == `ITEM_A) ? (serviceValue - `COST_ITEM_A) : 
+                                      (itemTypeOut == `ITEM_B) ? (serviceValue - `COST_ITEM_B) : 
+                                      (itemTypeOut == `ITEM_C) ? (serviceValue - `COST_ITEM_C) : 
+                                      (itemTypeOut == `ITEM_D) ? (serviceValue - `COST_ITEM_D) : 13'd0;
+                  end
+                  else begin
+                     changeReady   <= 1'b1;
+                     serviceValue  <= inputValue;
+                     itemNumberOut <= 3'd0;
+                  end
+               end
+               else begin
+                  changeReady   <= 1'b1;
+                  serviceValue  <= inputValue - serviceValue;
+               end
+            end
+            else begin
+               case (serviceCoinType)
+                  `COIN_A : begin
+                     if (serviceValue >= `VALUE_COIN_A) begin
+                        if (countA == 6'd0) begin
+                           serviceCoinType <= `COIN_B;
+                        end
+                        else begin
+                           coinOutA <= coinOutA + 6'd1;
+                           countA <= countA - 6'd1;
+                           serviceValue <= serviceValue - `VALUE_COIN_A;
+                        end
+                     end
+                     else begin
+                        serviceCoinType <= `COIN_B;
+                     end
+                  end
+                  `COIN_B : begin
+                     if (serviceValue >= `VALUE_COIN_B) begin
+                        if (countB == 6'd0) begin
+                           serviceCoinType <= `COIN_C;
+                        end
+                        else begin
+                           coinOutB <= coinOutB + 6'd1;
+                           countB <= countB - 6'd1;
+                           serviceValue <= serviceValue - `VALUE_COIN_B;
+                        end
+                     end
+                     else begin
+                        serviceCoinType <= `COIN_C;
+                     end
+                  end
+                  `COIN_C  : begin
+                     if (serviceValue >= `VALUE_COIN_C) begin
+                        if (countC == 6'd0) begin
+                           serviceCoinType <= `COIN_D;
+                        end
+                        else begin
+                           coinOutC <= coinOutC + 6'd1;
+                           countC <= countC - 6'd1;
+                           serviceValue <= serviceValue - `VALUE_COIN_C;
+                        end
+                     end
+                     else begin
+                        serviceCoinType <= `COIN_D;
+                     end
+                  end
+                  `COIN_D  : begin
+                     if (serviceValue >= `VALUE_COIN_D) begin
+                        if (countD == 6'd0) begin
+                           coinOutA          <= 6'd0;
+                           coinOutB          <= 6'd0;
+                           coinOutC          <= 6'd0;
+                           coinOutD          <= 6'd0;
+                           countA            <= (countA + coinOutA);
+                           countB            <= (countB + coinOutB);
+                           countC            <= (countC + coinOutC);
+                           countD            <= (countD + coinOutD);
+                           serviceCoinType   <= `COIN_A;
+                           if (forceService) begin
+                              itemNumberOut     <= itemNumberOut - 3'd1;
+                              serviceValue      <= (`VALUE_COIN_A * {7'd0, coinOutA}) + 
+                                                   (`VALUE_COIN_B * {7'd0, coinOutB}) + 
+                                                   (`VALUE_COIN_C * {7'd0, coinOutC}) + 
+                                                   (`VALUE_COIN_D * {7'd0, coinOutD}) + 
+                                                   serviceValue + (
+                                                   (itemTypeOut == `ITEM_A) ? `COST_ITEM_A : 
+                                                   (itemTypeOut == `ITEM_B) ? `COST_ITEM_B : 
+                                                   (itemTypeOut == `ITEM_C) ? `COST_ITEM_C : 
+                                                   (itemTypeOut == `ITEM_D) ? `COST_ITEM_D : 13'd0);
+                           end
+                           else begin
+                              serviceValue   <= inputValue;
+                              itemNumberOut  <= 3'd0;
+                           end
+                        end
+                        else begin
+                           coinOutD <= coinOutD + 6'd1;
+                           countD <= countD - 6'd1;
+                           serviceValue <= serviceValue - `VALUE_COIN_D;
+                        end
+                     end
+                     else begin
+                        serviceTypeOut <= `SERVICE_OFF;
+                     end
+                  end
+               endcase
+            end
+         end
+      endcase
    end
 end
 
