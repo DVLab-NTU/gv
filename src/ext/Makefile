@@ -2,7 +2,7 @@ CSRCS	= $(wildcard *.cc)
 CSOBJS	= $(addsuffix .so, $(basename $(CSRCS)))
 CDEPS	= $(addsuffix .d, $(basename $(CSRCS)))
 
-YOSYSCONF	= ../../yosys-config --build
+YOSYSCONF	= ../../yosys-config -I../../include --build
 
 
 all:	$(CSOBJS)
