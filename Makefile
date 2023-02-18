@@ -38,7 +38,7 @@ srcLib:	engLib
 	@for pkg in $(SRCPKGS); \
 	do \
 		echo "Checking $$pkg..."; \
-		cd src/$$pkg; make --no-print-directory DEBUG_FLAG=$(DEBUG_FLAG) PKGNAME=$$pkg; \
+		cd src/$$pkg; make --no-print-directory DEBUG_FLAG=$(DEBUG_FLAG) PKGNAME=$$pkg || exit;  \
 		cd ../.. ; \
 	done
 
