@@ -103,7 +103,7 @@ GVResetCmd ::exec(const string& option) {
 
 void
 GVResetCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: RESET SYStem [ -Abc | -Yosys ]" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: RESET SYStem [ Abc | Yosys ]" << endl;
     gvMsg(GV_MSG_IFO)
         << "       If engine is specified, only delete the ntk stored inside. "
            "However, it may be risky to only delete partial datas."
