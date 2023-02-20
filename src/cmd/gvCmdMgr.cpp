@@ -361,6 +361,7 @@ GVCmdMgr::getCmdListFromPart(const string& cmd) const {
     GVCmdExecSet::const_iterator it;
     GVCmdExecSubSet::iterator    is;
     for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
+        if (it->first != GV_CMD_TYPE_REVEALED) {
             for (is = it->second->begin(); is != it->second->end(); ++is) {
                 if (((*is)->getCmdLen() > spCount)) {
                     bool check = true;
@@ -374,6 +375,7 @@ GVCmdMgr::getCmdListFromPart(const string& cmd) const {
                 }
             }
         }
+    }
     return result;
 }
 
@@ -383,7 +385,7 @@ GVCmdMgr::printHelps(bool revealed) const {
     GVCmdExecSubSet::iterator    is;
     gvMsg(GV_MSG_IFO) << endl;
     for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
-        if (revealed) {
+        if ((revealed) ^ (it->first != GV_CMD_TYPE_REVEALED)) {
             gvMsg(GV_MSG_IFO) << "========== " << GVCmdTypeString[it->first]
                               << " Commands : ==========" << endl;
             for (is = it->second->begin(); is != it->second->end(); ++is)
