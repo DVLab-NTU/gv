@@ -30,6 +30,8 @@ CFLAGS	= $(ENGFLGS) $(PKGFLAG) -O0 -DDEBUG -Wall -Wno-parentheses -Wno-unused-fu
 # DISABLE ALL WARNINGS
 CFLAGS += -w -std=c++14
 
+SHELL = bash
+
 .PHONY: depend extheader
 
 %.o:	%.cpp
