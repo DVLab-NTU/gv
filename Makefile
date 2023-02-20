@@ -12,7 +12,7 @@ ENGPKGS	 += boolector
 ENGPKGS	 += lgl
 ENGPKGS	 += btor2parser
 #ENGPKGS	 += minisat
-ENGPKGS	 += abc
+ENGPKGS	 += abcc
 ENGPKGS	 += yosys
 
 ENGSSRC	 = eng

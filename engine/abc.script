@@ -11,8 +11,10 @@ make -j12
 # make "abc" static library
 make libabc.a
 
+mv libabc.a libabcc.a
+
 # copy "abc" static library to /gv_src
-mkdir gv_src; mv libabc.a gv_src;
+mkdir gv_src; mv libabcc.a gv_src;
 
 # include all hierarchical folder with only "header file" under gv_src/
 echo "Copying files to gv_src/ ..."
