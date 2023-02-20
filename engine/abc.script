@@ -11,6 +11,7 @@ make -j12
 # make "abc" static library
 make libabc.a
 
+# rename the "abc" static library
 mv libabc.a libabcc.a
 
 # copy "abc" static library to /gv_src
@@ -27,5 +28,5 @@ find ./ -name "*.d" | xargs rm
 find ./ -name "*.make" | xargs rm
 
 # go to src/eng and create symbol link
-echo "Creating softlink from engine/abc/gv_src to src/eng/abc ...";
-cd ../../../src/eng; ln -fs ../../engine/abc/gv_src ./abc
+echo "Creating softlink from engine/abc/gv_src to src/eng/abcc ...";
+cd ../../../src/eng; ln -fs ../../engine/abc/gv_src ./abcc
