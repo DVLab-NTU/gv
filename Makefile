@@ -7,11 +7,11 @@ EXTLIBS	 = -lm -lz -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
 
-ENGPKGS	 += quteRTL
+#ENGPKGS	 += quteRTL
 ENGPKGS	 += boolector
 ENGPKGS	 += lgl
 ENGPKGS	 += btor2parser
-ENGPKGS	 += minisat
+#ENGPKGS	 += minisat
 ENGPKGS	 += abc
 ENGPKGS	 += yosys
 
