@@ -28,7 +28,7 @@ CFLAGS	= $(ENGFLGS) $(PKGFLAG) -g -Wall -Wno-parentheses -Wno-unused-function
 CFLAGS	= $(ENGFLGS) $(PKGFLAG) -O0 -DDEBUG -Wall -Wno-parentheses -Wno-unused-function
 
 # DISABLE ALL WARNINGS
-CFLAGS += -w
+CFLAGS += -w -std=c++14
 
 .PHONY: depend extheader
 

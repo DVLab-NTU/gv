@@ -3,7 +3,7 @@ LIBPKGS  = util cmd mod abc bdd ntk sim vrf
 
 MAIN     = main
 
-EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
+EXTLIBS	 = -lm -lz -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
 
