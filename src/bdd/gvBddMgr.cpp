@@ -101,7 +101,7 @@ BddNode
 BddMgr::getBddNode(const string& name)
 {
     BddMapConstIter bi = _bddMap.find(name);
-    if (bi == _bddMap.end()) return size_t(0);
+    //if (bi == _bddMap.end()) return size_t(0);
     return (*bi).second;
 }
 
@@ -111,7 +111,7 @@ BddMgr::findNodeByName(const string& name)
     char bddName[128];
     strcpy(bddName, name.c_str());
     Abc_Obj_t* pNode = Abc_NtkFindNode(pNtk, bddName);
-    if (pNode == NULL) return size_t(0);
+    //if (pNode == NULL) return size_t(0);
     DdNode* bFunc = (DdNode *)pNode->pData;
     BddNode bddNode(bFunc);
     return bddNode;
