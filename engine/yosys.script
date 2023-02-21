@@ -14,7 +14,7 @@ sed -i -e "s/-install_name,\$(LIBDIR)\/libyosys.so/-install_name,\@rpath\/libyos
 sed -i -e "s/-Wl,-soname,\$(LIBDIR)\/libyosys.so//g" Makefile;
 
 # make "yosys" shared library 
-make config-gcc; make -j12; make libyosys.so;
+make config-gcc; make -j12; make libyosys.so; make install;
 
 # create gv_src/ directory
 mkdir gv_src;
