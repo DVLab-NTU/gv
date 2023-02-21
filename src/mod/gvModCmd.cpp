@@ -97,8 +97,10 @@ GVResetCmd ::exec(const string& option) {
     }
 
     myUsage.reset();
-    if (gvModMgr) delete gvModMgr;
-    gvModMgr = new GVModMgr;
+    gvModMgr->reset();
+
+    // if (gvModMgr) delete gvModMgr;
+    // gvModMgr = new GVModMgr;
 }
 
 void
