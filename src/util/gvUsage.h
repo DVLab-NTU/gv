@@ -48,6 +48,7 @@ class GVUsage
    private:
       // Private Functions
       const double checkMem() const {
+#if defined __linux__
          ifstream inf("/proc/self/status");
          if (!inf) { gvMsg(GV_MSG_ERR) << "Cannot get memory usage" << endl; return 0.0; }
          const size_t bufSize = 128;
@@ -59,6 +60,7 @@ class GVUsage
                return ((double)memSizeLong / 1024.0);
             }
          }
+#endif
          return 0.0;
       }
       const double checkTick() const {
