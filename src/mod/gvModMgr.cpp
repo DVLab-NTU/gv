@@ -150,3 +150,16 @@ void
 GVModMgr::setWizardContent(string prompt) {
     _wizardContent.push_back(prompt);
 }
+
+/* ------------------------- *\
+ * RESET functions
+\* ------------------------- */
+void
+GVModMgr::reset() {
+    _inputFileExist = false;
+    _property       = -1;
+    _propertySet    = false;
+    _inputFileName  = "";
+    _aig_name       = "";
+    setModPromt();
+}

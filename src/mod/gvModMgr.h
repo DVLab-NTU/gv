@@ -55,6 +55,9 @@ class GVModMgr
         void setWizard(bool wiz) { _wizard = wiz; };
         void setWizardContent(string prompt);
 
+        // reset
+        void reset();
+
         // GV tutorial wizard
         void printWizardPrompt(int promptStart, int promptLength);
         void printWizardProgress(int pos, int promptNum);
