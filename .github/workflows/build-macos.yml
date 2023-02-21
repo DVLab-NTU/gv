@@ -1,4 +1,4 @@
-name: Build MacOS
+name: Build(MacOS)
 on:
   push:
     branches: [ "main","develop"]

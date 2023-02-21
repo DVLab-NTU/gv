@@ -465,15 +465,13 @@ GVYosysOriginalCmd ::exec(const string& option) {
             command += " ";
         }
     }
-
     // calling Yosys's command
-    if ((yosys_design->top_module() == NULL) &&
-        (myStrNCmp("read", command, 4))) {
+    if ((yosys_design->top_module() == NULL) && (myStrNCmp("READ", command, 4)) == 0) {
         cout << "Error: Please read in a design first !" << endl;
         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, command);
     }
-    run_pass(command);
 
+    run_pass(command);
     return GV_CMD_EXEC_DONE;
 }
 
