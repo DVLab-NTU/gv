@@ -1,0 +1,26 @@
+name: Build(MacOS)
+on:
+  push:
+    branches: [ "main","develop"]
+  pull_request:
+    branches: [ "main","develop"]
+jobs:
+  build:
+    runs-on: macos-12 
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Modify INSTALL.sh
+      run: |
+        sed -i -e "s/.\/gv;//g" ./INSTALL.sh
+        
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        brew install bison flex gawk libffi pkg-config bash
+
+    - name: Install GV
+      run: sudo ./INSTALL.sh
+
+    - name: Run tests
+      run: ./gv -f tests/test.dofile

@@ -1,35 +1,44 @@
-SRCPKGS  = cmd ntk util sim vrf abc mod
-LIBPKGS  = cmd ntk util sim vrf abc mod
+SRCPKGS  = util cmd mod abc ntk sim vrf ext
+LIBPKGS  = util cmd mod abc ntk sim vrf
 
 MAIN     = main
 
-EXTLIBS	 = -lm -lz -lrt -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
+EXTLIBS	 = -lm -lz -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
-ENGPKGS	 += v3
-ENGPKGS	 += minisat
-ENGPKGS	 += quteRTL
+
+#ENGPKGS	 += quteRTL
 ENGPKGS	 += boolector
-ENGPKGS	 += abc
+ENGPKGS	 += lgl
+ENGPKGS	 += btor2parser
+#ENGPKGS	 += minisat
+ENGPKGS	 += abcc
 ENGPKGS	 += yosys
-
-
 
 ENGSSRC	 = eng
 
 EXEC     = gv
+.PHONY : all debug
+
+all : EXEC     = gv
+debug : EXEC     = gv.debug
+
+all:  DEBUG_FLAG =
+debug:DEBUG_FLAG = -DGV_DEBUG
+
 LIB	     = libgv.a
 
 
-all:	srcLib
+all debug:	srcLib
 	@echo "Checking $(MAIN)..."
 	@cd src/$(MAIN); make --no-print-directory EXTLIB="$(SRCLIBS) $(EXTLIBS)" EXEC=$(EXEC); cd ../.. ;
 
-srcLib:	engLib
+srcLib:	engLib 
+	@cd include; ln -fs ../src/*/*.h ./;
 	@for pkg in $(SRCPKGS); \
 	do \
 		echo "Checking $$pkg..."; \
-		cd src/$$pkg; make --no-print-directory PKGNAME=$$pkg; \
+		cd src/$$pkg; make --no-print-directory DEBUG_FLAG=$(DEBUG_FLAG) PKGNAME=$$pkg || exit;  \
 		cd ../.. ; \
 	done
 

@@ -1,0 +1,7 @@
+help
+abccmd help
+yosyscmd help
+re d -v design/SoCV/vending/vending-origin.v
+pr i -v
+q -f
+
