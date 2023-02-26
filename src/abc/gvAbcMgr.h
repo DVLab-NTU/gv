@@ -5,7 +5,6 @@
 #include "base/main/main.h"
 #include "base/main/mainInt.h"
 #include "gvAbcNtk.h"
-#include "gvAigMgr.h"
 #include <string>
 
 using namespace std;
@@ -35,17 +34,13 @@ class AbcMgr
         void reset();
 
         void abcReadDesign(string&);
-        void abcNtk2Aig();
-        void abcNtk2Bdd();
 
         Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }
         abcNtkMgr*   get_abcNtkMgr() { return pNtkMgr; }
-        abcAigMgr*   get_aigNtkMgr() { return pAigMgr; }
 
     private:
         Abc_Frame_t* pAbc;
         abcNtkMgr*   pNtkMgr;
-        abcAigMgr*   pAigMgr;
 };
 
 #endif

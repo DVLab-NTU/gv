@@ -9,7 +9,6 @@ class abcNtkMgr;
 typedef struct Abc_Frame_t_ Abc_Frame_t;
 typedef struct Abc_Ntk_t_   Abc_Ntk_t;
 typedef struct Abc_Obj_t_   Abc_Obj_t;
-typedef struct Aig_Obj_t_   Aig_Obj_t;
 
 class abcNtkMgr
 {

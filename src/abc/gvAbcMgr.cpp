@@ -1,8 +1,7 @@
 #include "gvAbcMgr.h"
-#include "gvAbcNtk.h"
-#include "gvBddMgr.h"
 #include "base/abc/abc.h"
 #include "bdd/cudd/cudd.h"
+#include "gvAbcNtk.h"
 #include "sat/cnf/cnf.h"
 #include <cstring>
 #include <iostream>
@@ -29,31 +28,4 @@ AbcMgr::abcReadDesign(string& fileName) {
     sprintf(Command, "read %s", pFileName);
     Cmd_CommandExecute(pAbc, Command);
     pNtkMgr = new abcNtkMgr(pAbc->pNtkCur);
-}
-
-void
-AbcMgr::abcNtk2Aig() {
-    Abc_Ntk_t* pAig = Abc_NtkStrash(pAbc->pNtkCur, 0, 0, 0);
-    if (pAig == NULL) {
-        cout << "Strashing has failed." << endl;
-        return;
-    } else {
-        pAigMgr = new abcAigMgr(pAbc, pAig);
-        cout << "Successfully transform netlist into AIG!" << endl;
-    }
-}
-
-void
-AbcMgr::abcNtk2Bdd() {
-    int i;
-    int pBdd = Abc_NtkToBdd(pAbc->pNtkCur);
-    DdManager* DdMgr = (DdManager*) pAbc->pNtkCur->pManFunc; 
-    bddMgr->init(DdMgr, pAbc->pNtkCur);
-    bddMgr->construct();
-    if (pBdd == 0) {
-        cout << "Transforming has failed." << endl;
-        return;
-    } else {
-        cout << "Successfully transform netlist into BDD!" << endl;
-    }
 }
