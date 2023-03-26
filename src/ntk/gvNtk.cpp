@@ -580,4 +580,29 @@ GVNtkMgr::createNetFromAbc(char * pFileName) {
   {
     print_rec(pGia, Gia_ObjFanin0(pObj)); // we get the fanin of Co. you can imagine that the po net is simply an one bit buf
   }
+
+  // create the PI's (including Ro and PI here, although it is named PI = =)
+  Gia_ManForEachPi(pGia, pObj, i)
+  {
+    GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+    createNet(id, GV_NTK_OBJ_PI); // create the input for GVNtk
+    // cout << "PI id " << Gia_ObjId(pGia, pObj) << endl;
+  }
+
+  // create the PO's
+  Gia_ManForEachPo(pGia, pObj, i)
+  {
+    GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+    createNet(id, GV_NTK_OBJ_PO); // create the output for GVNtk
+    // cout << id.id << endl;
+    // cout << "PO id " << Gia_ObjId(pGia, pObj) << endl;
+  }
+
+  // create the registers (only has to create the Ri because Ro is created by PI)
+  Gia_ManForEachRi(pGia, pObj, i)
+  {
+    GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+    createNet(id, GV_NTK_OBJ_FF); // create the FF for GVNtk
+    // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia, pRi) << endl;
+  }
 }
