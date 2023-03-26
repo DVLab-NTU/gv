@@ -16,13 +16,16 @@ USING_YOSYS_NAMESPACE
 
 bool
 GVinitNtkCmd() {
+    if (gvNtkMgr) delete gvNtkMgr;
+    gvNtkMgr = new GVNtkMgr;
     return (gvCmdMgr->regCmd("SEt Engine", 2, 1, new GVSetEngineCmd) &&
             gvCmdMgr->regCmd("REad Design", 2, 1, new GVReadDesignCmd) &&
             gvCmdMgr->regCmd("PRint Info", 2, 1, new GVPrintInfoCmd) &&
             gvCmdMgr->regCmd("FILE2 Aig", 4, 1, new GVFile2AigCmd) &&
             gvCmdMgr->regCmd("YOSYSCMD", 8, new GVYosysOriginalCmd) &&
             gvCmdMgr->regCmd("FILE2 BLIF", 4, 4, new GVFile2BlifCmd) &&
-            gvCmdMgr->regCmd("WRite Aig", 2, 1, new GVWriteAigCmd));
+            gvCmdMgr->regCmd("WRite Aig", 2, 1, new GVWriteAigCmd) &&
+            gvCmdMgr->regCmd("BLAst NTK", 3, 3, new GVBlastNtkCmd));
 }
 
 //----------------------------------------------------------------------
@@ -603,6 +606,49 @@ GVWriteAigCmd::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: "
                       << "Write out the processing deisng into AIGER file"
                       << endl;
+}
+
+//----------------------------------------------------------------------
+// BLAst NTK (convert network to AIG)
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVBlastNtkCmd ::exec(const string& option) {
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    char * pFileName = new char[50]; // the file name is within 50 characters
+
+    if (n > 2)
+        cout << "Error: Usage: BLAst NTK <input_file>" << endl;
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        if (myStrNCmp("-input_file", token, 5) == 0) {
+            strcpy(pFileName, options[++i].c_str());
+            continue;
+        }
+    }
+
+
+    // PI
+    int            cnt_PI     = 0;
+    RTLIL::Design* design     = gvRTLDesign->getDesign();
+    RTLIL::Module* top_module = gvRTLDesign->getDesign()->top_module();
+
+    gvNtkMgr->createNetFromAbc(pFileName);    
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVBlastNtkCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BLAst NTK" << endl;
+}
+
+void
+GVBlastNtkCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "BLAst NTK: "
+                      << "Convert network to AIG." << endl;
 }
 
 #endif
