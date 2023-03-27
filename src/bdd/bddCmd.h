@@ -14,9 +14,9 @@
 // ============================================================================
 // Classes for BDD package commands 
 // ============================================================================
-/*
-V3_COMMAND(BResetCmd,    CMD_TYPE_BDD);
-V3_COMMAND(BSetVarCmd,   CMD_TYPE_BDD);
+
+GV_COMMAND(BResetCmd,    GV_CMD_TYPE_BDD);
+/*V3_COMMAND(BSetVarCmd,   CMD_TYPE_BDD);
 V3_COMMAND(BInvCmd,      CMD_TYPE_BDD);
 V3_COMMAND(BAndCmd,      CMD_TYPE_BDD);
 V3_COMMAND(BOrCmd,       CMD_TYPE_BDD);

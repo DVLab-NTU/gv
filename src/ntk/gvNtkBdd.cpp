@@ -20,6 +20,7 @@ extern BddMgrV* bddMgrV; // MODIFICATION FOR SoCV BDD
 
 const bool GVNtkMgr::setBddOrder(const bool& file) const {
   unsigned supportSize = getInputSize() + getInoutSize() + 2*getFFSize();
+  unsigned bddspsize = bddMgrV->getNumSupports();
   if(supportSize >= bddMgrV->getNumSupports()) {
     gvMsg(GV_MSG_ERR) << "BDD Support Size is Smaller Than Current Design Required !!" << endl;
     return false;
