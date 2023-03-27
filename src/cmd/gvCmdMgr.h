@@ -18,7 +18,7 @@ extern GVCmdMgr* gvCmdMgr;
 
 // Command Categories to String
 const string GVCmdTypeString[] = {"Revealed", "Common", "Verify", "Simulate",
-                                  "Network",  "Abc",    "Mode"};
+                                  "Network",  "Abc",    "Mode",   "Bdd"};
 
 // Command Categories Enum
 enum GVCmdType
@@ -30,7 +30,8 @@ enum GVCmdType
     GV_CMD_TYPE_SIMULATE = 3,
     GV_CMD_TYPE_NETWORK  = 4,
     GV_CMD_TYPE_ABC      = 5,
-    GV_CMD_TYPE_MOD      = 6
+    GV_CMD_TYPE_MOD      = 6,
+    GV_CMD_TYPE_BDD      = 7
 };
 
 enum GVCmdExecStatus
@@ -53,9 +54,9 @@ const unordered_set<GVCmdType> _setupMode{
     GV_CMD_TYPE_REVEALED, GV_CMD_TYPE_COMMON, GV_CMD_TYPE_NETWORK,
     GV_CMD_TYPE_ABC, GV_CMD_TYPE_MOD};
 
-const unordered_set<GVCmdType> _vrfMode{GV_CMD_TYPE_VERIFY,
-                                        GV_CMD_TYPE_SIMULATE,
-                                        GV_CMD_TYPE_COMMON, GV_CMD_TYPE_MOD};
+const unordered_set<GVCmdType> _vrfMode{
+    GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON,
+    GV_CMD_TYPE_MOD, GV_CMD_TYPE_BDD};
 
 #define GV_COMMAND(cmd, type)                                                  \
     class cmd : public GVCmdExec                                               \
