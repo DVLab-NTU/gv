@@ -101,8 +101,9 @@ class GVNtkMgr
             return _id2GVNetId.at(i);
         }
         // net id/name mapping
-        inline const unsigned getNetIdFromName(const string name) const { return _netName2Id.at(name); } // get the net id from its name
-        inline const string   getNetNameFromId(const unsigned id)  const { return _netId2Name.at(id); }   // get the net name from its id
+        inline unsigned getNetIdFromName(string name) { return _netName2Id[name]; } // get the net id from its name
+        inline string   getNetNameFromId(unsigned id) { return _netId2Name[id]; }   // get the net name from its id
+        void parseAigMapping(Gia_Man_t* pGia);
 
         // construct ntk
         void createNet(const GVNetId& id, const int net_type);

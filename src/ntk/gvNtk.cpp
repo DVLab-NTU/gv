@@ -10,6 +10,7 @@
 #include "gvMsg.h"
 #include "map"
 #include "util.h"
+#include <fstream>
 
 // extern functions
 extern "C"
@@ -108,6 +109,7 @@ GVNtkMgr::createNet(const GVNetId& id, const int net_type) {
     return;
 }
 
+
 void
 GVNtkMgr::createNetFromAbc(char* pFileName) {
     Gia_Man_t* pGia = NULL; // the gia pointer of abc
@@ -172,5 +174,62 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         // pRi) << endl;
         _id2GVNetId[id.id] = id;
     }
+
+    // construct the net id/name mapping
+    parseAigMapping(pGia);
 }
 
+
+string netName(string name, int bit) {
+    return name + "[" + to_string(bit) + "]";
+}
+
+//----------------------------------------------------------------------
+// parse the aig mapping from the ".map.txt" file
+//----------------------------------------------------------------------
+void
+GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
+    string   buffer;
+    ifstream mapFile;
+    int idx, bit;
+    string   name;
+
+    mapFile.open(".map.txt");
+    assert(mapFile.is_open());
+    while( mapFile) {
+        if( !(mapFile >> buffer)) break;
+        if(buffer == "input") {
+            mapFile >> buffer;
+            myStr2Int(buffer, idx);
+            mapFile >> buffer;
+            myStr2Int(buffer, bit);
+            mapFile >> buffer;
+            name = buffer;
+            _netId2Name[Gia_ObjId(pGia, Gia_ManPi(pGia, idx))] = netName(name, bit);
+            _netName2Id[netName(name, bit)] = Gia_ObjId(pGia, Gia_ManPi(pGia, idx));
+            // cout << Gia_ObjId(pGia, Gia_ManPi(pGia, idx)) << " " << netName(name, bit) << endl;
+        }
+        else if(buffer == "output") {
+            mapFile >> buffer;
+            myStr2Int(buffer, idx);
+            mapFile >> buffer;
+            myStr2Int(buffer, bit);
+            mapFile >> buffer;
+            name = buffer;
+            _netId2Name[Gia_ObjId(pGia, Gia_ManPo(pGia, idx))] = netName(name, bit);
+            _netName2Id[netName(name, bit)] = Gia_ObjId(pGia, Gia_ManPo(pGia, idx));
+            // cout << Gia_ObjId(pGia, Gia_ManPo(pGia, idx)) << " " << netName(name, bit) << endl;
+        }
+        else if(buffer == "latch") {
+            mapFile >> buffer;
+            myStr2Int(buffer, idx);
+            mapFile >> buffer;
+            myStr2Int(buffer, bit);
+            mapFile >> buffer;
+            name = buffer;
+            _netId2Name[Gia_ObjId(pGia, Gia_ManRi(pGia, idx))] = netName(name, bit);
+            _netName2Id[netName(name, bit)] = Gia_ObjId(pGia, Gia_ManRi(pGia, idx));
+            // cout << Gia_ObjId(pGia, Gia_ManRi(pGia, idx)) << " " << netName(name, bit) << endl;
+        }     
+    }
+}

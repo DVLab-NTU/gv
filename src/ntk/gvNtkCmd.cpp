@@ -632,6 +632,7 @@ GVBlastNtkCmd ::exec(const string& option) {
     }
 
     // create the PI, PO and FF mapping
+    run_pass("hierarchy -auto-top; flatten; proc; techmap; setundef -zero; aigmap; write_aiger -map .map.txt ._temp_.aig");
 
     // construct GV network
     gvNtkMgr->createNetFromAbc(pFileName);
