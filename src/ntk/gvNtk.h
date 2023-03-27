@@ -104,6 +104,8 @@ class GVNtkMgr
         void createNetFromAbc(char*);
         // print ntk
         void print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj);
+        // build the BDD
+        const bool setBddOrder(const bool& file)const;
 
     protected:
         // GV
