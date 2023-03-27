@@ -103,8 +103,6 @@ class GVNtkMgr
         vector<GVNetId>       _InoutList;  // GVNetId of Inout's
         vector<GVNetId>       _FFList;     // GVNetId of Flip Flops
         vector<GVNetId>       _ConstList;  // GVNetId of Constants
-        map<unsigned, string> _netId2Name; // GVNetId to its wire name
-        unsigned              _numNets;    // trace the number of the nets
 
     private:
         void reset();

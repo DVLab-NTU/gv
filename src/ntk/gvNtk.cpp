@@ -46,8 +46,6 @@ GVNtkMgr::reset() {
     _InoutList.clear();
     _FFList.clear();
     _ConstList.clear();
-    _numNets = 0;
-    _netId2Name.clear();
 }
 
 //----------------------------------------------------------------------
@@ -129,26 +127,28 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // constant node to be as the global one
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
 
-    // dfs traverse from each combinational output (Po(primary output) and
-    // Ri(register input, which can be understand as pseudo Po))
+    // dfs traverse from each combinational output Po (primary output) and
+    // Ri (register input, which can be understand as pseudo Po)
     Gia_ManForEachCo(pGia, pObj, i) {
-        print_rec(pGia, Gia_ObjFanin0(
-                            pObj)); // we get the fanin of Co. you can imagine
-                                    // that the po net is simply an one bit buf
+        print_rec(pGia, Gia_ObjFanin0(pObj));
+        // we get the fanin of Co. you can imagine that the po net is simply an
+        // one bit buf
     }
 
     // create the PI's (including Ro and PI here, although it is named PI = =)
     Gia_ManForEachPi(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        createNet(id, GV_NTK_OBJ_PI); // create the input for GVNtk
+        // create the input for GVNtk
+        createNet(id, GV_NTK_OBJ_PI);
         // cout << "PI id " << Gia_ObjId(pGia, pObj) << endl;
     }
 
     // create the PO's
     Gia_ManForEachPo(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        createNet(id, GV_NTK_OBJ_PO); // create the output for GVNtk
-                                      // cout << id.id << endl;
+        // create the input for GVNtk
+        createNet(id, GV_NTK_OBJ_PO);
+        // cout << id.id << endl;
         // cout << "PO id " << Gia_ObjId(pGia, pObj) << endl;
     }
 
@@ -156,7 +156,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // PI)
     Gia_ManForEachRi(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        createNet(id, GV_NTK_OBJ_FF); // create the FF for GVNtk
+        // create the input for GVNtk
+        createNet(id, GV_NTK_OBJ_FF);
         // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia,
         // pRi) << endl;
     }
