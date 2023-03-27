@@ -619,13 +619,16 @@ GVBlastNtkCmd ::exec(const string& option) {
     size_t n         = options.size();
     char*  pFileName = new char[50]; // the file name is within 50 characters
 
-    if (n > 2) cout << "Error: Usage: BLAst NTK <input_file>" << endl;
-    for (size_t i = 0; i < n; ++i) {
-        const string& token = options[i];
-        if (myStrNCmp("-input_file", token, 5) == 0) {
-            strcpy(pFileName, options[++i].c_str());
-            continue;
-        }
+    if (n > 0) {
+        gvMsg(GV_MSG_ERR) << "Usage: BLAst NTK" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, option);
+    }
+    // filename exists
+    if (gvModMgr->getInputFileExist()) {
+        strcpy(pFileName, gvModMgr->getInputFileName().c_str());
+    } else {
+        gvMsg(GV_MSG_ERR) << "Error: Please read in a design first !" << endl;
+        return GV_CMD_EXEC_ERROR;
     }
 
     // construct GV network
