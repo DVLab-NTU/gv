@@ -39,8 +39,8 @@ GVinitBddCmd() {
             gvCmdMgr->regCmd("BSIMulate", 4, new BSimulateCmd) &&
             gvCmdMgr->regCmd("BREPort", 4, new BReportCmd) &&
             gvCmdMgr->regCmd("BDRAW", 5, new BDrawCmd) &&
-            gvCmdMgr->regCmd("BSETOrder", 5, new BSetOrderCmd)
-            /*gvCmdMgr->regCmd("BCONstruct", 4, new BConstructCmd)*/);
+            gvCmdMgr->regCmd("BSETOrder", 5, new BSetOrderCmd) &&
+            gvCmdMgr->regCmd("BCONstruct", 4, new BConstructCmd));
     return true;
 }
 
@@ -98,440 +98,407 @@ BResetCmd::help() const {
 //    BSETVar <(size_t level)> <(string varName)>
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BSetVarCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
-  if(options.size() < 2) {
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-  } else if(options.size() > 2) {
-    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
-  }
+BSetVarCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    if (options.size() < 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    } else if (options.size() > 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
+    }
 
-  int level;
+    int level;
 
-  if (myStr2Int(options[0], level) && (level >= 1) &&
-      (size_t(level) < bddMgrV->getNumSupports())) {
-    BddNodeV n = bddMgrV->getSupport(level);
-    if (!isValidVarName(options[1]) || !bddMgrV->addBddNodeV(options[1], n())
-    )
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    if (myStr2Int(options[0], level) && (level >= 1) &&
+        (size_t(level) < bddMgrV->getNumSupports())) {
+        BddNodeV n = bddMgrV->getSupport(level);
+        if (!isValidVarName(options[1]) ||
+            !bddMgrV->addBddNodeV(options[1], n()))
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+        return GV_CMD_EXEC_DONE;
+    } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+
     return GV_CMD_EXEC_DONE;
-  }
-  else
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-
-  return GV_CMD_EXEC_DONE;
 }
 
 void
-BSetVarCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BSETVar <(size_t level)> <(string varName)>" << endl;
+BSetVarCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BSETVar <(size_t level)> <(string varName)>"
+                      << endl;
 }
 
 void
-BSetVarCmd::help() const
-{
-  cout << setw(20) << left << "BSETVar: " << "BDD set a variable name for a support" << endl;
+BSetVarCmd::help() const {
+    cout << setw(20) << left << "BSETVar: "
+         << "BDD set a variable name for a support" << endl;
 }
 
 // //----------------------------------------------------------------------
 // //    BINV <(string varName)> <(string bddName)>
 // //----------------------------------------------------------------------
 GVCmdExecStatus
-BInvCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
-  if(options.size() < 2) {
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-  } else if(options.size() > 2) {
-    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
-  }
+BInvCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    if (options.size() < 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    } else if (options.size() > 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
+    }
 
-  if (!isValidVarName(options[0]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-  if (!isValidBddName(options[1]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-  BddNodeV b = ::getBddNodeV(options[1]);
-  if (b() == 0)
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-  bddMgrV->forceAddBddNodeV(options[0], (~b)());
+    if (!isValidVarName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidBddName(options[1]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    BddNodeV b = ::getBddNodeV(options[1]);
+    if (b() == 0) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    bddMgrV->forceAddBddNodeV(options[0], (~b)());
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BInvCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BINV <(string varName)> <(string bddName)>" <<
-  endl;
+BInvCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BINV <(string varName)> <(string bddName)>"
+                      << endl;
 }
 
 void
-BInvCmd::help() const
-{
-  cout << setw(20) << left << "BINV: " << "BDD Inv" << endl;
+BInvCmd::help() const {
+    cout << setw(20) << left << "BINV: "
+         << "BDD Inv" << endl;
 }
 
 //----------------------------------------------------------------------
 //    BAND <(string varName)> <(string bddName)>...
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BAndCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
+BAndCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-  size_t n = options.size();
-  if (n < 2)
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    size_t n = options.size();
+    if (n < 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-  if (!isValidVarName(options[0]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidVarName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-  BddNodeV ret = BddNodeV::_one;
-  for (size_t i = 1; i < n; ++i) {
-    if (!isValidBddName(options[i]))
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    BddNodeV b = ::getBddNodeV(options[i]);
-    if (b() == 0)
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    ret &= b;
-  }
-  bddMgrV->forceAddBddNodeV(options[0], ret());
+    BddNodeV ret = BddNodeV::_one;
+    for (size_t i = 1; i < n; ++i) {
+        if (!isValidBddName(options[i]))
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        BddNodeV b = ::getBddNodeV(options[i]);
+        if (b() == 0)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        ret &= b;
+    }
+    bddMgrV->forceAddBddNodeV(options[0], ret());
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BAndCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BAND <(string varName)> <(string bddName)>..." <<
-endl;
+BAndCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BAND <(string varName)> <(string bddName)>..."
+                      << endl;
 }
 
 void
-BAndCmd::help() const
-{
-  cout << setw(20) << left << "BAND: " << "BDD And" << endl;
+BAndCmd::help() const {
+    cout << setw(20) << left << "BAND: "
+         << "BDD And" << endl;
 }
 
 //----------------------------------------------------------------------
 //    BOR <(string varName)> <(string bddName)>...
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BOrCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
+BOrCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-  size_t n = options.size();
-  if (n < 2)
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    size_t n = options.size();
+    if (n < 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-  if (!isValidVarName(options[0]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidVarName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-  BddNodeV ret = BddNodeV::_zero;
-  for (size_t i = 1; i < n; ++i) {
-    if (!isValidBddName(options[i]))
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    BddNodeV b = ::getBddNodeV(options[i]);
-    if (b() == 0)
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    ret |= b;
-  }
-  bddMgrV->forceAddBddNodeV(options[0], ret());
+    BddNodeV ret = BddNodeV::_zero;
+    for (size_t i = 1; i < n; ++i) {
+        if (!isValidBddName(options[i]))
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        BddNodeV b = ::getBddNodeV(options[i]);
+        if (b() == 0)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        ret |= b;
+    }
+    bddMgrV->forceAddBddNodeV(options[0], ret());
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BOrCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BOR <(string varName)> <(string bddName)>..." <<
-  endl;
+BOrCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BOR <(string varName)> <(string bddName)>..."
+                      << endl;
 }
 
 void
-BOrCmd::help() const
-{
-  cout << setw(20) << left << "BOR: " << "BDD Or" << endl;
+BOrCmd::help() const {
+    cout << setw(20) << left << "BOR: "
+         << "BDD Or" << endl;
 }
 
 //----------------------------------------------------------------------
 //    BNAND <(string varName)> <(string bddName)>...
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BNandCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
+BNandCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-  size_t n = options.size();
-  if (n < 2)
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    size_t n = options.size();
+    if (n < 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-  if (!isValidVarName(options[0]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidVarName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-  BddNodeV ret = BddNodeV::_one;
-  for (size_t i = 1; i < n; ++i) {
-    if (!isValidBddName(options[i]))
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    BddNodeV b = ::getBddNodeV(options[i]);
-    if (b() == 0)
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    ret &= b;
-  }
-  ret = ~ret;
-  bddMgrV->forceAddBddNodeV(options[0], ret());
+    BddNodeV ret = BddNodeV::_one;
+    for (size_t i = 1; i < n; ++i) {
+        if (!isValidBddName(options[i]))
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        BddNodeV b = ::getBddNodeV(options[i]);
+        if (b() == 0)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        ret &= b;
+    }
+    ret = ~ret;
+    bddMgrV->forceAddBddNodeV(options[0], ret());
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BNandCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BNAND <(string varName)> <(string bddName)>..." <<
-endl;
+BNandCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BNAND <(string varName)> <(string bddName)>..."
+                      << endl;
 }
 
 void
-BNandCmd::help() const
-{
-  cout << setw(20) << left << "BNAND: " << "BDD Nand" << endl;
+BNandCmd::help() const {
+    cout << setw(20) << left << "BNAND: "
+         << "BDD Nand" << endl;
 }
 
 //----------------------------------------------------------------------
 //    BNOR <(string varName)> <(string bddName)>...
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BNorCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
+BNorCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-  size_t n = options.size();
-  if (n < 2)
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    size_t n = options.size();
+    if (n < 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-  if (!isValidVarName(options[0]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidVarName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-  BddNodeV ret = BddNodeV::_zero;
-  for (size_t i = 1; i < n; ++i) {
-    if (!isValidBddName(options[i]))
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    BddNodeV b = ::getBddNodeV(options[i]);
-    if (b() == 0)
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    ret |= b;
-  }
-  ret = ~ret;
-  bddMgrV->forceAddBddNodeV(options[0], ret());
+    BddNodeV ret = BddNodeV::_zero;
+    for (size_t i = 1; i < n; ++i) {
+        if (!isValidBddName(options[i]))
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        BddNodeV b = ::getBddNodeV(options[i]);
+        if (b() == 0)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        ret |= b;
+    }
+    ret = ~ret;
+    bddMgrV->forceAddBddNodeV(options[0], ret());
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BNorCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BNOR <(string varName)> <(string bddName)>..." <<
-endl;
+BNorCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BNOR <(string varName)> <(string bddName)>..."
+                      << endl;
 }
 
 void
-BNorCmd::help() const
-{
-  cout << setw(20) << left << "BNOR: " << "BDD Nor" << endl;
+BNorCmd::help() const {
+    cout << setw(20) << left << "BNOR: "
+         << "BDD Nor" << endl;
 }
 
 //----------------------------------------------------------------------
 //    BXOR <(string varName)> <(string bddName)>...
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BXorCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
+BXorCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-  size_t n = options.size();
-  if (n < 2)
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    size_t n = options.size();
+    if (n < 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-  if (!isValidVarName(options[0]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidVarName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-  BddNodeV ret = BddNodeV::_zero;
-  for (size_t i = 1; i < n; ++i) {
-    if (!isValidBddName(options[i]))
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    BddNodeV b = ::getBddNodeV(options[i]);
-    if (b() == 0)
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    ret ^= b;
-  }
-  bddMgrV->forceAddBddNodeV(options[0], ret());
+    BddNodeV ret = BddNodeV::_zero;
+    for (size_t i = 1; i < n; ++i) {
+        if (!isValidBddName(options[i]))
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        BddNodeV b = ::getBddNodeV(options[i]);
+        if (b() == 0)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        ret ^= b;
+    }
+    bddMgrV->forceAddBddNodeV(options[0], ret());
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BXorCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BXOR <(string varName)> <(string bddName)>..." <<
-endl;
+BXorCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BXOR <(string varName)> <(string bddName)>..."
+                      << endl;
 }
 
 void
-BXorCmd::help() const
-{
-  cout << setw(20) << left << "BXOR: " << "BDD Xor" << endl;
+BXorCmd::help() const {
+    cout << setw(20) << left << "BXOR: "
+         << "BDD Xor" << endl;
 }
 
 //----------------------------------------------------------------------
 //    BXNOR <(string varName)> <(string bddName)>...
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BXnorCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
+BXnorCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-  size_t n = options.size();
-  if (n < 2)
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    size_t n = options.size();
+    if (n < 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-  if (!isValidVarName(options[0]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidVarName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-  BddNodeV ret = BddNodeV::_zero;
-  for (size_t i = 1; i < n; ++i) {
-    if (!isValidBddName(options[i]))
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    BddNodeV b = ::getBddNodeV(options[i]);
-    if (b() == 0)
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    ret ^= b;
-  }
-  ret = ~ret;
-  bddMgrV->forceAddBddNodeV(options[0], ret());
+    BddNodeV ret = BddNodeV::_zero;
+    for (size_t i = 1; i < n; ++i) {
+        if (!isValidBddName(options[i]))
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        BddNodeV b = ::getBddNodeV(options[i]);
+        if (b() == 0)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        ret ^= b;
+    }
+    ret = ~ret;
+    bddMgrV->forceAddBddNodeV(options[0], ret());
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BXnorCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BXNOR <(string varName)> <(string bddName)>..." <<
-endl;
+BXnorCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BXNOR <(string varName)> <(string bddName)>..."
+                      << endl;
 }
 
 void
-BXnorCmd::help() const
-{
-  cout << setw(20) << left << "BXNOR: " << "BDD Xnor" << endl;
+BXnorCmd::help() const {
+    cout << setw(20) << left << "BXNOR: "
+         << "BDD Xnor" << endl;
 }
 
 //----------------------------------------------------------------------
 //    BCOFactor <-Positive|-Negative> <(string varName)> <(string bddName)>
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BCofactorCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
-  size_t n = options.size();
-  if (n < 3)
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-  if (n > 3)
-    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[3]);
+BCofactorCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    if (n < 3) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (n > 3) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[3]);
 
-  bool posCof = false;
-  if (myStrNCmp("-Positive", options[0], 2) == 0) posCof = true;
-  else if (myStrNCmp("-Negative", options[0], 2) != 0)
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    bool posCof = false;
+    if (myStrNCmp("-Positive", options[0], 2) == 0) posCof = true;
+    else if (myStrNCmp("-Negative", options[0], 2) != 0)
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-  if (!isValidVarName(options[1]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-  if (!isValidBddName(options[2]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[2]);
-  BddNodeV f = ::getBddNodeV(options[2]);
-  if (f() == 0)
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[2]);
-  unsigned level = f.getLevel();
-  bddMgrV->forceAddBddNodeV(options[1], posCof? f.getLeftCofactor(level)():
-                                                f.getRightCofactor(level)());
-  return GV_CMD_EXEC_DONE;
+    if (!isValidVarName(options[1]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    if (!isValidBddName(options[2]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[2]);
+    BddNodeV f = ::getBddNodeV(options[2]);
+    if (f() == 0) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[2]);
+    unsigned level = f.getLevel();
+    bddMgrV->forceAddBddNodeV(options[1], posCof ? f.getLeftCofactor(level)()
+                                                 : f.getRightCofactor(level)());
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BCofactorCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BCOFactor <-Positive | -Negative> <(string varName)> <(string bddName)>\n";
+BCofactorCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BCOFactor <-Positive | -Negative> <(string "
+                         "varName)> <(string bddName)>\n";
 }
 
 void
-BCofactorCmd::help() const
-{
-  cout << setw(20) << left << "BCOFactor: " << "Retrieve BDD cofactor\n";
+BCofactorCmd::help() const {
+    cout << setw(20) << left << "BCOFactor: "
+         << "Retrieve BDD cofactor\n";
 }
 
 //----------------------------------------------------------------------
 //    BEXist <(size_t level)> <(string varName)> <(string bddName)>
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BExistCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
-  size_t n = options.size();
-  if (n < 3)
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-  if (n > 3)
-    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[3]);
+BExistCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    if (n < 3) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (n > 3) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[3]);
 
-  int level;
-  if (!myStr2Int(options[0], level) || (level < 1) ||
-      (size_t(level) >= bddMgrV->getNumSupports()))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    int level;
+    if (!myStr2Int(options[0], level) || (level < 1) ||
+        (size_t(level) >= bddMgrV->getNumSupports()))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-  if (!isValidVarName(options[1]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-  if (!isValidBddName(options[2]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[2]);
-  BddNodeV f = ::getBddNodeV(options[2]);
-  if (f() == 0)
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[2]);
-  bddMgrV->forceAddBddNodeV(options[1], f.exist(level)());
+    if (!isValidVarName(options[1]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    if (!isValidBddName(options[2]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[2]);
+    BddNodeV f = ::getBddNodeV(options[2]);
+    if (f() == 0) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[2]);
+    bddMgrV->forceAddBddNodeV(options[1], f.exist(level)());
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BExistCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BEXist <(size_t level)> <(string varName)> <(string bddName)>\n";
+BExistCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BEXist <(size_t level)> <(string varName)> "
+                         "<(string bddName)>\n";
 }
 
 void
-BExistCmd::help() const
-{
-  cout << setw(20) << left << "BEXist: "
-       << "Perform BDD existential quantification\n";
+BExistCmd::help() const {
+    cout << setw(20) << left << "BEXist: "
+         << "Perform BDD existential quantification\n";
 }
 
 //----------------------------------------------------------------------
@@ -708,38 +675,36 @@ BReportCmd::help() const {
 //    BDRAW <(string bddName)> <(string fileName)>
 //----------------------------------------------------------------------
 GVCmdExecStatus
-BDrawCmd::exec(const string& option)
-{
-  // check option
-  vector<string> options;
-  GVCmdExec::lexOptions(option, options);
-  if(options.size() < 2) {
-    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-  } else if(options.size() > 2) {
-    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
-  }
+BDrawCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    if (options.size() < 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    } else if (options.size() > 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
+    }
 
-  if (!isValidBddName(options[0]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-  if (::getBddNodeV(options[0])() == 0)
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-  if (!bddMgrV->drawBdd(options[0], options[1]))
-    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    if (!isValidBddName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (::getBddNodeV(options[0])() == 0)
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!bddMgrV->drawBdd(options[0], options[1]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
 
-  return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
 void
-BDrawCmd::usage(const bool& verbose) const
-{
-  gvMsg(GV_MSG_IFO) << "Usage: BDRAW <(string bddName)> <(string fileName)>" <<
-  endl;
+BDrawCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BDRAW <(string bddName)> <(string fileName)>"
+                      << endl;
 }
 
 void
-BDrawCmd::help() const
-{
-  cout << setw(20) << left << "BDRAW: " << "BDD graphic draw" << endl;
+BDrawCmd::help() const {
+    cout << setw(20) << left << "BDRAW: "
+         << "BDD graphic draw" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -748,8 +713,7 @@ BDrawCmd::help() const
 GVCmdExecStatus
 BSetOrderCmd::exec(const string& option) {
     // if(!valid()) return GV_CMD_EXEC_ERROR;
-    bool setBdd = false;
-    if (setBdd) {
+    if (setBddOrder) {
         gvMsg(GV_MSG_WAR) << "BDD Variable Order Has Been Set !!" << endl;
         return GV_CMD_EXEC_ERROR;
     }
@@ -768,9 +732,8 @@ BSetOrderCmd::exec(const string& option) {
     bddMgrV->restart();
     // V3NtkHandler* const handler = v3Handler.getCurHandler();
 
-    file   = true;
-    setBdd = gvNtkMgr->setBddOrder(true);
-    if (!setBdd)
+    setBddOrder = gvNtkMgr->setBddOrder(file);
+    if (!setBddOrder)
         gvMsg(GV_MSG_ERR) << "Set BDD Variable Order Failed !!" << endl;
     else gvMsg(GV_MSG_IFO) << "Set BDD Variable Order Succeed !!" << endl;
     return GV_CMD_EXEC_DONE;
@@ -785,75 +748,71 @@ BSetOrderCmd::help() const {
          << "Set BDD variable Order From Circuit." << endl;
 }
 
-// //----------------------------------------------------------------------
-// //    BConstruct <-Netid <netId> | -Output <outputIndex> | -All>
-// //----------------------------------------------------------------------
-// GVCmdExecStatus
-// BConstructCmd::exec(const string& option)
-// {
-//   if(!valid()) return GV_CMD_EXEC_ERROR;
-//   if (!setBddOrder) {
-//     gvMsg(GV_MSG_WAR) << "BDD variable order has not been set !!!" << endl;
-//     return GV_CMD_EXEC_ERROR;
-//   }
+//----------------------------------------------------------------------
+//    BConstruct <-Netid <netId> | -Output <outputIndex> | -All>
+//----------------------------------------------------------------------
+GVCmdExecStatus
+BConstructCmd::exec(const string& option) {
+    if (!setBddOrder) {
+        gvMsg(GV_MSG_WAR) << "BDD variable order has not been set !!!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
 
-//   vector<string> options;
-//   GVCmdExec::lexOptions(option, options);
-//   if(options.size() < 1) {
-//     return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-//   } else if(options.size() > 2) {
-//     return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
-//   }
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    if (options.size() < 1) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    } else if (options.size() > 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
+    }
 
-//   V3Ntk* const ntk = v3Handler.getCurHandler()->getNtk();
-//   bool isNet = false, isOutput = false;
+    bool isNet = false, isOutput = false;
 
-//   if (myStrNCmp("-All", options[0], 2) == 0) ntk->buildNtkBdd();
-//   else if (myStrNCmp("-Netid", options[0], 2) == 0) isNet = true;
-//   else if (myStrNCmp("-Output", options[0], 2) == 0) isOutput = true;
-//   else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (myStrNCmp("-All", options[0], 2) == 0) gvNtkMgr->buildNtkBdd();
+    else if (myStrNCmp("-Netid", options[0], 2) == 0) isNet = true;
+    else if (myStrNCmp("-Output", options[0], 2) == 0) isOutput = true;
+    else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-//   if(isOutput || isNet) {
-//     if(options.size() != 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING,
-// options[0]);
+    if (isOutput || isNet) {
+        if (options.size() != 2)
+            return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[0]);
 
-//     int num = 0;
-//     V3NetId netId;
-//     if(!myStr2Int(options[1], num) || (num < 0)) return
-// GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]); if(isNet) {
-//       if((unsigned)num >= ntk->getNetSize()) {
-//         gvMsg(MSG_ERR) << "Net with Id " << num << " does NOT Exist in
-//         Current Ntk
-// !!" << endl; return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-//       }
-//       netId = V3NetId::makeNetId(num);
-//     } else if(isOutput) {
-//       if((unsigned)num >= ntk->getOutputSize()) {
-//         gvMsg(MSG_ERR) << "Output with Index " << num << " does NOT Exist in
-// Current Ntk !!" << endl; return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL,
-// options[1]);
-//       }
-//       netId = ntk->getOutput(num);
-//     }
-//     ntk->buildBdd(netId);
-//   }
+        int     num = 0;
+        GVNetId netId;
+        if (!myStr2Int(options[1], num) || (num < 0))
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+        if (isNet) {
+            if ((unsigned)num >= gvNtkMgr->getNetSize()) {
+                gvMsg(GV_MSG_ERR)
+                    << "Net with Id " << num
+                    << " does NOT Exist in Current Ntk !!" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+            }
+            netId = GVNetId::makeNetId(num);
+        } else if (isOutput) {
+            if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
+                gvMsg(GV_MSG_ERR)
+                    << "Output with Index " << num
+                    << " does NOT Exist in Current Ntk !!" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+            }
+            netId = gvNtkMgr->getOutput(num);
+        }
+        gvNtkMgr->buildBdd(netId);
+    }
 
-//   return GV_CMD_EXEC_DONE;
-// }
+    return GV_CMD_EXEC_DONE;
+}
 
-// void
-// BConstructCmd::usage(const bool& verbose) const
-// {
-//   gvMsg(GV_MSG_IFO) << "Usage: BConstruct <-Netid <netId> | -Output
-//   <outputIndex>
-//   |
-// -All>" << endl;
-// }
+void
+BConstructCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BConstruct <-Netid <netId> | -Output < "
+                         "outputIndex > | -All > "
+                      << endl;
+}
 
-// void
-// BConstructCmd::help() const
-// {
-//   cout << setw(20) << left << "BConstruct: " << "Build BDD From Current
-//   Design."
-// << endl;
-// }
+void
+BConstructCmd::help() const {
+    cout << setw(20) << left << "BConstruct: "
+         << "Build BDD From Current Design." << endl;
+}
