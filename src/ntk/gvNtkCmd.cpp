@@ -631,9 +631,12 @@ GVBlastNtkCmd ::exec(const string& option) {
         return GV_CMD_EXEC_ERROR;
     }
 
+    // create the PI, PO and FF mapping
+
     // construct GV network
     gvNtkMgr->createNetFromAbc(pFileName);
 
+    // BSETOrder
     cout << "TEST : Start to build BDD : \n";
     gvNtkMgr->setBddOrder(true);
 

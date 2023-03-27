@@ -12,26 +12,24 @@
 #include "gvCmdMgr.h"
 
 // ============================================================================
-// Classes for BDD package commands 
+// Classes for BDD package commands
 // ============================================================================
-
-GV_COMMAND(BResetCmd,    GV_CMD_TYPE_BDD);
-/*V3_COMMAND(BSetVarCmd,   CMD_TYPE_BDD);
-V3_COMMAND(BInvCmd,      CMD_TYPE_BDD);
-V3_COMMAND(BAndCmd,      CMD_TYPE_BDD);
-V3_COMMAND(BOrCmd,       CMD_TYPE_BDD);
-V3_COMMAND(BNandCmd,     CMD_TYPE_BDD);
-V3_COMMAND(BNorCmd,      CMD_TYPE_BDD);
-V3_COMMAND(BXorCmd,      CMD_TYPE_BDD);
-V3_COMMAND(BXnorCmd,     CMD_TYPE_BDD);
-V3_COMMAND(BCofactorCmd, CMD_TYPE_BDD);
-V3_COMMAND(BExistCmd,    CMD_TYPE_BDD);
-V3_COMMAND(BCompareCmd,  CMD_TYPE_BDD);
-V3_COMMAND(BSimulateCmd, CMD_TYPE_BDD);
-V3_COMMAND(BReportCmd,   CMD_TYPE_BDD);
-V3_COMMAND(BDrawCmd,     CMD_TYPE_BDD);
-V3_COMMAND(BSetOrderCmd, CMD_TYPE_BDD);
-V3_COMMAND(BConstructCmd,CMD_TYPE_BDD);
-*/
+GV_COMMAND(BResetCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BSetVarCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BInvCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BAndCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BOrCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BNandCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BNorCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BXorCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BXnorCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BCofactorCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BExistCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BCompareCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BSimulateCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BReportCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BDrawCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BSetOrderCmd, GV_CMD_TYPE_BDD);
+// GV_COMMAND(BConstructCmd, GV_CMD_TYPE_BDD);
 
 #endif // BDD_CMD_H
