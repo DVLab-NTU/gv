@@ -632,10 +632,18 @@ GVBlastNtkCmd ::exec(const string& option) {
     }
 
     // create the PI, PO and FF mapping
+    run_pass("hierarchy -auto-top; flatten; proc; techmap; setundef -zero; aigmap; write_aiger -map .map.txt ._temp_.aig");
 
     // construct GV network
     gvNtkMgr->createNetFromAbc(pFileName);
 
+<<<<<<< HEAD
+=======
+    // BSETOrder
+    //cout << "TEST : Start to build BDD : \n";
+    // gvNtkMgr->setBddOrder(true);
+
+>>>>>>> 5503cfe840cb578db5c42d71722ed877e1441691
     return GV_CMD_EXEC_DONE;
 }
 
