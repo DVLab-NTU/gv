@@ -79,18 +79,26 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     // cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
     //      << endl; // print the id of its right child
 
-    if (Gia_ObjFanin0(pObj))
+    if (Gia_ObjFanin0(pObj)){
         // add fanin
-        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
-            Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-    // recursive traverse the left child
-    print_rec(pGia, Gia_ObjFanin0(pObj));
-    if (Gia_ObjFanin1(pObj))
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+        // create the new GV net id
+        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+        id.type = GV_NTK_OBJ_AIG;
+        createNet(id,GV_NTK_OBJ_AIG);
+        // recursive traverse the left child
+        print_rec(pGia, Gia_ObjFanin0(pObj));
+    }
+    if (Gia_ObjFanin1(pObj)){
         // add fanin
-        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
-            Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
-    // recursive traverse the right child
-    print_rec(pGia, Gia_ObjFanin1(pObj));
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
+        // create the new GV net id
+        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+        id.type = GV_NTK_OBJ_AIG;
+        createNet(id,GV_NTK_OBJ_AIG);
+        // recursive traverse the right child
+        print_rec(pGia, Gia_ObjFanin1(pObj));
+    }
 }
 
 //----------------------------------------------------------------------
@@ -105,10 +113,11 @@ GVNtkMgr::createNet(const GVNetId& id, const int net_type) {
         _OutputList.push_back(id);
     } else if (net_type == GV_NTK_OBJ_FF) {
         _FFList.push_back(id);
+    } else { // AIG node
+        _id2GVNetId[id.id] = id;
     }
     return;
 }
-
 
 void
 GVNtkMgr::createNetFromAbc(char* pFileName) {
@@ -116,8 +125,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     Gia_Obj_t* pObj;        // the obj element of gia
 
     // abc function parameters
-    char* pTopModule =
-        NULL; // the top module can be auto detected by yosys, no need to set
+    char* pTopModule  = NULL; // the top module can be auto detected by yosys, no need to set
     char* pDefines    = NULL;
     int   fBlast      = 1; // blast the ntk to gia (abc's aig data structure)
     int   fInvert     = 0;
@@ -148,6 +156,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // create the PI's (including Ro and PI here, although it is named PI = =)
     Gia_ManForEachPi(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+        id.type = GV_NTK_OBJ_PI;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PI);
         // cout << "PI id " << Gia_ObjId(pGia, pObj) << endl;
@@ -157,6 +166,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // create the PO's
     Gia_ManForEachPo(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+        id.type = GV_NTK_OBJ_PO;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PO);
         // cout << id.id << endl;
@@ -168,6 +178,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // PI)
     Gia_ManForEachRi(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+        id.type = GV_NTK_OBJ_FF;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_FF);
         // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia,
@@ -233,3 +244,4 @@ GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
         }     
     }
 }
+

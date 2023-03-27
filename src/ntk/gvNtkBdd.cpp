@@ -15,10 +15,11 @@
 #include "gvMsg.h"
 #include "bddNodeV.h" // MODIFICATION FOR SoCV BDD
 #include "bddMgrV.h" // MODIFICATION FOR SoCV BDD
+#include "stack"
 
 extern BddMgrV* bddMgrV; // MODIFICATION FOR SoCV BDD
 
-const bool GVNtkMgr::setBddOrder(const bool& file) const {
+const bool GVNtkMgr::setBddOrder(const bool& file) {
   unsigned supportSize = getInputSize() + getInoutSize() + 2*getFFSize();
   unsigned bddspsize = bddMgrV->getNumSupports();
   if(supportSize >= bddMgrV->getNumSupports()) {
@@ -28,31 +29,35 @@ const bool GVNtkMgr::setBddOrder(const bool& file) const {
   // build support
   unsigned supportId = 1;
   for(unsigned i = 0, n = getInputSize(); i < n; ++i) {
-    const GVNetId& nId = (file)? getInput(i) : getInput(n-i-1);
+    GVNetId nId = (file)? getInput(i) : getInput(n-i-1);
+    string netName = getNetNameFromId(nId.id);
+
     bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
-    //bddMgrV->addBddNodeV(handler->getNetNameOrFormedWithId(nId),
-    //    bddMgrV->getSupport(supportId)());
+    bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
     ++supportId;
   }
   for(unsigned i = 0, n = getInoutSize(); i < n; ++i) {
     const GVNetId& nId = (file)? getInout(i) : getInout(n-i-1);
+    //string netName = getNetNameFromId(nId->id);
+
     bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
-    //bddMgrV->addBddNodeV(handler->getNetNameOrFormedWithId(nId),
-    //    bddMgrV->getSupport(supportId)());
+    //bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
     ++supportId;
   }
   for(unsigned i = 0, n = getFFSize(); i < n; ++i) {
     const GVNetId& nId = (file)? getLatch(i) : getLatch(n-i-1);
+    //string netName = getNetNameFromId(nId->id);
+
     bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
-    //bddMgrV->addBddNodeV(handler->getNetNameOrFormedWithId(nId),
-    //    bddMgrV->getSupport(supportId)());
+    //bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
     ++supportId;
   }
   // Next State
   for(unsigned i = 0, n = getFFSize(); i < n; ++i) {
     const GVNetId& nId = (file)? getLatch(i) : getLatch(n-i-1);
-    //bddMgrV->addBddNodeV(handler->getNetNameOrFormedWithId(nId)+"_ns",
-    //    bddMgrV->getSupport(supportId)());
+    //string netName = getNetNameFromId(nId.id);
+
+    //bddMgrV->addBddNodeV(netName+"_ns",bddMgrV->getSupport(supportId)());
     ++supportId;
   }
 
@@ -65,14 +70,14 @@ const bool GVNtkMgr::setBddOrder(const bool& file) const {
   return true;
 }
 
-/*
+
 void GVNtkMgr::buildNtkBdd() {
   // TODO: build BDD for ntk here
   // Perform DFS traversal from DFF inputs, inout, and output gates.
   // Collect ordered nets to a V3NetVec
   // Construct BDDs in the DFS order
 
-  V3Stack<GVNetId>::Stack s;
+  stack<GVNetId> s;
   for (unsigned i = 0; i < getOutputSize(); ++i) {
     s.push(getOutput(i));
   }
@@ -80,7 +85,7 @@ void GVNtkMgr::buildNtkBdd() {
     buildBdd(s.top());
     s.pop();
   }
-  _isBddBuilt = true;
+  // _isBddBuilt = true;
   
   // build next state
   for (unsigned i = 0; i < getFFSize(); ++i) {
@@ -94,24 +99,23 @@ void GVNtkMgr::buildNtkBdd() {
   // BddNodeV test = bddMgrV->getBddNodeV(420);
   // cout << test << endl;
 }
-*/
 
-/*
+
 void GVNtkMgr::buildBdd(const GVNetId& netId) {
-  V3NetVec orderedNets;
+  //V3NetVec orderedNets;
+  vector<GVNetId> orderedNets;
 
   orderedNets.clear();
   orderedNets.reserve(getNetSize());
 
-  newMiscData();
+  // newMiscData();
   dfsOrder(netId, orderedNets);
   assert (orderedNets.size() <= getNetSize());
 
   // TODO: build BDD for the specified net here
-
   GVNetId left, right; 
   for (unsigned i = 0; i < orderedNets.size(); ++i) {
-    if (getGateType(orderedNets[i]) == AIG_NODE) {
+    if (getGateType(orderedNets[i]) == GV_NTK_OBJ_AIG) {
       left = getInputNetId(orderedNets[i], 0);
       right = getInputNetId(orderedNets[i], 1);
       if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
@@ -126,21 +130,21 @@ void GVNtkMgr::buildBdd(const GVNetId& netId) {
     }
   }
 }
-*/
 
-/*
+
+
 // put fanins of a net (id) into a vector (nets) in topological order
-void GVNtkMgr::dfsOrder(const GVNetId& id, V3NetVec& nets) {
-  if (isLatestMiscData(id)) return;
+void GVNtkMgr::dfsOrder(const GVNetId& id, vector<GVNetId>& nets) {
+  //if (isLatestMiscData(id)) return;
   // Set Latest Misc Data
-  setLatestMiscData(id);
+  //setLatestMiscData(id);
   // Traverse Fanin Logics
-  const V3GateType type = getGateType(id);
-  if(type == AIG_NODE) {
+  const GV_Ntk_Type_t type = getGateType(id);
+  if(type == GV_NTK_OBJ_AIG) {
     dfsOrder(getInputNetId(id, 0), nets);
     dfsOrder(getInputNetId(id, 1), nets);
   }
   nets.push_back(id);  // Record Order
 }
-*/
+
 #endif
