@@ -14,6 +14,7 @@
 #include "kernel/utils.h"    // Toposort
 #include "kernel/yosys.h"
 #include <vector>
+#include <string>
 
 USING_YOSYS_NAMESPACE
 
@@ -99,21 +100,27 @@ class GVNtkMgr
         inline const GVNetId& getGVNetId(const unsigned& i) const {
             return _id2GVNetId.at(i);
         }
+        // net id/name mapping
+        inline const unsigned getNetIdFromName(const string name) const { return _netName2Id.at(name); } // get the net id from its name
+        inline const string   getNetNameFromId(const unsigned id)  const { return _netId2Name.at(id); }   // get the net name from its id
+
         // construct ntk
         void createNet(const GVNetId& id, const int net_type);
         void createNetFromAbc(char*);
         // print ntk
         void print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj);
-
+        
     protected:
         // GV
-        vector<GVNetId>                 _InputList;  // GVNetId of PI's
-        vector<GVNetId>                 _OutputList; // GVNetId of PO's
-        vector<GVNetId>                 _InoutList;  // GVNetId of Inout's
-        vector<GVNetId>                 _FFList;     // GVNetId of Flip Flops
-        vector<GVNetId>                 _ConstList;  // GVNetId of Constants
-        map<unsigned, vector<unsigned>> _id2faninId; // use id to get its fanin
-        map<unsigned, GVNetId> _id2GVNetId; // use id to get its net struct
+        vector<GVNetId>                 _InputList;    // GVNetId of PI's
+        vector<GVNetId>                 _OutputList;   // GVNetId of PO's
+        vector<GVNetId>                 _InoutList;    // GVNetId of Inout's
+        vector<GVNetId>                 _FFList;       // GVNetId of Flip Flops
+        vector<GVNetId>                 _ConstList;    // GVNetId of Constants
+        map<unsigned, vector<unsigned>> _id2faninId;   // use id to get its fanin
+        map<unsigned, GVNetId>          _id2GVNetId;   // use id to get its net struct
+        map<unsigned, string>           _netId2Name;   // use the net id to get its name
+        map<string, unsigned>           _netName2Id;   // use the net name to get its id
 
     private:
         void reset();
