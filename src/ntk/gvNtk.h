@@ -93,16 +93,26 @@ class GVNtkMgr
             assert(i < getFFSize());
             return _FFList[i];
         } // get the i'th FF
+        inline const vector<unsigned> getfaninId(const unsigned& i) const {
+            assert(i < (getInputSize() + getOutputSize() + getInoutSize() +
+                        getFFSize()));
+            return _id2faninId.at(i);
+        } // get the i'th FF
+        // construct ntk
         void createNet(const GVNetId& id, const int net_type);
         void createNetFromAbc(char*);
+        // print ntk
+        void print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj);
 
     protected:
         // GV
-        vector<GVNetId>       _InputList;  // GVNetId of PI's
-        vector<GVNetId>       _OutputList; // GVNetId of PO's
-        vector<GVNetId>       _InoutList;  // GVNetId of Inout's
-        vector<GVNetId>       _FFList;     // GVNetId of Flip Flops
-        vector<GVNetId>       _ConstList;  // GVNetId of Constants
+        vector<GVNetId>                 _InputList;  // GVNetId of PI's
+        vector<GVNetId>                 _OutputList; // GVNetId of PO's
+        vector<GVNetId>                 _InoutList;  // GVNetId of Inout's
+        vector<GVNetId>                 _FFList;     // GVNetId of Flip Flops
+        vector<GVNetId>                 _ConstList;  // GVNetId of Constants
+        map<unsigned, vector<unsigned>> _id2faninId; // use id to get its fanin
+        map<unsigned, GVNetId> _id2GVNetId; // use id to get its net struct
 
     private:
         void reset();

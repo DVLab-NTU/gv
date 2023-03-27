@@ -46,6 +46,8 @@ GVNtkMgr::reset() {
     _InoutList.clear();
     _FFList.clear();
     _ConstList.clear();
+    _id2faninId.clear();
+    _id2GVNetId.clear();
 }
 
 //----------------------------------------------------------------------
@@ -53,7 +55,7 @@ GVNtkMgr::reset() {
 //----------------------------------------------------------------------
 // recursively print the gia network
 void
-print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
+GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     if (Gia_ObjIsTravIdCurrent(pGia, pObj))
         return; // if the TravId of the node is equal to the global TravId,
                 // return
@@ -68,20 +70,26 @@ print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     if (Gia_ObjIsCi(pObj))
         return; // If we reach the combinational input(PI + Ro (register output,
                 // or pseudo PI)), return.
-    cout << "node id = " << Gia_ObjId(pGia, pObj)
-         << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
-         << endl; // print the gia Id of the current node
-    cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
-         << endl; // print the id of its left child
-    cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
-         << endl; // print the id of its right child
+    // cout << "node id = " << Gia_ObjId(pGia, pObj)
+    //      << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
+    //      << endl; // print the gia Id of the current node
+    // cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
+    //      << endl; // print the id of its left child
+    // cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
+    //      << endl; // print the id of its right child
 
     if (Gia_ObjFanin0(pObj))
-        // recursive traverse the left child
-        print_rec(pGia, Gia_ObjFanin0(pObj));
+        // add fanin
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
+            Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+    // recursive traverse the left child
+    print_rec(pGia, Gia_ObjFanin0(pObj));
     if (Gia_ObjFanin1(pObj))
-        // recursive traverse the right child
-        print_rec(pGia, Gia_ObjFanin1(pObj));
+        // add fanin
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
+            Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
+    // recursive traverse the right child
+    print_rec(pGia, Gia_ObjFanin1(pObj));
 }
 
 //----------------------------------------------------------------------
@@ -141,6 +149,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PI);
         // cout << "PI id " << Gia_ObjId(pGia, pObj) << endl;
+        _id2GVNetId[id.id] = id;
     }
 
     // create the PO's
@@ -150,6 +159,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         createNet(id, GV_NTK_OBJ_PO);
         // cout << id.id << endl;
         // cout << "PO id " << Gia_ObjId(pGia, pObj) << endl;
+        _id2GVNetId[id.id] = id;
     }
 
     // create the registers (only has to create the Ri because Ro is created by
@@ -160,5 +170,6 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         createNet(id, GV_NTK_OBJ_FF);
         // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia,
         // pRi) << endl;
+        _id2GVNetId[id.id] = id;
     }
 }
