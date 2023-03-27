@@ -71,13 +71,13 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     if (Gia_ObjIsCi(pObj))
         return; // If we reach the combinational input(PI + Ro (register output,
                 // or pseudo PI)), return.
-    cout << "node id = " << Gia_ObjId(pGia, pObj)
-         << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
-         << endl; // print the gia Id of the current node
-    cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
-         << endl; // print the id of its left child
-    cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
-         << endl; // print the id of its right child
+    // cout << "node id = " << Gia_ObjId(pGia, pObj)
+    //      << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
+    //      << endl; // print the gia Id of the current node
+    // cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
+    //      << endl; // print the id of its left child
+    // cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
+    //      << endl; // print the id of its right child
 
     if (Gia_ObjFanin0(pObj))
         // add fanin
