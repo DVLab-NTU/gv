@@ -20,7 +20,7 @@
 using namespace std;
 
 bool
-initBddCmd() {
+GVinitBddCmd() {
   if (bddMgrV) delete bddMgrV;
   bddMgrV = new BddMgrV;
   /*return (
