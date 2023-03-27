@@ -66,7 +66,7 @@ print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
                      // TravId, that is mark it as traversed
 
     if (Gia_ObjIsCi(pObj))
-        return; // If we reach the combinational input(PI + Ro(register output,
+        return; // If we reach the combinational input(PI + Ro (register output,
                 // or pseudo PI)), return.
     cout << "node id = " << Gia_ObjId(pGia, pObj)
          << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
@@ -77,11 +77,11 @@ print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
          << endl; // print the id of its right child
 
     if (Gia_ObjFanin0(pObj))
-        print_rec(pGia,
-                  Gia_ObjFanin0(pObj)); // recursive traverse the left child
+        // recursive traverse the left child
+        print_rec(pGia, Gia_ObjFanin0(pObj));
     if (Gia_ObjFanin1(pObj))
-        print_rec(pGia,
-                  Gia_ObjFanin1(pObj)); // recursive traverse the right child
+        // recursive traverse the right child
+        print_rec(pGia, Gia_ObjFanin1(pObj));
 }
 
 //----------------------------------------------------------------------
