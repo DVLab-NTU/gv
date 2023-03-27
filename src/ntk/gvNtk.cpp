@@ -190,6 +190,19 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         _id2GVNetId[id.id] = id;
     }
 
+    // create the registers (only has to create the Ri because Ro is created by
+    // PI)
+    Gia_ManForEachRo(pGia, pObj, i) {
+        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+        id.type = GV_NTK_OBJ_PI;
+        // create the input for GVNtk
+        createNet(id, GV_NTK_OBJ_PI);
+        // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia,
+        // pRi) << endl;
+        _id2GVNetId[id.id] = id;
+    }
+
+
     // construct the net id/name mapping
     parseAigMapping(pGia);
 }
