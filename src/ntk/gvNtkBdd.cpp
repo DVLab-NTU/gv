@@ -118,6 +118,9 @@ void GVNtkMgr::buildBdd(const GVNetId& netId) {
   // TODO: build BDD for the specified net here
   GVNetId left, right; 
   for (unsigned i = 0; i < orderedNets.size(); ++i) {
+    cout << " Type : "<< orderedNets[i].type << "\n";
+    cout << " ID : " << orderedNets[i].id << "\n";
+    cout << " === \n";
     if (getGateType(orderedNets[i]) == GV_NTK_OBJ_AIG) {
       left = getInputNetId(orderedNets[i], 0);
       right = getInputNetId(orderedNets[i], 1);
