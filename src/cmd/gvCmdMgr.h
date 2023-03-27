@@ -52,11 +52,11 @@ enum GVCmdOptionError
 
 const unordered_set<GVCmdType> _setupMode{
     GV_CMD_TYPE_REVEALED, GV_CMD_TYPE_COMMON, GV_CMD_TYPE_NETWORK,
-    GV_CMD_TYPE_ABC, GV_CMD_TYPE_MOD};
+    GV_CMD_TYPE_ABC, GV_CMD_TYPE_MOD,GV_CMD_TYPE_BDD};
 
 const unordered_set<GVCmdType> _vrfMode{
     GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON,
-    GV_CMD_TYPE_MOD, GV_CMD_TYPE_BDD};
+    GV_CMD_TYPE_MOD};
 
 #define GV_COMMAND(cmd, type)                                                  \
     class cmd : public GVCmdExec                                               \
