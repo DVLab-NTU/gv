@@ -31,33 +31,29 @@ const bool GVNtkMgr::setBddOrder(const bool& file) {
   for(unsigned i = 0, n = getInputSize(); i < n; ++i) {
     GVNetId nId = (file)? getInput(i) : getInput(n-i-1);
     string netName = getNetNameFromId(nId.id);
-
     bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
     bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
     ++supportId;
   }
   for(unsigned i = 0, n = getInoutSize(); i < n; ++i) {
     const GVNetId& nId = (file)? getInout(i) : getInout(n-i-1);
-    //string netName = getNetNameFromId(nId->id);
-
+    string netName = getNetNameFromId(nId.id);
     bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
-    //bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
+    bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
     ++supportId;
   }
   for(unsigned i = 0, n = getFFSize(); i < n; ++i) {
     const GVNetId& nId = (file)? getLatch(i) : getLatch(n-i-1);
-    //string netName = getNetNameFromId(nId->id);
-
+    string netName = getNetNameFromId(nId.id);
     bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
-    //bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
+    bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
     ++supportId;
   }
   // Next State
   for(unsigned i = 0, n = getFFSize(); i < n; ++i) {
     const GVNetId& nId = (file)? getLatch(i) : getLatch(n-i-1);
-    //string netName = getNetNameFromId(nId.id);
-
-    //bddMgrV->addBddNodeV(netName+"_ns",bddMgrV->getSupport(supportId)());
+    string netName = getNetNameFromId(nId.id);
+    bddMgrV->addBddNodeV(netName+"_ns",bddMgrV->getSupport(supportId)());
     ++supportId;
   }
 
