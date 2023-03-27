@@ -44,10 +44,11 @@ struct GVNetId {
         unsigned       cp : 1;
         unsigned       id : 31;
         GV_Ntk_Type_t  type : GV_NTK_OBJ_AND;
-        static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0, GV_Ntk_Type_t t = GV_NTK_OBJ_AND) {
+        static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0,
+                                 GV_Ntk_Type_t t = GV_NTK_OBJ_AND) {
             GVNetId j;
-            j.cp = c;
-            j.id = i;
+            j.cp   = c;
+            j.id   = i;
             j.type = t;
             return j;
         }
@@ -92,10 +93,8 @@ class GVNtkMgr
             assert(i < getFFSize());
             return _FFList[i];
         } // get the i'th FF
-        void createNetFromYosys();
         void createNet(const GVNetId& id, const int net_type);
-        void mapConnectionFromYosys();
-        void createNetFromAbc(char *);
+        void createNetFromAbc(char*);
 
     protected:
         // GV
@@ -104,21 +103,8 @@ class GVNtkMgr
         vector<GVNetId>       _InoutList;  // GVNetId of Inout's
         vector<GVNetId>       _FFList;     // GVNetId of Flip Flops
         vector<GVNetId>       _ConstList;  // GVNetId of Constants
-        unsigned              _numNets;    // trace the number of the nets
         map<unsigned, string> _netId2Name; // GVNetId to its wire name
-        vector<vector<GVNetId>> _inputData; // Connection of Graph
-        // Yosys
-        vector<RTLIL::Wire*>  PI_PO_FF_var;
-        map<RTLIL::IdString, RTLIL::Cell*>   cellName2Pointer;
-        // <IdString>.c_str() == const char*
-        dict<SigBit, pool<IdString>>         wire_from; // bit driver
-        dict<SigBit, pool<IdString>>         wire_to;   // bit user
-        // cell name to wire name
-        map<RTLIL::IdString, pool<IdString>> cell_fanin_connect_to_PI;
-        map<RTLIL::IdString, pool<IdString>> cell_fanout_connect_to_PO;
-        // cell name to SigBit
-        map<RTLIL::IdString, pool<SigBit>>   cell_fanin;
-        map<RTLIL::IdString, pool<SigBit>>   cell_fanout;
+        unsigned              _numNets;    // trace the number of the nets
 
     private:
         void reset();

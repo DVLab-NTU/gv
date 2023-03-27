@@ -616,11 +616,10 @@ GVCmdExecStatus
 GVBlastNtkCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n = options.size();
-    char * pFileName = new char[50]; // the file name is within 50 characters
+    size_t n         = options.size();
+    char*  pFileName = new char[50]; // the file name is within 50 characters
 
-    if (n > 2)
-        cout << "Error: Usage: BLAst NTK <input_file>" << endl;
+    if (n > 2) cout << "Error: Usage: BLAst NTK <input_file>" << endl;
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
         if (myStrNCmp("-input_file", token, 5) == 0) {
@@ -629,13 +628,8 @@ GVBlastNtkCmd ::exec(const string& option) {
         }
     }
 
-
-    // PI
-    int            cnt_PI     = 0;
-    RTLIL::Design* design     = gvRTLDesign->getDesign();
-    RTLIL::Module* top_module = gvRTLDesign->getDesign()->top_module();
-
-    gvNtkMgr->createNetFromAbc(pFileName);    
+    // construct GV network
+    gvNtkMgr->createNetFromAbc(pFileName);
 
     return GV_CMD_EXEC_DONE;
 }
