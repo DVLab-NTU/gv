@@ -78,24 +78,28 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     //      << endl; // print the id of its left child
     // cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
     //      << endl; // print the id of its right child
+    // create the new GV net id
+    GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+    id.type = GV_NTK_OBJ_AIG;
+    createNet(id,GV_NTK_OBJ_AIG);
+    _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+    if (Gia_ObjFanin1(pObj))
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
 
     if (Gia_ObjFanin0(pObj)){
         // add fanin
-        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-        // create the new GV net id
-        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-        id.type = GV_NTK_OBJ_AIG;
-        createNet(id,GV_NTK_OBJ_AIG);
+        
+        
         // recursive traverse the left child
         print_rec(pGia, Gia_ObjFanin0(pObj));
     }
     if (Gia_ObjFanin1(pObj)){
         // add fanin
-        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
+        // _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
         // create the new GV net id
-        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-        id.type = GV_NTK_OBJ_AIG;
-        createNet(id,GV_NTK_OBJ_AIG);
+        // GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+        // id.type = GV_NTK_OBJ_AIG;
+        // createNet(id,GV_NTK_OBJ_AIG);
         // recursive traverse the right child
         print_rec(pGia, Gia_ObjFanin1(pObj));
     }
@@ -148,7 +152,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // dfs traverse from each combinational output Po (primary output) and
     // Ri (register input, which can be understand as pseudo Po)
     Gia_ManForEachCo(pGia, pObj, i) {
-        print_rec(pGia, Gia_ObjFanin0(pObj));
+        print_rec(pGia, pObj);
         // we get the fanin of Co. you can imagine that the po net is simply an
         // one bit buf
     }
