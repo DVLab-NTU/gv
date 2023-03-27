@@ -23,7 +23,8 @@ bool
 GVinitBddCmd() {
     if (bddMgrV) delete bddMgrV;
     bddMgrV = new BddMgrV;
-    return (gvCmdMgr->regCmd("BRESET", 6, new BResetCmd)
+    return (gvCmdMgr->regCmd("BRESET", 6, new BResetCmd) && 
+            gvCmdMgr->regCmd("BSETOrder", 5, new BSetOrderCmd)
      /*&&
             gvCmdMgr->regCmd("BSETVar", 5, new BSetVarCmd) &&
             gvCmdMgr->regCmd("BINV", 4, new BInvCmd) &&
@@ -39,7 +40,6 @@ GVinitBddCmd() {
             gvCmdMgr->regCmd("BSIMulate", 4, new BSimulateCmd) &&
             gvCmdMgr->regCmd("BREPort", 4, new BReportCmd) &&
             gvCmdMgr->regCmd("BDRAW", 5, new BDrawCmd) &&
-            gvCmdMgr->regCmd("BSETOrder", 5, new BSetOrderCmd) &&
             gvCmdMgr->regCmd("BCONstruct", 4, new BConstructCmd)*/);
     return true;
 }
@@ -109,8 +109,9 @@ BResetCmd::exec(const string& option) {
 
 void
 BResetCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: BRESET <(size_t nSupports)> <(size_t hashSize)> "
-                 << "<(size_t cacheSize)>" << endl;
+    gvMsg(GV_MSG_IFO)
+        << "Usage: BRESET <(size_t nSupports)> <(size_t hashSize)> "
+        << "<(size_t cacheSize)>" << endl;
 }
 
 void
@@ -786,56 +787,55 @@ BResetCmd::help() const {
 //   cout << setw(20) << left << "BDRAW: " << "BDD graphic draw" << endl;
 // }
 
-// //----------------------------------------------------------------------
-// //    BSETOrder < -File | -RFile >
-// //----------------------------------------------------------------------
-// GVCmdExecStatus
-// BSetOrderCmd::exec(const string& option)
-// {
-//   if(!valid()) return CMD_EXEC_ERROR;
-//   if(setBddOrder) {
-//     Msg(MSG_WAR) << "BDD Variable Order Has Been Set !!" << endl;
-//     return CMD_EXEC_ERROR;
-//   }
+//----------------------------------------------------------------------
+//    BSETOrder < -File | -RFile >
+//----------------------------------------------------------------------
+GVCmdExecStatus
+BSetOrderCmd::exec(const string& option) {
+    if (!valid()) return CMD_EXEC_ERROR;
+    if (setBddOrder) {
+        Msg(MSG_WAR) << "BDD Variable Order Has Been Set !!" << endl;
+        return CMD_EXEC_ERROR;
+    }
 
-//   vector<string> options;
-//   GVCmdExec::lexOptions(option, options);
-//   if(options.size() < 1) {
-//     return GVCmdExec::errorOption(CMD_OPT_MISSING, "");
-//   } else if(options.size() > 1) {
-//     return GVCmdExec::errorOption(CMD_OPT_EXTRA, options[1]);
-//   }
-//   string token = options[0];
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    if (options.size() < 1) {
+        return GVCmdExec::errorOption(CMD_OPT_MISSING, "");
+    } else if (options.size() > 1) {
+        return GVCmdExec::errorOption(CMD_OPT_EXTRA, options[1]);
+    }
+    string token = options[0];
 
-//   bool file = false;
+    bool file = false;
 
-//   if (v3StrNCmp("-File", token, 2) == 0) file = true;
-//   else if (v3StrNCmp("-RFile", token, 3) == 0) file = false;
-//   else return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    if (v3StrNCmp("-File", token, 2) == 0) file = true;
+    else if (v3StrNCmp("-RFile", token, 3) == 0) file = false;
+    else return GVCmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
-//   bddMgrV->restart();
+    bddMgrV->restart();
 
-//   V3NtkHandler* const handler = v3Handler.getCurHandler();
-//   setBddOrder = handler->getNtk()->setBddOrder(handler, file);
+    V3NtkHandler* const handler = v3Handler.getCurHandler();
+    setBddOrder                 = handler->getNtk()->setBddOrder(handler, file);
 
-//   if (!setBddOrder) Msg(MSG_ERR) << "Set BDD Variable Order Failed !!" <<
-//   endl; else Msg(MSG_IFO) << "Set BDD Variable Order Succeed !!" << endl;
+    if (!setBddOrder)
+        Msg(MSG_ERR) << "Set BDD Variable Order Failed !!" << endl;
+    else Msg(MSG_IFO) << "Set BDD Variable Order Succeed !!" << endl;
 
-//   return CMD_EXEC_DONE;
-// }
+    return CMD_EXEC_DONE;
+}
 
-// void
-// BSetOrderCmd::usage(const bool& verbose) const
-// {
-//   Msg(MSG_IFO) << "Usage: BSETOrder < -File | -RFile >" << endl;
-// }
+void
+BSetOrderCmd::usage(const bool& verbose) const {
+    Msg(MSG_IFO) << "Usage: BSETOrder < -File | -RFile >" << endl;
+}
 
-// void
-// BSetOrderCmd::help() const
-// {
-//   cout << setw(20) << left << "BSETOrder: " << "Set BDD variable Order From
-// Circuit." << endl;
-// }
+void
+BSetOrderCmd::help() const {
+    cout << setw(20) << left << "BSETOrder: "
+         << "Set BDD variable Order From
+            Circuit." << endl;
+}
 
 // //----------------------------------------------------------------------
 // //    BConstruct <-Netid <netId> | -Output <outputIndex> | -All>
