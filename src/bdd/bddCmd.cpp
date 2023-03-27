@@ -25,9 +25,8 @@ GVinitBddCmd() {
     if (bddMgrV) delete bddMgrV;
     bddMgrV = new BddMgrV;
     return (gvCmdMgr->regCmd("BRESET", 6, new BResetCmd) &&
-            /*&&
-                   gvCmdMgr->regCmd("BSETVar", 5, new BSetVarCmd) &&
-                   gvCmdMgr->regCmd("BINV", 4, new BInvCmd) &&
+            gvCmdMgr->regCmd("BSETVar", 5, new BSetVarCmd) &&
+                   /* gvCmdMgr->regCmd("BINV", 4, new BInvCmd) &&
                    gvCmdMgr->regCmd("BAND", 4, new BAndCmd) &&
                    gvCmdMgr->regCmd("BOr", 3, new BOrCmd) &&
                    gvCmdMgr->regCmd("BNAND", 5, new BNandCmd) &&
@@ -35,27 +34,15 @@ GVinitBddCmd() {
                    gvCmdMgr->regCmd("BXOR", 4, new BXorCmd) &&
                    gvCmdMgr->regCmd("BXNOR", 4, new BXnorCmd) &&
                    gvCmdMgr->regCmd("BCOFactor", 4, new BCofactorCmd) &&
-                   gvCmdMgr->regCmd("BEXist", 3, new BExistCmd) &&
-                   gvCmdMgr->regCmd("BCOMpare", 4, new BCompareCmd) &&
-                   gvCmdMgr->regCmd("BSIMulate", 4, new BSimulateCmd) &&*/
+                   gvCmdMgr->regCmd("BEXist", 3, new BExistCmd) &&*/
+            gvCmdMgr->regCmd("BCOMpare", 4, new BCompareCmd) &&
+            gvCmdMgr->regCmd("BSIMulate", 4, new BSimulateCmd) &&
             gvCmdMgr->regCmd("BREPort", 4, new BReportCmd) &&
             // gvCmdMgr->regCmd("BDRAW", 5, new BDrawCmd) &&
             gvCmdMgr->regCmd("BSETOrder", 5, new BSetOrderCmd)
             /*gvCmdMgr->regCmd("BCONstruct", 4, new BConstructCmd)*/);
     return true;
 }
-
-/*static bool valid()
-{
-  V3NtkHandler* const handler = v3Handler.getCurHandler()
-  if (!handler)
-    gvMsg(GV_MSG_WAR) << "Design does not exist !!!" << endl;
-  else if (handler->getNtk()->getModuleSize())
-    gvMsg(GV_MSG_WAR) << "Design has not been flattened !!!" << endl;
-  else if (dynamic_cast<const V3BvNtk*>(handler->getNtk()))
-    gvMsg(MSG_ERR) << "Current Network is NOT an AIG Ntk (try \"blast ntk\"
-first)!!" << endl; else return true; return false;
-} */
 
 bool
 isValidBddName(const string& str) {
@@ -64,9 +51,7 @@ isValidBddName(const string& str) {
 }
 
 extern BddNodeV getBddNodeV(const string& bddName);
-
-// extern BddMgrV*            bddMgrV;
-// bool                       setBddOrder = false;
+bool            setBddOrder = false;
 
 //----------------------------------------------------------------------
 //    BRESET <(size_t nSupports)> <(size_t hashSize)> <(size_t cacheSize)>
@@ -109,50 +94,48 @@ BResetCmd::help() const {
          << "BDD reset" << endl;
 }
 
-// //----------------------------------------------------------------------
-// //    BSETVar <(size_t level)> <(string varName)>
-// //----------------------------------------------------------------------
-// GVCmdExecStatus
-// BSetVarCmd::exec(const string& option)
-// {
-//   // check option
-//   vector<string> options;
-//   GVCmdExec::lexOptions(option, options);
-//   if(options.size() < 2) {
-//     return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-//   } else if(options.size() > 2) {
-//     return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
-//   }
+//----------------------------------------------------------------------
+//    BSETVar <(size_t level)> <(string varName)>
+//----------------------------------------------------------------------
+GVCmdExecStatus
+BSetVarCmd::exec(const string& option)
+{
+  // check option
+  vector<string> options;
+  GVCmdExec::lexOptions(option, options);
+  if(options.size() < 2) {
+    return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+  } else if(options.size() > 2) {
+    return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
+  }
 
-//   int level;
+  int level;
 
-//   if (myStr2Int(options[0], level) && (level >= 1) &&
-//       (size_t(level) < bddMgrV->getNumSupports())) {
-//     BddNodeV n = bddMgrV->getSupport(level);
-//     if (!isValidVarName(options[1]) || !bddMgrV->addBddNodeV(options[1], n())
-//     )
-//       return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-//     return GV_CMD_EXEC_DONE;
-//   }
-//   else
-//     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+  if (myStr2Int(options[0], level) && (level >= 1) &&
+      (size_t(level) < bddMgrV->getNumSupports())) {
+    BddNodeV n = bddMgrV->getSupport(level);
+    if (!isValidVarName(options[1]) || !bddMgrV->addBddNodeV(options[1], n())
+    )
+      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    return GV_CMD_EXEC_DONE;
+  }
+  else
+    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-//   return GV_CMD_EXEC_DONE;
-// }
+  return GV_CMD_EXEC_DONE;
+}
 
-// void
-// BSetVarCmd::usage(const bool& verbose) const
-// {
-//   gvMsg(GV_MSG_IFO) << "Usage: BSETVar <(size_t level)> <(string varName)>"
-//   << endl;
-// }
+void
+BSetVarCmd::usage(const bool& verbose) const
+{
+  gvMsg(GV_MSG_IFO) << "Usage: BSETVar <(size_t level)> <(string varName)>" << endl;
+}
 
-// void
-// BSetVarCmd::help() const
-// {
-//   cout << setw(20) << left << "BSETVar: "
-//        << "BDD set a variable name for a support" << endl;
-// }
+void
+BSetVarCmd::help() const
+{
+  cout << setw(20) << left << "BSETVar: " << "BDD set a variable name for a support" << endl;
+}
 
 // //----------------------------------------------------------------------
 // //    BINV <(string varName)> <(string bddName)>
@@ -560,105 +543,100 @@ BResetCmd::help() const {
 //        << "Perform BDD existential quantification\n";
 // }
 
-// //----------------------------------------------------------------------
-// //    BCOMpare <(string bddName)> <(string bddName)>
-// //----------------------------------------------------------------------
-// GVCmdExecStatus
-// BCompareCmd::exec(const string& option)
-// {
-//   // check option
-//   vector<string> options;
-//   GVCmdExec::lexOptions(option, options);
-//   if(options.size() < 2) {
-//     return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-//   } else if(options.size() > 2) {
-//     return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
-//   }
+//----------------------------------------------------------------------
+//    BCOMpare <(string bddName)> <(string bddName)>
+//----------------------------------------------------------------------
+GVCmdExecStatus
+BCompareCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    if (options.size() < 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    } else if (options.size() > 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
+    }
 
-//   if (!isValidBddName(options[0]))
-//     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-//   BddNodeV b0 = ::getBddNodeV(options[0]);
-//   if (b0() == 0)
-//     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidBddName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    BddNodeV b0 = ::getBddNodeV(options[0]);
+    if (b0() == 0)
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-//   if (!isValidBddName(options[1]))
-//     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-//   BddNodeV b1 = ::getBddNodeV(options[1]);
-//   if (b1() == 0)
-//     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    if (!isValidBddName(options[1]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    BddNodeV b1 = ::getBddNodeV(options[1]);
+    if (b1() == 0)
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
 
-//   if (b0 == b1)
-//     cout << "\"" << options[0] << "\" and \"" << options[1]
-//       << "\" are equivalent." << endl;
-//   else if (b0 == ~b1)
-//     cout << "\"" << options[0] << "\" and \"" << options[1]
-//       << "\" are inversely equivalent." << endl;
-//   else
-//     cout << "\"" << options[0] << "\" and \"" << options[1]
-//       << "\" are not equivalent." << endl;
+    if (b0 == b1)
+        cout << "\"" << options[0] << "\" and \"" << options[1]
+             << "\" are equivalent." << endl;
+    else if (b0 == ~b1)
+        cout << "\"" << options[0] << "\" and \"" << options[1]
+             << "\" are inversely equivalent." << endl;
+    else
+        cout << "\"" << options[0] << "\" and \"" << options[1]
+             << "\" are not equivalent." << endl;
 
-//   return GV_CMD_EXEC_DONE;
-// }
+    return GV_CMD_EXEC_DONE;
+}
 
-// void
-// BCompareCmd::usage(const bool& verbose) const
-// {
-//   gvMsg(GV_MSG_IFO) << "Usage: BCOMpare <(string bddName)> <(string
-//   bddName)>" <<
-// endl;
-// }
+void
+BCompareCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BCOMpare <(string bddName)> <(string bddName)>"
+                      << endl;
+}
 
-// void
-// BCompareCmd::help() const
-// {
-//   cout << setw(20) << left << "BCOMpare: " << "BDD comparison" << endl;
-// }
+void
+BCompareCmd::help() const {
+    cout << setw(20) << left << "BCOMpare: "
+         << "BDD comparison" << endl;
+}
 
-// //----------------------------------------------------------------------
-// //    BSIMulate <(string bddName)> <(bit_string inputPattern)>
-// //----------------------------------------------------------------------
-// // input pattern = [01]*
-// //
-// GVCmdExecStatus
-// BSimulateCmd::exec(const string& option)
-// {
-//   // check option
-//   vector<string> options;
-//   GVCmdExec::lexOptions(option, options);
-//   if(options.size() < 2) {
-//     return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-//   } else if(options.size() > 2) {
-//     return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
-//   }
+//----------------------------------------------------------------------
+//    BSIMulate <(string bddName)> <(bit_string inputPattern)>
+//----------------------------------------------------------------------
+// input pattern = [01]*
+//
+GVCmdExecStatus
+BSimulateCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    if (options.size() < 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    } else if (options.size() > 2) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
+    }
 
-//   if (!isValidBddName(options[0]))
-//     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-//   BddNodeV node = ::getBddNodeV(options[0]);
-//   if (node() == 0)
-//     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (!isValidBddName(options[0]))
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    BddNodeV node = ::getBddNodeV(options[0]);
+    if (node() == 0)
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-//   int value = bddMgrV->evalCube(node, options[1]);
-//   if (value == -1)
-//     return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    int value = bddMgrV->evalCube(node, options[1]);
+    if (value == -1)
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
 
-//   cout << "BDD Simulate: " << options[1] << " = " << value << endl;
+    cout << "BDD Simulate: " << options[1] << " = " << value << endl;
 
-//   return GV_CMD_EXEC_DONE;
-// }
+    return GV_CMD_EXEC_DONE;
+}
 
-// void
-// BSimulateCmd::usage(const bool& verbose) const
-// {
-//   gvMsg(GV_MSG_IFO) << "Usage: BSIMulate <(string bddName)> <(bit_string
-// inputPattern)>"
-//                << endl;
-// }
+void
+BSimulateCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO)
+        << "Usage: BSIMulate <(string bddName)> <(bit_string inputPattern)>"
+        << endl;
+}
 
-// void
-// BSimulateCmd::help() const
-// {
-//   cout << setw(20) << left << "BSIMulate: " << "BDD simulation" << endl;
-// }
+void
+BSimulateCmd::help() const {
+    cout << setw(20) << left << "BSIMulate: "
+         << "BDD simulation" << endl;
+}
 
 //----------------------------------------------------------------------
 //    BREPort <(string bddName)> [-ADDRess] [-REFcount]
