@@ -60,10 +60,10 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     if (Gia_ObjIsTravIdCurrent(pGia, pObj))
         return; // if the TravId of the node is equal to the global TravId,
                 // return
-    if (Gia_ObjIsPi(pGia, pObj))
-        cout << "Pi reached, id = " << Gia_ObjId(pGia, pObj) << " " << endl;
-    if (Gia_ObjIsRo(pGia, pObj))
-        cout << "Ro reached, id = " << Gia_ObjId(pGia, pObj) << endl;
+    // if (Gia_ObjIsPi(pGia, pObj))
+    //     cout << "Pi reached, id = " << Gia_ObjId(pGia, pObj) << " " << endl;
+    // if (Gia_ObjIsRo(pGia, pObj))
+    //     cout << "Ro reached, id = " << Gia_ObjId(pGia, pObj) << endl;
     Gia_ObjSetTravIdCurrent(
         pGia, pObj); // set the TravId of the node to be the same as the global
                      // TravId, that is mark it as traversed
