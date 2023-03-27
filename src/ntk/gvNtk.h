@@ -66,7 +66,7 @@ class GVNtkMgr
         // Constructors for BV Network
         GVNtkMgr() { reset(); };
         ~GVNtkMgr() { reset(); }
-        inline const GV_Ntk_Type_t getGateType(const GVNetId& id) const { return id.type;}
+        inline const GV_Ntk_Type_t getGateType(const GVNetId& id){ return id.type;}
         inline const uint32_t getNetSize() const { return _id2GVNetId.size(); }
         inline const unsigned getInputSize() const {
             return _InputList.size();
