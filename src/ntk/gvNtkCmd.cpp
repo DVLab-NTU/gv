@@ -635,7 +635,7 @@ GVBlastNtkCmd ::exec(const string& option) {
     gvNtkMgr->createNetFromAbc(pFileName);
 
     // cout << "TEST : Start to build BDD : \n";
-    // gvNtkMgr->setBddOrder(true);
+    gvNtkMgr->setBddOrder(true);
 
     return GV_CMD_EXEC_DONE;
 }
