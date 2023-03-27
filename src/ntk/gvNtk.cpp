@@ -48,15 +48,6 @@ GVNtkMgr::reset() {
     _ConstList.clear();
     _numNets = 0;
     _netId2Name.clear();
-    // yosys
-    PI_PO_FF_var.clear();
-    cellName2Pointer.clear();
-    wire_from.clear();
-    wire_to.clear();
-    cell_fanin_connect_to_PI.clear();
-    cell_fanout_connect_to_PO.clear();
-    cell_fanin.clear();
-    cell_fanout.clear();
 }
 
 //----------------------------------------------------------------------
