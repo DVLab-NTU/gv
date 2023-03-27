@@ -93,11 +93,12 @@ class GVNtkMgr
             assert(i < getFFSize());
             return _FFList[i];
         } // get the i'th FF
-        inline const vector<unsigned> getfaninId(const unsigned& i) const {
-            assert(i < (getInputSize() + getOutputSize() + getInoutSize() +
-                        getFFSize()));
+        inline const vector<unsigned>& getfaninId(const unsigned& i) const {
             return _id2faninId.at(i);
-        } // get the i'th FF
+        }
+        inline const GVNetId& getGVNetId(const unsigned& i) const {
+            return _id2GVNetId.at(i);
+        }
         // construct ntk
         void createNet(const GVNetId& id, const int net_type);
         void createNetFromAbc(char*);
