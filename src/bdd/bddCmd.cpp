@@ -767,12 +767,10 @@ BConstructCmd::exec(const string& option) {
     }
 
     bool isNet = false, isOutput = false;
-
     if (myStrNCmp("-All", options[0], 2) == 0) gvNtkMgr->buildNtkBdd();
     else if (myStrNCmp("-Netid", options[0], 2) == 0) isNet = true;
     else if (myStrNCmp("-Output", options[0], 2) == 0) isOutput = true;
     else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-
     if (isOutput || isNet) {
         if (options.size() != 2)
             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[0]);

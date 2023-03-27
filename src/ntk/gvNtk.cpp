@@ -71,31 +71,33 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     if (Gia_ObjIsCi(pObj))
         return; // If we reach the combinational input(PI + Ro (register output,
                 // or pseudo PI)), return.
-    // cout << "node id = " << Gia_ObjId(pGia, pObj)
-    //      << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
-    //      << endl; // print the gia Id of the current node
-    // cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
-    //      << endl; // print the id of its left child
-    // cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
-    //      << endl; // print the id of its right child
+    cout << "node id = " << Gia_ObjId(pGia, pObj)
+         << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
+         << endl; // print the gia Id of the current node
+    cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
+         << endl; // print the id of its left child
+    cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
+         << endl; // print the id of its right child
 
-    if (Gia_ObjFanin0(pObj)){
+    if (Gia_ObjFanin0(pObj)) {
         // add fanin
-        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
+            Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
         // create the new GV net id
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-        id.type = GV_NTK_OBJ_AIG;
-        createNet(id,GV_NTK_OBJ_AIG);
+        id.type    = GV_NTK_OBJ_AIG;
+        createNet(id, GV_NTK_OBJ_AIG);
         // recursive traverse the left child
         print_rec(pGia, Gia_ObjFanin0(pObj));
     }
-    if (Gia_ObjFanin1(pObj)){
+    if (Gia_ObjFanin1(pObj)) {
         // add fanin
-        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
+            Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
         // create the new GV net id
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-        id.type = GV_NTK_OBJ_AIG;
-        createNet(id,GV_NTK_OBJ_AIG);
+        id.type    = GV_NTK_OBJ_AIG;
+        createNet(id, GV_NTK_OBJ_AIG);
         // recursive traverse the right child
         print_rec(pGia, Gia_ObjFanin1(pObj));
     }
@@ -125,7 +127,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     Gia_Obj_t* pObj;        // the obj element of gia
 
     // abc function parameters
-    char* pTopModule  = NULL; // the top module can be auto detected by yosys, no need to set
+    char* pTopModule =
+        NULL; // the top module can be auto detected by yosys, no need to set
     char* pDefines    = NULL;
     int   fBlast      = 1; // blast the ntk to gia (abc's aig data structure)
     int   fInvert     = 0;
@@ -156,7 +159,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // create the PI's (including Ro and PI here, although it is named PI = =)
     Gia_ManForEachPi(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        id.type = GV_NTK_OBJ_PI;
+        id.type    = GV_NTK_OBJ_PI;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PI);
         // cout << "PI id " << Gia_ObjId(pGia, pObj) << endl;
@@ -166,7 +169,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // create the PO's
     Gia_ManForEachPo(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        id.type = GV_NTK_OBJ_PO;
+        id.type    = GV_NTK_OBJ_PO;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PO);
         // cout << id.id << endl;
@@ -178,7 +181,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // PI)
     Gia_ManForEachRi(pGia, pObj, i) {
         GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        id.type = GV_NTK_OBJ_FF;
+        id.type    = GV_NTK_OBJ_FF;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_FF);
         // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia,
@@ -190,8 +193,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     parseAigMapping(pGia);
 }
 
-
-string netName(string name, int bit) {
+string
+netName(string name, int bit) {
     return name + "[" + to_string(bit) + "]";
 }
 
@@ -202,46 +205,52 @@ void
 GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
     string   buffer;
     ifstream mapFile;
-    int idx, bit;
+    int      idx, bit;
     string   name;
 
     mapFile.open(".map.txt");
     assert(mapFile.is_open());
-    while( mapFile) {
-        if( !(mapFile >> buffer)) break;
-        if(buffer == "input") {
+    while (mapFile) {
+        if (!(mapFile >> buffer)) break;
+        if (buffer == "input") {
             mapFile >> buffer;
             myStr2Int(buffer, idx);
             mapFile >> buffer;
             myStr2Int(buffer, bit);
             mapFile >> buffer;
             name = buffer;
-            _netId2Name[Gia_ObjId(pGia, Gia_ManPi(pGia, idx))] = netName(name, bit);
-            _netName2Id[netName(name, bit)] = Gia_ObjId(pGia, Gia_ManPi(pGia, idx));
-            // cout << Gia_ObjId(pGia, Gia_ManPi(pGia, idx)) << " " << netName(name, bit) << endl;
+            _netId2Name[Gia_ObjId(pGia, Gia_ManPi(pGia, idx))] =
+                netName(name, bit);
+            _netName2Id[netName(name, bit)] =
+                Gia_ObjId(pGia, Gia_ManPi(pGia, idx));
+            // cout << Gia_ObjId(pGia, Gia_ManPi(pGia, idx)) << " " <<
+            // netName(name, bit) << endl;
+        } else if (buffer == "output") {
+            mapFile >> buffer;
+            myStr2Int(buffer, idx);
+            mapFile >> buffer;
+            myStr2Int(buffer, bit);
+            mapFile >> buffer;
+            name = buffer;
+            _netId2Name[Gia_ObjId(pGia, Gia_ManPo(pGia, idx))] =
+                netName(name, bit);
+            _netName2Id[netName(name, bit)] =
+                Gia_ObjId(pGia, Gia_ManPo(pGia, idx));
+            // cout << Gia_ObjId(pGia, Gia_ManPo(pGia, idx)) << " " <<
+            // netName(name, bit) << endl;
+        } else if (buffer == "latch") {
+            mapFile >> buffer;
+            myStr2Int(buffer, idx);
+            mapFile >> buffer;
+            myStr2Int(buffer, bit);
+            mapFile >> buffer;
+            name = buffer;
+            _netId2Name[Gia_ObjId(pGia, Gia_ManRi(pGia, idx))] =
+                netName(name, bit);
+            _netName2Id[netName(name, bit)] =
+                Gia_ObjId(pGia, Gia_ManRi(pGia, idx));
+            // cout << Gia_ObjId(pGia, Gia_ManRi(pGia, idx)) << " " <<
+            // netName(name, bit) << endl;
         }
-        else if(buffer == "output") {
-            mapFile >> buffer;
-            myStr2Int(buffer, idx);
-            mapFile >> buffer;
-            myStr2Int(buffer, bit);
-            mapFile >> buffer;
-            name = buffer;
-            _netId2Name[Gia_ObjId(pGia, Gia_ManPo(pGia, idx))] = netName(name, bit);
-            _netName2Id[netName(name, bit)] = Gia_ObjId(pGia, Gia_ManPo(pGia, idx));
-            // cout << Gia_ObjId(pGia, Gia_ManPo(pGia, idx)) << " " << netName(name, bit) << endl;
-        }
-        else if(buffer == "latch") {
-            mapFile >> buffer;
-            myStr2Int(buffer, idx);
-            mapFile >> buffer;
-            myStr2Int(buffer, bit);
-            mapFile >> buffer;
-            name = buffer;
-            _netId2Name[Gia_ObjId(pGia, Gia_ManRi(pGia, idx))] = netName(name, bit);
-            _netName2Id[netName(name, bit)] = Gia_ObjId(pGia, Gia_ManRi(pGia, idx));
-            // cout << Gia_ObjId(pGia, Gia_ManRi(pGia, idx)) << " " << netName(name, bit) << endl;
-        }     
     }
 }
-
