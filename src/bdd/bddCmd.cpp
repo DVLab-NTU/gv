@@ -37,9 +37,9 @@ GVinitBddCmd() {
                    gvCmdMgr->regCmd("BCOFactor", 4, new BCofactorCmd) &&
                    gvCmdMgr->regCmd("BEXist", 3, new BExistCmd) &&
                    gvCmdMgr->regCmd("BCOMpare", 4, new BCompareCmd) &&
-                   gvCmdMgr->regCmd("BSIMulate", 4, new BSimulateCmd) &&
-                   gvCmdMgr->regCmd("BREPort", 4, new BReportCmd) &&
-                   gvCmdMgr->regCmd("BDRAW", 5, new BDrawCmd) &&*/
+                   gvCmdMgr->regCmd("BSIMulate", 4, new BSimulateCmd) &&*/
+            gvCmdMgr->regCmd("BREPort", 4, new BReportCmd) &&
+            // gvCmdMgr->regCmd("BDRAW", 5, new BDrawCmd) &&
             gvCmdMgr->regCmd("BSETOrder", 5, new BSetOrderCmd)
             /*gvCmdMgr->regCmd("BCONstruct", 4, new BConstructCmd)*/);
     return true;
@@ -57,24 +57,13 @@ GVinitBddCmd() {
 first)!!" << endl; else return true; return false;
 } */
 
-// static bool isValidVarName(const string& str) {
-//   size_t n = str.size();
-//   if (n == 0) return false;
-//   if (!isalpha(str[0]) && str[0] != '_')
-//     return false;
-//   for (size_t i = 1; i < n; ++i)
-//     if (!isalnum(str[i]) && str[i] != '_')
-//       return false;
-//   return true;
-// }
+bool
+isValidBddName(const string& str) {
+    int id;
+    return (isValidVarName(str) || (myStr2Int(str, id) && id >= 0));
+}
 
-// static bool isValidBddName(const string& str)
-// {
-//   int id;
-//   return (isValidVarName(str) || (myStr2Int(str, id) && id >= 0));
-// }
-
-// extern BddNodeV getBddNodeV(const string& bddName);
+extern BddNodeV getBddNodeV(const string& bddName);
 
 // extern BddMgrV*            bddMgrV;
 // bool                       setBddOrder = false;
@@ -671,90 +660,80 @@ BResetCmd::help() const {
 //   cout << setw(20) << left << "BSIMulate: " << "BDD simulation" << endl;
 // }
 
-// //----------------------------------------------------------------------
-// //    BREPort <(string bddName)> [-ADDRess] [-REFcount]
-// //            [-File <(string fileName)>]
-// //----------------------------------------------------------------------
-// GVCmdExecStatus
-// BReportCmd::exec(const string& option)
-// {
-//   // check option
-//   vector<string> options;
-//   GVCmdExec::lexOptions(option, options);
+//----------------------------------------------------------------------
+//    BREPort <(string bddName)> [-ADDRess] [-REFcount]
+//            [-File <(string fileName)>]
+//----------------------------------------------------------------------
+GVCmdExecStatus
+BReportCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-//   if (options.empty())
-//     return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (options.empty()) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-//   bool doFile = false, doAddr = false, doRefCount = false;
-//   string bddNodeVName, fileName;
-//   BddNodeV bnode;
-//   for (size_t i = 0, n = options.size(); i < n; ++i) {
-//     if (myStrNCmp("-File", options[i], 2) == 0) {
-//       if (doFile)
-//         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
-//       if (++i == n)
-//         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
-//       fileName = options[i];
-//       doFile = true;
-//     }
-//     else if (myStrNCmp("-ADDRess", options[i], 5) == 0) {
-//       if (doAddr)
-//         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
-//       doAddr = true;
-//     }
-//     else if (myStrNCmp("-REFcount", options[i], 4) == 0) {
-//       if (doRefCount)
-//         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
-//       doRefCount = true;
-//     }
-//     else if (bddNodeVName.size())
-//       return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//     else {
-//       bddNodeVName = options[i];
-//       if(!isValidBddName(bddNodeVName))
-//         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, bddNodeVName);
-//       bnode = ::getBddNodeV(bddNodeVName);
-//       if (bnode() == 0)
-//         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, bddNodeVName);
-//     }
-//   }
+    bool     doFile = false, doAddr = false, doRefCount = false;
+    string   bddNodeVName, fileName;
+    BddNodeV bnode;
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        if (myStrNCmp("-File", options[i], 2) == 0) {
+            if (doFile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING,
+                                              options[i - 1]);
+            fileName = options[i];
+            doFile   = true;
+        } else if (myStrNCmp("-ADDRess", options[i], 5) == 0) {
+            if (doAddr)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            doAddr = true;
+        } else if (myStrNCmp("-REFcount", options[i], 4) == 0) {
+            if (doRefCount)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            doRefCount = true;
+        } else if (bddNodeVName.size())
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        else {
+            bddNodeVName = options[i];
+            if (!isValidBddName(bddNodeVName))
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, bddNodeVName);
+            bnode = ::getBddNodeV(bddNodeVName);
+            if (bnode() == 0)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, bddNodeVName);
+        }
+    }
 
-//   if (!bddNodeVName.size())
-//     return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
-//   if (doAddr)
-//     BddNodeV::_debugBddAddr = true;
-//   if (doRefCount)
-//     BddNodeV::_debugRefCount = true;
-//   if (doFile) {
-//     ofstream ofs(fileName.c_str());
-//     if (!ofs)
-//       return GVCmdExec::errorOption(CMD_OPT_FOPEN_FAIL, fileName);
-//     ofs << bnode << endl;
-//   }
-//   else
-//     cout << bnode << endl;
+    if (!bddNodeVName.size())
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (doAddr) BddNodeV::_debugBddAddr = true;
+    if (doRefCount) BddNodeV::_debugRefCount = true;
+    if (doFile) {
+        ofstream ofs(fileName.c_str());
+        if (!ofs)
+            return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, fileName);
+        ofs << bnode << endl;
+    } else cout << bnode << endl;
 
-//   // always set to false afterwards
-//   BddNodeV::_debugBddAddr = false;
-//   BddNodeV::_debugRefCount = false;
+    // always set to false afterwards
+    BddNodeV::_debugBddAddr  = false;
+    BddNodeV::_debugRefCount = false;
 
-//   return GV_CMD_EXEC_DONE;
-// }
+    return GV_CMD_EXEC_DONE;
+}
 
-// void
-// BReportCmd::usage(const bool& verbose) const
-// {
-//   gvMsg(GV_MSG_IFO) << "Usage: BREPort <(string bddName)> [-ADDRess]
-//   [-REFcount]\n"
-//                << "               [-File <(string fileName)>]" << endl;
-// }
+void
+BReportCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO)
+        << "Usage: BREPort <(string bddName)> [-ADDRess] [-REFcount]\n "
+        << "               [-File <(string fileName)>]" << endl;
+}
 
-// void
-// BReportCmd::help() const
-// {
-//   cout << setw(20) << left << "BREPort: "
-//        << "BDD report node" << endl;
-// }
+void
+BReportCmd::help() const {
+    cout << setw(20) << left << "BREPort: "
+         << "BDD report node" << endl;
+}
 
 // //----------------------------------------------------------------------
 // //    BDRAW <(string bddName)> <(string fileName)>
