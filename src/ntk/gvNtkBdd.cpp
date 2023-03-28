@@ -87,7 +87,9 @@ GVNtkMgr::buildNtkBdd() {
     // _isBddBuilt = true;
 
     // build next state
+    cout << "getFFsize  -->  " << getFFSize() << endl;
     for (unsigned i = 0; i < getFFSize(); ++i) {
+        cout << "getLatch  -->  " << getLatch(i).id << endl;
         GVNetId left = getLatch(i);
         if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
             buildBdd(left);
