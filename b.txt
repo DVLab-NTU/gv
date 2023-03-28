@@ -1,0 +1,1522 @@
+yosysSETUP> read d -v design/SoCV/vending/vending-origin.v
+
+file name: design/SoCV/vending/vending-origin.v
+
+-- Running command `read_verilog -sv design/SoCV/vending/vending-origin.v' --
+
+1. Executing Verilog-2005 frontend: design/SoCV/vending/vending-origin.v
+Parsing SystemVerilog input from `design/SoCV/vending/vending-origin.v' to AST representation.
+Generating RTLIL representation for module `\vendingMachine'.
+Successfully finished Verilog frontend.
+
+-- Running command `hierarchy -auto-top' --
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Finding top of design hierarchy..
+root of   0 design levels: vendingMachine      
+Automatically selected vendingMachine as design top module.
+
+2.2. Analyzing design hierarchy..
+Top module:  \vendingMachine
+
+2.3. Analyzing design hierarchy..
+Top module:  \vendingMachine
+Removed 0 unused modules.
+
+yosysSETUP> blast ntk
+
+-- Running command `hierarchy -auto-top; flatten; proc; techmap; setundef -zero; aigmap; write_aiger -map .map.txt ._temp_.aig' --
+
+3. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1. Analyzing design hierarchy..
+Top module:  \vendingMachine
+
+3.2. Analyzing design hierarchy..
+Top module:  \vendingMachine
+Removed 0 unused modules.
+
+4. Executing FLATTEN pass (flatten design).
+
+5. Executing PROC pass (convert processes to netlists).
+
+5.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+5.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 15 switch rules as full_case in process $proc$design/SoCV/vending/vending-origin.v:98$1 in module vendingMachine.
+Removed a total of 0 dead cases.
+
+5.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 0 assignments to connections.
+
+5.4. Executing PROC_INIT pass (extract init attributes).
+
+5.5. Executing PROC_ARST pass (detect async resets in processes).
+
+5.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~17 debug messages>
+
+5.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+     1/17: $0\initialized[0:0]
+     2/17: $0\changeReady[0:0]
+     3/17: $0\serviceCoinType[1:0]
+     4/17: $0\serviceValue[12:0]
+     5/17: $0\inputValue[12:0]
+     6/17: $0\countD[5:0]
+     7/17: $0\countC[5:0]
+     8/17: $0\countB[5:0]
+     9/17: $0\countA[5:0]
+    10/17: $0\forceService[0:0]
+    11/17: $0\serviceTypeOut[1:0]
+    12/17: $0\itemNumberOut[2:0]
+    13/17: $0\itemTypeOut[1:0]
+    14/17: $0\coinOutD[5:0]
+    15/17: $0\coinOutC[5:0]
+    16/17: $0\coinOutB[5:0]
+    17/17: $0\coinOutA[5:0]
+
+5.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+5.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vendingMachine.\coinOutA' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$516' with positive edge clock.
+Creating register for signal `\vendingMachine.\coinOutB' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$517' with positive edge clock.
+Creating register for signal `\vendingMachine.\coinOutC' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$518' with positive edge clock.
+Creating register for signal `\vendingMachine.\coinOutD' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$519' with positive edge clock.
+Creating register for signal `\vendingMachine.\itemTypeOut' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$520' with positive edge clock.
+Creating register for signal `\vendingMachine.\itemNumberOut' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$521' with positive edge clock.
+Creating register for signal `\vendingMachine.\serviceTypeOut' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$522' with positive edge clock.
+Creating register for signal `\vendingMachine.\forceService' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$523' with positive edge clock.
+Creating register for signal `\vendingMachine.\countA' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$524' with positive edge clock.
+Creating register for signal `\vendingMachine.\countB' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$525' with positive edge clock.
+Creating register for signal `\vendingMachine.\countC' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$526' with positive edge clock.
+Creating register for signal `\vendingMachine.\countD' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$527' with positive edge clock.
+Creating register for signal `\vendingMachine.\inputValue' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$528' with positive edge clock.
+Creating register for signal `\vendingMachine.\serviceValue' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$529' with positive edge clock.
+Creating register for signal `\vendingMachine.\serviceCoinType' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$530' with positive edge clock.
+Creating register for signal `\vendingMachine.\changeReady' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$531' with positive edge clock.
+Creating register for signal `\vendingMachine.\initialized' using process `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+  created $dff cell `$procdff$532' with positive edge clock.
+
+5.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+5.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 17 empty switches in `\vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+Removing empty process `vendingMachine.$proc$design/SoCV/vending/vending-origin.v:98$1'.
+Cleaned up 17 empty switches.
+
+5.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vendingMachine.
+<suppressed ~55 debug messages>
+
+6. Executing TECHMAP pass (map to technology primitives).
+
+6.1. Executing Verilog-2005 frontend: /usr/local/share/yosys/techmap.v
+Parsing Verilog input from `/usr/local/share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+6.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $reduce_bool.
+Running "alumacc" on wrapper $extern:wrap:$add:Y_WIDTH=7:B_WIDTH=7:A_WIDTH=7:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$add:Y_WIDTH=7:B_WIDTH=7:A_WIDTH=7:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$add:Y_WIDTH=7:B_WIDTH=7:A_WIDTH=7:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Running "alumacc" on wrapper $extern:wrap:$ge:Y_WIDTH=1:B_WIDTH=7:A_WIDTH=7:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$ge:Y_WIDTH=1:B_WIDTH=7:A_WIDTH=7:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$ge:Y_WIDTH=1:B_WIDTH=7:A_WIDTH=7:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Running "alumacc" on wrapper $extern:wrap:$add:Y_WIDTH=6:B_WIDTH=6:A_WIDTH=6:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$add:Y_WIDTH=6:B_WIDTH=6:A_WIDTH=6:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$add:Y_WIDTH=6:B_WIDTH=6:A_WIDTH=6:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using extmapper simplemap for cells of type $mux.
+Running "alumacc" on wrapper $extern:wrap:$mul:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$mul:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$mul:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Running "alumacc" on wrapper $extern:wrap:$add:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$add:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$add:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using extmapper simplemap for cells of type $eq.
+Running "alumacc" on wrapper $extern:wrap:$lt:Y_WIDTH=1:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$lt:Y_WIDTH=1:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$lt:Y_WIDTH=1:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Running "alumacc" on wrapper $extern:wrap:$sub:Y_WIDTH=3:B_WIDTH=3:A_WIDTH=3:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$sub:Y_WIDTH=3:B_WIDTH=3:A_WIDTH=3:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$sub:Y_WIDTH=3:B_WIDTH=3:A_WIDTH=3:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Running "alumacc" on wrapper $extern:wrap:$sub:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$sub:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$sub:Y_WIDTH=13:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Running "alumacc" on wrapper $extern:wrap:$ge:Y_WIDTH=1:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$ge:Y_WIDTH=1:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$ge:Y_WIDTH=1:B_WIDTH=13:A_WIDTH=13:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Running "alumacc" on wrapper $extern:wrap:$sub:Y_WIDTH=6:B_WIDTH=6:A_WIDTH=6:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $extern:wrap:$sub:Y_WIDTH=6:B_WIDTH=6:A_WIDTH=6:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47 for cells of type $extern:wrap:$sub:Y_WIDTH=6:B_WIDTH=6:A_WIDTH=6:B_SIGNED=0:A_SIGNED=0:394426c56d1a028ba8fdd5469b163e04011def47.
+Using template $paramod$c5c783b17ab1d780abfad8cfe6563a0a7b47a3b0\_90_pmux for cells of type $pmux.
+Using template $paramod$068ad458e7761d78e5eed8238508872e7b0aef95\_90_pmux for cells of type $pmux.
+Using template $paramod$521ce43182eecb9f60c72393a788160d2c356bf5\_90_pmux for cells of type $pmux.
+Using template $paramod$914afac8f5284c623303633a359752b870615599\_90_pmux for cells of type $pmux.
+Using template $paramod$0c16c00f0f574905a99617e9ad4871dd8ff9dbb0\_90_pmux for cells of type $pmux.
+Using template $paramod$ed0bb9616228df1e6c226f91f8133e751815f1b1\_90_pmux for cells of type $pmux.
+Using template $paramod$32e7c4d6f92ff4337599ece53082d2e88a82a9f2\_90_pmux for cells of type $pmux.
+Using extmapper simplemap for cells of type $dff.
+Using template $paramod$dbcdc7e8aa1a4080cea2deda6fdc8772064f4d90\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $reduce_or.
+Using template $paramod$00298f3f8094950cb9a5ff2fda48d0d8bde8806c\_90_alu for cells of type $alu.
+Using extmapper maccmap for cells of type $macc.
+  add 13'0000000110010 * { 7'0000000 \coinInA } (13x13 bits, unsigned)
+  add 13'0000000001010 * { 7'0000000 \coinInB } (13x13 bits, unsigned)
+Using template $paramod$2780480d52179e2db572a6e5133edf36e733d32e\_90_alu for cells of type $alu.
+  add 13'0000000000101 * { 7'0000000 \coinInC } (13x13 bits, unsigned)
+  add 13'0000000000001 * { 7'0000000 \coinInD } (13x13 bits, unsigned)
+  add { 10'0000000000 \itemNumberIn } * 13'0000000001111 (13x13 bits, unsigned)
+  add { 10'0000000000 \itemNumberIn } * 13'0000000011001 (13x13 bits, unsigned)
+  add { 10'0000000000 \itemNumberIn } * 13'0000001001011 (13x13 bits, unsigned)
+  add { 10'0000000000 \itemNumberIn } * 13'0000001100100 (13x13 bits, unsigned)
+Using template $paramod$78e969f2586efcf3a5b0b0440bcca0db83d5cca2\_90_alu for cells of type $alu.
+  add 13'0000000110010 * { 7'0000000 \coinOutA } (13x13 bits, unsigned)
+  add 13'0000000001010 * { 7'0000000 \coinOutB } (13x13 bits, unsigned)
+  add 13'0000000000101 * { 7'0000000 \coinOutC } (13x13 bits, unsigned)
+  add 13'0000000000001 * { 7'0000000 \coinOutD } (13x13 bits, unsigned)
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $xor.
+Using template $paramod\_90_lcu\WIDTH=32'00000000000000000000000000000111 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_lcu\WIDTH=32'00000000000000000000000000000110 for cells of type $lcu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000001101 for cells of type $fa.
+Using template $paramod\_90_lcu\WIDTH=32'00000000000000000000000000001101 for cells of type $lcu.
+Using template $paramod\_90_lcu\WIDTH=32'00000000000000000000000000000011 for cells of type $lcu.
+No more expansions possible.
+<suppressed ~4962 debug messages>
+
+7. Executing SETUNDEF pass (replace undef values with defined constants).
+
+8. Executing AIGMAP pass (map logic to AIG).
+Module vendingMachine: replaced 9266 cells with 56222 new cells, skipped 8348 cells.
+  replaced 3 cell types:
+    2880 $_OR_
+    4782 $_XOR_
+    1604 $_MUX_
+  not replaced 3 cell types:
+     688 $_NOT_
+    7574 $_AND_
+      86 $_DFF_P_
+
+9. Executing AIGER backend.
+yosys -qp "read_verilog  design/SoCV/vending/vending-origin.v; hierarchy -auto-top; flatten; proc; techmap; setundef -zero; aigmap; write_aiger _temp_.aig"
+Converted 0 1-valued FFs and 86 DC-valued FFs.
+PO id 5725 208
+PO id 5726 211
+PO id 5727 214
+PO id 5728 217
+PO id 5729 220
+PO id 5730 223
+PO id 5731 226
+PO id 5732 229
+PO id 5733 232
+PO id 5734 235
+PO id 5735 238
+PO id 5736 241
+PO id 5737 244
+PO id 5738 247
+PO id 5739 250
+PO id 5740 253
+PO id 5741 256
+PO id 5742 259
+PO id 5743 262
+PO id 5744 265
+PO id 5745 268
+PO id 5746 271
+PO id 5747 274
+PO id 5748 277
+PO id 5749 280
+PO id 5750 283
+PO id 5751 286
+PO id 5752 289
+PO id 5753 292
+PO id 5754 295
+PO id 5755 298
+
+yosysSETUP> breset 2000 8009 30011
+
+yosysSETUP> bsetorder -f
+Set BDD Variable Order Succeed !!
+
+yosysSETUP> bcons -all
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 63
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 296
+ === 
+ Type : 2
+ ID : 149
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 297
+ === 
+ Type : 9
+ ID : 298
+ === 
+ Type : 3
+ ID : 5755
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 62
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 293
+ === 
+ Type : 2
+ ID : 148
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 294
+ === 
+ Type : 9
+ ID : 295
+ === 
+ Type : 3
+ ID : 5754
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 61
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 290
+ === 
+ Type : 2
+ ID : 147
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 291
+ === 
+ Type : 9
+ ID : 292
+ === 
+ Type : 3
+ ID : 5753
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 60
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 287
+ === 
+ Type : 2
+ ID : 146
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 288
+ === 
+ Type : 9
+ ID : 289
+ === 
+ Type : 3
+ ID : 5752
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 59
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 284
+ === 
+ Type : 2
+ ID : 145
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 285
+ === 
+ Type : 9
+ ID : 286
+ === 
+ Type : 3
+ ID : 5751
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 58
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 281
+ === 
+ Type : 2
+ ID : 144
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 282
+ === 
+ Type : 9
+ ID : 283
+ === 
+ Type : 3
+ ID : 5750
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 57
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 278
+ === 
+ Type : 2
+ ID : 143
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 279
+ === 
+ Type : 9
+ ID : 280
+ === 
+ Type : 3
+ ID : 5749
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 56
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 275
+ === 
+ Type : 2
+ ID : 142
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 276
+ === 
+ Type : 9
+ ID : 277
+ === 
+ Type : 3
+ ID : 5748
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 55
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 272
+ === 
+ Type : 2
+ ID : 141
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 273
+ === 
+ Type : 9
+ ID : 274
+ === 
+ Type : 3
+ ID : 5747
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 54
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 269
+ === 
+ Type : 2
+ ID : 140
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 270
+ === 
+ Type : 9
+ ID : 271
+ === 
+ Type : 3
+ ID : 5746
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 53
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 266
+ === 
+ Type : 2
+ ID : 139
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 267
+ === 
+ Type : 9
+ ID : 268
+ === 
+ Type : 3
+ ID : 5745
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 52
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 263
+ === 
+ Type : 2
+ ID : 138
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 264
+ === 
+ Type : 9
+ ID : 265
+ === 
+ Type : 3
+ ID : 5744
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 51
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 260
+ === 
+ Type : 2
+ ID : 137
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 261
+ === 
+ Type : 9
+ ID : 262
+ === 
+ Type : 3
+ ID : 5743
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 50
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 257
+ === 
+ Type : 2
+ ID : 136
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 258
+ === 
+ Type : 9
+ ID : 259
+ === 
+ Type : 3
+ ID : 5742
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 49
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 254
+ === 
+ Type : 2
+ ID : 135
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 255
+ === 
+ Type : 9
+ ID : 256
+ === 
+ Type : 3
+ ID : 5741
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 48
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 251
+ === 
+ Type : 2
+ ID : 134
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 252
+ === 
+ Type : 9
+ ID : 253
+ === 
+ Type : 3
+ ID : 5740
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 47
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 248
+ === 
+ Type : 2
+ ID : 133
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 249
+ === 
+ Type : 9
+ ID : 250
+ === 
+ Type : 3
+ ID : 5739
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 46
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 245
+ === 
+ Type : 2
+ ID : 132
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 246
+ === 
+ Type : 9
+ ID : 247
+ === 
+ Type : 3
+ ID : 5738
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 45
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 242
+ === 
+ Type : 2
+ ID : 131
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 243
+ === 
+ Type : 9
+ ID : 244
+ === 
+ Type : 3
+ ID : 5737
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 44
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 239
+ === 
+ Type : 2
+ ID : 130
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 240
+ === 
+ Type : 9
+ ID : 241
+ === 
+ Type : 3
+ ID : 5736
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 43
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 236
+ === 
+ Type : 2
+ ID : 129
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 237
+ === 
+ Type : 9
+ ID : 238
+ === 
+ Type : 3
+ ID : 5735
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 42
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 233
+ === 
+ Type : 2
+ ID : 128
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 234
+ === 
+ Type : 9
+ ID : 235
+ === 
+ Type : 3
+ ID : 5734
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 41
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 230
+ === 
+ Type : 2
+ ID : 127
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 231
+ === 
+ Type : 9
+ ID : 232
+ === 
+ Type : 3
+ ID : 5733
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 40
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 227
+ === 
+ Type : 2
+ ID : 126
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 228
+ === 
+ Type : 9
+ ID : 229
+ === 
+ Type : 3
+ ID : 5732
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 39
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 224
+ === 
+ Type : 2
+ ID : 125
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 225
+ === 
+ Type : 9
+ ID : 226
+ === 
+ Type : 3
+ ID : 5731
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 38
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 221
+ === 
+ Type : 2
+ ID : 124
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 222
+ === 
+ Type : 9
+ ID : 223
+ === 
+ Type : 3
+ ID : 5730
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 37
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 218
+ === 
+ Type : 2
+ ID : 123
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 219
+ === 
+ Type : 9
+ ID : 220
+ === 
+ Type : 3
+ ID : 5729
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 36
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 215
+ === 
+ Type : 2
+ ID : 122
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 216
+ === 
+ Type : 9
+ ID : 217
+ === 
+ Type : 3
+ ID : 5728
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 35
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 212
+ === 
+ Type : 2
+ ID : 121
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 213
+ === 
+ Type : 9
+ ID : 214
+ === 
+ Type : 3
+ ID : 5727
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 34
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 209
+ === 
+ Type : 2
+ ID : 120
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 210
+ === 
+ Type : 9
+ ID : 211
+ === 
+ Type : 3
+ ID : 5726
+ === 
+type = 3
+type = 9
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+type = 9
+type = 2
+other type!!!!
+type = 2
+other type!!!!
+other type!!!!
+other type!!!!
+other type!!!!
+ Type : 2
+ ID : 33
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 206
+ === 
+ Type : 2
+ ID : 119
+ === 
+ Type : 2
+ ID : 205
+ === 
+ Type : 9
+ ID : 207
+ === 
+ Type : 9
+ ID : 208
+ === 
+ Type : 3
+ ID : 5725
+ === 
+
+[?2004hyosysSETUP> ^C[?2004l
