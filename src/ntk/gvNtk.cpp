@@ -49,6 +49,8 @@ GVNtkMgr::reset() {
     _ConstList.clear();
     _id2faninId.clear();
     _id2GVNetId.clear();
+    _miscList.clear();
+    _globalMisc = 0; // Initial misc value = 0;
 }
 
 //----------------------------------------------------------------------
