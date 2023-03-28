@@ -80,7 +80,7 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase = 0) {
         return; // If we reach the combinational input(PI + Ro (register output,
                 // or pseudo PI)), return.
     }
-    cout << "node id = " << Gia_ObjId(pGia, pObj)
+    cout << "node id / name  = " << Gia_ObjId(pGia, pObj) << " / "
          << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
          << endl; // print the gia Id of the current node
     cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
@@ -118,6 +118,7 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase = 0) {
         print_rec(pGia, Gia_ObjFanin1(pObj), Gia_ObjFaninC1(pObj));
     } else if (Gia_ObjFaninNum(pGia, pObj) ==
                1) { // PO: #fanin=1 ; AIG: #fanout=2 (Hugo --> bug)
+        cout << "hugo~  :  " << phase << endl;
         _id2GVNetId[Gia_ObjId(pGia, pObj)].cp = phase;
         // id.cp   = Gia_ObjPhaseReal(pObj);
         cout << "================" << endl;
@@ -271,6 +272,14 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // dfs traverse from each combinational output Po (primary output) and
     // Ri (register input, which can be understand as pseudo Po)
     Gia_ManForEachCo(pGia, pObj, i) {
+        cout << "~~~~~~~~~~~~~~~~" << endl;
+        cout << "fuck ; " << Gia_IsComplement(pObj) << endl;
+        cout << "bitch : " << Gia_ObjPhase(pObj) << endl;
+        cout << "md : " << Gia_ObjPhaseReal(pObj) << endl;
+        cout << "shit : " << Gia_ObjPhaseRealLit(pGia, Gia_Obj2Lit(pGia, pObj))
+             << endl;
+        // cout << "hi : " << Gia_ObjFanout0(pGia, pObj)->fCompl0 << endl;
+        cout << "~~~~~~~~~~~~~~~~" << endl;
         print_rec(pGia, pObj);
         // we get the fanin of Co. you can imagine that the po net is simply an
         // one bit buf
@@ -279,6 +288,9 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // construct the net id/name mapping
     parseAigMapping(pGia);
     cout << "PPPPPPPP   -->  " << _id2GVNetId.size() << endl;
+    for (auto it: _netId2Name) {
+        cout << "id / name = " << it.first << " / " << it.second << endl; 
+    }
 }
 
 string
@@ -349,9 +361,11 @@ GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
 void
 GVNtkMgr::printPi() {
     cout << "\nPI :" << endl;
-    for(unsigned i = 0; i < getInputSize(); i++) {
-        if(getNetNameFromId(getInput(i).id).length() != 0)
-            cout << "PI #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getInput(i).id) << " net id = " << setw(10) <<  getInput(i).id << endl; 
+    for (unsigned i = 0; i < getInputSize(); i++) {
+        if (getNetNameFromId(getInput(i).id).length() != 0)
+            cout << "PI #" << setw(5) << i << " : net name = " << setw(20)
+                 << getNetNameFromId(getInput(i).id) << " net id = " << setw(10)
+                 << getInput(i).id << endl;
     }
 }
 
@@ -361,8 +375,10 @@ GVNtkMgr::printPi() {
 void
 GVNtkMgr::printPo() {
     cout << "\nPO :" << endl;
-    for(unsigned i = 0; i < getOutputSize(); i++) {
-        cout << "PO #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getOutput(i).id) << " net id = " << setw(10) <<  getOutput(i).id << endl; 
+    for (unsigned i = 0; i < getOutputSize(); i++) {
+        cout << "PO #" << setw(5) << i << " : net name = " << setw(20)
+             << getNetNameFromId(getOutput(i).id) << " net id = " << setw(10)
+             << getOutput(i).id << endl;
     }
 }
 
@@ -372,11 +388,12 @@ GVNtkMgr::printPo() {
 void
 GVNtkMgr::printRi() {
     cout << "\nFF :" << endl;
-    for(unsigned i = 0; i < getFFSize(); i++) {
-        cout << "FF #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getLatch(i).id) << " net id = " << setw(10) <<  getLatch(i).id << endl; 
+    for (unsigned i = 0; i < getFFSize(); i++) {
+        cout << "FF #" << setw(5) << i << " : net name = " << setw(20)
+             << getNetNameFromId(getLatch(i).id) << " net id = " << setw(10)
+             << getLatch(i).id << endl;
     }
 }
-
 
 //----------------------------------------------------------------------
 // print the information of all Obj in the aig ntk
@@ -384,17 +401,15 @@ GVNtkMgr::printRi() {
 void
 GVNtkMgr::printSummary() {
     // ietrate through the net ids
-    for( auto obj : _id2GVNetId) {
+    for (auto obj : _id2GVNetId) {
         cout << "net " << setw(7) << obj.first;
         // if it has fanin
-        if(_id2faninId.find(obj.first) != _id2faninId.end())
-        {
+        if (_id2faninId.find(obj.first) != _id2faninId.end()) {
             cout << " , fanin0 = " << setw(7) << _id2faninId[obj.first][0];
             // if it has the second fanin
-            if(_id2faninId[obj.first].size() >= 2)
+            if (_id2faninId[obj.first].size() >= 2)
                 cout << setw(7) << " , fanin1 = " << _id2faninId[obj.first][1];
             cout << endl;
         }
-            
     }
 }
