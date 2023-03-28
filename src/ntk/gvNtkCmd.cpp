@@ -657,7 +657,6 @@ GVBlastNtkCmd ::help() const {
                       << "Convert network to AIG." << endl;
 }
 
-
 //----------------------------------------------------------------------
 // PRInt Aig (print the aig information)
 //----------------------------------------------------------------------
@@ -666,32 +665,32 @@ GVCmdExecStatus
 GVPrintAigCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n         = options.size();
-    bool printPi = false, printPo = false, printRi = false, printSummary = false;
+    size_t n       = options.size();
+    bool   printPi = false, printPo = false, printRi = false,
+         printSummary = false;
 
-    if(gvNtkMgr->getInputSize() == 0)
-    {
+    if (gvNtkMgr->getInputSize() == 0) {
         gvMsg(GV_MSG_ERR) << "please BLAst NTK first!!!!" << endl;
         return GV_CMD_EXEC_ERROR;
     }
 
     if (n == 0) {
-        gvMsg(GV_MSG_ERR) << "Usage: PRInt Aig <-pi | -po | -ri | -ro | -summary>" << endl;
+        gvMsg(GV_MSG_ERR)
+            << "Usage: PRInt Aig <-PI | -PO | -RI | -RO | -Summary>" << endl;
         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, option);
-    }
-    else {
+    } else {
         for (size_t i = 0; i < n; ++i) {
             const string& token = options[i];
-            if (myStrNCmp("-pi", token, 2) == 0) {
+            if (myStrNCmp("-PI", token, 3) == 0) {
                 printPi = true;
                 continue;
-            } else if (myStrNCmp("-po", token, 2) == 0) {
+            } else if (myStrNCmp("-PO", token, 3) == 0) {
                 printPo = true;
                 continue;
-            } else if (myStrNCmp("-ri", token, 2) == 0) {
+            } else if (myStrNCmp("-RI", token, 3) == 0) {
                 printRi = true;
                 continue;
-            } else if (myStrNCmp("-summary", token, 3) == 0) {
+            } else if (myStrNCmp("-Summary", token, 2) == 0) {
                 printSummary = true;
                 continue;
             } else {
@@ -701,21 +700,18 @@ GVPrintAigCmd ::exec(const string& option) {
         }
     }
 
-    if(printPi)
-        gvNtkMgr->printPi();
-    if(printPo)
-        gvNtkMgr->printPo();
-    if(printRi)
-        gvNtkMgr->printRi();
-    if(printSummary)
-        gvNtkMgr->printSummary();
+    if (printPi) gvNtkMgr->printPi();
+    if (printPo) gvNtkMgr->printPo();
+    if (printRi) gvNtkMgr->printRi();
+    if (printSummary) gvNtkMgr->printSummary();
 
     return GV_CMD_EXEC_DONE;
 }
 
 void
 GVPrintAigCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: PRInt Aig <-pi | -po | -ri | -ro | -summary>" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: PRInt Aig <-pi | -po | -ri | -ro | -summary>"
+                      << endl;
 }
 
 void

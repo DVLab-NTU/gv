@@ -48,6 +48,7 @@ GVNtkMgr::setBddOrder(const bool& file) {
     for (unsigned i = 0, n = getFFSize(); i < n; ++i) {
         const GVNetId& nId     = (file) ? getLatch(i) : getLatch(n - i - 1);
         string         netName = getNetNameFromId(nId.id);
+        cout << "support id  -->  " << supportId << endl;
         // bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
         bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
         ++supportId;
