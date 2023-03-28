@@ -134,6 +134,12 @@ class GVNtkMgr
         // DFS tranversal
         void dfsOrder(const GVNetId&, vector<GVNetId>&);
 
+        // print functions
+        void printPi(); // print the information of all PI's
+        void printPo(); // print the information of all PO's
+        void printRi(); // print the information of all RI's
+        void printSummary(); // print the information of all Obj in the aig ntk
+
     protected:
         // GV
         vector<GVNetId>                 _InputList;  // GVNetId of PI's
@@ -142,9 +148,9 @@ class GVNtkMgr
         vector<GVNetId>                 _FFList;     // GVNetId of Flip Flops
         vector<GVNetId>                 _ConstList;  // GVNetId of Constants
         map<unsigned, vector<unsigned>> _id2faninId; // use id to get its fanin
-        map<unsigned, GVNetId> _id2GVNetId; // use id to get its net struct
-        map<unsigned, string>  _netId2Name; // use the net id to get its name
-        map<string, unsigned>  _netName2Id; // use the net name to get its id
+        map<unsigned, GVNetId>          _id2GVNetId; // use id to get its net struct
+        map<unsigned, string>           _netId2Name; // use the net id to get its name
+        map<string, unsigned>           _netName2Id; // use the net name to get its id
 
     private:
         void reset();

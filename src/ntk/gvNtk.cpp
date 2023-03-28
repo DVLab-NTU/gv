@@ -342,3 +342,59 @@ GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
         }
     }
 }
+
+//----------------------------------------------------------------------
+// print the information of all PI's
+//----------------------------------------------------------------------
+void
+GVNtkMgr::printPi() {
+    cout << "\nPI :" << endl;
+    for(unsigned i = 0; i < getInputSize(); i++) {
+        if(getNetNameFromId(getInput(i).id).length() != 0)
+            cout << "PI #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getInput(i).id) << " net id = " << setw(10) <<  getInput(i).id << endl; 
+    }
+}
+
+//----------------------------------------------------------------------
+// print the information of all PO's
+//----------------------------------------------------------------------
+void
+GVNtkMgr::printPo() {
+    cout << "\nPO :" << endl;
+    for(unsigned i = 0; i < getOutputSize(); i++) {
+        cout << "PO #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getOutput(i).id) << " net id = " << setw(10) <<  getOutput(i).id << endl; 
+    }
+}
+
+//----------------------------------------------------------------------
+// print the information of all RI's
+//----------------------------------------------------------------------
+void
+GVNtkMgr::printRi() {
+    cout << "\nFF :" << endl;
+    for(unsigned i = 0; i < getFFSize(); i++) {
+        cout << "FF #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getLatch(i).id) << " net id = " << setw(10) <<  getLatch(i).id << endl; 
+    }
+}
+
+
+//----------------------------------------------------------------------
+// print the information of all Obj in the aig ntk
+//----------------------------------------------------------------------
+void
+GVNtkMgr::printSummary() {
+    // ietrate through the net ids
+    for( auto obj : _id2GVNetId) {
+        cout << "net " << setw(7) << obj.first;
+        // if it has fanin
+        if(_id2faninId.find(obj.first) != _id2faninId.end())
+        {
+            cout << " , fanin0 = " << setw(7) << _id2faninId[obj.first][0];
+            // if it has the second fanin
+            if(_id2faninId[obj.first].size() >= 2)
+                cout << setw(7) << " , fanin1 = " << _id2faninId[obj.first][1];
+            cout << endl;
+        }
+            
+    }
+}
