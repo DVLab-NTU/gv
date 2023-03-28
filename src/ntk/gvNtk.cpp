@@ -277,7 +277,11 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         // we get the fanin of Co. you can imagine that the po net is simply an
         // one bit buf
     }
-
+    
+    // Constant value
+    GVNetId id = GVNetId::makeNetId(0,0,GV_NTK_OBJ_NONE);
+    _id2GVNetId[0] = id;
+    
     // construct the net id/name mapping
     parseAigMapping(pGia);
     cout << "PPPPPPPP   -->  " << _id2GVNetId.size() << endl;

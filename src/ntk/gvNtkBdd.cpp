@@ -142,11 +142,12 @@ GVNtkMgr::buildBdd(const GVNetId& netId) {
             }
             BddNodeV newNode = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id) : bddMgrV->getBddNodeV(left.id)) &
                                ((right.cp) ? ~bddMgrV->getBddNodeV(right.id) : bddMgrV->getBddNodeV(right.id));
-
             bddMgrV->addBddNodeV(orderedNets[i].id, newNode());
-        } else if(getGateType(orderedNets[i]) == GV_NTK_OBJ_FF || getGateType(orderedNets[i]) == GV_NTK_OBJ_PO){
+
+        } else if(getGateType(orderedNets[i]) == GV_NTK_OBJ_FF 
+                  || getGateType(orderedNets[i]) == GV_NTK_OBJ_PO){
             GVNetId fanin = getInputNetId(orderedNets[i], 0);
-            BddNodeV newNode = ((fanin.cp) ? ~bddMgrV->getBddNodeV(fanin.id) : bddMgrV->getBddNodeV(fanin.id));
+            BddNodeV newNode = (fanin.cp)? ~bddMgrV->getBddNodeV(fanin.id) : bddMgrV->getBddNodeV(fanin.id);
             bddMgrV->addBddNodeV(orderedNets[i].id, newNode());
         }
     }
