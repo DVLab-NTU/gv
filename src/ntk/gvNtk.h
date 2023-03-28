@@ -109,6 +109,10 @@ class GVNtkMgr
         // ntk traversal functions
         inline const GVNetId& getInputNetId(const GVNetId&,
                                             const uint32_t&) const;
+        // Ntk Misc Data Functions
+        inline void newMiscData() { if(getNetSize() > _miscList.size()){_miscList.resize(getNetSize());} ++_globalMisc;}
+        inline bool isLatestMiscData(const GVNetId& id) const { return _globalMisc == _miscList[id.id];}
+        inline void setLatestMiscData(const GVNetId& id) { _miscList[id.id] = _globalMisc;}
 
         // net id/name mapping
         inline unsigned getNetIdFromName(string name) {
@@ -122,6 +126,7 @@ class GVNtkMgr
         // construct ntk
         void createNet(const GVNetId& id, const int net_type);
         void createNetFromAbc(char*);
+
 
         // print ntk
         void print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase);
@@ -145,7 +150,8 @@ class GVNtkMgr
         map<unsigned, GVNetId> _id2GVNetId; // use id to get its net struct
         map<unsigned, string>  _netId2Name; // use the net id to get its name
         map<string, unsigned>  _netName2Id; // use the net name to get its id
-
+        vector<unsigned>       _miscList;   // Global Mist Date List
+        unsigned               _globalMisc; // Global Misc Data for GVNetId in Ntk
     private:
         void reset();
 };

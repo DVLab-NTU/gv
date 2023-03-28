@@ -97,6 +97,7 @@ GVNtkMgr::buildNtkBdd() {
         BddNodeV ns = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
                                  : bddMgrV->getBddNodeV(left.id));
         bddMgrV->addBddNodeV(getLatch(i).id, ns());
+        // return; // debug
     }
     // BddNodeV test = bddMgrV->getBddNodeV(420);
     // cout << test << endl;
@@ -112,21 +113,21 @@ GVNtkMgr::buildBdd(const GVNetId& netId) {
     
     cout << "id visired " << netId.id << endl;
 
-    // newMiscData();
+    newMiscData();
     dfsOrder(netId, orderedNets);
     cout << " Current Id : "<< netId.id <<"\n";
-    cout << " Order Size : "<< orderedNets.size() <<"\n";
-    cout << " Net Size : "<< getNetSize() <<"\n";
+    //cout << " Order Size : "<< orderedNets.size() <<"\n";
+    //cout << " Net Size : "<< getNetSize() <<"\n";
     assert(orderedNets.size() <= getNetSize());
-    cout << "size = " << orderedNets.size() << endl;
+    //cout << "size = " << orderedNets.size() << endl;
 
     // TODO: build BDD for the specified net here
     GVNetId left, right;
     for (unsigned i = 0; i < orderedNets.size(); ++i) {
-        cout << " Type : " << orderedNets[i].type << "\n";
-        cout << " ID : " << orderedNets[i].id << "\n";
-        cout << " cp : " << orderedNets[i].cp << "\n";
-        cout << " === \n";
+        //cout << " Type : " << orderedNets[i].type << "\n";
+        //cout << " ID : " << orderedNets[i].id << "\n";
+        //cout << " cp : " << orderedNets[i].cp << "\n";
+        //cout << " === \n";
         if (getGateType(orderedNets[i]) == GV_NTK_OBJ_AIG) {
             left  = getInputNetId(orderedNets[i], 0);
             right = getInputNetId(orderedNets[i], 1);
@@ -137,10 +138,13 @@ GVNtkMgr::buildBdd(const GVNetId& netId) {
             if (bddMgrV->getBddNodeV(right.id) == (size_t)0) {
                 buildBdd(right);
             }
-            BddNodeV newNode = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
-                                          : bddMgrV->getBddNodeV(left.id)) &
-                               ((right.cp) ? ~bddMgrV->getBddNodeV(right.id)
-                                           : bddMgrV->getBddNodeV(right.id));
+            BddNodeV newNode = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id) : bddMgrV->getBddNodeV(left.id)) &
+                               ((right.cp) ? ~bddMgrV->getBddNodeV(right.id) : bddMgrV->getBddNodeV(right.id));
+
+            bddMgrV->addBddNodeV(orderedNets[i].id, newNode());
+        } else if(getGateType(orderedNets[i]) == GV_NTK_OBJ_FF || getGateType(orderedNets[i]) == GV_NTK_OBJ_PO){
+            GVNetId fanin = getInputNetId(orderedNets[i], 0);
+            BddNodeV newNode = ((fanin.cp) ? ~bddMgrV->getBddNodeV(fanin.id) : bddMgrV->getBddNodeV(fanin.id));
             bddMgrV->addBddNodeV(orderedNets[i].id, newNode());
         }
     }
@@ -149,12 +153,14 @@ GVNtkMgr::buildBdd(const GVNetId& netId) {
 // put fanins of a net (id) into a vector (nets) in topological order
 void
 GVNtkMgr::dfsOrder(const GVNetId& id, vector<GVNetId>& nets) {
-    // if (isLatestMiscData(id)) return;
+    if (isLatestMiscData(id)) return;
     //  Set Latest Misc Data
-    // setLatestMiscData(id);
+    //setLatestMiscData(id);
+    setLatestMiscData(id);
     //  Traverse Fanin Logics
     const GV_Ntk_Type_t type = getGateType(id);
-    cout << "dfsorder type = " << type << endl;
+    //cout << "dfsorder type = " << type << endl;
+    //cout << "dfsorder id = " << id.id << endl;
     if (type == GV_NTK_OBJ_FF || type == GV_NTK_OBJ_PO) {
         dfsOrder(getInputNetId(id, 0), nets);
     } else if (type == GV_NTK_OBJ_AIG) {

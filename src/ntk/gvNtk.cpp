@@ -49,6 +49,8 @@ GVNtkMgr::reset() {
     _ConstList.clear();
     _id2faninId.clear();
     _id2GVNetId.clear();
+    _miscList.clear();
+    _globalMisc = 0; // Initial misc value = 0;
 }
 
 //----------------------------------------------------------------------
@@ -79,15 +81,15 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase = 0) {
         return; // If we reach the combinational input(PI + Ro (register output,
                 // or pseudo PI)), return.
     }
-    // cout << "node id = " << Gia_ObjId(pGia, pObj)
-    //      << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
-    //      << endl; // print the gia Id of the current node
-    // cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
-    //      << "  /  phase = " << pObj->fCompl0
-    //      << endl; // print the id of its left child
-    // cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
-    //      << "  /  phase = " << pObj->fCompl1
-    //      << endl; // print the id of its right child
+    cout << "node id = " << Gia_ObjId(pGia, pObj)
+         << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
+         << endl; // print the gia Id of the current node
+    cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
+         << "  /  phase = " << pObj->fCompl0
+         << endl; // print the id of its left child
+    cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
+         << "  /  phase = " << pObj->fCompl1
+         << endl; // print the id of its right child
     // create the new GV net id
     if (Gia_ObjFaninNum(pGia, pObj) >
         1) { // PO: #fanin=1 ; AIG: #fanout=2 (Hugo --> bug)
