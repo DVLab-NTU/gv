@@ -100,7 +100,7 @@ GVNtkMgr::buildNtkBdd() {
         // return; // debug
     }
     // BddNodeV test = bddMgrV->getBddNodeV(420);
-    // cout << test << endl;
+    // cout << test << endlgit ;
 }
 
 void
