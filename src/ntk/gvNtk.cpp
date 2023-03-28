@@ -73,6 +73,7 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase = 0) {
     if (Gia_ObjIsCi(pObj)) {
         _id2GVNetId[Gia_ObjId(pGia, pObj)].cp = phase;
         cout << "================" << endl;
+        cout << "is Ci" << endl;
         cout << "node id : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].id << endl;
         cout << "node type : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].type
              << endl;
@@ -193,7 +194,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // }
 
     // create the PI's (including Ro and PI here, although it is named PI = =)
-    Gia_ManForEachPi(pGia, pObj, i) {
+    Gia_ManForEachPi(pGia, pObj, i) { // id: 1 ~ 118 #fanin=0
         GVNetId id =
             GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
         // id.cp      = Gia_ObjPhaseReal(pObj);
@@ -202,6 +203,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         cout << "node id : " << id.id << endl;
         cout << "node type : " << id.type << endl;
         cout << "node cp : " << id.cp << endl;
+        cout << " num fanin (PI: 1~118) = " << Gia_ObjFaninNum(pGia, pObj)
+             << endl; // print the gia Id of the current node
         cout << "================" << endl;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PI);
@@ -210,7 +213,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     }
 
     // create the PO's
-    Gia_ManForEachPo(pGia, pObj, i) {
+    Gia_ManForEachPo(pGia, pObj, i) { // id: 5725 ~ 5755
         GVNetId id =
             GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PO);
         // id.cp      = Gia_ObjPhaseReal(pObj);
@@ -227,9 +230,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         _id2GVNetId[id.id] = id;
     }
 
-    // create the registers (only has to create the Ri because Ro is created by
-    // PI)
-    Gia_ManForEachRi(pGia, pObj, i) {
+    // create the registers (PPO)
+    Gia_ManForEachRi(pGia, pObj, i) { // id: 5756 ~ 5842
         GVNetId id =
             GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_FF);
         // id.cp      = Gia_ObjPhaseReal(pObj);
@@ -238,6 +240,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         cout << "node id : " << id.id << endl;
         cout << "node type : " << id.type << endl;
         cout << "node cp : " << id.cp << endl;
+        cout << " num fanin (Ri: 5756~5842) = " << Gia_ObjFaninNum(pGia, pObj)
+             << endl; // print the gia Id of the current node
         cout << "================" << endl;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_FF);
@@ -246,9 +250,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         _id2GVNetId[id.id] = id;
     }
 
-    // create the registers (only has to create the Ri because Ro is created by
-    // PI)
-    Gia_ManForEachRo(pGia, pObj, i) {
+    // create the registers (PPI)
+    Gia_ManForEachRo(pGia, pObj, i) { // id: 119 ~ 205 #fanin=0
         GVNetId id =
             GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
         // id.cp      = Gia_ObjPhaseReal(pObj);
@@ -257,6 +260,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         cout << "node id : " << id.id << endl;
         cout << "node type : " << id.type << endl;
         cout << "node cp : " << id.cp << endl;
+        cout << " num fanin (Ro: 119~205) = " << Gia_ObjFaninNum(pGia, pObj)
+             << endl; // print the gia Id of the current node
         cout << "================" << endl;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PI);
@@ -275,6 +280,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
 
     // construct the net id/name mapping
     parseAigMapping(pGia);
+    cout << "PPPPPPPP   -->  " << _id2GVNetId.size() << endl;
 }
 
 string
@@ -336,5 +342,61 @@ GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
             // cout << Gia_ObjId(pGia, Gia_ManRi(pGia, idx)) << " " <<
             // netName(name, bit) << endl;
         }
+    }
+}
+
+//----------------------------------------------------------------------
+// print the information of all PI's
+//----------------------------------------------------------------------
+void
+GVNtkMgr::printPi() {
+    cout << "\nPI :" << endl;
+    for(unsigned i = 0; i < getInputSize(); i++) {
+        if(getNetNameFromId(getInput(i).id).length() != 0)
+            cout << "PI #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getInput(i).id) << " net id = " << setw(10) <<  getInput(i).id << endl; 
+    }
+}
+
+//----------------------------------------------------------------------
+// print the information of all PO's
+//----------------------------------------------------------------------
+void
+GVNtkMgr::printPo() {
+    cout << "\nPO :" << endl;
+    for(unsigned i = 0; i < getOutputSize(); i++) {
+        cout << "PO #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getOutput(i).id) << " net id = " << setw(10) <<  getOutput(i).id << endl; 
+    }
+}
+
+//----------------------------------------------------------------------
+// print the information of all RI's
+//----------------------------------------------------------------------
+void
+GVNtkMgr::printRi() {
+    cout << "\nFF :" << endl;
+    for(unsigned i = 0; i < getFFSize(); i++) {
+        cout << "FF #" << setw(5) << i  << " : net name = " << setw(20) << getNetNameFromId(getLatch(i).id) << " net id = " << setw(10) <<  getLatch(i).id << endl; 
+    }
+}
+
+
+//----------------------------------------------------------------------
+// print the information of all Obj in the aig ntk
+//----------------------------------------------------------------------
+void
+GVNtkMgr::printSummary() {
+    // ietrate through the net ids
+    for( auto obj : _id2GVNetId) {
+        cout << "net " << setw(7) << obj.first;
+        // if it has fanin
+        if(_id2faninId.find(obj.first) != _id2faninId.end())
+        {
+            cout << " , fanin0 = " << setw(7) << _id2faninId[obj.first][0];
+            // if it has the second fanin
+            if(_id2faninId[obj.first].size() >= 2)
+                cout << setw(7) << " , fanin1 = " << _id2faninId[obj.first][1];
+            cout << endl;
+        }
+            
     }
 }

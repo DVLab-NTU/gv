@@ -139,6 +139,12 @@ class GVNtkMgr
         // DFS tranversal
         void dfsOrder(const GVNetId&, vector<GVNetId>&);
 
+        // print functions
+        void printPi(); // print the information of all PI's
+        void printPo(); // print the information of all PO's
+        void printRi(); // print the information of all RI's
+        void printSummary(); // print the information of all Obj in the aig ntk
+
     protected:
         // GV
         vector<GVNetId>                 _InputList;  // GVNetId of PI's

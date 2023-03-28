@@ -25,7 +25,8 @@ GVinitNtkCmd() {
             gvCmdMgr->regCmd("YOSYSCMD", 8, new GVYosysOriginalCmd) &&
             gvCmdMgr->regCmd("FILE2 BLIF", 4, 4, new GVFile2BlifCmd) &&
             gvCmdMgr->regCmd("WRite Aig", 2, 1, new GVWriteAigCmd) &&
-            gvCmdMgr->regCmd("BLAst NTK", 3, 3, new GVBlastNtkCmd));
+            gvCmdMgr->regCmd("BLAst NTK", 3, 3, new GVBlastNtkCmd) &&
+            gvCmdMgr->regCmd("PRInt Aig", 3, 1, new GVPrintAigCmd));
 }
 
 //----------------------------------------------------------------------
@@ -654,6 +655,69 @@ void
 GVBlastNtkCmd ::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "BLAst NTK: "
                       << "Convert network to AIG." << endl;
+}
+
+//----------------------------------------------------------------------
+// PRInt Aig (print the aig information)
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVPrintAigCmd ::exec(const string& option) {
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n       = options.size();
+    bool   printPi = false, printPo = false, printRi = false,
+         printSummary = false;
+
+    if (gvNtkMgr->getInputSize() == 0) {
+        gvMsg(GV_MSG_ERR) << "please BLAst NTK first!!!!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+
+    if (n == 0) {
+        gvMsg(GV_MSG_ERR)
+            << "Usage: PRInt Aig <-PI | -PO | -RI | -RO | -Summary>" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, option);
+    } else {
+        for (size_t i = 0; i < n; ++i) {
+            const string& token = options[i];
+            if (myStrNCmp("-PI", token, 3) == 0) {
+                printPi = true;
+                continue;
+            } else if (myStrNCmp("-PO", token, 3) == 0) {
+                printPo = true;
+                continue;
+            } else if (myStrNCmp("-RI", token, 3) == 0) {
+                printRi = true;
+                continue;
+            } else if (myStrNCmp("-Summary", token, 2) == 0) {
+                printSummary = true;
+                continue;
+            } else {
+                if (!printPi && !printPo && !printRi && !printSummary)
+                    return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+            }
+        }
+    }
+
+    if (printPi) gvNtkMgr->printPi();
+    if (printPo) gvNtkMgr->printPo();
+    if (printRi) gvNtkMgr->printRi();
+    if (printSummary) gvNtkMgr->printSummary();
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVPrintAigCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: PRInt Aig <-pi | -po | -ri | -ro | -summary>"
+                      << endl;
+}
+
+void
+GVPrintAigCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "PRInt Aig: "
+                      << "Print the aig network information." << endl;
 }
 
 #endif
