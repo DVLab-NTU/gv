@@ -13,8 +13,8 @@
 #include "kernel/sigtools.h" // Sigmap
 #include "kernel/utils.h"    // Toposort
 #include "kernel/yosys.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 USING_YOSYS_NAMESPACE
 
@@ -46,7 +46,8 @@ struct GVNetId {
         unsigned       cp : 1;
         unsigned       id : 31;
         GV_Ntk_Type_t  type : GV_NTK_OBJ_AND;
-        static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0,GV_Ntk_Type_t t = GV_NTK_OBJ_AND) {
+        static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0,
+                                 GV_Ntk_Type_t t = GV_NTK_OBJ_AND) {
             GVNetId j;
             j.cp   = c;
             j.id   = i;
@@ -66,7 +67,9 @@ class GVNtkMgr
         // Constructors for BV Network
         GVNtkMgr() { reset(); };
         ~GVNtkMgr() { reset(); }
-        inline const GV_Ntk_Type_t getGateType(const GVNetId& id){ return id.type;}
+        inline const GV_Ntk_Type_t getGateType(const GVNetId& id) {
+            return id.type;
+        }
         inline const uint32_t getNetSize() const { return _id2GVNetId.size(); }
         inline const unsigned getInputSize() const {
             return _InputList.size();
@@ -104,11 +107,16 @@ class GVNtkMgr
         }
 
         // ntk traversal functions
-        inline const GVNetId& getInputNetId(const GVNetId&, const uint32_t&) const;
+        inline const GVNetId& getInputNetId(const GVNetId&,
+                                            const uint32_t&) const;
 
         // net id/name mapping
-        inline unsigned getNetIdFromName(string name) { return _netName2Id[name]; } // get the net id from its name
-        inline string getNetNameFromId(unsigned id) { return _netId2Name[id]; }   // get the net name from its id
+        inline unsigned getNetIdFromName(string name) {
+            return _netName2Id[name];
+        } // get the net id from its name
+        inline string getNetNameFromId(unsigned id) {
+            return _netId2Name[id];
+        } // get the net name from its id
         void parseAigMapping(Gia_Man_t* pGia);
 
         // construct ntk
@@ -116,38 +124,38 @@ class GVNtkMgr
         void createNetFromAbc(char*);
 
         // print ntk
-        void print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj);
+        void print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase);
 
         // build the BDD
         const bool setBddOrder(const bool&);
-        void buildNtkBdd();
-        void buildBdd(const GVNetId& netId);
+        void       buildNtkBdd();
+        void       buildBdd(const GVNetId& netId);
 
         // DFS tranversal
         void dfsOrder(const GVNetId&, vector<GVNetId>&);
 
     protected:
         // GV
-        vector<GVNetId>                 _InputList;    // GVNetId of PI's
-        vector<GVNetId>                 _OutputList;   // GVNetId of PO's
-        vector<GVNetId>                 _InoutList;    // GVNetId of Inout's
-        vector<GVNetId>                 _FFList;       // GVNetId of Flip Flops
-        vector<GVNetId>                 _ConstList;    // GVNetId of Constants
-        map<unsigned, vector<unsigned>> _id2faninId;   // use id to get its fanin
-        map<unsigned, GVNetId>          _id2GVNetId;   // use id to get its net struct
-        map<unsigned, string>           _netId2Name;   // use the net id to get its name
-        map<string, unsigned>           _netName2Id;   // use the net name to get its id
+        vector<GVNetId>                 _InputList;  // GVNetId of PI's
+        vector<GVNetId>                 _OutputList; // GVNetId of PO's
+        vector<GVNetId>                 _InoutList;  // GVNetId of Inout's
+        vector<GVNetId>                 _FFList;     // GVNetId of Flip Flops
+        vector<GVNetId>                 _ConstList;  // GVNetId of Constants
+        map<unsigned, vector<unsigned>> _id2faninId; // use id to get its fanin
+        map<unsigned, GVNetId> _id2GVNetId; // use id to get its net struct
+        map<unsigned, string>  _netId2Name; // use the net id to get its name
+        map<string, unsigned>  _netName2Id; // use the net name to get its id
 
     private:
         void reset();
 };
 
 // Inline function implementation
-inline const GVNetId& GVNtkMgr::getInputNetId(const GVNetId& id, const uint32_t& i) const{
-    unsigned faninId= getfaninId(id.id)[i];
-    return getGVNetId(faninId); 
+inline const GVNetId&
+GVNtkMgr::getInputNetId(const GVNetId& id, const uint32_t& i) const {
+    unsigned faninId = getfaninId(id.id)[i];
+    return getGVNetId(faninId);
 }
-
 
 //----------------------------------------------------------------------
 // Forward Declarations

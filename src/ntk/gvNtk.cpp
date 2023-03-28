@@ -56,7 +56,7 @@ GVNtkMgr::reset() {
 //----------------------------------------------------------------------
 // recursively print the gia network
 void
-GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
+GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase = 0) {
     if (Gia_ObjIsTravIdCurrent(pGia, pObj))
         return; // if the TravId of the node is equal to the global TravId,
                 // return
@@ -68,40 +68,70 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
         pGia, pObj); // set the TravId of the node to be the same as the global
                      // TravId, that is mark it as traversed
 
-    if (Gia_ObjIsCi(pObj))
+    if (Gia_ObjIsCi(pObj)) {
+        _id2GVNetId[Gia_ObjId(pGia, pObj)].cp = phase;
+        cout << "================" << endl;
+        cout << "node id : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].id << endl;
+        cout << "node type : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].type
+             << endl;
+        cout << "node cp : " << phase << endl;
+        cout << "================" << endl;
         return; // If we reach the combinational input(PI + Ro (register output,
                 // or pseudo PI)), return.
+    }
     // cout << "node id = " << Gia_ObjId(pGia, pObj)
     //      << " num fanin = " << Gia_ObjFaninNum(pGia, pObj)
     //      << endl; // print the gia Id of the current node
     // cout << "\tfanin-0 id = " << Gia_ObjId(pGia, Gia_ObjFanin0(pObj))
+    //      << "  /  phase = " << pObj->fCompl0
     //      << endl; // print the id of its left child
     // cout << "\tfanin-1 id = " << Gia_ObjId(pGia, Gia_ObjFanin1(pObj))
+    //      << "  /  phase = " << pObj->fCompl1
     //      << endl; // print the id of its right child
     // create the new GV net id
-    GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-    id.type = GV_NTK_OBJ_AIG;
-    createNet(id,GV_NTK_OBJ_AIG);
-    _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-    if (Gia_ObjFanin1(pObj))
-        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
-
-    if (Gia_ObjFanin0(pObj)) {
-        // add fanin
-        
-        
+    if (Gia_ObjFaninNum(pGia, pObj) >
+        1) { // PO: #fanin=1 ; AIG: #fanout=2 (Hugo --> bug)
+        GVNetId id =
+            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), phase, GV_NTK_OBJ_AIG);
+        id.type = GV_NTK_OBJ_AIG;
+        // id.cp      = Gia_ObjPhaseReal(pObj);
+        cout << "================" << endl;
+        cout << "aloha~~~~~~~~" << endl;
+        cout << "fanin num : " << Gia_ObjFaninNum(pGia, pObj) << endl;
+        cout << "node id : " << id.id << endl;
+        cout << "node type : " << id.type << endl;
+        cout << "node cp : " << id.cp << endl;
+        cout << "================" << endl;
+        createNet(id, GV_NTK_OBJ_AIG);
+        // fanin 0
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
+            Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
         // recursive traverse the left child
-        print_rec(pGia, Gia_ObjFanin0(pObj));
-    }
-    if (Gia_ObjFanin1(pObj)) {
+        // Gia_ObjFaninC0(pObj) = pObj->fCompl0 = fanin0 complement ?
+        print_rec(pGia, Gia_ObjFanin0(pObj), Gia_ObjFaninC0(pObj));
+        // fanin 1
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
+            Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
         // add fanin
-        // _id2faninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
-        // create the new GV net id
-        // GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-        // id.type = GV_NTK_OBJ_AIG;
-        // createNet(id,GV_NTK_OBJ_AIG);
-        // recursive traverse the right child
-        print_rec(pGia, Gia_ObjFanin1(pObj));
+        // Gia_ObjFaninC1(pObj) = pObj->fCompl1 = fanin1 complement ?
+        print_rec(pGia, Gia_ObjFanin1(pObj), Gia_ObjFaninC1(pObj));
+    } else if (Gia_ObjFaninNum(pGia, pObj) ==
+               1) { // PO: #fanin=1 ; AIG: #fanout=2 (Hugo --> bug)
+        _id2GVNetId[Gia_ObjId(pGia, pObj)].cp = phase;
+        // id.cp   = Gia_ObjPhaseReal(pObj);
+        cout << "================" << endl;
+        cout << "fanin num : " << Gia_ObjFaninNum(pGia, pObj) << endl;
+        cout << "node id : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].id << endl;
+        cout << "node type : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].type
+             << endl;
+        cout << "node cp : " << phase << endl;
+        cout << "================" << endl;
+        // fanin 0
+        _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
+            Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+        // recursive traverse the left child
+        // Gia_ObjFaninC0(pObj) = pObj->fCompl0 = fanin0 complement ?
+        print_rec(pGia, Gia_ObjFanin0(pObj), Gia_ObjFaninC0(pObj));
     }
 }
 
@@ -110,7 +140,7 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
 //----------------------------------------------------------------------
 void
 GVNtkMgr::createNet(const GVNetId& id, const int net_type) {
-    assert(!isGVNetInverted(id));
+    // assert(!isGVNetInverted(id));
     if (net_type == GV_NTK_OBJ_PI) {
         _InputList.push_back(id);
     } else if (net_type == GV_NTK_OBJ_PO) {
@@ -118,6 +148,7 @@ GVNtkMgr::createNet(const GVNetId& id, const int net_type) {
     } else if (net_type == GV_NTK_OBJ_FF) {
         _FFList.push_back(id);
     } else { // AIG node
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!" << endl;
         _id2GVNetId[id.id] = id;
     }
     return;
@@ -150,18 +181,26 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // constant node to be as the global one
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
 
-    // dfs traverse from each combinational output Po (primary output) and
-    // Ri (register input, which can be understand as pseudo Po)
-    Gia_ManForEachCo(pGia, pObj, i) {
-        print_rec(pGia, pObj);
-        // we get the fanin of Co. you can imagine that the po net is simply an
-        // one bit buf
-    }
+    // // dfs traverse from each combinational output Po (primary output) and
+    // // Ri (register input, which can be understand as pseudo Po)
+    // Gia_ManForEachCo(pGia, pObj, i) {
+    //     print_rec(pGia, pObj);
+    //     // we get the fanin of Co. you can imagine that the po net is simply
+    //     an
+    //     // one bit buf
+    // }
 
     // create the PI's (including Ro and PI here, although it is named PI = =)
     Gia_ManForEachPi(pGia, pObj, i) {
-        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        id.type    = GV_NTK_OBJ_PI;
+        GVNetId id =
+            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
+        // id.cp      = Gia_ObjPhaseReal(pObj);
+        id.type = GV_NTK_OBJ_PI;
+        cout << "================" << endl;
+        cout << "node id : " << id.id << endl;
+        cout << "node type : " << id.type << endl;
+        cout << "node cp : " << id.cp << endl;
+        cout << "================" << endl;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PI);
         // cout << "PI id " << Gia_ObjId(pGia, pObj) << endl;
@@ -170,8 +209,15 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
 
     // create the PO's
     Gia_ManForEachPo(pGia, pObj, i) {
-        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        id.type    = GV_NTK_OBJ_PO;
+        GVNetId id =
+            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PO);
+        // id.cp      = Gia_ObjPhaseReal(pObj);
+        id.type = GV_NTK_OBJ_PO;
+        cout << "================" << endl;
+        cout << "node id : " << id.id << endl;
+        cout << "node type : " << id.type << endl;
+        cout << "node cp : " << id.cp << endl;
+        cout << "================" << endl;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PO);
         // cout << id.id << endl;
@@ -182,8 +228,15 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // create the registers (only has to create the Ri because Ro is created by
     // PI)
     Gia_ManForEachRi(pGia, pObj, i) {
-        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
-        id.type    = GV_NTK_OBJ_FF;
+        GVNetId id =
+            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_FF);
+        // id.cp      = Gia_ObjPhaseReal(pObj);
+        id.type = GV_NTK_OBJ_FF;
+        cout << "================" << endl;
+        cout << "node id : " << id.id << endl;
+        cout << "node type : " << id.type << endl;
+        cout << "node cp : " << id.cp << endl;
+        cout << "================" << endl;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_FF);
         // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia,
@@ -194,8 +247,15 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // create the registers (only has to create the Ri because Ro is created by
     // PI)
     Gia_ManForEachRo(pGia, pObj, i) {
-        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj));
+        GVNetId id =
+            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
+        // id.cp      = Gia_ObjPhaseReal(pObj);
         id.type = GV_NTK_OBJ_PI;
+        cout << "================" << endl;
+        cout << "node id : " << id.id << endl;
+        cout << "node type : " << id.type << endl;
+        cout << "node cp : " << id.cp << endl;
+        cout << "================" << endl;
         // create the input for GVNtk
         createNet(id, GV_NTK_OBJ_PI);
         // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia,
@@ -203,6 +263,13 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         _id2GVNetId[id.id] = id;
     }
 
+    // dfs traverse from each combinational output Po (primary output) and
+    // Ri (register input, which can be understand as pseudo Po)
+    Gia_ManForEachCo(pGia, pObj, i) {
+        print_rec(pGia, pObj);
+        // we get the fanin of Co. you can imagine that the po net is simply an
+        // one bit buf
+    }
 
     // construct the net id/name mapping
     parseAigMapping(pGia);

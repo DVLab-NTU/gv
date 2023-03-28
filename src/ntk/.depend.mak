@@ -1,7 +1,7 @@
-gvNtkBdd.o: gvNtkBdd.cpp ../../include/util.h ../../include/rnGen.h \
- ../../include/myUsage.h gvNtk.h ../../include/gvAbcMgr.h \
- ../../include/base/abc/abc.h ../../include/misc/vec/vec.h \
- ../../include/misc/util/abc_global.h \
+gvNtkBdd.o: gvNtkBdd.cpp ../../include/bddMgrV.h ../../include/myHash.h \
+ ../../include/bddNodeV.h ../../include/bddNodeV.h ../../include/gvMsg.h \
+ gvNtk.h ../../include/gvAbcMgr.h ../../include/base/abc/abc.h \
+ ../../include/misc/vec/vec.h ../../include/misc/util/abc_global.h \
  ../../include/misc/util/abc_namespaces.h ../../include/misc/vec/vecInt.h \
  ../../include/misc/vec/vecFlt.h ../../include/misc/vec/vecStr.h \
  ../../include/misc/vec/vecPtr.h ../../include/misc/vec/vecVec.h \
@@ -29,9 +29,8 @@ gvNtkBdd.o: gvNtkBdd.cpp ../../include/util.h ../../include/rnGen.h \
  /usr/include/tcl8.6/tclPlatDecls.h ../../include/kernel/hashlib.h \
  ../../include/kernel/log.h ../../include/kernel/rtlil.h \
  ../../include/kernel/constids.inc ../../include/kernel/register.h \
- ../../include/kernel/utils.h ../../include/gvMsg.h \
- ../../include/bddNodeV.h ../../include/bddMgrV.h ../../include/myHash.h \
- ../../include/bddNodeV.h
+ ../../include/kernel/utils.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h
 gvNtkCmd.o: gvNtkCmd.cpp gvNtkCmd.h ../../include/gvCmdMgr.h \
  ../../include/gvMsg.h ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h ../../include/gvAbcMgr.h \
