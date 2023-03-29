@@ -97,6 +97,12 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase = 0) {
         GVNetId id =
             GVNetId::makeNetId(Gia_ObjId(pGia, pObj), phase, GV_NTK_OBJ_AIG);
         id.type = GV_NTK_OBJ_AIG;
+        
+        // --- for cp bug 
+        id.fanin0Cp = Gia_ObjFaninC0(pObj);
+        id.fanin1Cp = Gia_ObjFaninC1(pObj);
+        // --- end
+
         // id.cp      = Gia_ObjPhaseReal(pObj);
         cout << "================" << endl;
         cout << "aloha~~~~~~~~" << endl;
@@ -133,9 +139,15 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase = 0) {
         // fanin 0
         _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
             Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+
+        // --- for cp bug 
+        _id2GVNetId[Gia_ObjId(pGia, pObj)].fanin0Cp = Gia_ObjFaninC0(pObj);        
+        // --- end
+
         // recursive traverse the left child
         // Gia_ObjFaninC0(pObj) = pObj->fCompl0 = fanin0 complement ?
         print_rec(pGia, Gia_ObjFanin0(pObj), Gia_ObjFaninC0(pObj));
+
     }
 }
 
