@@ -160,8 +160,8 @@ GVNtkMgr::createNet(const GVNetId& id, const int net_type) {
 
 void
 GVNtkMgr::createNetFromAbc(char* pFileName) {
-    Gia_Man_t* pGia = NULL; // the gia pointer of abc
-    Gia_Obj_t* pObj;        // the obj element of gia
+    Gia_Man_t* pGia = NULL;            // the gia pointer of abc
+    Gia_Obj_t *pObj, *pObjRi, *pObjRo; // the obj element of gia
 
     // abc function parameters
     char* pTopModule =
@@ -195,6 +195,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // }
 
     // create the PI's (including Ro and PI here, although it is named PI = =)
+    cout << "fuck u   -->   " << Gia_ManPiNum(pGia) << endl;
     Gia_ManForEachPi(pGia, pObj, i) { // id: 1 ~ 118 #fanin=0
         GVNetId id =
             GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
@@ -250,6 +251,10 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         // pRi) << endl;
         _id2GVNetId[id.id] = id;
     }
+    Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
+        cout << "lol  -->  " << Gia_ObjId(pGia, pObjRi) << endl;
+        cout << "lol1  -->  " << Gia_ObjId(pGia, pObjRo) << endl;
+    }
 
     // create the registers (PPI)
     Gia_ManForEachRo(pGia, pObj, i) { // id: 119 ~ 205 #fanin=0
@@ -286,17 +291,14 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         // we get the fanin of Co. you can imagine that the po net is simply an
         // one bit buf
     }
-    
+
     // Constant value
-    GVNetId id = GVNetId::makeNetId(0,0,GV_NTK_OBJ_NONE);
+    GVNetId id     = GVNetId::makeNetId(0, 0, GV_NTK_OBJ_NONE);
     _id2GVNetId[0] = id;
-    
+
     // construct the net id/name mapping
     parseAigMapping(pGia);
     cout << "PPPPPPPP   -->  " << _id2GVNetId.size() << endl;
-    for (auto it: _netId2Name) {
-        cout << "id / name = " << it.first << " / " << it.second << endl; 
-    }
 }
 
 string
