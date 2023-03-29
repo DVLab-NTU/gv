@@ -36,6 +36,9 @@ GVNtkMgr::setBddOrder(const bool& file) {
         string  netName = getNetNameFromId(nId.id);
         bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
         bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
+        cout << " Name : " << netName << "-> Id : " << nId.id << endl;
+        cout << "Support Id : " << supportId << "\n\n";
+        cout << " --- \n";
         ++supportId;
     }
     for (unsigned i = 0, n = getInoutSize(); i < n; ++i) {
@@ -96,9 +99,9 @@ GVNtkMgr::buildNtkBdd() {
         if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
             buildBdd(left);
         }
-        BddNodeV ns = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
-                                 : bddMgrV->getBddNodeV(left.id));
-        bddMgrV->addBddNodeV(getLatch(i).id, ns());
+        // BddNodeV ns = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
+        //                          : bddMgrV->getBddNodeV(left.id));
+        bddMgrV->addBddNodeV(getLatch(i).id, bddMgrV->getBddNodeV(left.id)());
         // return; // debug
     }
     // BddNodeV test = bddMgrV->getBddNodeV(420);
@@ -134,22 +137,30 @@ GVNtkMgr::buildBdd(const GVNetId& netId) {
             left  = getInputNetId(orderedNets[i], 0);
             right = getInputNetId(orderedNets[i], 1);
             if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
+                // cout << bddMgrV->getBddNodeV(left.id) << endl;
                 buildBdd(left);
             }
             if (bddMgrV->getBddNodeV(right.id) == (size_t)0) {
                 buildBdd(right);
             }
-            BddNodeV newNode = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
-                                          : bddMgrV->getBddNodeV(left.id)) &
-                               ((right.cp) ? ~bddMgrV->getBddNodeV(right.id)
+            // BddNodeV newNode = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id) :
+            // bddMgrV->getBddNodeV(left.id)) &
+            //                    ((right.cp) ? ~bddMgrV->getBddNodeV(right.id)
+            //                    : bddMgrV->getBddNodeV(right.id));
+            BddNodeV newNode =
+                ((orderedNets[i].fanin0Cp) ? ~bddMgrV->getBddNodeV(left.id)
+                                           : bddMgrV->getBddNodeV(left.id)) &
+                ((orderedNets[i].fanin1Cp) ? ~bddMgrV->getBddNodeV(right.id)
                                            : bddMgrV->getBddNodeV(right.id));
             bddMgrV->addBddNodeV(orderedNets[i].id, newNode());
-
+            // cout << "New node : \n\n";
+            // cout << newNode << endl;
         } else if (getGateType(orderedNets[i]) == GV_NTK_OBJ_FF ||
                    getGateType(orderedNets[i]) == GV_NTK_OBJ_PO) {
             GVNetId  fanin   = getInputNetId(orderedNets[i], 0);
-            BddNodeV newNode = (fanin.cp) ? ~bddMgrV->getBddNodeV(fanin.id)
-                                          : bddMgrV->getBddNodeV(fanin.id);
+            BddNodeV newNode = (orderedNets[i].fanin0Cp)
+                                   ? ~bddMgrV->getBddNodeV(fanin.id)
+                                   : bddMgrV->getBddNodeV(fanin.id);
             bddMgrV->addBddNodeV(orderedNets[i].id, newNode());
         }
     }

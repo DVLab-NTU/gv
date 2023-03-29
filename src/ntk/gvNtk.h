@@ -45,15 +45,20 @@ typedef enum
 struct GVNetId {
         unsigned       cp : 1;
         unsigned       id : 31;
+        bool           fanin0Cp;
+        bool           fanin1Cp;
         GV_Ntk_Type_t  type : GV_NTK_OBJ_AND;
         static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0,
-                                 GV_Ntk_Type_t t = GV_NTK_OBJ_AND) {
+                                 GV_Ntk_Type_t t = GV_NTK_OBJ_AND, bool f0cp = false, bool f1cp = false) {
             GVNetId j;
             j.cp   = c;
             j.id   = i;
             j.type = t;
+            j.fanin0Cp = f0cp;
+            j.fanin1Cp = f1cp;
             return j;
         }
+        //void setComplement(int fanin, bool& cp){if(fanin){fanin1Cp = cp;}else{fanin0Cp = cp;}}
         GVNetId    operator~() const { return makeNetId(id, cp ^ 1); }
         const bool operator==(const GVNetId& i) const {
             return cp == i.cp && id == i.id;
