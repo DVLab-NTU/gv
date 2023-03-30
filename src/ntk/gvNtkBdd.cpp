@@ -31,6 +31,7 @@ GVNtkMgr::setBddOrder(const bool& file) {
     }
     // build support
     unsigned supportId = 1;
+    // build PI (1 ~ 32)
     for (unsigned i = 0, n = getInputSize(); i < n; ++i) {
         GVNetId nId     = (file) ? getInput(i) : getInput(n - i - 1);
         string  netName = getNetNameFromId(nId.id);
@@ -41,6 +42,7 @@ GVNtkMgr::setBddOrder(const bool& file) {
         cout << " --- \n";
         ++supportId;
     }
+    // build InOut (Not use)
     for (unsigned i = 0, n = getInoutSize(); i < n; ++i) {
         const GVNetId& nId     = (file) ? getInout(i) : getInout(n - i - 1);
         string         netName = getNetNameFromId(nId.id);
@@ -48,29 +50,42 @@ GVNtkMgr::setBddOrder(const bool& file) {
         bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
         ++supportId;
     }
-    for (unsigned i = 0, n = getFFSize(); i < n; ++i) {
-        const GVNetId& nId     = (file) ? getLatch(i) : getLatch(n - i - 1);
+    // build FF_CS (33 ~ 118)
+    for(unsigned i = 0, n = getFFSize(); i < n; ++i) {
+        const GVNetId& nId = (file)? getLatch(i) : getLatch(n-i-1);
         string         netName = getNetNameFromId(nId.id);
-        cout << "support id  -->  " << supportId << endl;
-        // bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
-        bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
-        ++supportId;
-    }
-    // Next State
-    /*🥳
-    for (unsigned i = 0, n = getFFSize(); i < n; ++i) {
-        const GVNetId& nId     = (file) ? getLatch(i) : getLatch(n - i - 1);
-        string         netName = getNetNameFromId(nId.id);
-        bddMgrV->addBddNodeV(netName + "_ns", bddMgrV->getSupport(supportId)());
-        ++supportId;
-    }
-    */
 
+        bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
+        // Ask : this may be the issue !?
+        bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
+        cout << " Name : " << netName << "-> Id : " << nId.id << endl;
+        cout << "Support Id : " << supportId << "\n\n";
+        cout << " --- \n";
+        ++supportId;
+    }
+    // build FF_NS (RI : 5756 ~ 5842)
+    // Here we only create NS_name + _ns (equal to)-> y_i
+    for(unsigned i = 0, n = getFFSize(); i < n; ++i) {
+        const GVNetId& nId = (file)? getLatch(i) : getLatch(n-i-1);
+        // Ask : this may be the issue !?
+        string         netName = getNetNameFromId(nId.id);
+        bddMgrV->addBddNodeV(netName+"_ns", bddMgrV->getSupport(supportId)());
+        ++supportId;
+    }
     // Constants
-    /*for (uint32_t i = 0; i < getConstSize(); ++i) {
-      assert(getGateType(getConst(i)) == AIG_FALSE);
-      bddMgrV->addBddNodeV(getConst(i).id, BddNodeV::_zero());
-    }*/
+    for (uint32_t i = 0; i < getConstSize(); ++i) {
+        assert(getGateType(getConst(i)) == GV_NTK_OBJ_CONST0);
+        bddMgrV->addBddNodeV(getConst(i).id, BddNodeV::_zero());
+        ++supportId;
+    }
+    for (uint32_t i = 0; i < getFFConst0Size(); ++i) {
+        assert(getGateType(getFFConst0(i)) == GV_NTK_OBJ_FF_NS);
+        bddMgrV->addBddNodeV(getFFConst0(i).id, BddNodeV::_zero());
+        bddMgrV->addBddNodeV(getROidFromRIid(getFFConst0(i).id), BddNodeV::_zero());
+        ++supportId;
+    }
+    // id = 0 : const zero node
+    //bddMgrV->addBddNodeV(0, BddNodeV::_zero());
 
     return true;
 }
@@ -94,6 +109,7 @@ GVNtkMgr::buildNtkBdd() {
 
     // build next state
     cout << "getFFsize  -->  " << getFFSize() << endl;
+    return;
     for (unsigned i = 0; i < getFFSize(); ++i) {
         GVNetId left = getLatch(i); // get RI
         if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
@@ -116,7 +132,7 @@ GVNtkMgr::buildBdd(const GVNetId& netId) {
     orderedNets.clear();
     orderedNets.reserve(getNetSize());
 
-    cout << "id visired " << netId.id << endl;
+    //cout << "id visired " << netId.id << endl;
 
     newMiscData();
     dfsOrder(netId, orderedNets);
@@ -155,7 +171,7 @@ GVNtkMgr::buildBdd(const GVNetId& netId) {
             bddMgrV->addBddNodeV(orderedNets[i].id, newNode());
             // cout << "New node : \n\n";
             // cout << newNode << endl;
-        } else if (getGateType(orderedNets[i]) == GV_NTK_OBJ_FF ||
+        } else if (getGateType(orderedNets[i]) == GV_NTK_OBJ_FF_NS ||
                    getGateType(orderedNets[i]) == GV_NTK_OBJ_PO) {
             GVNetId  fanin   = getInputNetId(orderedNets[i], 0);
             BddNodeV newNode = (orderedNets[i].fanin0Cp)
@@ -177,7 +193,7 @@ GVNtkMgr::dfsOrder(const GVNetId& id, vector<GVNetId>& nets) {
     const GV_Ntk_Type_t type = getGateType(id);
     // cout << "dfsorder type = " << type << endl;
     // cout << "dfsorder id = " << id.id << endl;
-    if (type == GV_NTK_OBJ_FF || type == GV_NTK_OBJ_PO) {
+    if (type == GV_NTK_OBJ_FF_NS || type == GV_NTK_OBJ_PO) {
         dfsOrder(getInputNetId(id, 0), nets);
     } else if (type == GV_NTK_OBJ_AIG) {
         dfsOrder(getInputNetId(id, 0), nets);

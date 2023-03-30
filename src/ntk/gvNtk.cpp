@@ -101,7 +101,7 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     if (Gia_ObjFaninNum(pGia, pObj) >
         1) { // PO: #fanin=1 ; AIG: #fanout=2 (Hugo --> bug)
         GVNetId id =
-            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), phase, GV_NTK_OBJ_AIG);
+            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), GV_NTK_OBJ_AIG);
         id.type = GV_NTK_OBJ_AIG;
 
         // --- for cp bug
@@ -132,15 +132,15 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
         print_rec(pGia, Gia_ObjFanin1(pObj));
     } else if (Gia_ObjFaninNum(pGia, pObj) ==
                1) { // PO: #fanin=1 ; AIG: #fanout=2 (Hugo --> bug)
-        cout << "hugo~  :  " << phase << endl;
-        _id2GVNetId[Gia_ObjId(pGia, pObj)].cp = phase;
+        //cout << "hugo~  :  " << phase << endl;
+        //_id2GVNetId[Gia_ObjId(pGia, pObj)].cp = phase;
         // id.cp   = Gia_ObjPhaseReal(pObj);
         cout << "================" << endl;
         cout << "fanin num : " << Gia_ObjFaninNum(pGia, pObj) << endl;
         cout << "node id : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].id << endl;
         cout << "node type : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].type
              << endl;
-        cout << "node cp : " << phase << endl;
+        //cout << "node cp : " << phase << endl;
         // fanin 0
         _id2faninId[Gia_ObjId(pGia, pObj)].push_back(
             Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
@@ -231,8 +231,9 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
             // cout << "PI id " << Gia_ObjId(pGia, pObj) << endl;
             _id2GVNetId[id.id] = id;
         } else { // PPI
+            // Ask : this may be the issue !?
             GVNetId id =
-                GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PPI);
+                GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_FF_CS);
             // id.cp      = Gia_ObjPhaseReal(pObj);
             // id.type = GV_NTK_OBJ_PI;
             cout << "================" << endl;
@@ -243,7 +244,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
                  << endl; // print the gia Id of the current node
             cout << "================" << endl;
             // create the input for GVNtk
-            createNet(id, GV_NTK_OBJ_PPI);
+            // Ask : this may be the issue !?
+            createNet(id, GV_NTK_OBJ_FF_CS);
             // cout << "PI id " << Gia_ObjId(pGia, pObj) << endl;
             _id2GVNetId[id.id] = id;
         }
@@ -286,22 +288,24 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         // pRi) << endl;
         _id2GVNetId[id.id] = id;
         // RI for constant 0 (5842)
-        if (i == Gia_ManRegNum(pGia)) {
+        // Ask : this may be the issue !?
+        if (i == Gia_ManRegNum(pGia) - 1) {
             _FFConst0List.push_back(id);
             // const 0
-            GVNetId id = GVNetId::makeNetId(
+            GVNetId id_const0 = GVNetId::makeNetId(
                 Gia_ObjId(pGia, Gia_ObjFanin0(pObj)), 0, GV_NTK_OBJ_CONST0);
             cout << "================" << endl;
-            cout << "node id : " << id.id << endl;
-            cout << "node type : " << id.type << endl;
-            cout << "node cp : " << id.cp << endl;
+            cout << "node id : " << id_const0.id << endl;
+            cout << "node type : " << id_const0.type << endl;
+            cout << "node cp : " << id_const0.cp << endl;
             cout << "================" << endl;
             // create the input for GVNtk
-            createNet(id, GV_NTK_OBJ_CONST0);
-            _ConstList.push_back(id);
+            createNet(id_const0, GV_NTK_OBJ_CONST0);
+            
+            _ConstList.push_back(id_const0);
             // cout << id.id << endl;
             // cout << "PO id " << Gia_ObjId(pGia, pObj) << endl;
-            _id2GVNetId[id.id] = id;
+            _id2GVNetId[id_const0.id] = id_const0;
         }
     }
 
@@ -319,13 +323,16 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
              << endl; // print the gia Id of the current node
         cout << "================" << endl;
         // create the input for GVNtk
-        createNet(id, GV_NTK_OBJ_FF_CS);
+        // Ask : this may be the issue !?
+        //createNet(id, GV_NTK_OBJ_FF_CS);
         // cout << "Ro id " << Gia_ObjId(pGia, pRo) << " Ri " << Gia_ObjId(pGia,
         // pRi) << endl;
         _id2GVNetId[id.id] = id;
-        if (i < Gia_ManRegNum(pGia)) {
+        // Ask : this may be the issue !?
+        if (i < Gia_ManRegNum(pGia) - 1) {
             // map 119 ~ 204 to 33 ~ 118
-            _idRO2PPI[id.id] = getLatch(i - 1).id;
+            // Ask : this may be the issue !?
+            _idRO2PPI[id.id] = getLatch(i).id;
         }
     }
 
@@ -355,8 +362,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     }
 
     // Constant value
-    GVNetId id     = GVNetId::makeNetId(0, 0, GV_NTK_OBJ_NONE);
-    _id2GVNetId[0] = id;
+    // GVNetId id     = GVNetId::makeNetId(0, 0, GV_NTK_OBJ_NONE);
+    // _id2GVNetId[0] = id;
 
     // construct the net id/name mapping
     parseAigMapping(pGia);

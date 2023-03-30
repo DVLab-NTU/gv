@@ -93,6 +93,9 @@ class GVNtkMgr
         inline const uint32_t getFFSize() const {
             return _FFList.size();
         } // get the # of FF's
+        inline const uint32_t getConstSize() const {
+            return _ConstList.size();
+        }
         inline const uint32_t getFFConst0Size() const {
             return _FFConst0List.size();
         }
@@ -115,6 +118,10 @@ class GVNtkMgr
         inline const GVNetId& getFFConst0(const unsigned& i) const {
             assert(i < getFFConst0Size());
             return _FFConst0List[i];
+        }
+        inline const GVNetId& getConst(const unsigned& i) const {
+            assert(i < getConstSize());
+            return _ConstList[i];
         }
         inline const vector<unsigned>& getfaninId(const unsigned& i) const {
             return _id2faninId.at(i);

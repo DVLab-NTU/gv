@@ -37,22 +37,23 @@ void
 BddMgrV::buildPTransRelation() {
     // TODO : remember to set _tr, _tri
 
-    BddNodeV delta, ns;
+    BddNodeV delta, y;
     GVNetId  left;
 
     // build _tri
     for (unsigned i = 0; i < gvNtkMgr->getFFSize(); ++i) {
-        ns   = find_ns(bddMgrV->getBddNodeV(gvNtkMgr->getLatch(i).id));
-        left = gvNtkMgr->getInputNetId(gvNtkMgr->getLatch(i), 0);
-        if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
-            gvNtkMgr->buildBdd(left);
-        }
-        delta = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
-                           : bddMgrV->getBddNodeV(left.id));
+        delta   = bddMgrV->getBddNodeV(gvNtkMgr->getLatch(i).id); // RI's BDD node (delta(X, I))
+        //y = bddMgrV->getBddNodeV(getNetNameFromId(gvNtkMgr->getLatch(i).id)); // y_i's BDD node
+        // left = gvNtkMgr->getInputNetId(gvNtkMgr->getLatch(i), 0); //
+        // if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
+        //     gvNtkMgr->buildBdd(left);
+        // }
+        // delta = bddMgrV->getBddNodeV(left.id);
+
         if (i == 0) {
-            _tri = ~(ns ^ delta);
+            _tri = ~(y ^ delta);
         } else {
-            _tri = _tri & ~(ns ^ delta);
+            _tri &= ~(y ^ delta);
         }
     }
 
