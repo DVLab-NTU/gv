@@ -28,15 +28,18 @@ extern GVNtkMgr* gvNtkMgr;
 typedef enum
 {
     GV_NTK_OBJ_NONE,   // 0: non-existent object
-    GV_NTK_OBJ_CONST1, // 1: constant 1
-    GV_NTK_OBJ_PI,     // 2: primary input
-    GV_NTK_OBJ_PO,     // 3: primary output
-    GV_NTK_OBJ_BUF,    // 4: buffer node
-    GV_NTK_OBJ_AND,    // 5: AND node
-    GV_NTK_OBJ_FF,     // 6: Flip Flop
-    GV_NTK_OBJ_NOT,    // 7: NOT node
-    GV_NTK_OBJ_LAST,   // 8: last element of the type
-    GV_NTK_OBJ_AIG     // 9: AIG node
+    GV_NTK_OBJ_CONST0, // 1: constant 0
+    GV_NTK_OBJ_CONST1, // 2: constant 1
+    GV_NTK_OBJ_PI,     // 3: primary input
+    GV_NTK_OBJ_PO,     // 4: primary output
+    GV_NTK_OBJ_BUF,    // 5: buffer node
+    GV_NTK_OBJ_AND,    // 6: AND node
+    GV_NTK_OBJ_PPI,    // 7: Pseudo Primary Input
+    GV_NTK_OBJ_FF_CS,  // 8: Flip Flop Current State
+    GV_NTK_OBJ_FF_NS,  // 9: Flip Flop Next State
+    GV_NTK_OBJ_NOT,    // 10: NOT node
+    GV_NTK_OBJ_LAST,   // 11: last element of the type
+    GV_NTK_OBJ_AIG     // 12: AIG node
 } GV_Ntk_Type_t;
 
 //----------------------------------------------------------------------
@@ -49,16 +52,18 @@ struct GVNetId {
         bool           fanin1Cp;
         GV_Ntk_Type_t  type : GV_NTK_OBJ_AND;
         static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0,
-                                 GV_Ntk_Type_t t = GV_NTK_OBJ_AND, bool f0cp = false, bool f1cp = false) {
+                                 GV_Ntk_Type_t t = GV_NTK_OBJ_AND,
+                                 bool f0cp = false, bool f1cp = false) {
             GVNetId j;
-            j.cp   = c;
-            j.id   = i;
-            j.type = t;
+            j.cp       = c;
+            j.id       = i;
+            j.type     = t;
             j.fanin0Cp = f0cp;
             j.fanin1Cp = f1cp;
             return j;
         }
-        //void setComplement(int fanin, bool& cp){if(fanin){fanin1Cp = cp;}else{fanin0Cp = cp;}}
+        // void setComplement(int fanin, bool& cp){if(fanin){fanin1Cp =
+        // cp;}else{fanin0Cp = cp;}}
         GVNetId    operator~() const { return makeNetId(id, cp ^ 1); }
         const bool operator==(const GVNetId& i) const {
             return cp == i.cp && id == i.id;
@@ -88,6 +93,9 @@ class GVNtkMgr
         inline const uint32_t getFFSize() const {
             return _FFList.size();
         } // get the # of FF's
+        inline const uint32_t getFFConst0Size() const {
+            return _FFConst0List.size();
+        }
         inline const GVNetId& getInput(const unsigned& i) const {
             assert(i < getInputSize());
             return _InputList[i];
@@ -104,6 +112,10 @@ class GVNtkMgr
             assert(i < getFFSize());
             return _FFList[i];
         } // get the i'th FF
+        inline const GVNetId& getFFConst0(const unsigned& i) const {
+            assert(i < getFFConst0Size());
+            return _FFConst0List[i];
+        }
         inline const vector<unsigned>& getfaninId(const unsigned& i) const {
             return _id2faninId.at(i);
         }
@@ -135,14 +147,17 @@ class GVNtkMgr
         inline string getNetNameFromId(unsigned id) {
             return _netId2Name[id];
         } // get the net name from its id
-        void parseAigMapping(Gia_Man_t* pGia);
+        inline unsigned getPPIidFromROid(unsigned id) { return _idRO2PPI[id]; }
+        inline unsigned getRIidFromROid(unsigned id) { return _idRO2RI[id]; }
+        inline unsigned getROidFromRIid(unsigned id) { return _idRI2RO[id]; }
+        void            parseAigMapping(Gia_Man_t* pGia);
 
         // construct ntk
         void createNet(const GVNetId& id, const int net_type);
         void createNetFromAbc(char*);
 
         // print ntk
-        void print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj, bool phase);
+        void print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj);
 
         // build the BDD
         const bool setBddOrder(const bool&);
@@ -160,16 +175,22 @@ class GVNtkMgr
 
     protected:
         // GV
-        vector<GVNetId>                 _InputList;  // GVNetId of PI's
-        vector<GVNetId>                 _OutputList; // GVNetId of PO's
-        vector<GVNetId>                 _InoutList;  // GVNetId of Inout's
-        vector<GVNetId>                 _FFList;     // GVNetId of Flip Flops
-        vector<GVNetId>                 _ConstList;  // GVNetId of Constants
+        vector<GVNetId> _InputList;    // GVNetId of PI's
+        vector<GVNetId> _OutputList;   // GVNetId of PO's
+        vector<GVNetId> _InoutList;    // GVNetId of Inout's
+        vector<GVNetId> _FFList;       // GVNetId of Flip Flops (current state)
+        vector<GVNetId> _ConstList;    // GVNetId of Constants
+        vector<GVNetId> _FFConst0List; // GVNetId of Constant0 stored by FF
+        // map
         map<unsigned, vector<unsigned>> _id2faninId; // use id to get its fanin
-        map<unsigned, GVNetId> _id2GVNetId; // use id to get its net struct
-        map<unsigned, string>  _netId2Name; // use the net id to get its name
-        map<string, unsigned>  _netName2Id; // use the net name to get its id
-        vector<unsigned>       _miscList;   // Global Misc Date List
+        map<unsigned, GVNetId>  _id2GVNetId; // use id to get its net struct
+        map<unsigned, string>   _netId2Name; // use the net id to get its name
+        map<string, unsigned>   _netName2Id; // use the net name to get its id
+        map<unsigned, unsigned> _idRO2PPI;   // map register Q id to PPI id
+        map<unsigned, unsigned> _idRO2RI; // map register Q id to register D id
+        map<unsigned, unsigned> _idRI2RO; // map register output id to PPI id
+        // flag
+        vector<unsigned>        _miscList; // Global Misc Date List
         unsigned _globalMisc; // Global Misc Data for GVNetId in Ntk
     private:
         void reset();
