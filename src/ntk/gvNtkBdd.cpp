@@ -111,13 +111,12 @@ GVNtkMgr::buildNtkBdd() {
     cout << "getFFsize  -->  " << getFFSize() << endl;
     return;
     for (unsigned i = 0; i < getFFSize(); ++i) {
-        GVNetId left = getLatch(i); // get RI
+        GVNetId left = getInputNetId(getLatch(i), 0); // get RI
         if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
             buildBdd(left);
         }
-        // BddNodeV ns = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
-        //                          : bddMgrV->getBddNodeV(left.id));
-        bddMgrV->addBddNodeV(getLatch(i).id, bddMgrV->getBddNodeV(left.id)());
+        //BddNodeV ns = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
+        //                         : bddMgrV->getBddNodeV(left.id));
         // return; // debug
     }
     // BddNodeV test = bddMgrV->getBddNodeV(420);

@@ -331,7 +331,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
             // cout << id.id << endl;
             // cout << "PO id " << Gia_ObjId(pGia, pObj) << endl;
             _id2GVNetId[id_const0.id] = id_const0;
-            //_id2Type[id_const0.id]    = id_const0.type;
+            _id2Type[id_const0.id]    = id_const0.type;
         }
     }
 
