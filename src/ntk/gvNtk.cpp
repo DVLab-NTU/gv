@@ -150,11 +150,12 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
         // cout << "hugo~  :  " << phase << endl;
         //_id2GVNetId[Gia_ObjId(pGia, pObj)].cp = phase;
         //  id.cp   = Gia_ObjPhaseReal(pObj);
-        cout << "================" << endl;
-        cout << "fanin num : " << Gia_ObjFaninNum(pGia, pObj) << endl;
-        cout << "node id : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].id << endl;
-        cout << "node type : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].type
-             << endl;
+        // cout << "================" << endl;
+        // cout << "fanin num : " << Gia_ObjFaninNum(pGia, pObj) << endl;
+        // cout << "node id : " << _id2GVNetId[Gia_ObjId(pGia, pObj)].id <<
+        // endl; cout << "node type : " << _id2GVNetId[Gia_ObjId(pGia,
+        // pObj)].type
+        //      << endl;
         // cout << "node cp : " << phase << endl;
         //  fanin 0
         if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))) ==
