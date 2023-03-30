@@ -127,6 +127,9 @@ class GVNtkMgr
         inline const GVNetId& getGVNetId(const unsigned& i) const {
             return _id2GVNetId.at(i);
         }
+        inline const GV_Ntk_Type_t& getTypeFromId(const unsigned& i) const {
+            return _id2Type.at(i);
+        }
 
         // ntk traversal functions
         inline const GVNetId& getInputNetId(const GVNetId&,
@@ -194,8 +197,9 @@ class GVNtkMgr
         map<unsigned, unsigned> _idRO2PPI;   // map register Q id to PPI id
         map<unsigned, unsigned> _idRO2RI; // map register Q id to register D id
         map<unsigned, unsigned> _idRI2RO; // map register output id to PPI id
+        map<unsigned, GV_Ntk_Type_t> _id2Type;
         // flag
-        vector<unsigned>        _miscList; // Global Misc Date List
+        vector<unsigned>             _miscList; // Global Misc Date List
         unsigned _globalMisc; // Global Misc Data for GVNetId in Ntk
     private:
         void reset();
