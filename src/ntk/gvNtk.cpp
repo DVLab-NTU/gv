@@ -458,7 +458,7 @@ GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
             _netName2Id[netName(name, bit)] =
                 Gia_ObjId(pGia, Gia_ObjRiToRo(pGia, Gia_ManRi(pGia, idx)));
             _netId2Name[Gia_ObjId(pGia, Gia_ManRi(pGia, idx))] =
-                netName(name+"_ns", bit);
+                netName(name, bit)+"_ns";
             _netName2Id[netName(name, bit)+"_ns"] =
                 Gia_ObjId(pGia, Gia_ManRi(pGia, idx));
             // cout << Gia_ObjId(pGia, Gia_ManRi(pGia, idx)) << " " <<

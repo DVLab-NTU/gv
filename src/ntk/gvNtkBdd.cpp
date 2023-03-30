@@ -67,9 +67,10 @@ GVNtkMgr::setBddOrder(const bool& file) {
     // Here we only create NS_name + _ns (equal to)-> y_i
     for(unsigned i = 0, n = getFFSize(); i < n; ++i) {
         const GVNetId& nId = (file)? getLatch(i) : getLatch(n-i-1);
+        GVNetId ri = getInputNetId(nId, 0); // get RI
         // Ask : this may be the issue !?
-        string         netName = getNetNameFromId(nId.id);
-        bddMgrV->addBddNodeV(netName+"_ns", bddMgrV->getSupport(supportId)());
+        string         netName = getNetNameFromId(ri.id);
+        bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
         ++supportId;
     }
     // Constants
@@ -109,14 +110,14 @@ GVNtkMgr::buildNtkBdd() {
 
     // build next state
     cout << "getFFsize  -->  " << getFFSize() << endl;
-    return;
+    // return;
     for (unsigned i = 0; i < getFFSize(); ++i) {
         GVNetId left = getInputNetId(getLatch(i), 0); // get RI
         if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
             buildBdd(left);
         }
-        //BddNodeV ns = ((left.cp) ? ~bddMgrV->getBddNodeV(left.id)
-        //                         : bddMgrV->getBddNodeV(left.id));
+        BddNodeV ns = ((left.fanin0Cp) ? ~bddMgrV->getBddNodeV(left.id)
+                                       : bddMgrV->getBddNodeV(left.id));
         // return; // debug
     }
     // BddNodeV test = bddMgrV->getBddNodeV(420);
