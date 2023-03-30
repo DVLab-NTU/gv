@@ -34,7 +34,7 @@ typedef enum
     GV_NTK_OBJ_PO,     // 4: primary output
     GV_NTK_OBJ_BUF,    // 5: buffer node
     GV_NTK_OBJ_AND,    // 6: AND node
-    GV_NTK_OBJ_PPI,    // 7: Pseudo Primary Input
+    GV_NTK_OBJ_RO,     // 7: Register Output
     GV_NTK_OBJ_FF_CS,  // 8: Flip Flop Current State
     GV_NTK_OBJ_FF_NS,  // 9: Flip Flop Next State
     GV_NTK_OBJ_NOT,    // 10: NOT node
@@ -93,9 +93,7 @@ class GVNtkMgr
         inline const uint32_t getFFSize() const {
             return _FFList.size();
         } // get the # of FF's
-        inline const uint32_t getConstSize() const {
-            return _ConstList.size();
-        }
+        inline const uint32_t getConstSize() const { return _ConstList.size(); }
         inline const uint32_t getFFConst0Size() const {
             return _FFConst0List.size();
         }
