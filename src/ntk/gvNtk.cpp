@@ -331,14 +331,13 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
             // cout << id.id << endl;
             // cout << "PO id " << Gia_ObjId(pGia, pObj) << endl;
             _id2GVNetId[id_const0.id] = id_const0;
-            _id2Type[id_const0.id]    = id_const0.type;
+            //_id2Type[id_const0.id]    = id_const0.type;
         }
     }
 
     // create the registers output Q (RO)
     Gia_ManForEachRo(pGia, pObj, i) { // id: 119 ~ 205 #fanin=0
-        GVNetId id =
-            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_RO);
+        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_RO);
         // id.cp      = Gia_ObjPhaseReal(pObj);
         // id.type = GV_NTK_OBJ_PI;
         cout << "================" << endl;

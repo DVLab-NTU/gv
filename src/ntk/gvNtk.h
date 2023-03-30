@@ -127,8 +127,8 @@ class GVNtkMgr
         inline const GVNetId& getGVNetId(const unsigned& i) const {
             return _id2GVNetId.at(i);
         }
-        inline const GV_Ntk_Type_t& getTypeFromId(const unsigned& i) const {
-            return _id2Type.at(i);
+        inline GV_Ntk_Type_t& getTypeFromId(const unsigned& i){
+            return _id2Type[i];
         }
 
         // ntk traversal functions
