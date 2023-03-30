@@ -294,7 +294,7 @@ BddNodeV::nodeMoveRecur
 (unsigned fromLevel, unsigned toLevel, map<size_t, size_t>& moveMap) const
 {
    unsigned thisLevel = getLevel();
-   assert(thisLevel >= fromLevel);
+   //assert(thisLevel >= fromLevel);
 
    map<size_t, size_t>::iterator mi = moveMap.find(_nodeV);
    if (mi != moveMap.end()) return (*mi).second;

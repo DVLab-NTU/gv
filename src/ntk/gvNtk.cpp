@@ -332,7 +332,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
             // cout << id.id << endl;
             // cout << "PO id " << Gia_ObjId(pGia, pObj) << endl;
             _id2GVNetId[id_const0.id] = id_const0;
-            //_id2Type[id_const0.id]    = id_const0.type;
+            _id2Type[id_const0.id]    = id_const0.type;
         }
     }
 
@@ -454,9 +454,13 @@ GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
             myStr2Int(buffer, bit);
             mapFile >> buffer;
             name = buffer;
-            _netId2Name[Gia_ObjId(pGia, Gia_ManRi(pGia, idx))] =
+            _netId2Name[Gia_ObjId(pGia, Gia_ObjRiToRo(pGia, Gia_ManRi(pGia, idx)))] =
                 netName(name, bit);
             _netName2Id[netName(name, bit)] =
+                Gia_ObjId(pGia, Gia_ObjRiToRo(pGia, Gia_ManRi(pGia, idx)));
+            _netId2Name[Gia_ObjId(pGia, Gia_ManRi(pGia, idx))] =
+                netName(name, bit)+"_ns";
+            _netName2Id[netName(name, bit)+"_ns"] =
                 Gia_ObjId(pGia, Gia_ManRi(pGia, idx));
             // cout << Gia_ObjId(pGia, Gia_ManRi(pGia, idx)) << " " <<
             // netName(name, bit) << endl;

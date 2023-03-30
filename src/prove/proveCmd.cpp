@@ -215,7 +215,7 @@ PCheckPropertyCmd::exec(const string& option) {
     }
 
     BddNodeV monitor = bddMgrV->getBddNodeV(netId.id);
-    if (netId.cp) monitor = ~monitor;
+    if (netId.fanin0Cp) monitor = ~monitor;
     assert(monitor());
     bddMgrV->runPCheckProperty(gvNtkMgr->getNetNameFromId(netId.id), monitor);
 
