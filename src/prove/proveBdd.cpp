@@ -17,7 +17,7 @@
 void
 BddMgrV::buildPInitialState() {
     // TODO : remember to set _initState
-    // Set Initial State to All Zero
+    // set initial state to all zero
     BddNodeV newNode;
     for (unsigned i = 0; i < gvNtkMgr->getFFSize(); ++i) {
         if (i == 0) {
@@ -53,8 +53,7 @@ BddMgrV::buildPTransRelation() {
         if (bddMgrV->getBddNodeV(delta_net.id) == (size_t)0) {
             gvNtkMgr->buildBdd(delta_net);
         }
-        //   delta = ((left.cp)? ~bddMgrV->getBddNodeV(left.id):
-        //   bddMgrV->getBddNodeV(left.id));
+        // build _tri
         if (i == 0) {
             _tri = ~(y ^ delta);
         } else {
@@ -102,7 +101,7 @@ BddNodeV BddMgrV::restrict(const BddNodeV& f, const BddNodeV& g) {
 void
 BddMgrV::buildPImage(int level) {
     // TODO : remember to add _reachStates and set _isFixed
-    // Note:: _reachStates record the set of reachable states
+    // note:: _reachStates record the set of reachable states
     BddNodeV cube, ns;
     bool     isMoved;
     _isFixed = false;
@@ -112,20 +111,20 @@ BddMgrV::buildPImage(int level) {
                  << ")" << endl;
             break;
         }
-        // ns = restrict(ns, _reachStates.back());
+        // build next state
         if (_reachStates.size() == 1) {
             ns = _tr & _initState;
         } else {
             ns = _tr& restrict(_reachStates[_reachStates.size() - 1],
                                (~_reachStates[_reachStates.size() - 2]));
         }
-
+        // existential
         for (unsigned j = 0; j < gvNtkMgr->getFFSize(); ++j) {
             ns = ns.exist(gvNtkMgr->getFF(j).id);
         }
         ns = ns.nodeMove(gvNtkMgr->getFF(0).id + gvNtkMgr->getFFSize(),
                          gvNtkMgr->getFF(0).id, isMoved);
-
+        // isFixed ?
         if (_reachStates.size() == 0) {
             ns = ns | _initState;
             if (ns == _initState) {
@@ -157,20 +156,17 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
     vector<bool>         timeframe;
 
     ns = monitor & _reachStates.back();
-    cout << "ooooo    = " << numofstate << endl;
     if (ns != BddNodeV::_zero) {
+        // ~p can backtrace to init state ?
         while ((monitor & _reachStates[numofstate]).countCube() != 0) {
-            cout << "pppp   = " << numofstate << endl;
             numofstate--;
         }
         numofstate++;
         ns = monitor & _reachStates[numofstate];
-        // cout << "reachstate: " << _reachStates.size() << " numofstate: " <<
-        // numofstate << endl;
 
         cout << "Monitor \"" << name << "\" is violated." << endl;
         cout << "Counter Example:" << endl;
-        // cout << "Size: " << ns.getAllCubes().size() << endl;
+
         ns = ns.getCube(0);
         counter_ex.clear();
         for (unsigned j = 0; j < gvNtkMgr->getInputSize(); ++j) {
@@ -224,29 +220,7 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
 }
 
 BddNodeV
-BddMgrV::find_ns(BddNodeV cs) {
-    map<string, size_t>::iterator it;
-    bool                          isReady = false;
-    for (it = _bddMap.begin(); it != _bddMap.end(); ++it) {
-        if (isReady) {
-            return it->second;
-        }
-        if (it->second == cs()) {
-            isReady = true;
-        }
-    }
-}
+BddMgrV::find_ns(BddNodeV cs) {}
 
 BddNodeV
-BddMgrV::ns_to_cs(BddNodeV ns) {
-    // getSupport()
-    // map<string, size_t>::iterator it;
-    // string before = "";
-    // for (it=_bddMap.begin(); it!=_bddMap.end(); ++it) {
-    //    if (it->first == before+"_ns") {
-    //       cout << it->first << endl;
-    //    }
-    //    before = it->first;
-    // }
-    // return ns;
-}
+BddMgrV::ns_to_cs(BddNodeV ns) {}
