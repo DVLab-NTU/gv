@@ -42,9 +42,10 @@ BddMgrV::buildPTransRelation() {
 
     // build _tri
     for (unsigned i = 0; i < gvNtkMgr->getFFSize(); ++i) {
-        // ns = find_ns(bddMgrV->getBddNodeV(v3ntk->getFF(i).id));
+        // next state (y)'s name
         string nsStr = gvNtkMgr->getNetNameFromId(
             gvNtkMgr->getInputNetId(gvNtkMgr->getFF(i), 0).id);
+        // get BDD by name
         y     = bddMgrV->getBddNodeV(nsStr);
         delta = bddMgrV->getBddNodeV(
             gvNtkMgr->getInputNetId(gvNtkMgr->getFF(i), 0).id);
