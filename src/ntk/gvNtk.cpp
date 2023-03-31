@@ -59,7 +59,9 @@ GVNtkMgr::reset() {
 void
 GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     // if the TravId of the node is equal to the global TravId, return
-    if (Gia_ObjIsTravIdCurrent(pGia, pObj)) return;
+    if (Gia_ObjIsTravIdCurrent(pGia, pObj)) {
+        return;
+    }
 
     // set the TravId of the node to be the same as the global TravId, that is
     // mark it as traversed
@@ -74,13 +76,14 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
     /* AIG node: #fanin = 2 */
     if (Gia_ObjFaninNum(pGia, pObj) > 1) {
         // create a new GVNetId corresponding to abc's id
-        GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), GV_NTK_OBJ_AIG);
-        createNet(id, GV_NTK_OBJ_AIG);
+        GVNetId id =
+            GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_AIG);
         // map
         _id2Type[id.id] = id.type;
         // fanin phase
         id.fanin0Cp = Gia_ObjFaninC0(pObj);
         id.fanin1Cp = Gia_ObjFaninC1(pObj);
+        createNet(id, GV_NTK_OBJ_AIG);
 
         /* if fanin id is RO, replace it with PPI */
         // fanin 0
@@ -296,7 +299,6 @@ GVNtkMgr::parseAigMapping(Gia_Man_t* pGia) {
                 netName(name, bit);
             _netName2Id[netName(name, bit)] =
                 Gia_ObjId(pGia, Gia_ManPi(pGia, idx));
-
         }
         // output
         else if (buffer == "output") {

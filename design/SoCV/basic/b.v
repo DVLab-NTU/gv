@@ -11,6 +11,8 @@ module trafficLight(
    p1,
    p2,
    p3,
+   p4, 
+   p5,
    // General I/O Ports
    reset,
    clk,
@@ -27,6 +29,8 @@ parameter YELLOW = 2;
 output         p1;
 output         p2;
 output         p3;
+output         p4; 
+output         p5; 
 // General I/O Ports
 input          reset;
 input          clk;
@@ -42,10 +46,10 @@ reg  [7:0]     counter;
 
 // Property Logics
 assign p1 = (light != RED) && (light != GREEN) && (light != YELLOW);
-assign p2 = ((light == RED) && (counter > RED_count)) || 
-            ((light == GREEN) && (counter > GREEN_count)) || 
-            ((light == YELLOW) && (counter > YELLOW_count));
-assign p3 = light == YELLOW;
+assign p2 = (light == RED) && (counter > RED_count); 
+assign p3 = (light == GREEN) && (counter > GREEN_count); 
+assign p4 = (light == YELLOW) && (counter > YELLOW_count); 
+assign p5 = (light == YELLOW);
 
 // Combinational Assignments
 assign RED_count    = 6'd60;
