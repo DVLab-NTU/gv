@@ -660,7 +660,6 @@ GVBlastNtkCmd ::help() const {
 //----------------------------------------------------------------------
 // PRInt Aig (print the aig information)
 //----------------------------------------------------------------------
-
 GVCmdExecStatus
 GVPrintAigCmd ::exec(const string& option) {
     vector<string> options;
@@ -670,7 +669,7 @@ GVPrintAigCmd ::exec(const string& option) {
          printSummary = false;
 
     if (gvNtkMgr->getInputSize() == 0) {
-        gvMsg(GV_MSG_ERR) << "please BLAst NTK first!!!!" << endl;
+        gvMsg(GV_MSG_ERR) << "Please BLAst NTK first !" << endl;
         return GV_CMD_EXEC_ERROR;
     }
 
@@ -710,7 +709,7 @@ GVPrintAigCmd ::exec(const string& option) {
 
 void
 GVPrintAigCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: PRInt Aig <-pi | -po | -ri | -ro | -summary>"
+    gvMsg(GV_MSG_IFO) << "Usage: PRInt Aig <-PI | -PO | -RI | -RO | -Summary>"
                       << endl;
 }
 
