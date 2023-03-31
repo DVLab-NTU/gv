@@ -2,8 +2,8 @@ module a (reset, clk, z1, z2, z3, z4);
 input reset, clk;
 output z1, z2, z3, z4;
 
-reg [1:0]x;
-reg [1:0]y;
+reg [7:0]x;
+reg [7:0]y;
 
 wire [7:0] sum;
 

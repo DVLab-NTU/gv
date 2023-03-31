@@ -21,10 +21,10 @@ BddMgrV::buildPInitialState() {
     BddNodeV newNode;
     for (unsigned i = 0; i < gvNtkMgr->getFFSize(); ++i) {
         if (i == 0) {
-            newNode = ite(bddMgrV->getBddNodeV(gvNtkMgr->getLatch(i).id),
+            newNode = ite(bddMgrV->getBddNodeV(gvNtkMgr->getFF(i).id),
                           BddNodeV::_zero, BddNodeV::_one);
         } else {
-            newNode = ite(bddMgrV->getBddNodeV(gvNtkMgr->getLatch(i).id),
+            newNode = ite(bddMgrV->getBddNodeV(gvNtkMgr->getFF(i).id),
                           BddNodeV::_zero, newNode);
         }
     }
@@ -37,35 +37,38 @@ void
 BddMgrV::buildPTransRelation() {
     // TODO : remember to set _tr, _tri
 
-   BddNodeV delta, y;
-   GVNetId delta_net;
+    BddNodeV delta, y;
+    GVNetId  delta_net;
 
-   // build _tri
-   for (unsigned i = 0; i < gvNtkMgr->getFFSize(); ++i) {
-      // ns = find_ns(bddMgrV->getBddNodeV(v3ntk->getLatch(i).id));
-      string nsStr = gvNtkMgr->getNetNameFromId(gvNtkMgr->getInputNetId(gvNtkMgr->getLatch(i),0).id);
-      y = bddMgrV->getBddNodeV(nsStr);
-      delta = bddMgrV->getBddNodeV(gvNtkMgr->getInputNetId(gvNtkMgr->getLatch(i), 0).id);
-      delta_net = gvNtkMgr->getInputNetId(gvNtkMgr->getLatch(i), 0); 
-      if (bddMgrV->getBddNodeV(delta_net.id) == (size_t)0) {
-         gvNtkMgr->buildBdd(delta_net);
-      }
-    //   delta = ((left.cp)? ~bddMgrV->getBddNodeV(left.id): bddMgrV->getBddNodeV(left.id));
-      if (i == 0) {
-         _tri = ~(y ^ delta);
-      } else {
-         _tri = _tri & ~(y ^ delta);
-      }
-   }
+    // build _tri
+    for (unsigned i = 0; i < gvNtkMgr->getFFSize(); ++i) {
+        // ns = find_ns(bddMgrV->getBddNodeV(v3ntk->getFF(i).id));
+        string nsStr = gvNtkMgr->getNetNameFromId(
+            gvNtkMgr->getInputNetId(gvNtkMgr->getFF(i), 0).id);
+        y     = bddMgrV->getBddNodeV(nsStr);
+        delta = bddMgrV->getBddNodeV(
+            gvNtkMgr->getInputNetId(gvNtkMgr->getFF(i), 0).id);
+        delta_net = gvNtkMgr->getInputNetId(gvNtkMgr->getFF(i), 0);
+        if (bddMgrV->getBddNodeV(delta_net.id) == (size_t)0) {
+            gvNtkMgr->buildBdd(delta_net);
+        }
+        //   delta = ((left.cp)? ~bddMgrV->getBddNodeV(left.id):
+        //   bddMgrV->getBddNodeV(left.id));
+        if (i == 0) {
+            _tri = ~(y ^ delta);
+        } else {
+            _tri = _tri & ~(y ^ delta);
+        }
+    }
 
-   // build _tr
-   _tr = _tri;
-   for (unsigned i = 0; i < gvNtkMgr->getInputSize(); ++i) {
-      _tr = _tr.exist(gvNtkMgr->getInput(i).id);
-   }
-   for (unsigned i = 0; i < gvNtkMgr->getInoutSize(); ++i) {
-      _tr = _tr.exist(gvNtkMgr->getInout(i).id);
-   }
+    // build _tr
+    _tr = _tri;
+    for (unsigned i = 0; i < gvNtkMgr->getInputSize(); ++i) {
+        _tr = _tr.exist(gvNtkMgr->getInput(i).id);
+    }
+    for (unsigned i = 0; i < gvNtkMgr->getInoutSize(); ++i) {
+        _tr = _tr.exist(gvNtkMgr->getInout(i).id);
+    }
 }
 
 BddNodeV BddMgrV::restrict(const BddNodeV& f, const BddNodeV& g) {
@@ -117,10 +120,10 @@ BddMgrV::buildPImage(int level) {
         }
 
         for (unsigned j = 0; j < gvNtkMgr->getFFSize(); ++j) {
-            ns = ns.exist(gvNtkMgr->getLatch(j).id);
+            ns = ns.exist(gvNtkMgr->getFF(j).id);
         }
-        ns = ns.nodeMove(gvNtkMgr->getLatch(0).id+gvNtkMgr->getFFSize(),
-                         gvNtkMgr->getLatch(0).id, isMoved);
+        ns = ns.nodeMove(gvNtkMgr->getFF(0).id + gvNtkMgr->getFFSize(),
+                         gvNtkMgr->getFF(0).id, isMoved);
 
         if (_reachStates.size() == 0) {
             ns = ns | _initState;
@@ -153,9 +156,10 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
     vector<bool>         timeframe;
 
     ns = monitor & _reachStates.back();
-
+    cout << "ooooo    = " << numofstate << endl;
     if (ns != BddNodeV::_zero) {
         while ((monitor & _reachStates[numofstate]).countCube() != 0) {
+            cout << "pppp   = " << numofstate << endl;
             numofstate--;
         }
         numofstate++;
@@ -176,12 +180,12 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
 
         for (unsigned i = 0; i < numofstate; ++i) {
             // find legal current state
-            ns = ns.nodeMove(gvNtkMgr->getLatch(0).id,
-                             gvNtkMgr->getLatch(0).id+gvNtkMgr->getFFSize(),
+            ns = ns.nodeMove(gvNtkMgr->getFF(0).id,
+                             gvNtkMgr->getFF(0).id + gvNtkMgr->getFFSize(),
                              isMoved);
             ns = _tri & ns & _reachStates[numofstate - 1 - i];
             for (unsigned j = 0; j < gvNtkMgr->getFFSize(); ++j) {
-                ns = ns.exist(gvNtkMgr->getLatch(j).id+gvNtkMgr->getFFSize());
+                ns = ns.exist(gvNtkMgr->getFF(j).id + gvNtkMgr->getFFSize());
             }
 
             // find valid input value
