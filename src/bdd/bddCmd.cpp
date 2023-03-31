@@ -6,17 +6,16 @@
   Copyright    [ Copyleft(c) 2005-present LaDs(III), GIEE, NTU, Taiwan ]
  ****************************************************************************/
 
-#include <cassert>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-// #include "v3NtkUtil.h"
 #include "bddCmd.h"
 #include "bddMgrV.h"
 #include "gvMsg.h"
 #include "gvNtk.h"
 #include "util.h"
+#include <cassert>
+#include <cstring>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -134,9 +133,9 @@ BSetVarCmd::help() const {
          << "BDD set a variable name for a support" << endl;
 }
 
-// //----------------------------------------------------------------------
-// //    BINV <(string varName)> <(string bddName)>
-// //----------------------------------------------------------------------
+//----------------------------------------------------------------------
+//    BINV <(string varName)> <(string bddName)>
+//----------------------------------------------------------------------
 GVCmdExecStatus
 BInvCmd::exec(const string& option) {
     // check option
@@ -420,9 +419,9 @@ BXnorCmd::help() const {
          << "BDD Xnor" << endl;
 }
 
-//----------------------------------------------------------------------
+//---------------------------------------------------------------------------
 //    BCOFactor <-Positive|-Negative> <(string varName)> <(string bddName)>
-//----------------------------------------------------------------------
+//---------------------------------------------------------------------------
 GVCmdExecStatus
 BCofactorCmd::exec(const string& option) {
     // check option
