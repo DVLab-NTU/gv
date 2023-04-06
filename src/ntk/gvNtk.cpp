@@ -390,5 +390,11 @@ GVNtkMgr::printSummary() {
                 cout << setw(7) << " , fanin1 = " << _id2FaninId[obj.first][1];
             cout << endl;
         }
+        else if(getGateType(getGVNetId(obj.first)) == GV_NTK_OBJ_PI){
+            cout << " , PI, No fanin." << endl;
+        }
+        else if(getGateType(getGVNetId(obj.first)) == GV_NTK_OBJ_RO){
+            cout << " , RO, No fanin. (Please also note that RO is overlapped with PI, so no BDD node is created.)" << endl;
+        }
     }
 }
