@@ -785,7 +785,7 @@ BConstructCmd::exec(const string& option) {
                     << " does NOT Exist in Current Ntk !!" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
             }
-            netId = GVNetId::makeNetId(num);
+            netId = GVNetId::makeNetId(num, 0, gvNtkMgr->getGateType(gvNtkMgr->getGVNetId(num)));
         } else if (isOutput) {
             if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
                 gvMsg(GV_MSG_ERR)
