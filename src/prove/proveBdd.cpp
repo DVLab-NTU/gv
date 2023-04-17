@@ -169,10 +169,6 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
 
         ns = ns.getCube(0);
         counter_ex.clear();
-        for (unsigned j = 0; j < gvNtkMgr->getInputSize(); ++j) {
-            timeframe.push_back(1);
-        }
-        counter_ex.push_back(timeframe);
         timeframe.clear();
 
         for (unsigned i = 0; i < numofstate; ++i) {
