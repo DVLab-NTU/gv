@@ -159,16 +159,41 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
     if (ns != BddNodeV::_zero) {
         // ~p can backtrace to init state ?
         while ((monitor & _reachStates[numofstate]).countCube() != 0) {
+            if(numofstate == 0) break;
             numofstate--;
         }
-        numofstate++;
+        if(numofstate != 0)
+            numofstate++;
+        //cout << "This is reachable state : \n" << _reachStates[numofstate];
+        //cout << "This is monitor : \n" << monitor;
         ns = monitor & _reachStates[numofstate];
 
-        cout << "Monitor \"" << name << "\" is violated." << endl;
-        cout << "Counter Example:" << endl;
+        //cout << "Monitor \"" << name << "\" is violated." << endl;
+        //cout << "Counter Example:" << endl;
 
         ns = ns.getCube(0);
         counter_ex.clear();
+        /* === MODIFICATION FOR PROPERTY 0 IN c.v === */
+        if(numofstate == 0 ){
+            BddNodeV firstState = ns;
+            for (unsigned j = 0; j < gvNtkMgr->getFFSize(); ++j) {
+                firstState = firstState.exist(gvNtkMgr->getFF(j).id);
+            }
+            for (unsigned j = 0; j < gvNtkMgr->getInputSize(); ++j) {
+                if (firstState.getLeft() != BddNodeV::_zero){ 
+                    if(firstState.isNegEdge()) timeframe.push_back(0);
+                    else                       timeframe.push_back(1);
+                }
+                else if (firstState.getRight() != BddNodeV::_zero){
+                    if(firstState.isNegEdge()) timeframe.push_back(1);
+                    else                       timeframe.push_back(0);
+                }
+            }
+            counter_ex.push_back(timeframe);
+            //cout << firstState << endl;
+            //cout << firstState.toString();
+        }
+        /* === END OF MODIFICATION === */
         timeframe.clear();
 
         for (unsigned i = 0; i < numofstate; ++i) {
