@@ -23,8 +23,6 @@ extern "C"
 GVRTLDesign* gvRTLDesign;
 GVNtkMgr*    gvNtkMgr;
 
-// GV Ntk defines
-#define isGVNetInverted(netId) (netId.cp)
 
 // ----------------------------------------------------------------------
 //  constructor / deconstructor for GVNtkMgr

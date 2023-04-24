@@ -18,6 +18,9 @@
 
 USING_YOSYS_NAMESPACE
 
+// GV Ntk defines
+#define isGVNetInverted(netId) (netId.cp)
+
 // constant
 const unsigned GVNtkUD = UINT_MAX;
 // declaration

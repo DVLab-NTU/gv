@@ -13,6 +13,8 @@
 #include <iostream>
 #include <vector>
 #include "gvNtk.h"
+#include "sat/bsat/satSolver.h"
+#include "misc/util/abc_global.h"
 
 
 using namespace std;
@@ -27,7 +29,7 @@ class SatSolver
 {
     friend class SATMgr;
    public : 
-      SatSolver(const GVNtk* const);
+      SatSolver(const GVNtkMgr* const);
       ~SatSolver();
 
       void reset();
@@ -36,10 +38,10 @@ class SatSolver
       void assertProperty(const size_t&, const bool& );
       void assumeProperty(const GVNetId& id, const bool& invert, const uint32_t& depth);
       void assertProperty(const GVNetId& id, const bool& invert, const uint32_t& depth);
-      const bool simplify();
-      const bool solve();
-      const bool assump_solve();
-      int getNumClauses() const { return _solver->nRootCla(); }
+      const int simplify();
+      const int solve();
+      const int assump_solve();
+    //   int getNumClauses() const { return _solver->nRootCla(); }
 
       // Network to Solver Functions
       const size_t getFormula(const GVNetId&, const uint32_t&);
@@ -69,10 +71,10 @@ class SatSolver
       inline const size_t getPosVar(const Var& v) const { return (((size_t)v) << 1ul); }
       inline const size_t getNegVar(const Var& v) const { return ((getPosVar(v)) | 1ul); }
 
-    //   SolverV            *_solver;    // Pointer to a Minisat solver
+      sat_solver          *_solver;    // Pointer to a Minisat solver
       Var                 _curVar;    // Variable currently
-      vec<Lit>            _assump;    // Assumption List for assumption solve
-    //   const GVNtk* const  _ntk;       // Network Under Verification
+      vector<Lit>         _assump;    // Assumption List for assumption solve
+      const GVNtkMgr* const  _ntk;       // Network Under Verification
       vector<Var>*        _ntkData;   // Mapping between GVNetId and Solver Data
 
 };
