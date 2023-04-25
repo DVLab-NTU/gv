@@ -15,6 +15,7 @@ using namespace std;
 
 void
 SATMgr::verifyPropertyItp(const string& name, const GVNetId& monitor) {
+    buildInitState();
     //    // Initialize
     //    // duplicate the network, so you can modified
     //    // the ntk for the proving property without
@@ -539,12 +540,11 @@ SATMgr::buildInitState() const {
             I        = preLatch; // for the circuit with only one latch
             continue;
         }
-        // tmpGate = gvNtkMgr->createNet();
         tmpGate  = gvNtkMgr->createNet();
         posLatch = gvNtkMgr->getFF(i);
-        // createGVAndGate(_ntk, tmpGate, ~preLatch, ~posLatch); // (preLatch'^posLatch')
+        gvNtkMgr->createGVAndGate(tmpGate, ~preLatch, ~posLatch); // (preLatch'^posLatch')
         preLatch = ~tmpGate;
-        // cout << "init state:" << tmpGate.id << endl;
+        cout << "init state:" << tmpGate.id << endl;
     }
     I = tmpGate;
     _ptrMinisat->resizeNtkData(_ntk->getNetSize() - orgNtkSize);
