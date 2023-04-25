@@ -13,11 +13,13 @@
 #include <cassert>
 #include <vector>
 #include <map>
-#include "v3Ntk.h"
+#include "gvNtk.h"
 #include "sat.h"
+// #include "SolverTypesV.h"
 #include "reader.h"
 
-class V3NetId;
+class GVNetId;
+typedef int ClauseId;
 
 enum VAR_GROUP {
   LOCAL_ON,
@@ -29,13 +31,13 @@ enum VAR_GROUP {
 class SatProofRes {
   public:
     SatProofRes(SatSolver* s = 0):
-      _proved(V3NtkUD), _fired(V3NtkUD), _maxDepth(V3NtkUD), _satSolver(s) {}
+      _proved(GVNtkUD), _fired(GVNtkUD), _maxDepth(GVNtkUD), _satSolver(s) {}
 
     void setProved(uint32_t i) { _proved = i; }
     void setFired(uint32_t i) { _fired = i; }
 
-    bool isProved() const { return (_proved != V3NtkUD); }
-    bool isFired() const { return (_fired != V3NtkUD); }
+    bool isProved() const { return (_proved != GVNtkUD); }
+    bool isFired() const { return (_fired != GVNtkUD); }
 
     void setMaxDepth(uint32_t d) { _maxDepth = d; }
     uint32_t getMaxDepth() const { return _maxDepth; }
@@ -44,7 +46,7 @@ class SatProofRes {
     SatSolver* getSatSolver() const { return _satSolver; }
 
     void reportResult(const string&) const;
-    void reportCex(const V3NetId&, const V3Ntk* const) const;
+    void reportCex(const GVNetId&, const GVNtkMgr* const) const;
 
   private:
     uint32_t      _proved;
@@ -59,11 +61,11 @@ class SATMgr {
     ~SATMgr() { reset(); }
 
     // entry point for SoCV SAT property checking
-    void verifyPropertyItp(const string& name, const V3NetId& monitor);
-    void verifyPropertyBmc(const string& name, const V3NetId& monitor);
+    void verifyPropertyItp(const string& name, const GVNetId& monitor);
+    void verifyPropertyBmc(const string& name, const GVNetId& monitor);
     // Various proof engines
-    void indBmc(const V3NetId&, SatProofRes&);
-    void itpUbmc(const V3NetId&, SatProofRes&);
+    void indBmc(const GVNetId&, SatProofRes&);
+    void itpUbmc(const GVNetId&, SatProofRes&);
 
     // bind with a solver to get proof info.
     void bind(SatSolver* ptrMinisat);
@@ -73,31 +75,31 @@ class SATMgr {
     void markOnsetClause(const ClauseId& cid);
     void markOffsetClause(const ClauseId& cid);
     // map var to V3Net (PPI)
-    void mapVar2Net(const Var& var, const V3NetId& net);
+    void mapVar2Net(const Var& var, const GVNetId& net);
     // please be sure that you call these function right after a UNSAT solving
-    V3NetId getItp() const;
-    vector<Clause> getUNSATCore() const;
+    GVNetId getItp() const;
+    // vector<Clause> getUNSATCore() const;
     // get number of clauses (the latest clause id + 1)
-    int getNumClauses() const{ return _ptrMinisat->getNumClauses(); }
+    // int getNumClauses() const{ return _ptrMinisat->getNumClauses(); }
 
     // self define helper function
     void markSet(bool onORoff,ClauseId& currClause);
     bool startSatSolver(SatSolver* satSolver);
-    void buildMiter(SatSolver* satSolver,V3NetId& R_,V3NetId& R,int& orgNtkSize);
+    void buildMiter(SatSolver* satSolver,GVNetId& R_,GVNetId& R,int& orgNtkSize);
   private:
     // helper functions to get proof info.
-    V3NetId buildInitState() const;
-    V3NetId buildItp(const string& proofName) const;
-    void retrieveProof(Reader& rdr, vector<unsigned>& clausePos, vector<ClauseId>& usedClause) const;
-    void retrieveProof(Reader& rdr, vector<Clause>& unsatCore) const;
+    GVNetId buildInitState() const;
+    GVNetId buildItp(const string& proofName) const;
+    // void retrieveProof(Reader& rdr, vector<unsigned>& clausePos, vector<ClauseId>& usedClause) const;
+    // void retrieveProof(Reader& rdr, vector<Clause>& unsatCore) const;
 
     // V3 minisat interface for model checking
     SatSolver* _ptrMinisat;
     // The duplicated V3Ntk
-    V3Ntk* _ntk;
+    GVNtkMgr* _ntk;
 
     // to handle interpolation
-    map<Var, V3NetId> _var2Net;    // mapping common variables to net
+    map<Var, GVNetId> _var2Net;    // mapping common variables to net
     vector<bool>      _isClauseOn; // record onset clauses
     // will be determined in retrieveProof, you don't need to take care about this!
     mutable vector<bool>      _isClaOnDup; // duplication & extension of _isClauseOn

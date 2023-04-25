@@ -172,9 +172,9 @@ void SatSolver::add_FF_Formula(const GVNetId& out, const uint32_t& depth)
       if(isGVNetInverted(in1)) {
          // a <-> b
          _ntkData[index].push_back(newVar());
-         Lit a = Abc_Var2Lit(_ntkData[index].back(),false);
-         Lit b = Abc_Var2Lit(var1,true);
-         vector<Lit> lits; lits.clear();
+         lit a = Abc_Var2Lit(_ntkData[index].back(),false);
+         lit b = Abc_Var2Lit(var1,true);
+         vector<lit> lits; lits.clear();
          lits.push_back(~a); lits.push_back( b); sat_solver_addclause(_solver, &lits.front(), &lits.back()); lits.clear();
          lits.push_back( a); lits.push_back(~b); sat_solver_addclause(_solver, &lits.front(), &lits.back()); lits.clear();
       }
@@ -198,11 +198,11 @@ void SatSolver::add_AND_Formula(const GVNetId& out, const uint32_t& depth)
    const Var var1 = getVerifyData(in1,depth); assert(var1);
    const Var var2 = getVerifyData(in2,depth); assert(var2);
 
-   Lit y = Abc_Var2Lit(var, false);
-   Lit a = Abc_Var2Lit(var1, isGVNetInverted(in1));
-   Lit b = Abc_Var2Lit(var2, isGVNetInverted(in2));
+   lit y = Abc_Var2Lit(var, false);
+   lit a = Abc_Var2Lit(var1, isGVNetInverted(in1));
+   lit b = Abc_Var2Lit(var2, isGVNetInverted(in2));
 
-   vector<Lit> lits; lits.clear();
+   vector<lit> lits; lits.clear();
    lits.push_back(a); lits.push_back(~y); sat_solver_addclause(_solver, &lits.front(), &lits.back()); lits.clear();
    lits.push_back(b); lits.push_back(~y); sat_solver_addclause(_solver, &lits.front(), &lits.back()); lits.clear();
    lits.push_back(~a); lits.push_back(~b); lits.push_back(y); sat_solver_addclause(_solver, &lits.front(), &lits.back()); lits.clear();

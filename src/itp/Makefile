@@ -1,5 +1,5 @@
 PKGFLAG   =
-EXTHDRS   = sat.h
+EXTHDRS   = sat.h satMgr.h
 
 include ../Makefile.in
 include ../Makefile.lib

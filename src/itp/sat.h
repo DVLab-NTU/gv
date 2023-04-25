@@ -20,7 +20,7 @@
 using namespace std;
 
 typedef int Var;
-typedef int Lit;
+// typedef int lit;
 
 class SATMgr;
 
@@ -73,7 +73,7 @@ class SatSolver
 
       sat_solver          *_solver;    // Pointer to a Minisat solver
       Var                 _curVar;    // Variable currently
-      vector<Lit>         _assump;    // Assumption List for assumption solve
+      vector<lit>         _assump;    // Assumption List for assumption solve
       const GVNtkMgr* const  _ntk;       // Network Under Verification
       vector<Var>*        _ntkData;   // Mapping between GVNetId and Solver Data
 
