@@ -6,36 +6,38 @@
   Copyright    [ Copyleft(c) 2010 LaDs(III), GIEE, NTU, Taiwan ]
  ****************************************************************************/
 
-#include "satMgr.h"
+#include "gvSatMgr.h"
 #include <cassert>
 #include <iostream>
 #include <queue>
 #include <vector>
 using namespace std;
 
-// void SATMgr::verifyPropertyItp(const string& name, const V3NetId& monitor) {
-//    // Initialize
-//    // duplicate the network, so you can modified
-//    // the ntk for the proving property without
-//    // destroying the original network
-//    _ntk = new V3Ntk(); *_ntk = *(v3Handler.getCurHandler()->getNtk());
-//    SatProofRes pRes;
-//    SatSolver* satSolver = new SatSolver(_ntk);
+void
+SATMgr::verifyPropertyItp(const string& name, const GVNetId& monitor) {
+    //    // Initialize
+    //    // duplicate the network, so you can modified
+    //    // the ntk for the proving property without
+    //    // destroying the original network
+    //    _ntk = new V3Ntk(); *_ntk = *(v3Handler.getCurHandler()->getNtk());
+    //    SatProofRes pRes;
+    //    SatSolver* satSolver = new SatSolver(_ntk);
 
-//    // Prove the monitor here!!
-//    pRes.setMaxDepth(1000);
-//    pRes.setSatSolver(satSolver);
-//    itpUbmc(monitor, pRes);
+    //    // Prove the monitor here!!
+    //    pRes.setMaxDepth(1000);
+    //    pRes.setSatSolver(satSolver);
+    //    itpUbmc(monitor, pRes);
 
-//    pRes.reportResult(name);
-//    if (pRes.isFired())
-//       pRes.reportCex(monitor, _ntk);
+    //    pRes.reportResult(name);
+    //    if (pRes.isFired())
+    //       pRes.reportCex(monitor, _ntk);
 
-//    delete satSolver; delete _ntk;
-//    reset();
-// }
+    //    delete satSolver; delete _ntk;
+    //    reset();
+}
 
-// void SATMgr::verifyPropertyBmc(const string& name, const V3NetId& monitor) {
+// void
+// SATMgr::verifyPropertyBmc(const string& name, const GVNetId& monitor) {
 //    // Initialize
 //    // duplicate the network, so you can modified
 //    // the ntk for the proving property without
@@ -101,7 +103,8 @@ using namespace std;
 //    // ============ Set initial state ============
 //    satSolver->addBoundedVerifyData(I,k); // Set I with 0, add initial states clauses(e.g. S0)
 //    satSolver->assumeRelease(); // Clear the clauses
-//    satSolver->assumeProperty(I,false, k); // Add unit clause, 'false' means no inverter(e.g. (...)(...)(I))
+//    satSolver->assumeProperty(I,false, k); // Add unit clause, 'false' means no inverter(e.g.
+//    (...)(...)(I))
 //    // ============ Set monitor ============
 //    satSolver->addBoundedVerifyData(monitor,k); // Build the clauses of monitor's fanin cone
 //    satSolver->assumeProperty(monitor, false, k);// Check whether we can reach monitor a.k.a. (!P)
@@ -115,12 +118,13 @@ using namespace std;
 //    k++;
 //    for(uint32_t i = 0, ls = _ntk->getLatchSize(); i < ls; ++i){
 //       V3NetId latch = _ntk->getLatch(i);// Get the latch
-//       satSolver->addBoundedVerifyData(latch,k);// Build the fanin cone of each latch, which means constraints in
-//       timeframe 0(e.g. C0) Var latchVar = satSolver->getVerifyData(latch,k); // Get the var in timeframe k
-//       mapVar2Net(latchVar,latch);
+//       satSolver->addBoundedVerifyData(latch,k);// Build the fanin cone of each latch, which means
+//       constraints in timeframe 0(e.g. C0) Var latchVar = satSolver->getVerifyData(latch,k); //
+//       Get the var in timeframe k mapVar2Net(latchVar,latch);
 //    }
 //    // Chiu's Note:
-//    // First,we construct S0 and we know that we can't reach monitor a.k.a !P in timeframe 0 (e.g. assert t0:
+//    // First,we construct S0 and we know that we can't reach monitor a.k.a !P in timeframe 0 (e.g.
+//    assert t0:
 //    (...)(...)(!monitor))
 //    // Second, we construct timeframe 0 constraints a.k.a C0
 //    // Last, mark these constraints with onset
@@ -175,8 +179,8 @@ using namespace std;
 //          }*/
 //          // pseudo:|if (BMCk(Si+1, F) = SAT) break repeat_2|
 //          // ============ Set initial state ============
-//          satSolver->addBoundedVerifyData(S_i1,0);// Replace S_i with S_i+1', make sure that our over-approximation
-//          does not contain monitor a.k.a !P
+//          satSolver->addBoundedVerifyData(S_i1,0);// Replace S_i with S_i+1', make sure that our
+//          over-approximation does not contain monitor a.k.a !P
 //          //cout<<"(Initial)k: "<< k << " Clause: " << getNumClauses() <<endl;
 //          satSolver->assumeRelease();
 //          satSolver->assumeProperty(S_i1,false,0);
@@ -188,8 +192,8 @@ using namespace std;
 //          // ============ Start SAT solver ============
 //          //cout<<"(Before SAT)k: "<< k << " Clause: " << getNumClauses() <<endl;
 //          if(startSatSolver(satSolver)){
-//             satSolver->assertProperty(monitor,true,k);// Set !monitor (a.k.a P) at timeframe k, then expand timeframe
-//             to k+1
+//             satSolver->assertProperty(monitor,true,k);// Set !monitor (a.k.a P) at timeframe k,
+//             then expand timeframe to k+1
 //             // ============ Mark the added clauses to offset ============
 //             markSet(false, currClause);
 //             //currClause = getNumClauses(); // testing
@@ -269,19 +273,20 @@ using namespace std;
 // void SATMgr::bind(SatSolver* ptrMinisat) {
 //    _ptrMinisat = ptrMinisat;
 //    if (_ptrMinisat->_solver->proof == NULL) {
-//       Msg(MSG_ERR) << "The Solver has no Proof!! Try Declaring the Solver with proofLog be set!!" << endl;
-//       exit(0);
+//       Msg(MSG_ERR) << "The Solver has no Proof!! Try Declaring the Solver with proofLog be set!!"
+//       << endl; exit(0);
 //    }
 // }
 
-// void SATMgr::reset() {
-//    _ptrMinisat = NULL;
-//    _ntk = NULL;
-//    _varGroup.clear();
-//    _var2Net.clear();
-//    _isClauseOn.clear();
-//    _isClaOnDup.clear();
-// }
+void
+SATMgr::reset() {
+    //    _ptrMinisat = NULL;
+    //    _ntk = NULL;
+    //    _varGroup.clear();
+    //    _var2Net.clear();
+    //    _isClauseOn.clear();
+    //    _isClaOnDup.clear();
+}
 
 // void SATMgr::markOnsetClause(const ClauseId& cid) {
 //    unsigned cSize = getNumClauses();
@@ -421,7 +426,8 @@ using namespace std;
 //    }
 // }
 
-// void SATMgr::retrieveProof(Reader& rdr, vector<unsigned int>& clausePos, vector<ClauseId>& usedClause) const {
+// void SATMgr::retrieveProof(Reader& rdr, vector<unsigned int>& clausePos, vector<ClauseId>&
+// usedClause) const {
 //    unsigned int tmp, cid, idx, tmp_cid, root_cid;
 
 //    // Clear all
@@ -521,8 +527,8 @@ using namespace std;
 GVNetId
 SATMgr::buildInitState() const {
     // TODO: build initial state
-    // assign all latch with value 0: (latch_0 + latch_1 + latch_2 ... latch_n)' = (latch_0'^latch_1'^latch_2'^ ...
-    // ^latch_n') = NOR Gate
+    // assign all latch with value 0: (latch_0 + latch_1 + latch_2 ... latch_n)' =
+    // (latch_0'^latch_1'^latch_2'^ ... ^latch_n') = NOR Gate
     GVNetId  I, tmpGate;
     uint32_t orgNtkSize = gvNtkMgr->getNetSize();
     GVNetId  preLatch, posLatch;
@@ -534,10 +540,10 @@ SATMgr::buildInitState() const {
             continue;
         }
         // tmpGate = gvNtkMgr->createNet();
-        tmpGate  = gvNtkMgr->genNet();
+        tmpGate  = gvNtkMgr->createNet();
         posLatch = gvNtkMgr->getFF(i);
-        // createV3AndGate(_ntk, tmpGate, ~preLatch, ~posLatch); // (preLatch'^posLatch')
-        // preLatch = ~tmpGate;
+        // createGVAndGate(_ntk, tmpGate, ~preLatch, ~posLatch); // (preLatch'^posLatch')
+        preLatch = ~tmpGate;
         // cout << "init state:" << tmpGate.id << endl;
     }
     I = tmpGate;

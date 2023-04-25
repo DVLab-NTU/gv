@@ -167,8 +167,8 @@ class GVNtkMgr
         void       printRi();      // print the information of all RI's
         void       printSummary(); // print the information of all Obj in the aig ntk
         // generate net
-        GVNetId    genNet();
-        bool       genGVAndGate(GVNetId&, GVNetId&, GVNetId&);
+        GVNetId    createNet();
+        bool       createGVAndGate(GVNetId&, GVNetId&, GVNetId&);
         // -------------------------------------------------------------------------
         //                                  BDD
         // -------------------------------------------------------------------------

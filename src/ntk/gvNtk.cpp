@@ -362,21 +362,22 @@ GVNtkMgr::printSummary() {
     }
 }
 // ----------------------------------------------------------------------
-//  generate functions
+//  create the new net
 // ----------------------------------------------------------------------
 GVNetId
-GVNtkMgr::genNet() {
+GVNtkMgr::createNet() {
     GVNetId id = GVNetId::makeNetId(getNetSize());
+    return id;
 }
 
 bool
-GVNtkMgr::genGVAndGate(GVNetId& id, GVNetId& id1, GVNetId& id2) {
-    id.type = GV_NTK_OBJ_AIG;
-    // map
+GVNtkMgr::createGVAndGate(GVNetId& id, GVNetId& id1, GVNetId& id2) {
+    id.type         = GV_NTK_OBJ_AIG;
     _id2Type[id.id] = id.type;
-    // fanin phase
-    // id.fanin0Cp = Gia_ObjFaninC0(pObj);
-    // id.fanin1Cp = Gia_ObjFaninC1(pObj);
-    // createNet(id, GV_NTK_OBJ_AIG);
+    vector<unsigned> faninIdList;
+    faninIdList.push_back(id1.id);
+    faninIdList.push_back(id2.id);
+    _id2FaninId[id.id] = faninIdList;
+    createNet(id, GV_NTK_OBJ_AIG);
     return true;
 }
