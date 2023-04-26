@@ -32,8 +32,7 @@ enum VAR_GROUP
 class SatProofRes
 {
     public:
-        SatProofRes(SatSolver* s = 0)
-            : _proved(GVNtkUD), _fired(GVNtkUD), _maxDepth(GVNtkUD), _satSolver(s) {}
+        SatProofRes(GVSatSolver* s = 0) : _proved(GVNtkUD), _fired(GVNtkUD), _maxDepth(GVNtkUD), _satSolver(s) {}
 
         void setProved(uint32_t i) { _proved = i; }
         void setFired(uint32_t i) { _fired = i; }
@@ -44,17 +43,17 @@ class SatProofRes
         void     setMaxDepth(uint32_t d) { _maxDepth = d; }
         uint32_t getMaxDepth() const { return _maxDepth; }
 
-        void       setSatSolver(SatSolver* s) { _satSolver = s; }
-        SatSolver* getSatSolver() const { return _satSolver; }
+        void         setSatSolver(GVSatSolver* s) { _satSolver = s; }
+        GVSatSolver* getSatSolver() const { return _satSolver; }
 
         void reportResult(const string&) const;
         void reportCex(const GVNetId&, const GVNtkMgr* const) const;
 
     private:
-        uint32_t   _proved;
-        uint32_t   _fired;
-        uint32_t   _maxDepth; // maximum proof depth
-        SatSolver* _satSolver;
+        uint32_t     _proved;
+        uint32_t     _fired;
+        uint32_t     _maxDepth; // maximum proof depth
+        GVSatSolver* _satSolver;
 };
 
 class SATMgr
@@ -71,36 +70,36 @@ class SATMgr
         void itpUbmc(const GVNetId&, SatProofRes&);
 
         // bind with a solver to get proof info.
-        void    bind(SatSolver* ptrMinisat);
+        void           bind(GVSatSolver* ptrMinisat);
         // clear data members
-        void    reset();
+        void           reset();
         // mark onset/offset clause
-        void    markOnsetClause(const ClauseId& cid);
-        void    markOffsetClause(const ClauseId& cid);
+        void           markOnsetClause(const ClauseId& cid);
+        void           markOffsetClause(const ClauseId& cid);
         // map var to V3Net (PPI)
-        void    mapVar2Net(const Var& var, const GVNetId& net);
+        void           mapVar2Net(const Var& var, const GVNetId& net);
         // please be sure that you call these function right after a UNSAT solving
-        GVNetId getItp() const;
-        // vector<Clause> getUNSATCore() const;
+        GVNetId        getItp() const;
+        vector<Clause> getUNSATCore() const;
         // get number of clauses (the latest clause id + 1)
-        // int getNumClauses() const{ return _ptrMinisat->getNumClauses(); }
+        int            getNumClauses() const { return _ptrMinisat->getNumClauses(); }
 
         // self define helper function
         void markSet(bool onORoff, ClauseId& currClause);
-        bool startSatSolver(SatSolver* satSolver);
-        void buildMiter(SatSolver* satSolver, GVNetId& R_, GVNetId& R, int& orgNtkSize);
+        bool startSatSolver(GVSatSolver* GVSatSolver);
+        void buildMiter(GVSatSolver* GVSatSolver, GVNetId& R_, GVNetId& R, int& orgNtkSize);
 
     private:
         // helper functions to get proof info.
         GVNetId buildInitState() const;
         GVNetId buildItp(const string& proofName) const;
-        // void retrieveProof(Reader& rdr, vector<unsigned>& clausePos, vector<ClauseId>&
-        // usedClause) const; void retrieveProof(Reader& rdr, vector<Clause>& unsatCore) const;
+        void    retrieveProof(Reader& rdr, vector<unsigned>& clausePos, vector<ClauseId>& usedClause) const;
+        void    retrieveProof(Reader& rdr, vector<Clause>& unsatCore) const;
 
         // V3 minisat interface for model checking
-        SatSolver* _ptrMinisat;
+        GVSatSolver* _ptrMinisat;
         // The duplicated V3Ntk
-        GVNtkMgr*  _ntk;
+        GVNtkMgr*    _ntk;
 
         // to handle interpolation
         map<Var, GVNetId>         _var2Net;    // mapping common variables to net

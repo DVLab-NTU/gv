@@ -20,6 +20,7 @@ USING_YOSYS_NAMESPACE
 
 // GV Ntk defines
 #define isGVNetInverted(netId) (netId.cp)
+#define getGVNetIndex(netId) (netId.id)
 
 // constant
 const unsigned GVNtkUD = UINT_MAX;
@@ -70,9 +71,8 @@ struct GVNetId {
         bool           fanin0Cp; // fanin 0 is complement
         bool           fanin1Cp; // fanin 1 is complement
         GV_Ntk_Type_t  type : GV_NTK_OBJ_AND;
-        static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0,
-                                 GV_Ntk_Type_t t = GV_NTK_OBJ_AND, bool f0cp = false,
-                                 bool f1cp = false) {
+        static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0, GV_Ntk_Type_t t = GV_NTK_OBJ_AND,
+                                 bool f0cp = false, bool f1cp = false) {
             GVNetId j;
             j.cp       = c;
             j.id       = i;
@@ -129,25 +129,21 @@ class GVNtkMgr
             return _FFConst0List[i];
         }
         // GV net id
-        inline const GVNetId&      getGVNetId(const unsigned& i) const { return _id2GVNetId.at(i); }
+        inline const GVNetId&          getGVNetId(const unsigned& i) const { return _id2GVNetId.at(i); }
         // GV gate type
-        inline const GV_Ntk_Type_t getGateType(const GVNetId& id) { return id.type; }
-        inline GV_Ntk_Type_t&      getTypeFromId(const unsigned& i) { return _id2Type[i]; }
+        inline const GV_Ntk_Type_t     getGateType(const GVNetId& id) { return id.type; }
+        inline GV_Ntk_Type_t&          getTypeFromId(const unsigned& i) { return _id2Type[i]; }
         // fanin
-        inline const vector<unsigned>& getFaninId(const unsigned& i) const {
-            return _id2FaninId.at(i);
-        }
-        inline const GVNetId& getInputNetId(const GVNetId&, const uint32_t&) const;
+        inline const vector<unsigned>& getFaninId(const unsigned& i) const { return _id2FaninId.at(i); }
+        inline const GVNetId&          getInputNetId(const GVNetId&, const uint32_t&) const;
         // flag
-        inline void           newMiscData() {
+        inline void                    newMiscData() {
             if (getNetSize() > _miscList.size()) {
                 _miscList.resize(getNetSize());
             }
             ++_globalMisc;
         }
-        inline bool isLatestMiscData(const GVNetId& id) const {
-            return _globalMisc == _miscList[id.id];
-        }
+        inline bool     isLatestMiscData(const GVNetId& id) const { return _globalMisc == _miscList[id.id]; }
         inline void     setLatestMiscData(const GVNetId& id) { _miscList[id.id] = _globalMisc; }
         // mapping (get id)
         inline unsigned getNetIdFromName(string name) { return _netName2Id[name]; }
@@ -173,7 +169,7 @@ class GVNtkMgr
         void       printSummary(); // print the information of all Obj in the aig ntk
         // generate net
         GVNetId    createNet();
-        bool       createGVAndGate(GVNetId, GVNetId, GVNetId);
+        bool       createGVAndGate(GVNetId&, GVNetId, GVNetId);
         // -------------------------------------------------------------------------
         //                                  BDD
         // -------------------------------------------------------------------------

@@ -6,8 +6,8 @@
   Copyright    [ Copyleft(c) 2010 LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef SAT_CMD_H_
-#define SAT_CMD_H_
+#ifndef GV_SAT_CMD_H_
+#define GV_SAT_CMD_H_
 
 #include "gvCmdMgr.h"
 

@@ -59,19 +59,16 @@ SATVerifyItpCmd::exec(const string& option) {
 
     int     num = 0;
     GVNetId netId;
-    if (!myStr2Int(options[1], num) || (num < 0))
-        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    if (!myStr2Int(options[1], num) || (num < 0)) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
     if (isNet) {
         if ((unsigned)num >= gvNtkMgr->getNetSize()) {
-            gvMsg(GV_MSG_ERR) << "Net with Id " << num << " does NOT Exist in Current Ntk !!"
-                              << endl;
+            gvMsg(GV_MSG_ERR) << "Net with Id " << num << " does NOT Exist in Current Ntk !!" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
         netId = GVNetId::makeNetId(num);
     } else {
         if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
-            gvMsg(GV_MSG_ERR) << "Output with Index " << num << " does NOT Exist in Current Ntk !!"
-                              << endl;
+            gvMsg(GV_MSG_ERR) << "Output with Index " << num << " does NOT Exist in Current Ntk !!" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
         netId = gvNtkMgr->getOutput(num);

@@ -244,28 +244,28 @@ void vec<T>::clear(bool dealloc) {
 // Lifted booleans:
 
 
-// class lbool {
-//     int     value;
-//     explicit lbool(int v) : value(v) { }
+class gvlbool {
+    int     value;
+    explicit gvlbool(int v) : value(v) { }
 
-// public:
-//     lbool()       : value(0) { }
-//     lbool(bool x) : value((int)x*2-1) { }
-//     int toInt(void) const { return value; }
+public:
+    gvlbool()       : value(0) { }
+    gvlbool(bool x) : value((int)x*2-1) { }
+    int toInt(void) const { return value; }
 
-//     bool  operator == (const lbool& other) const { return value == other.value; }
-//     bool  operator != (const lbool& other) const { return value != other.value; }
-//     lbool operator ~  (void)               const { return lbool(-value); }
+    bool  operator == (const gvlbool& other) const { return value == other.value; }
+    bool  operator != (const gvlbool& other) const { return value != other.value; }
+    gvlbool operator ~  (void)               const { return gvlbool(-value); }
 
-//     friend int   toInt  (lbool l);
-//     friend lbool toLbool(int   v);
-// };
-// inline int   toInt  (lbool l) { return l.toInt(); }
-// inline lbool toLbool(int   v) { return lbool(v);  }
+    friend int   toInt  (gvlbool l);
+    friend gvlbool toLbool(int   v);
+};
+inline int   toInt  (gvlbool l) { return l.toInt(); }
+inline gvlbool toLbool(int   v) { return gvlbool(v);  }
 
-// const lbool l_True  = toLbool( 1);
-// const lbool l_False = toLbool(-1);
-// const lbool l_Undef = toLbool( 0);
+const gvlbool gv_l_True  = toLbool( 1);
+const gvlbool gv_l_False = toLbool(-1);
+const gvlbool gv_l_Undef = toLbool( 0);
 
 
 //=================================================================================================

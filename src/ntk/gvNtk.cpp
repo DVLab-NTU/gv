@@ -383,7 +383,7 @@ GVNtkMgr::createNet() {
 }
 
 bool
-GVNtkMgr::createGVAndGate(GVNetId id, GVNetId id1, GVNetId id2) {
+GVNtkMgr::createGVAndGate(GVNetId& id, GVNetId id1, GVNetId id2) {
     id.type         = GV_NTK_OBJ_AIG;
     _id2Type[id.id] = id.type;
     vector<unsigned> faninIdList;
