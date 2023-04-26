@@ -252,7 +252,10 @@ GVSatSolver::addBoundedVerifyDataRecursively(const GVNetId& id, const uint32_t& 
         }
         add_FF_Formula(id, depth);
     } else if (GV_NTK_OBJ_AIG >= type) {
-        if (GV_NTK_OBJ_AIG == type) {
+        if (GV_NTK_OBJ_PO == type) {
+            addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth);
+            add_FF_Formula(id, depth);
+        } else if (GV_NTK_OBJ_AIG == type) {
             addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth);
             addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 1), depth);
             add_AND_Formula(id, depth);

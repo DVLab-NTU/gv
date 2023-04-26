@@ -233,11 +233,11 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
 
 void
 SATMgr::bind(GVSatSolver* ptrMinisat) {
-    //  _ptrMinisat = ptrMinisat;
-    //  if (_ptrMinisat->_solver->proof == NULL) {
-    //      Msg(MSG_ERR) << "The Solver has no Proof!! Try Declaring the Solver with proofLog be set!!" << endl;
-    //      exit(0);
-    //  }
+    _ptrMinisat = ptrMinisat;
+    if (_ptrMinisat->_solver->proof == NULL) {
+        gvMsg(GV_MSG_ERR) << "The Solver has no Proof!! Try Declaring the Solver with proofLog be set!!" << endl;
+        exit(0);
+    }
 }
 
 void
@@ -638,15 +638,15 @@ SATMgr::buildItp(const string& proofName) const {
 
 void
 SatProofRes::reportResult(const string& name) const {
-    //  // Report Verification Result
-    //  Msg(MSG_IFO) << endl;
-    //  if (isProved()) {
-    //      Msg(MSG_IFO) << "Monitor \"" << name << "\" is safe." << endl;
-    //  } else if (isFired()) {
-    //      Msg(MSG_IFO) << "Monitor \"" << name << "\" is violated." << endl;
-    //  } else {
-    //      Msg(MSG_IFO) << "UNDECIDED at depth = " << _maxDepth << endl;
-    //  }
+    // Report Verification Result
+    gvMsg(GV_MSG_IFO) << endl;
+    if (isProved()) {
+        gvMsg(GV_MSG_IFO) << "Monitor \"" << name << "\" is safe." << endl;
+    } else if (isFired()) {
+        gvMsg(GV_MSG_IFO) << "Monitor \"" << name << "\" is violated." << endl;
+    } else {
+        gvMsg(GV_MSG_IFO) << "UNDECIDED at depth = " << _maxDepth << endl;
+    }
 }
 
 void
