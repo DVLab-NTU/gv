@@ -70,8 +70,8 @@ struct GVNetId {
         unsigned       id : 31;
         bool           fanin0Cp; // fanin 0 is complement
         bool           fanin1Cp; // fanin 1 is complement
-        GV_Ntk_Type_t  type : GV_NTK_OBJ_AND;
-        static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0, GV_Ntk_Type_t t = GV_NTK_OBJ_AND,
+        GV_Ntk_Type_t  type : GV_NTK_OBJ_AIG;
+        static GVNetId makeNetId(unsigned i = GVNtkUD, unsigned c = 0, GV_Ntk_Type_t t = GV_NTK_OBJ_AIG,
                                  bool f0cp = false, bool f1cp = false) {
             GVNetId j;
             j.cp       = c;

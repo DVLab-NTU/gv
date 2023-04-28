@@ -11,6 +11,7 @@
 
 #include "gvSat.h"
 #include <cmath>
+#include <iomanip>
 
 GVSatSolver::GVSatSolver(GVNtkMgr* ntk) : _ntk(ntk) {
     _solver        = new SolverV();
@@ -64,7 +65,9 @@ GVSatSolver::assumeProperty(const GVNetId& id, const bool& invert, const uint32_
     //  assert(1 == _ntk->getNetWidth(id));
     const Var var = getVerifyData(id, depth);
     //  assert(var);
-    _assump.push(mkLit(var, invert ^ isGVNetInverted(id)));
+    //_assump.push(mkLit(var, invert ^ isGVNetInverted(id)));
+    // _assump.push(mkLit(var, invert ^ id.fanin0Cp));
+    _assump.push(mkLit(var, invert ^ id.cp));
 }
 
 void
@@ -73,7 +76,8 @@ GVSatSolver::assertProperty(const GVNetId& id, const bool& invert, const uint32_
     //  assert(1 == _ntk->getNetWidth(id));
     const Var var = getVerifyData(id, depth);
     //  assert(var);
-    _solver->addUnit(mkLit(var, invert ^ isGVNetInverted(id)));
+    // _solver->addUnit(mkLit(var, invert ^ isGVNetInverted(id)));
+    _solver->addUnit(mkLit(var, invert ^ id.fanin0Cp));
 }
 
 const bool
@@ -121,7 +125,8 @@ GVSatSolver::getFormula(const GVNetId& id, const uint32_t& depth) {
     Var var = getVerifyData(id, depth);
     //  assert(var);
     //  assert(!isNegFormula(getPosVar(var)));
-    return (isGVNetInverted(id) ? getNegVar(var) : getPosVar(var));
+    // return (isGVNetInverted(id) ? getNegVar(var) : getPosVar(var));
+    return (id.fanin0Cp ? getNegVar(var) : getPosVar(var));
 }
 
 void
@@ -173,7 +178,8 @@ GVSatSolver::add_FF_Formula(const GVNetId& out, const uint32_t& depth) {
         const GVNetId in1  = _ntk->getInputNetId(out, 0);
         const Var     var1 = getVerifyData(in1, depth - 1);
 
-        if (isGVNetInverted(in1)) {
+        // if (isGVNetInverted(in1)) {
+        if (out.fanin0Cp) {
             // a <-> b
             _ntkData[index].push_back(newVar());
             Lit      a = mkLit(_ntkData[index].back());
@@ -211,8 +217,11 @@ GVSatSolver::add_AND_Formula(const GVNetId& out, const uint32_t& depth) {
     //  assert(var2);
 
     Lit y = mkLit(var);
-    Lit a = mkLit(var1, isGVNetInverted(in1));
-    Lit b = mkLit(var2, isGVNetInverted(in2));
+    // Lit a = mkLit(var1, isGVNetInverted(in1));
+    // Lit b = mkLit(var2, isGVNetInverted(in2));
+
+    Lit a = mkLit(var1, out.fanin0Cp);
+    Lit b = mkLit(var2, out.fanin1Cp);
 
     vec<Lit> lits;
     lits.clear();
@@ -234,22 +243,29 @@ GVSatSolver::add_AND_Formula(const GVNetId& out, const uint32_t& depth) {
 void
 GVSatSolver::addBoundedVerifyData(const GVNetId& id, const uint32_t& depth) {
     if (existVerifyData(id, depth)) return;
+    cout << " --- > Enter addBoundedVerifyDataRecursively : \n";
     addBoundedVerifyDataRecursively(id, depth);
 }
 
 void
 GVSatSolver::addBoundedVerifyDataRecursively(const GVNetId& id, const uint32_t& depth) {
     // assert( _ntk->validNetId(id) );
-    if (existVerifyData(id, depth)) return;
     const GV_Ntk_Type_t type = gvNtkMgr->getGateType(id);
-    cout << " Current Type : " << type << endl;
+    cout << " Current ID " << id.id << " --- " << " Type : " << type << endl;
+    if (existVerifyData(id, depth)) return;
     //  assert(type < V3_XD);
     // if (V3_PIO >= type) add_PI_Formula(id, depth);
-    if (GV_NTK_OBJ_PI >= type) add_PI_Formula(id, depth);
-    else if (GV_NTK_OBJ_FF_CS == type) {
+    if (GV_NTK_OBJ_PI == type) add_PI_Formula(id, depth);
+    else if (GV_NTK_OBJ_FF_CS == type || GV_NTK_OBJ_FF_NS == type) {
+        uint32_t newDepth = depth;
         if (depth) {
-            addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth - 1);
+            if (GV_NTK_OBJ_FF_NS == type) newDepth -= 1;
+            // addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth - 1);
+            addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), newDepth);
         }
+        // if (!depth && GV_NTK_OBJ_FF_CS == type) {
+        //     addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth);
+        // }
         add_FF_Formula(id, depth);
     } else if (GV_NTK_OBJ_AIG >= type) {
         if (GV_NTK_OBJ_PO == type) {
