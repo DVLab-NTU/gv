@@ -43,6 +43,8 @@ GVNtkMgr::reset() {
     _idRo2Ri.clear();
     _idRi2Ro.clear();
     _id2Type.clear();
+    // fanout info
+    _id2Fanout.clear();
     // flag
     _miscList.clear();
     _globalMisc = 0; // Initial misc value = 0;
@@ -84,8 +86,12 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
         // fanin 0
         if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))) == GV_NTK_OBJ_RO) {
             _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))));
+            GVFanout fanout; fanout.id = Gia_ObjId(pGia, pObj); fanout.fanin = 0;
+            _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)))].push_back(fanout);
         } else {
             _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+            GVFanout fanout; fanout.id = Gia_ObjId(pGia, pObj); fanout.fanin = 0;
+            _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin0(pObj))].push_back(fanout);
         }
         // recursive traverse its left child
         print_rec(pGia, Gia_ObjFanin0(pObj));
@@ -93,8 +99,12 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
         // fanin 1
         if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin1(pObj))) == GV_NTK_OBJ_RO) {
             _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin1(pObj))));
+            GVFanout fanout; fanout.id = Gia_ObjId(pGia, pObj); fanout.fanin = 1;
+            _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)))].push_back(fanout);
         } else {
             _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
+            GVFanout fanout; fanout.id = Gia_ObjId(pGia, pObj); fanout.fanin = 1;
+            _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin1(pObj))].push_back(fanout);
         }
         print_rec(pGia, Gia_ObjFanin1(pObj));
 
@@ -104,11 +114,17 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
         //  fanin 0
         if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))) == GV_NTK_OBJ_RO) {
             _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))));
+            GVFanout fanout; fanout.id = Gia_ObjId(pGia, pObj); fanout.fanin = 0;
+            _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)))].push_back(fanout);
+            
         } else {
             _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+            GVFanout fanout; fanout.id = Gia_ObjId(pGia, pObj); fanout.fanin = 0;
+            _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin0(pObj))].push_back(fanout);
         }
         // fanin phase
         _id2GVNetId[Gia_ObjId(pGia, pObj)].fanin0Cp = Gia_ObjFaninC0(pObj);
+        
 
         // recursive traverse its left child
         print_rec(pGia, Gia_ObjFanin0(pObj));
@@ -353,13 +369,20 @@ GVNtkMgr::printSummary() {
             cout << " , fanin0 = " << setw(7) << _id2FaninId[obj.first][0];
             // if it has the second fanin
             if (_id2FaninId[obj.first].size() >= 2) cout << setw(7) << " , fanin1 = " << _id2FaninId[obj.first][1];
-            cout << endl;
+            // cout << endl;
         } else if (getGateType(getGVNetId(obj.first)) == GV_NTK_OBJ_PI) {
-            cout << " , PI, No fanin." << endl;
+            cout << " , PI, No fanin.";
         } else if (getGateType(getGVNetId(obj.first)) == GV_NTK_OBJ_RO) {
             cout << " , RO, No fanin. (Please also note that RO is overlapped with PI, so no BDD "
-                    "node is created.)"
-                 << endl;
+                    "node is created.)";
+        }
+        if (_id2Fanout.find(obj.first) != _id2Fanout.end()) {
+            for(int i = 0; i < _id2Fanout[obj.first].size(); ++i) {
+                cout << setw(7) << " fanout = " << setw(7) << _id2Fanout[obj.first][i].id << "'s fanin" << _id2Fanout[obj.first][i].fanin;
+            }
+            cout << endl;
+        } else {
+            cout << endl;
         }
     }
 }
