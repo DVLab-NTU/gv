@@ -86,6 +86,12 @@ struct GVNetId {
         const bool operator!=(const GVNetId& i) const { return !(*this == i); }
 };
 
+// fanout info
+struct GVFanout {
+    unsigned id;       // the id of the fanout obj
+    unsigned fanin;    // record which fanin is the obj
+};
+
 class GVNtkMgr
 {
     public:
@@ -135,6 +141,7 @@ class GVNtkMgr
         inline GV_Ntk_Type_t&          getTypeFromId(const unsigned& i) { return _id2Type[i]; }
         // fanin
         inline const vector<unsigned>& getFaninId(const unsigned& i) const { return _id2FaninId.at(i); }
+        inline const vector<GVFanout>& getFanout(const unsigned& i)  const { return _id2Fanout.at(i); }
         inline const GVNetId&          getInputNetId(const GVNetId&, const uint32_t&) const;
         // flag
         inline void                    newMiscData() {
@@ -197,6 +204,7 @@ class GVNtkMgr
         map<unsigned, unsigned>         _idRo2Ri;  // RO: register output (Q)
         map<unsigned, unsigned>         _idRi2Ro;  // RI: register input (D)
         map<unsigned, GV_Ntk_Type_t>    _id2Type;
+        map<unsigned, vector<GVFanout>> _id2Fanout;
         // flag
         vector<unsigned>                _miscList;   // global misc date list
         unsigned                        _globalMisc; // global misc data for GVNetId in network
