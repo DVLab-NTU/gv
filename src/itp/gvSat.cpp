@@ -99,20 +99,20 @@ GVSatSolver::assump_solve() {
 
 const V3BitVecX
 GVSatSolver::getDataValue(const GVNetId& id, const uint32_t& depth) const {
-    // Var       var = getVerifyData(id, depth);
+    Var       var = getVerifyData(id, depth);
     // //  assert(var);
-    // uint32_t  i, width = _ntk->getNetWidth(id);
-    // V3BitVecX value(width);
-    // if (isGVNetInverted(id)) {
-    //     for (i = 0; i < width; ++i)
-    //         if (gv_l_True == _solver->model[var + i]) value.set0(i);
-    //         else value.set1(i);
-    // } else {
-    //     for (i = 0; i < width; ++i)
-    //         if (gv_l_True == _solver->model[var + i]) value.set1(i);
-    //         else value.set0(i);
-    // }
-    // return value;
+    uint32_t  i, width = 1; //width = _ntk->getNetWidth(id)
+    V3BitVecX value(width);
+    if (isGVNetInverted(id)) {
+        for (i = 0; i < width; ++i)
+            if (gv_l_True == _solver->model[var + i]) value.set0(i);
+            else value.set1(i);
+    } else {
+        for (i = 0; i < width; ++i)
+            if (gv_l_True == _solver->model[var + i]) value.set1(i);
+            else value.set0(i);
+    }
+    return value;
 }
 
 const bool

@@ -384,5 +384,7 @@ GVNtkMgr::createGVAndGate(GVNetId& id, GVNetId id1, GVNetId id2) {
     faninIdList.push_back(id1.id);
     faninIdList.push_back(id2.id);
     _id2FaninId[id.id] = faninIdList;
+    // Update the complement info
+    createNet(id, GV_NTK_OBJ_AIG);
     return true;
 }

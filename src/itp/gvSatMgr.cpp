@@ -116,13 +116,15 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
     gvSatSolver->addBoundedVerifyData(monitor, i);
     // gvSatSolver->assumeProperty(monitor, false, i);
     gvSatSolver->assumeProperty(monitor, false, i);
+    // gvSatSolver->assumeProperty(monitor, true, i);
     // gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0), false, i);
-
+    gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0), monitor.fanin0Cp, i);
     gvSatSolver->simplify();
     if (gvSatSolver->assump_solve()) {
         pRes.setFired(i);
         return;
     }
+    /* ====== Above code has passed the testcases (a.v, c.v, small.v) ===== */
 
     num_clauses = getNumClauses();
     gvSatSolver->assertProperty(monitor, true, i);
@@ -162,7 +164,8 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
         // perfrom BMC
         gvSatSolver->addBoundedVerifyData(monitor, i);
         gvSatSolver->assumeRelease();
-        gvSatSolver->assumeProperty(monitor, false, i);
+        // gvSatSolver->assumeProperty(monitor, false, i);
+        gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0), monitor.fanin0Cp, i);
         gvSatSolver->assumeProperty(I, false, 0);
         gvSatSolver->simplify();
 
@@ -189,13 +192,15 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
             }
             num_clauses = getNumClauses();
 
-            gvSatSolver->assumeProperty(monitor, false, i);
+            // gvSatSolver->assumeProperty(monitor, false, i);
+            gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0), monitor.fanin0Cp, i);
             gvSatSolver->simplify();
 
             // Assumption Solver: If SAT, disproved!
             if (gvSatSolver->assump_solve()) {
 
-                gvSatSolver->assertProperty(monitor, true, i);
+                // gvSatSolver->assertProperty(monitor, true, i);
+                gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0), 1 ^ monitor.fanin0Cp, i);
                 for (size_t j = num_clauses; j < getNumClauses(); ++j) {
                     markOffsetClause(j);
                 }

@@ -73,8 +73,9 @@ SATVerifyItpCmd::exec(const string& option) {
         }
         netId = gvNtkMgr->getOutput(num);
     }
-
-    satMgr->verifyPropertyItp(gvNtkMgr->getNetNameFromId(netId.id), netId);
+    // debug
+    GVNetId monitor = gvNtkMgr->getGVNetId(netId.id);
+    satMgr->verifyPropertyItp(gvNtkMgr->getNetNameFromId(netId.id), monitor);
 
     return GV_CMD_EXEC_DONE;
 }
