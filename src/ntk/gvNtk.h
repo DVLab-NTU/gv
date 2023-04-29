@@ -46,6 +46,14 @@ typedef enum
     GV_NTK_OBJ_AIG     // 12: AIG node
 } GV_Ntk_Type_t;
 
+typedef enum
+{
+    GV_NTK_TYPE_V,       // 0: verilog
+    GV_NTK_TYPE_AIG,     // 1: aig
+    GV_NTK_TYPE_BLIF,    // 2: blif
+    GV_NTK_TYPE_BTOR     // 3: btor
+} GV_Ntk_Format_t;
+
 /*
                             _ _ _ _ _ _ _ _ _ _ _ _ _ _
                            |                           |
@@ -167,6 +175,8 @@ class GVNtkMgr
         void       createNet(const GVNetId& id, const int net_type);
         void       createNetFromAbc(char*);
         void       parseAigMapping(Gia_Man_t* pGia);
+        void       setFileType(unsigned type) { _fileType = type; };
+        unsigned   getFileType()              { return _fileType; };
         // print ntk
         void       print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj);
         // print functions
@@ -208,6 +218,8 @@ class GVNtkMgr
         // flag
         vector<unsigned>                _miscList;   // global misc date list
         unsigned                        _globalMisc; // global misc data for GVNetId in network
+        // file type
+        unsigned                        _fileType;
     private:
         void reset();
 };

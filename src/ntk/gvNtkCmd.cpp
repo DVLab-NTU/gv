@@ -149,20 +149,24 @@ GVReadDesignCmd ::exec(const string& option) {
 
     // check file extension
     if (fileVerilog) {
+        gvNtkMgr->setFileType(GV_NTK_TYPE_V);
         string fileExt = filename.substr(filename.size() - 2, 2);
         if (fileExt != ".v")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     } else if (fileBlif) {
+        gvNtkMgr->setFileType(GV_NTK_TYPE_BLIF);
         string fileExt = filename.substr(filename.size() - 5, 5);
         if (fileExt != ".blif")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
     } else if (fileAig) {
+        gvNtkMgr->setFileType(GV_NTK_TYPE_AIG);
         string fileExt = filename.substr(filename.size() - 4, 4);
         if (fileExt != ".aig")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
         // set the aig file name
         gvModMgr->setAigFileName(filename);
     } else if (fileBtor) {
+        gvNtkMgr->setFileType(GV_NTK_TYPE_BTOR);
         string fileExt = filename.substr(filename.size() - 5, 5);
         if (fileExt != ".btor")
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, filename);
@@ -633,8 +637,14 @@ GVBlastNtkCmd ::exec(const string& option) {
     }
 
     // create the PI, PO and FF mapping
-    run_pass("hierarchy -auto-top; flatten; proc; techmap; setundef -zero; "
-             "aigmap; write_aiger -map .map.txt ._temp_.aig");
+    if(gvNtkMgr->getFileType() == GV_NTK_TYPE_V) {
+        run_pass("hierarchy -auto-top; flatten; proc; techmap; setundef -zero; "
+                "aigmap; write_aiger -map .map.txt ._temp_.aig");
+    }
+    // else if(gvNtkMgr->getFileType() == GV_NTK_TYPE_AIG) {
+    //     run_pass("read_aiger " + gvModMgr->getInputFileName() + "; flatten; proc; techmap; setundef -zero; "
+    //             "aigmap; write_aiger -map .map.txt ._temp_.aig");
+    // }
 
     // construct GV network
     gvNtkMgr->createNetFromAbc(pFileName);

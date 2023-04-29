@@ -48,6 +48,8 @@ GVNtkMgr::reset() {
     // flag
     _miscList.clear();
     _globalMisc = 0; // Initial misc value = 0;
+    // file type
+    _fileType = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -166,18 +168,28 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     int   i, *pWire;
 
     // read and blast the RTL verilog file into gia
-    pGia = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fVerbose);
+    if(_fileType == GV_NTK_TYPE_V) {
+        pGia = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fVerbose);
+    }
+    else if(_fileType == GV_NTK_TYPE_AIG) {
+        pGia = Gia_AigerRead( pFileName, 0, fSkipStrash, 0 );
+    }
+    else {
+        cout << "Error type!!!!!!" << endl;
+        assert(false);
+    }
+    
 
     // increment the global travel id for circuit traversing usage
     Gia_ManIncrementTravId(pGia);
     // since we don't want to traverse the constant node, set the TravId of the
     // constant node to be as the global one
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
-
     // create the PI and PPI
-    Gia_ManForEachPi(pGia, pObj, i) {
+    Gia_ManForEachCi(pGia, pObj, i) {
+        // cout << "fff " << i << endl;
         // PI
-        if (i <= (Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia))) {
+        if (i <= (Gia_ManCiNum(pGia) - Gia_ManRegNum(pGia))) {
             // create a new GVNetId corresponding to abc's id
             GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
             createNet(id, GV_NTK_OBJ_PI);
@@ -259,7 +271,9 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     }
 
     // construct the net id/name mapping
-    parseAigMapping(pGia);
+    if(_fileType == GV_NTK_TYPE_V) {
+        parseAigMapping(pGia);
+    }
 }
 
 string
