@@ -186,27 +186,53 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     // constant node to be as the global one
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
     // create the PI and PPI
-    Gia_ManForEachCi(pGia, pObj, i) {
-        // cout << "fff " << i << endl;
-        // PI
-        if (i <= (Gia_ManCiNum(pGia) - Gia_ManRegNum(pGia))) {
-            // create a new GVNetId corresponding to abc's id
-            GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
-            createNet(id, GV_NTK_OBJ_PI);
-            // map
-            _id2GVNetId[id.id] = id;
-            _id2Type[id.id]    = id.type;
-        }
-        // PPI
-        else {
-            // create a new GVNetId corresponding to abc's id
-            GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_FF_CS);
-            createNet(id, GV_NTK_OBJ_FF_CS);
-            // map
-            _id2GVNetId[id.id] = id;
-            _id2Type[id.id]    = id.type;
+    if(_fileType == GV_NTK_TYPE_V) {
+        Gia_ManForEachPi(pGia, pObj, i) {
+            // cout << "fff " << i << endl;
+            // PI
+            if (i <= (Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia))) {
+                // create a new GVNetId corresponding to abc's id
+                GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
+                createNet(id, GV_NTK_OBJ_PI);
+                // map
+                _id2GVNetId[id.id] = id;
+                _id2Type[id.id]    = id.type;
+            }
+            // PPI
+            else {
+                // create a new GVNetId corresponding to abc's id
+                GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_FF_CS);
+                createNet(id, GV_NTK_OBJ_FF_CS);
+                // map
+                _id2GVNetId[id.id] = id;
+                _id2Type[id.id]    = id.type;
+            }
         }
     }
+    else if(_fileType == GV_NTK_TYPE_AIG) {
+        Gia_ManForEachCi(pGia, pObj, i) {
+            // cout << "fff " << i << endl;
+            // PI
+            if (i <= (Gia_ManCiNum(pGia) - Gia_ManRegNum(pGia))) {
+                // create a new GVNetId corresponding to abc's id
+                GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
+                createNet(id, GV_NTK_OBJ_PI);
+                // map
+                _id2GVNetId[id.id] = id;
+                _id2Type[id.id]    = id.type;
+            }
+            // PPI
+            else {
+                // create a new GVNetId corresponding to abc's id
+                GVNetId id = GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_FF_CS);
+                createNet(id, GV_NTK_OBJ_FF_CS);
+                // map
+                _id2GVNetId[id.id] = id;
+                _id2Type[id.id]    = id.type;
+            }
+        }
+    }
+    
 
     // create the PO
     Gia_ManForEachPo(pGia, pObj, i) {
