@@ -403,6 +403,11 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         print_rec(pGia, pObj);
     }
 
+    // propagate the bubble of Co's
+    Gia_ManForEachCo(pGia, pObj, i) {
+        _id2GVNetId[getFaninId(Gia_ObjId(pGia, pObj))[0]].cp ^= _id2GVNetId[Gia_ObjId(pGia, pObj)].fanin0Cp;
+    }
+
     // construct the net id/name mapping
     if (_fileType == GV_NTK_TYPE_V) {
         parseAigMapping(pGia);

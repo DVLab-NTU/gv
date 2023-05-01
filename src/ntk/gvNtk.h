@@ -149,6 +149,7 @@ class GVNtkMgr
         inline GV_Ntk_Type_t&          getTypeFromId(const unsigned& i) { return _id2Type[i]; }
         // fanin
         inline const vector<unsigned>& getFaninId(const unsigned& i) const { return _id2FaninId.at(i); }
+        inline const bool              hasFanout(const unsigned& i)  const { return _id2Fanout.count(i); }
         inline const vector<GVFanout>& getFanout(const unsigned& i)  const { return _id2Fanout.at(i); }
         inline const GVNetId&          getInputNetId(const GVNetId&, const uint32_t&) const;
         // flag

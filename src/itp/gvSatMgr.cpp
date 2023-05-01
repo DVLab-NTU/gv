@@ -120,7 +120,7 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
     // gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0), false,
     // i);
     gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0),
-                                monitor.fanin0Cp, i);
+                                false, i);
     gvSatSolver->simplify();
     if (gvSatSolver->assump_solve()) {
         pRes.setFired(i);
@@ -171,7 +171,7 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
         gvSatSolver->assumeRelease();
         // gvSatSolver->assumeProperty(monitor, false, i);
         gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0),
-                                    monitor.fanin0Cp, i);
+                                    false, i);
         gvSatSolver->assumeProperty(I, false, 0);
         gvSatSolver->simplify();
 
@@ -200,7 +200,7 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
 
             // gvSatSolver->assumeProperty(monitor, false, i);
             gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0),
-                                        monitor.fanin0Cp, i);
+                                        false, i);
             gvSatSolver->simplify();
 
             // Assumption Solver: If SAT, disproved!
@@ -208,7 +208,7 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
 
                 // gvSatSolver->assertProperty(monitor, true, i);
                 gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0),
-                                            1 ^ monitor.fanin0Cp, i);
+                                            false, i);
                 for (size_t j = num_clauses; j < getNumClauses(); ++j) {
                     markOffsetClause(j);
                 }
