@@ -641,10 +641,10 @@ GVBlastNtkCmd ::exec(const string& option) {
         run_pass("hierarchy -auto-top; flatten; proc; techmap; setundef -zero; "
                 "aigmap; write_aiger -map .map.txt ._temp_.aig");
     }
-    // else if(gvNtkMgr->getFileType() == GV_NTK_TYPE_AIG) {
-    //     run_pass("read_aiger " + gvModMgr->getInputFileName() + "; flatten; proc; techmap; setundef -zero; "
-    //             "aigmap; write_aiger -map .map.txt ._temp_.aig");
-    // }
+    else if(gvNtkMgr->getFileType() == GV_NTK_TYPE_AIG) {
+        run_pass("read_aiger " + gvModMgr->getInputFileName() + "; flatten; proc; techmap; setundef -zero; "
+                "aigmap; write_aiger -map .map.txt ._temp_.aig");
+    }
 
     // construct GV network
     gvNtkMgr->createNetFromAbc(pFileName);

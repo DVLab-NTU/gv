@@ -88,70 +88,96 @@ GVNtkMgr::print_rec(Gia_Man_t* pGia, Gia_Obj_t* pObj) {
 
         /* if fanin id is RO, replace it with PPI */
         // fanin 0
-        // if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))) ==
-        //     GV_NTK_OBJ_RO) {
-        //     _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
-        //         getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))));
-        //     GVFanout fanout;
-        //     fanout.id    = Gia_ObjId(pGia, pObj);
-        //     fanout.fanin = 0;
-        //     _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia,
-        //     Gia_ObjFanin0(pObj)))]
-        //         .push_back(fanout);
-        // } else {
-        _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+        if (_fileType == GV_NTK_TYPE_V) {
+            if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))) ==
+                GV_NTK_OBJ_RO) {
+                _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+                    getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))));
+                GVFanout fanout;
+                fanout.id    = Gia_ObjId(pGia, pObj);
+                fanout.fanin = 0;
+                _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia,
+                Gia_ObjFanin0(pObj)))]
+                    .push_back(fanout);
+            } else {
+                _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+                    Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+                GVFanout fanout;
+                fanout.id    = Gia_ObjId(pGia, pObj);
+                fanout.fanin = 0;
+                _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin0(pObj))].push_back(fanout);
+            }
+        }
+        if (_fileType == GV_NTK_TYPE_AIG) {
+            _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
             Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-        GVFanout fanout;
-        fanout.id    = Gia_ObjId(pGia, pObj);
-        fanout.fanin = 0;
-        _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin0(pObj))].push_back(fanout);
-        // }
+            GVFanout fanout;
+            fanout.id    = Gia_ObjId(pGia, pObj);
+            fanout.fanin = 0;
+            _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin0(pObj))].push_back(fanout);
+        }
         // recursive traverse its left child
         print_rec(pGia, Gia_ObjFanin0(pObj));
 
         // fanin 1
-        // if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin1(pObj))) ==
-        //     GV_NTK_OBJ_RO) {
-        //     _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
-        //         getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin1(pObj))));
-        //     GVFanout fanout;
-        //     fanout.id    = Gia_ObjId(pGia, pObj);
-        //     fanout.fanin = 1;
-        //     _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia,
-        //     Gia_ObjFanin1(pObj)))]
-        //         .push_back(fanout);
-        // } else {
-        _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+        if (_fileType == GV_NTK_TYPE_V) {
+            if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin1(pObj))) ==
+                GV_NTK_OBJ_RO) {
+                _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+                    getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin1(pObj))));
+                GVFanout fanout;
+                fanout.id    = Gia_ObjId(pGia, pObj);
+                fanout.fanin = 1;
+                _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia,
+                Gia_ObjFanin1(pObj)))]
+                    .push_back(fanout);
+            } else {
+            _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+                Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
+            GVFanout fanout;
+            fanout.id    = Gia_ObjId(pGia, pObj);
+            fanout.fanin = 1;
+            _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin1(pObj))].push_back(fanout);
+            }
+        }
+        if (_fileType == GV_NTK_TYPE_AIG) {
+            _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
             Gia_ObjId(pGia, Gia_ObjFanin1(pObj)));
-        // GVFanout fanout;
-        // fanout.id    = Gia_ObjId(pGia, pObj);
-        // fanout.fanin = 1;
-        // _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin1(pObj))].push_back(fanout);
-        // }
+        }
         print_rec(pGia, Gia_ObjFanin1(pObj));
     }
     /* PO and RI: #fanin = 1 */
     else if (Gia_ObjFaninNum(pGia, pObj) == 1) {
         //  fanin 0
-        // if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))) ==
-        //     GV_NTK_OBJ_RO) {
-        //     _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
-        //         getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))));
-        //     GVFanout fanout;
-        //     fanout.id    = Gia_ObjId(pGia, pObj);
-        //     fanout.fanin = 0;
-        //     _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia,
-        //     Gia_ObjFanin0(pObj)))]
-        //         .push_back(fanout);
+        if (_fileType == GV_NTK_TYPE_V) {
+            if (getTypeFromId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))) ==
+                GV_NTK_OBJ_RO) {
+                _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+                    getPpiIdFromRoId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))));
+                GVFanout fanout;
+                fanout.id    = Gia_ObjId(pGia, pObj);
+                fanout.fanin = 0;
+                _id2Fanout[getPpiIdFromRoId(Gia_ObjId(pGia,
+                Gia_ObjFanin0(pObj)))]
+                    .push_back(fanout);
 
-        // } else {
-        _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
-            Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-        GVFanout fanout;
-        fanout.id    = Gia_ObjId(pGia, pObj);
-        fanout.fanin = 0;
-        _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin0(pObj))].push_back(fanout);
-        // }
+            } else {
+            _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+                Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+            GVFanout fanout;
+            fanout.id    = Gia_ObjId(pGia, pObj);
+            fanout.fanin = 0;
+            _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin0(pObj))].push_back(fanout);
+            }
+        }
+        if (_fileType == GV_NTK_TYPE_AIG) {
+            _id2FaninId[Gia_ObjId(pGia, pObj)].push_back(
+                Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+            GVFanout fanout;
+            fanout.id    = Gia_ObjId(pGia, pObj);
+            fanout.fanin = 0;
+            _id2Fanout[Gia_ObjId(pGia, Gia_ObjFanin0(pObj))].push_back(fanout);
+        }
         // fanin phase
         _id2GVNetId[Gia_ObjId(pGia, pObj)].fanin0Cp = Gia_ObjFaninC0(pObj);
 
@@ -285,22 +311,37 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         // map
         _id2GVNetId[id.id] = id;
         _id2Type[id.id]    = id.type;
-        // the last FF is used to connect const0
-        if (Gia_ObjId(pGia, Gia_ObjFanin0(pObj)) == 0) {
-            hasConst = true;
-            // FF
-            _FFConst0List.push_back(id);
-            // create a new GVNetId for const 0
-            GVNetId id_const0 = GVNetId::makeNetId(
-                Gia_ObjId(pGia, Gia_ObjFanin0(pObj)), 0, GV_NTK_OBJ_CONST0);
-            createNet(id_const0, GV_NTK_OBJ_CONST0);
-            _ConstList.push_back(id_const0);
-            // map
-            _id2GVNetId[id_const0.id] = id_const0;
-            _id2Type[id_const0.id]    = id_const0.type;
+        if (_fileType == GV_NTK_TYPE_V) {
+            // the last FF is used to connect const0
+            if (i == Gia_ManRegNum(pGia) - 1) {
+                // FF
+                _FFConst0List.push_back(id);
+                // create a new GVNetId for const 0
+                GVNetId id_const0 = GVNetId::makeNetId(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)), 0, GV_NTK_OBJ_CONST0);
+                createNet(id_const0, GV_NTK_OBJ_CONST0);
+                _ConstList.push_back(id_const0);
+                // map
+                _id2GVNetId[id_const0.id] = id_const0;
+                _id2Type[id_const0.id]    = id_const0.type;
+            }
         }
+        if (_fileType == GV_NTK_TYPE_AIG) {
+        // the last FF is used to connect const0
+        // if (Gia_ObjId(pGia, Gia_ObjFanin0(pObj)) == 0) {
+        //     hasConst = true;
+        //     // FF
+        //     _FFConst0List.push_back(id);
+        //     // create a new GVNetId for const 0
+        //     GVNetId id_const0 = GVNetId::makeNetId(
+        //         Gia_ObjId(pGia, Gia_ObjFanin0(pObj)), 0, GV_NTK_OBJ_CONST0);
+        //     createNet(id_const0, GV_NTK_OBJ_CONST0);
+        //     _ConstList.push_back(id_const0);
+        //     // map
+        //     _id2GVNetId[id_const0.id] = id_const0;
+        //     _id2Type[id_const0.id]    = id_const0.type;
+        // }
     }
-    if(!hasConst) {
+    // if(!hasConst) {
         // create a new GVNetId for const 0
         GVNetId id_const0 = GVNetId::makeNetId(0, 0, GV_NTK_OBJ_CONST0);
         createNet(id_const0, GV_NTK_OBJ_CONST0);
@@ -308,25 +349,34 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         // map
         _id2GVNetId[id_const0.id] = id_const0;
         _id2Type[id_const0.id]    = id_const0.type;
+    // }
     }
 
     // create the RO (register output, Q in FF)
+    GVNetId id;
     Gia_ManForEachRo(pGia, pObj, i) {
         // create a new GVNetId corresponding to abc's id
-        // GVNetId id =
-        //     GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_RO);
-
-        GVNetId id =
+        if (_fileType == GV_NTK_TYPE_V) {
+            id =
+                GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_RO);
+        }
+        if (_fileType == GV_NTK_TYPE_AIG) {
+            id =
             GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_FF_CS);
+        }
         // map
         _id2GVNetId[id.id] = id;
         _id2Type[id.id]    = id.type;
         // debug
-        createNet(id, GV_NTK_OBJ_FF_CS);
+        if (_fileType == GV_NTK_TYPE_AIG) {
+            createNet(id, GV_NTK_OBJ_FF_CS);
+        }
         // the last FF is used to connect const0
-        // if (i < Gia_ManRegNum(pGia) - 1) {
-        //     _idRo2Ppi[id.id] = getFF(i).id;
-        // }
+        if (_fileType == GV_NTK_TYPE_V) {
+            if (i < Gia_ManRegNum(pGia) - 1) {
+                _idRo2Ppi[id.id] = getFF(i).id;
+            }
+        }
     }
 
     // map RI and RO
@@ -336,10 +386,14 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         _idRi2Ro[Gia_ObjId(pGia, pObjRi)] = Gia_ObjId(pGia, pObjRo);
         // the last FF is used to connect const0 (skip)
         if (i < Gia_ManRegNum(pGia)) {
-            // _id2FaninId[getPpiIdFromRoId(Gia_ObjId(pGia, pObjRo))].push_back(
-            //     Gia_ObjId(pGia, pObjRi));
-            _id2FaninId[Gia_ObjId(pGia, pObjRo)].push_back(
-                Gia_ObjId(pGia, pObjRi));
+            if (_fileType == GV_NTK_TYPE_V) {
+                _id2FaninId[getPpiIdFromRoId(Gia_ObjId(pGia, pObjRo))].push_back(
+                    Gia_ObjId(pGia, pObjRi));
+            }
+            else if (_fileType == GV_NTK_TYPE_AIG) {
+                _id2FaninId[Gia_ObjId(pGia, pObjRo)].push_back(
+                    Gia_ObjId(pGia, pObjRi));
+            }
         }
     }
 
