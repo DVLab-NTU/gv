@@ -200,7 +200,9 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         pGia = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines,
                                       fSkipStrash, fInvert, fTechMap, fVerbose);
     } else if (_fileType == GV_NTK_TYPE_AIG) {
+        cout << "reading file" << endl;
         pGia = Gia_AigerRead(pFileName, 0, fSkipStrash, 0);
+        cout << "reading file end" << endl;
     } else {
         cout << "Error type!!!!!!" << endl;
         assert(false);
@@ -274,6 +276,7 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
     }
 
     // create the RI (register input, D in FF)
+    bool hasConst = false;
     Gia_ManForEachRi(pGia, pObj, i) {
         // create a new GVNetId corresponding to abc's id
         GVNetId id =
@@ -283,7 +286,8 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
         _id2GVNetId[id.id] = id;
         _id2Type[id.id]    = id.type;
         // the last FF is used to connect const0
-        if (i == Gia_ManRegNum(pGia) - 1) {
+        if (Gia_ObjId(pGia, Gia_ObjFanin0(pObj)) == 0) {
+            hasConst = true;
             // FF
             _FFConst0List.push_back(id);
             // create a new GVNetId for const 0
@@ -295,6 +299,15 @@ GVNtkMgr::createNetFromAbc(char* pFileName) {
             _id2GVNetId[id_const0.id] = id_const0;
             _id2Type[id_const0.id]    = id_const0.type;
         }
+    }
+    if(!hasConst) {
+        // create a new GVNetId for const 0
+        GVNetId id_const0 = GVNetId::makeNetId(0, 0, GV_NTK_OBJ_CONST0);
+        createNet(id_const0, GV_NTK_OBJ_CONST0);
+        _ConstList.push_back(id_const0);
+        // map
+        _id2GVNetId[id_const0.id] = id_const0;
+        _id2Type[id_const0.id]    = id_const0.type;
     }
 
     // create the RO (register output, Q in FF)
