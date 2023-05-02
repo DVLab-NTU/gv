@@ -52,22 +52,21 @@ enum GVCmdOptionError
     GV_CMD_OPT_FOPEN_FAIL = 3,
 };
 
-const unordered_set<GVCmdType> _setupMode{
-    GV_CMD_TYPE_REVEALED, GV_CMD_TYPE_COMMON, GV_CMD_TYPE_NETWORK, GV_CMD_TYPE_ABC,
-    GV_CMD_TYPE_MOD,      GV_CMD_TYPE_BDD,    GV_CMD_TYPE_ITP};
+const unordered_set<GVCmdType> _setupMode{GV_CMD_TYPE_REVEALED, GV_CMD_TYPE_COMMON, GV_CMD_TYPE_NETWORK,
+                                          GV_CMD_TYPE_ABC,      GV_CMD_TYPE_MOD,    GV_CMD_TYPE_BDD};
 
-const unordered_set<GVCmdType> _vrfMode{GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE,
-                                        GV_CMD_TYPE_COMMON, GV_CMD_TYPE_MOD, GV_CMD_TYPE_PROVE};
+const unordered_set<GVCmdType> _vrfMode{GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON,
+                                        GV_CMD_TYPE_MOD,    GV_CMD_TYPE_PROVE,    GV_CMD_TYPE_ITP};
 
-#define GV_COMMAND(cmd, type)                                                                      \
-    class cmd : public GVCmdExec                                                                   \
-    {                                                                                              \
-        public:                                                                                    \
-            cmd() : GVCmdExec(type) {}                                                             \
-            ~cmd() {}                                                                              \
-            GVCmdExecStatus exec(const string&);                                                   \
-            void            usage(const bool& = false) const;                                      \
-            void            help() const;                                                          \
+#define GV_COMMAND(cmd, type)                                                                                          \
+    class cmd : public GVCmdExec                                                                                       \
+    {                                                                                                                  \
+        public:                                                                                                        \
+            cmd() : GVCmdExec(type) {}                                                                                 \
+            ~cmd() {}                                                                                                  \
+            GVCmdExecStatus exec(const string&);                                                                       \
+            void            usage(const bool& = false) const;                                                          \
+            void            help() const;                                                                              \
     };
 
 class GVCmdExec
