@@ -18,39 +18,21 @@ static SATMgr* satMgr = new SATMgr();
 
 bool
 GVinitItpCmd() {
-    return (gvCmdMgr->regCmd("SATVerify ITP", 4, 3, new SATVerifyItpCmd) /* && */
-            /* gvCmdMgr->regCmd("SATVerify BMC", 4, 3, new SATVerifyBmcCmd) */);
+    return (gvCmdMgr->regCmd("SATVerify ITP", 4, 3, new SATVerifyItpCmd) &&
+            gvCmdMgr->regCmd("SATVerify BMC", 4, 3, new SATVerifyBmcCmd));
 }
-
-// static bool
-// valid() {
-//     V3NtkHandler* const handler = v3Handler.getCurHandler();
-
-//     if (!handler) gvMsg(MSG_WAR) << "Design does not exist !!!" << endl;
-//     else if (handler->getNtk()->getModuleSize())
-//         gvMsg(MSG_WAR) << "Design has not been flattened !!!" << endl;
-//     else if (dynamic_cast<const V3BvNtk*>(handler->getNtk()))
-//         gvMsg(GV_MSG_ERR) << "Current Network is NOT an AIG Ntk (try \"blast ntk\" first)!!" <<
-//         endl;
-//     else return true;
-//     return false;
-// }
 
 //----------------------------------------------------------------------
 //    SATVerify ITP < -Netid <netId> | -Output <outputIndex> > >
 //----------------------------------------------------------------------
 GVCmdExecStatus
 SATVerifyItpCmd::exec(const string& option) {
-    // if (!valid()) return GV_CMD_EXEC_ERROR;
-
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
     if (options.size() < 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
     if (options.size() > 2) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
 
-    // V3NtkHandler* const handler = v3Handler.getCurHandler();
-    // V3Ntk* const        ntk     = handler->getNtk();
     bool isNet = false;
 
     if (myStrNCmp("-Netid", options[0], 2) == 0) isNet = true;
@@ -73,10 +55,10 @@ SATVerifyItpCmd::exec(const string& option) {
         }
         netId = gvNtkMgr->getOutput(num);
     }
-    // get po's input, since the po is actually a redundant node and should be removed
+    // get PO's input, since the PO is actually a redundant node and should be removed
     GVNetId redundantNode = gvNtkMgr->getGVNetId(netId.id);
-    GVNetId monitor = gvNtkMgr->getInputNetId(redundantNode, 0);
-    satMgr->verifyPropertyItp(gvNtkMgr->getNetNameFromId(netId.id), monitor);
+    GVNetId monitor       = gvNtkMgr->getInputNetId(redundantNode, 0);
+    satMgr->verifyPropertyItp(gvNtkMgr->getNetNameFromId(monitor.id), monitor);
 
     return GV_CMD_EXEC_DONE;
 }
@@ -95,57 +77,51 @@ SATVerifyItpCmd::help() const {
 // //----------------------------------------------------------------------
 // //    SATVerify BMC < -Netid <netId> | -Output <outputIndex> > >
 // //----------------------------------------------------------------------
-// GVCmdExecStatus
-// SATVerifyBmcCmd::exec(const string& option) {
-//     if (!valid()) return CMD_EXEC_ERROR;
+GVCmdExecStatus
+SATVerifyBmcCmd::exec(const string& option) {
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-//     vector<string> options;
-//     GVCmdExec::lexOptions(option, options);
+    if (options.size() < 2) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (options.size() > 2) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
 
-//     if (options.size() < 2) return GVCmdExec::errorOption(CMD_OPT_MISSING, "");
-//     if (options.size() > 2) return GVCmdExec::errorOption(CMD_OPT_EXTRA, options[2]);
+    bool isNet = false;
 
-//     V3NtkHandler* const handler = v3Handler.getCurHandler();
-//     V3Ntk* const        ntk     = handler->getNtk();
-//     bool                isNet   = false;
+    if (myStrNCmp("-Netid", options[0], 2) == 0) isNet = true;
+    else if (myStrNCmp("-Output", options[0], 2) == 0) isNet = false;
+    else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-//     if (v3StrNCmp("-Netid", options[0], 2) == 0) isNet = true;
-//     else if (v3StrNCmp("-Output", options[0], 2) == 0) isNet = false;
-//     else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    int     num = 0;
+    GVNetId netId;
+    if (!myStr2Int(options[1], num) || (num < 0)) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+    if (isNet) {
+        if ((unsigned)num >= gvNtkMgr->getNetSize()) {
+            gvMsg(GV_MSG_ERR) << "Net with Id " << num << " does NOT Exist in Current Ntk !!" << endl;
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+        }
+        netId = GVNetId::makeNetId(num);
+    } else {
+        if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
+            gvMsg(GV_MSG_ERR) << "Output with Index " << num << " does NOT Exist in Current Ntk !!" << endl;
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
+        }
+        netId = gvNtkMgr->getOutput(num);
+    }
+    // get PO's input, since the PO is actually a redundant node and should be removed
+    GVNetId redundantNode = gvNtkMgr->getGVNetId(netId.id);
+    GVNetId monitor       = gvNtkMgr->getInputNetId(redundantNode, 0);
+    satMgr->verifyPropertyBmc(gvNtkMgr->getNetNameFromId(monitor.id), monitor);
 
-//     int     num = 0;
-//     V3NetId netId;
-//     if (!v3Str2Int(options[1], num) || (num < 0))
-//         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-//     if (isNet) {
-//         if ((unsigned)num >= ntk->getNetSize()) {
-//             gvMsg(GV_MSG_ERR) << "Net with Id " << num << " does NOT Exist in Current Ntk !!" <<
-//             endl; return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-//         }
-//         netId = V3NetId::makeNetId(num);
-//     } else {
-//         if ((unsigned)num >= ntk->getOutputSize()) {
-//             gvMsg(GV_MSG_ERR) << "Output with Index " << num << " does NOT Exist in Current Ntk
-//             !!"
-//                          << endl;
-//             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-//         }
-//         netId = ntk->getOutput(num);
-//     }
+    return GV_CMD_EXEC_DONE;
+}
 
-//     satMgr->verifyPropertyBmc(handler->getNetNameOrFormedWithId(netId), netId);
+void
+SATVerifyBmcCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: SATVerify BMC < -Netid <netId> | -Output < outputIndex >> " << endl;
+}
 
-//     return GV_CMD_EXEC_DONE;
-// }
-
-// void
-// SATVerifyBmcCmd::usage(const bool& verbose) const {
-//     gvMsg(GV_MSG_IFO) << "Usage: SATVerify BMC < -Netid <netId> | -Output <outputIndex> >" <<
-//     endl;
-// }
-
-// void
-// SATVerifyBmcCmd::help() const {
-//     cout << setw(20) << left << "SATVerify BMC:"
-//          << "check the monitor by bounded model checking" << endl;
-// }
+void
+SATVerifyBmcCmd::help() const {
+    cout << setw(20) << left << "SATVerify BMC:"
+         << "check the monitor by bounded model checking" << endl;
+}

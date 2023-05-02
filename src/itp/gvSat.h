@@ -10,8 +10,8 @@
 #define GV_SAT_H
 
 #include "SolverV.h"
+#include "gvBitVec.h"
 #include "gvNtk.h"
-#include "v3BitVec.h"
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -41,7 +41,7 @@ class GVSatSolver
 
         // Network to Solver Functions
         const size_t        getFormula(const GVNetId&, const uint32_t&);
-        const V3BitVecX     getDataValue(const GVNetId&, const uint32_t&) const;
+        const GVBitVecX     getDataValue(const GVNetId&, const uint32_t&) const;
         const bool          getDataValue(const size_t&) const;
         // Variable Interface Functions
         inline const size_t reserveFormula() { return getPosVar(newVar()); }

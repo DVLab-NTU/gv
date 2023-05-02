@@ -15,6 +15,6 @@
 // Classes for Prove package commands
 // ============================================================================
 GV_COMMAND(SATVerifyItpCmd, GV_CMD_TYPE_ITP);
-// GV_COMMAND(SATVerifyBmcCmd, GV_CMD_TYPE_ITP);
+GV_COMMAND(SATVerifyBmcCmd, GV_CMD_TYPE_ITP);
 
 #endif

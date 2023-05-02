@@ -61,22 +61,13 @@ GVSatSolver::assertProperty(const size_t& var, const bool& invert) {
 
 void
 GVSatSolver::assumeProperty(const GVNetId& id, const bool& invert, const uint32_t& depth) {
-    //  assert(_ntk->validNetId(id));
-    //  assert(1 == _ntk->getNetWidth(id));
     const Var var = getVerifyData(id, depth);
-    //  assert(var);
-    //_assump.push(mkLit(var, invert ^ isGVNetInverted(id)));
-    // _assump.push(mkLit(var, invert ^ id.fanin0Cp));
     _assump.push(mkLit(var, invert ^ id.cp));
 }
 
 void
 GVSatSolver::assertProperty(const GVNetId& id, const bool& invert, const uint32_t& depth) {
-    //  assert(_ntk->validNetId(id));
-    //  assert(1 == _ntk->getNetWidth(id));
     const Var var = getVerifyData(id, depth);
-    //  assert(var);
-    // _solver->addUnit(mkLit(var, invert ^ isGVNetInverted(id)));
     _solver->addUnit(mkLit(var, invert ^ id.cp));
 }
 
@@ -97,12 +88,11 @@ GVSatSolver::assump_solve() {
     return result;
 }
 
-const V3BitVecX
+const GVBitVecX
 GVSatSolver::getDataValue(const GVNetId& id, const uint32_t& depth) const {
     Var       var = getVerifyData(id, depth);
-    // //  assert(var);
-    uint32_t  i, width = 1; //width = _ntk->getNetWidth(id)
-    V3BitVecX value(width);
+    uint32_t  i, width = 1;
+    GVBitVecX value(width);
     if (isGVNetInverted(id)) {
         for (i = 0; i < width; ++i)
             if (gv_l_True == _solver->model[var + i]) value.set0(i);
@@ -123,9 +113,6 @@ GVSatSolver::getDataValue(const size_t& var) const {
 const size_t
 GVSatSolver::getFormula(const GVNetId& id, const uint32_t& depth) {
     Var var = getVerifyData(id, depth);
-    //  assert(var);
-    //  assert(!isNegFormula(getPosVar(var)));
-    // return (isGVNetInverted(id) ? getNegVar(var) : getPosVar(var));
     return (id.fanin0Cp ? getNegVar(var) : getPosVar(var));
 }
 
@@ -147,8 +134,6 @@ GVSatSolver::newVar() {
 
 const Var
 GVSatSolver::getVerifyData(const GVNetId& id, const uint32_t& depth) const {
-    //  assert(_ntk->validNetId(id));
-    // if (depth >= _ntkData[getGVNetIndex(id)].size()) return 0;
     if (depth >= _ntkData[getGVNetIndex(id)].size()) return 0;
     else return _ntkData[getGVNetIndex(id)][depth];
 }
@@ -156,7 +141,6 @@ GVSatSolver::getVerifyData(const GVNetId& id, const uint32_t& depth) const {
 void
 GVSatSolver::add_FALSE_Formula(const GVNetId& out, const uint32_t& depth) {
     const uint32_t index = getGVNetIndex(out);
-    //  assert(depth == _ntkData[index].size());
     _ntkData[index].push_back(newVar());
     _solver->addUnit(mkLit(_ntkData[index].back(), true));
 }
@@ -164,7 +148,6 @@ GVSatSolver::add_FALSE_Formula(const GVNetId& out, const uint32_t& depth) {
 void
 GVSatSolver::add_PI_Formula(const GVNetId& out, const uint32_t& depth) {
     const uint32_t index = getGVNetIndex(out);
-    //  assert(depth == _ntkData[index].size());
     _ntkData[index].push_back(newVar());
 }
 
@@ -178,7 +161,6 @@ GVSatSolver::add_FF_Formula(const GVNetId& out, const uint32_t& depth) {
         const GVNetId in1  = _ntk->getInputNetId(out, 0);
         const Var     var1 = getVerifyData(in1, depth - 1);
 
-        // if (isGVNetInverted(in1)) {
         if (out.fanin0Cp) {
             // a <-> b
             _ntkData[index].push_back(newVar());
@@ -207,19 +189,12 @@ GVSatSolver::add_AND_Formula(const GVNetId& out, const uint32_t& depth) {
 
     const Var&    var = _ntkData[index].back();
     // Build AND I/O Relation
-    const GVNetId in1 = _ntk->getInputNetId(out, 0);
-    //  assert(_ntk->validNetId(in1));
-    const GVNetId in2 = _ntk->getInputNetId(out, 1);
-    //  assert(_ntk->validNetId(in2));
+    const GVNetId in1  = _ntk->getInputNetId(out, 0);
+    const GVNetId in2  = _ntk->getInputNetId(out, 1);
     const Var     var1 = getVerifyData(in1, depth);
-    //  assert(var1);
     const Var     var2 = getVerifyData(in2, depth);
-    //  assert(var2);
 
     Lit y = mkLit(var);
-    // Lit a = mkLit(var1, isGVNetInverted(in1));
-    // Lit b = mkLit(var2, isGVNetInverted(in2));
-
     Lit a = mkLit(var1, out.fanin0Cp);
     Lit b = mkLit(var2, out.fanin1Cp);
 
@@ -243,68 +218,36 @@ GVSatSolver::add_AND_Formula(const GVNetId& out, const uint32_t& depth) {
 void
 GVSatSolver::addBoundedVerifyData(const GVNetId& id, const uint32_t& depth) {
     if (existVerifyData(id, depth)) return;
-    // cout << " --- > Enter addBoundedVerifyDataRecursively : \n";
     addBoundedVerifyDataRecursively(id, depth);
 }
 
 void
 GVSatSolver::addBoundedVerifyDataRecursively(const GVNetId& id, const uint32_t& depth) {
-    // assert( _ntk->validNetId(id) );
     const GV_Ntk_Type_t type = gvNtkMgr->getGateType(id);
-    // cout << " Current ID " << id.id << " --- " << " Type : " << type << endl;
     if (existVerifyData(id, depth)) return;
-    //  assert(type < V3_XD);
-    // if (V3_PIO >= type) add_PI_Formula(id, depth);
     if (GV_NTK_OBJ_PI == type) add_PI_Formula(id, depth);
     else if (GV_NTK_OBJ_FF_CS == type || GV_NTK_OBJ_FF_NS == type) {
         uint32_t newDepth = depth;
         if (depth) {
             if (GV_NTK_OBJ_FF_NS == type) newDepth -= 1;
-            // addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth - 1);
             addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), newDepth);
         }
-        // if (!depth && GV_NTK_OBJ_FF_CS == type) {
-        //     addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth);
-        // }
         add_FF_Formula(id, depth);
     } else if (GV_NTK_OBJ_AIG >= type) {
-        if (GV_NTK_OBJ_PO == type) {
-            addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth);
-            add_FF_Formula(id, depth);
-        } else if (GV_NTK_OBJ_AIG == type) {
+        // if (GV_NTK_OBJ_PO == type) {
+        //     addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth);
+        //     add_FF_Formula(id, depth);
+        // } else
+        if (GV_NTK_OBJ_AIG == type) {
             addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 0), depth);
             addBoundedVerifyDataRecursively(_ntk->getInputNetId(id, 1), depth);
             add_AND_Formula(id, depth);
         } else {
-            // assert(AIG_FALSE == type);
             add_FALSE_Formula(id, depth);
         }
     } else {
         assert(0);
     }
-    // Reference Code
-    /* assert( _ntk->validNetId(id) );
-       if( existVerifyData(id,depth) ) return;
-       const V3GateType type = _ntk->getGateType(id); assert(type < V3_XD);
-       if( V3_PIO >= type ) add_PI_Formula(id,depth);
-       else if( V3_FF == type ) {
-          if(depth) { addBoundedVerifyDataRecursively(_ntk->getInputNetId(id,0), depth-1); }
-          add_FF_Formula(id, depth);
-       }
-       else if(AIG_FALSE >= type) {
-          if(AIG_NODE == type) {
-             addBoundedVerifyDataRecursively(_ntk->getInputNetId(id,0), depth);
-             addBoundedVerifyDataRecursively(_ntk->getInputNetId(id,1), depth);
-             add_AND_Formula(id,depth);
-          }
-          else {
-             assert(AIG_FALSE == type);
-             add_FALSE_Formula(id,depth);
-          }
-       }
-       else {
-          assert(0);
-       } */
 }
 
 const bool
