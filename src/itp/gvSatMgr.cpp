@@ -113,9 +113,9 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
     uint32_t i = 0, k = 0;
     gvSatSolver->addBoundedVerifyData(I, i);
     gvSatSolver->assumeProperty(I, false, i);
-    gvSatSolver->addBoundedVerifyData(monitor, i);
+    gvSatSolver->addBoundedVerifyData(gvNtkMgr->getInputNetId(monitor, 0), i);
     // gvSatSolver->assumeProperty(monitor, false, i);
-    gvSatSolver->assumeProperty(monitor, false, i);
+    // gvSatSolver->assumeProperty(monitor, false, i);
     // gvSatSolver->assumeProperty(monitor, true, i);
     // gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0), false,
     // i);
@@ -129,7 +129,7 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
     /* ====== Above code has passed the testcases (a.v, c.v, small.v) ===== */
 
     num_clauses = getNumClauses();
-    gvSatSolver->assertProperty(monitor, true, i);
+    gvSatSolver->assertProperty(gvNtkMgr->getInputNetId(monitor, 0), true, i);
     for (size_t j = 0; j < gvNtkMgr->getFFSize(); ++j) {
         gvSatSolver->addBoundedVerifyData(gvNtkMgr->getFF(j), i);
         mapVar2Net(gvSatSolver->getVerifyData(gvNtkMgr->getFF(j), i),
@@ -167,7 +167,7 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
     //    ( ex. addedBoundedVerifyData(), assertProperty() are called )
     for (; i < pRes.getMaxDepth(); ++i) {
         // perfrom BMC
-        gvSatSolver->addBoundedVerifyData(monitor, i);
+        gvSatSolver->addBoundedVerifyData(gvNtkMgr->getInputNetId(monitor, 0), i);
         gvSatSolver->assumeRelease();
         // gvSatSolver->assumeProperty(monitor, false, i);
         gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0),
@@ -207,8 +207,8 @@ SATMgr::itpUbmc(const GVNetId& monitor, SatProofRes& pRes) {
             if (gvSatSolver->assump_solve()) {
 
                 // gvSatSolver->assertProperty(monitor, true, i);
-                gvSatSolver->assumeProperty(gvNtkMgr->getInputNetId(monitor, 0),
-                                            false, i);
+                gvSatSolver->assertProperty(gvNtkMgr->getInputNetId(monitor, 0),
+                                            true, i);
                 for (size_t j = num_clauses; j < getNumClauses(); ++j) {
                     markOffsetClause(j);
                 }
@@ -713,6 +713,6 @@ SatProofRes::reportCex(const GVNetId&        monitor,
             }
         }
         gvMsg(GV_MSG_IFO) << endl;
-        assert(_satSolver->existVerifyData(monitor, i));
+        assert(_satSolver->existVerifyData(gvNtkMgr->getInputNetId(monitor, 0), i));
     }
 }

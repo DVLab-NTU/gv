@@ -77,7 +77,7 @@ GVSatSolver::assertProperty(const GVNetId& id, const bool& invert, const uint32_
     const Var var = getVerifyData(id, depth);
     //  assert(var);
     // _solver->addUnit(mkLit(var, invert ^ isGVNetInverted(id)));
-    _solver->addUnit(mkLit(var, invert ^ id.fanin0Cp));
+    _solver->addUnit(mkLit(var, invert ^ id.cp));
 }
 
 const bool
@@ -243,7 +243,7 @@ GVSatSolver::add_AND_Formula(const GVNetId& out, const uint32_t& depth) {
 void
 GVSatSolver::addBoundedVerifyData(const GVNetId& id, const uint32_t& depth) {
     if (existVerifyData(id, depth)) return;
-    cout << " --- > Enter addBoundedVerifyDataRecursively : \n";
+    // cout << " --- > Enter addBoundedVerifyDataRecursively : \n";
     addBoundedVerifyDataRecursively(id, depth);
 }
 
@@ -251,7 +251,7 @@ void
 GVSatSolver::addBoundedVerifyDataRecursively(const GVNetId& id, const uint32_t& depth) {
     // assert( _ntk->validNetId(id) );
     const GV_Ntk_Type_t type = gvNtkMgr->getGateType(id);
-    cout << " Current ID " << id.id << " --- " << " Type : " << type << endl;
+    // cout << " Current ID " << id.id << " --- " << " Type : " << type << endl;
     if (existVerifyData(id, depth)) return;
     //  assert(type < V3_XD);
     // if (V3_PIO >= type) add_PI_Formula(id, depth);

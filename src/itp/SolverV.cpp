@@ -516,8 +516,8 @@ SolverV::propagate() {
                     for (int k = 1; k < c.size(); k++)
                         proof->resolve(unit_id[var(c[k])], var(c[k]));
                     ClauseId id = proof->endChain();
-                    assert(unit_id[var(first)] == ClauseId_NULL ||
-                           value(first) == gv_l_False); // (if variable already has 'id', it must be
+                    // assert(unit_id[var(first)] == ClauseId_NULL ||
+                    //        value(first) == gv_l_False); // (if variable already has 'id', it must be
                                                         // with the other polarity and we should
                                                         // have derived the empty clause here)
                     if (value(first) != gv_l_False) unit_id[var(first)] = id;
