@@ -73,8 +73,9 @@ SATVerifyItpCmd::exec(const string& option) {
         }
         netId = gvNtkMgr->getOutput(num);
     }
-    // debug
-    GVNetId monitor = gvNtkMgr->getGVNetId(netId.id);
+    // get po's input, since the po is actually a redundant node and should be removed
+    GVNetId redundantNode = gvNtkMgr->getGVNetId(netId.id);
+    GVNetId monitor = gvNtkMgr->getInputNetId(redundantNode, 0);
     satMgr->verifyPropertyItp(gvNtkMgr->getNetNameFromId(netId.id), monitor);
 
     return GV_CMD_EXEC_DONE;
