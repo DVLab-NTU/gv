@@ -72,7 +72,6 @@ SATMgr::indBmc(const GVNetId& monitor, SatProofRes& pRes) {
     gvSatSolver->assertProperty(I, false, i);
     // Start Bounded Model Checking
     for (uint32_t j = pRes.getMaxDepth(); i < j; ++i) {
-        cout << " Depth : " << i << endl;
         // Add time frame expanded circuit to SAT Solver
         gvSatSolver->addBoundedVerifyData(monitor, i);
         gvSatSolver->assumeRelease();
