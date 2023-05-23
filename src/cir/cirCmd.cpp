@@ -90,7 +90,7 @@ CirReadCmd::exec(const string& option)
       }
    }
    cirMgr = new CirMgr;
-
+   cout << "start reading" << endl;
    if (!cirMgr->readCircuit(fileName)) {
       curCmd = CIRINIT;
       delete cirMgr; cirMgr = 0;

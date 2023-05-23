@@ -304,9 +304,9 @@ CirMgr::parseHeader(ifstream& cirin)
       return parseError(NUM_TOO_SMALL);
    }
    // L must = 0
-   if (_numDecl[LATCH] != 0) {
-      errMsg = "latches"; return parseError(ILLEGAL_NUM);
-   }
+   // if (_numDecl[LATCH] != 0) {
+   //    errMsg = "latches"; return parseError(ILLEGAL_NUM);
+   // }
 
    // Create lists
    _piList = new CirPiGate*[_numDecl[PI]];
@@ -346,6 +346,7 @@ bool CirMgr::parseInput(ifstream& cirin)
 // parse latch funciton, written by Andrew
 bool CirMgr::parseLatch(ifstream& cirin)
 { 
+   cout << "parse latch" << endl;
    size_t roId = _numDecl[VARS] + 1;
    for (size_t i = 0,  nRo = _numDecl[LATCH]; i < nRo; ++i, ++roId) {
       ++lineNo; colNo = 0;
@@ -462,7 +463,26 @@ bool CirMgr::parseSymbol(ifstream& cirin)
             char *n = new char[strlen(str)+1]; strcpy(n, str);
             pi->setName(n);
          }
-         // else if (type == 'l')... NOT supported yet
+         else if (type == 'l') {// ... NOT supported yet (trying to support now XD)
+            assert(type == 'l');
+            if (portId >= _numDecl[LATCH]) {
+               errMsg = "LATCH index"; errInt = portId;
+               return parseError(NUM_TOO_BIG);
+            }
+            CirRiGate *ri = _riList[portId];
+            CirRoGate *ro = _roList[portId];
+            if (ri->getName()) {
+               errMsg = "l"; errInt = portId;
+               return parseError(REDEF_SYMBOLIC_NAME);
+            }
+            if (ro->getName()) {
+               errMsg = "l"; errInt = portId;
+               return parseError(REDEF_SYMBOLIC_NAME);
+            }
+            char *n = new char[strlen(str)+1]; strcpy(n, str);
+            ri->setName(n);
+            ro->setName(n);
+         }
          else { // if (type == 'o')
             assert(type == 'o');
             if (portId >= _numDecl[PO]) {
