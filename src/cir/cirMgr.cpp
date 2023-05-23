@@ -381,16 +381,16 @@ bool CirMgr::parseOutput(ifstream& cirin)
 {
    size_t poId = _numDecl[VARS] + 1;
    for (size_t i = 0,  nPo = _numDecl[PO]; i < nPo; ++i, ++poId) {
-      ++lineNo; colNo = 0;
-      cirin.getline(buf, 1024);
-      if (cirin.eof()) { errMsg = "PO"; return parseError(MISSING_DEF); }
-      if (!checkWS(false)) return false;
+      // ++lineNo; colNo = 0;
+      // cirin.getline(buf, 1024);
+      // if (cirin.eof()) { errMsg = "PO"; return parseError(MISSING_DEF); }
+      // if (!checkWS(false)) return false;
       unsigned litId;
-      if (!checkId(litId, "PO")) return false;
+      // if (!checkId(litId, "PO")) return false;
       CirGate *gate = new CirPoGate(poId, lineNo+1, litId);
       _poList[i] = static_cast<CirPoGate*>(gate);
       _totGateList[poId] = gate;
-      if (buf[colNo] != 0) return parseError(MISSING_NEWLINE);
+      // if (buf[colNo] != 0) return parseError(MISSING_NEWLINE);
    }
 
    return true;

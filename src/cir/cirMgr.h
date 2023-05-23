@@ -19,6 +19,8 @@ using namespace std;
 // TODO: Feel free to define your own classes, variables, or functions.
 
 #include "cirDef.h"
+#include "base/abc/abc.h"
+
 
 extern CirMgr *cirMgr;
 
@@ -97,7 +99,11 @@ public:
    bool createMiter(CirMgr*, CirMgr*);
 
    static CirGate *_const0;
-
+   // --- MODIFICATION FOR SoCV HW5 (START) ---
+   void readCirFromAbc();
+   void initCir(Gia_Man_t* pGia);
+   CirGate* createGate(unsigned id, GateType type);
+   // ---  MODIFICATION FOR SoCV HW5 (END)  ---
 private:
    unsigned            _numDecl[TOT_PARSE_PORTS];
    mutable unsigned    _flag;
