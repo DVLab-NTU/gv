@@ -311,6 +311,8 @@ CirMgr::parseHeader(ifstream& cirin)
    // Create lists
    _piList = new CirPiGate*[_numDecl[PI]];
    _poList = new CirPoGate*[_numDecl[PO]];
+   _riList = new CirRiGate*[_numDecl[LATCH]];
+   _roList = new CirRoGate*[_numDecl[LATCH]];
    // +1 for const
    unsigned numTots = getNumTots();
    _totGateList = new CirGate*[numTots];
@@ -341,7 +343,38 @@ bool CirMgr::parseInput(ifstream& cirin)
    return true;
 }
 
-bool CirMgr::parseLatch(ifstream& cirin) { return true; }
+// parse latch funciton, written by Andrew
+bool CirMgr::parseLatch(ifstream& cirin)
+{ 
+   size_t roId = _numDecl[VARS] + 1;
+   for (size_t i = 0,  nRo = _numDecl[LATCH]; i < nRo; ++i, ++roId) {
+      ++lineNo; colNo = 0;
+      cirin.getline(buf, 1024);
+      if (cirin.eof()) { errMsg = "RO"; return parseError(MISSING_DEF); }
+      if (!checkWS(false)) return false;
+      unsigned litId;
+      CirGate *gate = checkGate(litId, LATCH, "LATCH");
+      _roList[i] = static_cast<CirRoGate*>(gate);
+      _totGateList[litId/2] = gate;
+      if (buf[colNo] != 0) return parseError(MISSING_NEWLINE);
+   }
+
+   size_t riId = _numDecl[VARS] + 1;
+   for (size_t i = 0,  nRi = _numDecl[LATCH]; i < nRi; ++i, ++riId) {
+      ++lineNo; colNo = 0;
+      cirin.getline(buf, 1024);
+      if (cirin.eof()) { errMsg = "RI"; return parseError(MISSING_DEF); }
+      if (!checkWS(false)) return false;
+      unsigned litId;
+      if (!checkId(litId, "RI")) return false;
+      CirGate *gate = new CirRiGate(roId, lineNo+1, litId);
+      _riList[i] = static_cast<CirRiGate*>(gate);
+      _totGateList[riId] = gate;
+      if (buf[colNo] != 0) return parseError(MISSING_NEWLINE);
+   }
+
+   return true;
+}
 
 bool CirMgr::parseOutput(ifstream& cirin)
 {
@@ -479,7 +512,7 @@ CirMgr::checkId(unsigned& litId, const string& err)
    return true;
 }
 
-// For PI and AIG gates only!!
+// For PI and AIG and LATCH(Ro) gates only!!
 CirGate*
 CirMgr::checkGate(unsigned& litId, ParsePorts type, const string& err)
 {
@@ -499,6 +532,7 @@ CirMgr::checkGate(unsigned& litId, ParsePorts type, const string& err)
    switch (type) {
       case PI: gate = new CirPiGate(litId/2, lineNo+1); break;
       case AIG: gate = new CirAigGate(litId/2, lineNo+1); break;
+      case LATCH: gate = new CirRoGate(litId/2, lineNo+1); break;
       default: cerr << "Error: Unknown gate type (" << type << ")!!\n";
                exit(-1);
    }
@@ -540,6 +574,13 @@ CirPoGate::genConnections()
 }
 
 void
+CirRiGate::genConnections()
+{
+   _in0 = cirMgr->checkConnectedGate(_in0());
+   cirMgr->getFanouts(_in0.gateId()).push_back(this);
+}
+
+void
 CirAigGate::genConnections()
 {
    _in0 = cirMgr->checkConnectedGate(_in0());
@@ -565,7 +606,24 @@ CirPiGate::genDfsList(GateList& gateList)
 }
 
 void
+CirRoGate::genDfsList(GateList& gateList)
+{
+   setToGlobalRef();
+   gateList.push_back(this);
+}
+
+void
 CirPoGate::genDfsList(GateList& gateList)
+{
+   setToGlobalRef();
+   CirGate* g = _in0.gate();
+   if (!g->isGlobalRef())
+      g->genDfsList(gateList);
+   gateList.push_back(this);
+}
+
+void
+CirRiGate::genDfsList(GateList& gateList)
 {
    setToGlobalRef();
    CirGate* g = _in0.gate();

@@ -1,3 +1,4 @@
+gvModMgr.o: gvModMgr.cpp gvModMgr.h ../../include/gvCmdMgr.h
 gvModCmd.o: gvModCmd.cpp gvModCmd.h ../../include/gvCmdMgr.h gvModMgr.h \
  ../../include/gvAbcMgr.h ../../include/base/abc/abc.h \
  ../../include/misc/vec/vec.h ../../include/misc/util/abc_global.h \
@@ -29,4 +30,3 @@ gvModCmd.o: gvModCmd.cpp gvModCmd.h ../../include/gvCmdMgr.h gvModMgr.h \
  ../../include/kernel/log.h ../../include/kernel/rtlil.h \
  ../../include/kernel/constids.inc ../../include/kernel/register.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h
-gvModMgr.o: gvModMgr.cpp gvModMgr.h ../../include/gvCmdMgr.h

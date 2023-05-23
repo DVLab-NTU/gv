@@ -48,6 +48,8 @@ public:
    unsigned getNumTots() const { return _numDecl[VARS] + _numDecl[PO] + 1; }
    CirPiGate* getPi(unsigned i) const { return _piList[i]; }
    CirPoGate* getPo(unsigned i) const { return _poList[i]; }
+   CirRiGate* getRi(unsigned i) const { return _riList[i]; }
+   CirRoGate* getRo(unsigned i) const { return _roList[i]; }
    GateList& getFanouts(unsigned i) const { return _fanoutInfo[i]; }
 
    // Member functions about circuit construction
@@ -101,6 +103,8 @@ private:
    mutable unsigned    _flag;
    PiArray             _piList;
    PoArray             _poList;
+   RiArray             _riList;
+   RoArray             _roList;
    // IDs in _undefList are NOT sorted!!
    IdList              _undefList;
    // Make sure the IDs of the following lists are sorted!!

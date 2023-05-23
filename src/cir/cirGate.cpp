@@ -56,7 +56,23 @@ CirPiGate::printGate() const
 }
 
 void
+CirRoGate::printGate() const
+{
+   cout << setw(4) << left << getTypeStr() << _gid;
+   if (_name) cout << " (" << _name << ")";
+   cout << endl;
+}
+
+void
 CirPoGate::printGate() const
+{
+   cout << setw(4) << left << getTypeStr() << _gid << " " << _in0;
+   if (_name) cout << " (" << _name << ")";
+   cout << endl;
+}
+
+void
+CirRiGate::printGate() const
 {
    cout << setw(4) << left << getTypeStr() << _gid << " " << _in0;
    if (_name) cout << " (" << _name << ")";
@@ -102,7 +118,7 @@ CirGate::reportGate() const
    cout << endl;
 
    // Printing sim value
-   cout << "= Value: " << _pValue << endl;
+   // cout << "= Value: " << _pValue << endl;
 
    for (unsigned i = 0; i < w; ++i) cout << '=';
    cout << endl;

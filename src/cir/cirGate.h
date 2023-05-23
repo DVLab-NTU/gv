@@ -253,6 +253,89 @@ private:
       _in0.replace(n, inv); if (n->isUndef()) _in0.setFloat(); }
 };
 
+class CirRoGate : public CirGate
+{
+public:
+   CirRoGate(unsigned g, unsigned l, size_t i = 0)
+   : CirGate(g, l), _in0(i), _name(0) {}
+   ~CirRoGate() { if (_name) delete[]_name; }
+
+   // Basic access methods
+   GateType getType() const { return RO_GATE; }
+   string getTypeStr() const { return "RO"; }
+   CirGateV getIn0() const { return _in0; }
+   CirGate* getIn0Gate() const { return _in0.gate(); }
+   unsigned getNumFanins() const { return 1; }
+   void setName(char *s) { _name = s; }
+   char* getName() const { return _name; }
+   bool isRo() const { return true; }
+
+   // Methods about circuit construction
+   void genDfsList(vector<CirGate*>&);
+
+   // Methods about circuit simulation
+   void pSim() {
+      _pValue  = _in0.isInv()? ~(_in0.gate()->getPValue())
+               : _in0.gate()->getPValue();
+   }
+   void zInitPPattern() { _pValue = 0; } // zero initiate the simulattion value
+
+   // Printing functions
+   void printGate() const;
+
+private:
+   CirGateV    _in0;
+   char       *_name;
+
+   // Private methods about circuit optimization
+   // [Note] old must == _in0, DO NOT CHECK!
+   void replaceFanin(CirGate*, CirGate *n, bool inv) {
+      _in0.replace(n, inv); if (n->isUndef()) _in0.setFloat(); }
+};
+
+class CirRiGate : public CirGate
+{
+public:
+   CirRiGate(unsigned g, unsigned l, size_t i = 0)
+   : CirGate(g, l), _in0(i), _name(0) {}
+   ~CirRiGate() { if (_name) delete[]_name; }
+
+   // Basic access methods
+   GateType getType() const { return RI_GATE; }
+   string getTypeStr() const { return "RI"; }
+   CirGateV getIn0() const { return _in0; }
+   CirGate* getIn0Gate() const { return _in0.gate(); }
+   unsigned getNumFanins() const { return 1; }
+   void setName(char *s) { _name = s; }
+   char* getName() const { return _name; }
+   bool isRi() const { return true; }
+
+   // Methods about circuit construction
+   void genConnections();
+   void genDfsList(vector<CirGate*>&);
+
+   // Methods about circuit simulation
+   void pSim() {
+      _pValue  = _in0.isInv()? ~(_in0.gate()->getPValue())
+               : _in0.gate()->getPValue();
+   }
+
+   // Methods about circuit optimization
+   CirGateV optimize(bool, GateList&);
+
+   // Printing functions
+   void printGate() const;
+
+private:
+   CirGateV    _in0;
+   char       *_name;
+
+   // Private methods about circuit optimization
+   // [Note] old must == _in0, DO NOT CHECK!
+   void replaceFanin(CirGate*, CirGate *n, bool inv) {
+      _in0.replace(n, inv); if (n->isUndef()) _in0.setFloat(); }
+};
+
 class CirAigGate : public CirGate
 {
 public:

@@ -1,7 +1,8 @@
-proveBdd.o: proveBdd.cpp ../../include/bddMgrV.h ../../include/myHash.h \
- ../../include/bddNodeV.h ../../include/gvMsg.h ../../include/gvNtk.h \
- ../../include/gvAbcMgr.h ../../include/base/abc/abc.h \
- ../../include/misc/vec/vec.h ../../include/misc/util/abc_global.h \
+proveCmd.o: proveCmd.cpp proveCmd.h ../../include/gvCmdMgr.h \
+ ../../include/bddMgrV.h ../../include/myHash.h ../../include/bddNodeV.h \
+ ../../include/gvMsg.h ../../include/gvNtk.h ../../include/gvAbcMgr.h \
+ ../../include/base/abc/abc.h ../../include/misc/vec/vec.h \
+ ../../include/misc/util/abc_global.h \
  ../../include/misc/util/abc_namespaces.h ../../include/misc/vec/vecInt.h \
  ../../include/misc/vec/vecFlt.h ../../include/misc/vec/vecStr.h \
  ../../include/misc/vec/vecPtr.h ../../include/misc/vec/vecVec.h \
@@ -31,11 +32,10 @@ proveBdd.o: proveBdd.cpp ../../include/bddMgrV.h ../../include/myHash.h \
  ../../include/kernel/constids.inc ../../include/kernel/register.h \
  ../../include/kernel/utils.h ../../include/kernel/yosys.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h
-proveCmd.o: proveCmd.cpp proveCmd.h ../../include/gvCmdMgr.h \
- ../../include/bddMgrV.h ../../include/myHash.h ../../include/bddNodeV.h \
- ../../include/gvMsg.h ../../include/gvNtk.h ../../include/gvAbcMgr.h \
- ../../include/base/abc/abc.h ../../include/misc/vec/vec.h \
- ../../include/misc/util/abc_global.h \
+proveBdd.o: proveBdd.cpp ../../include/bddMgrV.h ../../include/myHash.h \
+ ../../include/bddNodeV.h ../../include/gvMsg.h ../../include/gvNtk.h \
+ ../../include/gvAbcMgr.h ../../include/base/abc/abc.h \
+ ../../include/misc/vec/vec.h ../../include/misc/util/abc_global.h \
  ../../include/misc/util/abc_namespaces.h ../../include/misc/vec/vecInt.h \
  ../../include/misc/vec/vecFlt.h ../../include/misc/vec/vecStr.h \
  ../../include/misc/vec/vecPtr.h ../../include/misc/vec/vecVec.h \

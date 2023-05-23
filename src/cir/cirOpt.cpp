@@ -117,6 +117,17 @@ CirPoGate::optimize(bool phase, GateList& deleteList)
 }
 
 CirGateV
+CirRiGate::optimize(bool phase, GateList& deleteList)
+{
+   setToGlobalRef();
+
+   CirGate *g0 = _in0.gate();
+   if (!g0->isGlobalRef())
+      return g0->optimize(_in0.isInv(), deleteList);
+   else return _in0;
+}
+
+CirGateV
 CirAigGate::optimize(bool phase, GateList& deleteList)
 {
    setToGlobalRef();

@@ -94,6 +94,7 @@ class GVCmdExec
 
     protected:
         void            lexOptions(const string&, vector<string>&) const;
+        bool lexSingleOption(const string&, string&, bool optional = true) const;
         GVCmdExecStatus errorOption(GVCmdOptionError err, const string& opt) const;
 
     private:

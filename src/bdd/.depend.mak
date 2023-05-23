@@ -1,3 +1,6 @@
+bddNodeV.o: bddNodeV.cpp bddNodeV.h bddMgrV.h myHash.h
+bddMgrV.o: bddMgrV.cpp bddNodeV.h bddMgrV.h myHash.h ../../include/util.h \
+ ../../include/rnGen.h ../../include/myUsage.h
 bddCmd.o: bddCmd.cpp bddCmd.h ../../include/gvCmdMgr.h bddMgrV.h myHash.h \
  bddNodeV.h ../../include/gvMsg.h ../../include/gvNtk.h \
  ../../include/gvAbcMgr.h ../../include/base/abc/abc.h \
@@ -31,6 +34,3 @@ bddCmd.o: bddCmd.cpp bddCmd.h ../../include/gvCmdMgr.h bddMgrV.h myHash.h \
  ../../include/kernel/constids.inc ../../include/kernel/register.h \
  ../../include/kernel/utils.h ../../include/kernel/yosys.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h
-bddMgrV.o: bddMgrV.cpp bddNodeV.h bddMgrV.h myHash.h ../../include/util.h \
- ../../include/rnGen.h ../../include/myUsage.h
-bddNodeV.o: bddNodeV.cpp bddNodeV.h bddMgrV.h myHash.h
