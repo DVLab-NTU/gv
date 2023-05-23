@@ -11,14 +11,14 @@
 #include "gvModMgr.h"
 
 void 
-CirMgr::readCirFromAbc() {
+CirMgr::readCirFromAbc(string fileName) {
     // TODO : Convert abc ntk to gv aig ntk
     Gia_Man_t* pGia = NULL;            // the gia pointer of abc
     Gia_Obj_t *pObj, *pObjRi, *pObjRo; // the obj element of gia
 
     // abc function parameters
     char* pFileName;
-    strcpy(pFileName, gvModMgr->getInputFileName().c_str());
+    strcpy(pFileName, fileName.c_str());
     char* pTopModule =
         NULL; // the top module can be auto detected by yosys, no need to set
     char* pDefines    = NULL;
@@ -32,6 +32,7 @@ CirMgr::readCirFromAbc() {
 
     pGia = Gia_AigerRead(pFileName, 0, fSkipStrash, 0);
 
+    // initialize the size of the containers
     initCir(pGia);
     // increment the global travel id for circuit traversing usage
     Gia_ManIncrementTravId(pGia);
@@ -40,13 +41,27 @@ CirMgr::readCirFromAbc() {
     // constant node to be as the global one
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
 
+    cout << "setting PI's" << endl;
+    // create the PI's from gia
+    Gia_ManForEachPi(pGia, pObj, i) {
+        CirGate* gate = createGate(Gia_ObjId(pGia, pObj), PI_GATE);
+        _piList[i] = static_cast<CirPiGate*>(gate);
+    }
 
-    // GVNetId id =
-    //             GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PI);
-    // createNet(id, GV_NTK_OBJ_PI);
-    // // map
-    // _id2GVNetId[id.id] = id;
-    // _id2Type[id.id]    = id.type;
+    cout << "setting PO's" << endl;
+    // create the PO
+    Gia_ManForEachPo(pGia, pObj, i) {
+        CirGate *gate = new CirPoGate(Gia_ObjId(pGia, pObj), 0);
+        _poList[i] = static_cast<CirPoGate*>(gate);
+    //   _totGateList[poId] = gate;
+        // create a new GVNetId corresponding to abc's id
+        // GVNetId id =
+        //     GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PO);
+        // createNet(id, GV_NTK_OBJ_PO);
+        // // map
+        // _id2GVNetId[id.id] = id;
+        // _id2Type[id.id]    = id.type;
+    }
 }
 
 CirGate* 
@@ -66,4 +81,11 @@ CirMgr::createGate(unsigned id, GateType type) {
 void 
 CirMgr::initCir(Gia_Man_t* pGia) {
     // TODO : Resize the list (PI/PO ...)
+    // Create lists
+    cout << "initializing..." << endl;
+   _piList = new CirPiGate*[Gia_ManPiNum(pGia)];
+   _poList = new CirPoGate*[Gia_ManPoNum(pGia)];
+   _riList = new CirRiGate*[Gia_ManRegNum(pGia)];
+   _roList = new CirRoGate*[Gia_ManRegNum(pGia)];
+   _totGateList = new CirGate*[Gia_ManObjNum(pGia)];
 }

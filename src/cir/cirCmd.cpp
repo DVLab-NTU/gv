@@ -91,13 +91,10 @@ CirReadCmd::exec(const string& option)
    }
    cirMgr = new CirMgr;
    cout << "start reading" << endl;
-   if (!cirMgr->readCircuit(fileName)) {
-      curCmd = CIRINIT;
-      delete cirMgr; cirMgr = 0;
-      return GV_CMD_EXEC_ERROR;
-   }
+   cirMgr->readCirFromAbc(fileName);
+   cout << "read done" << endl;
 
-   curCmd = CIRREAD;
+   // curCmd = CIRREAD;
 
    return GV_CMD_EXEC_DONE;
 }

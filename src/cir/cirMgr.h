@@ -100,7 +100,7 @@ public:
 
    static CirGate *_const0;
    // --- MODIFICATION FOR SoCV HW5 (START) ---
-   void readCirFromAbc();
+   void readCirFromAbc(string fileName);
    void initCir(Gia_Man_t* pGia);
    CirGate* createGate(unsigned id, GateType type);
    // ---  MODIFICATION FOR SoCV HW5 (END)  ---
