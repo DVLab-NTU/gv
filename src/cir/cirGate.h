@@ -226,6 +226,7 @@ public:
    void setName(char *s) { _name = s; }
    char* getName() const { return _name; }
    bool isPo() const { return true; }
+   void setIn0(size_t i) { _in0 = i; }
 
    // Methods about circuit construction
    void genConnections();
@@ -309,6 +310,7 @@ public:
    void setName(char *s) { _name = s; }
    char* getName() const { return _name; }
    bool isRi() const { return true; }
+   void setIn0(size_t i) { _in0 = i; }
 
    // Methods about circuit construction
    void genConnections();

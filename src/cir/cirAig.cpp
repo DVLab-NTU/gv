@@ -17,7 +17,8 @@ CirMgr::readCirFromAbc(string fileName) {
     Gia_Obj_t *pObj, *pObjRi, *pObjRo; // the obj element of gia
 
     // abc function parameters
-    char* pFileName;
+    char* pFileName = new char[100];
+    cout << "filename = " << fileName << endl;
     strcpy(pFileName, fileName.c_str());
     char* pTopModule =
         NULL; // the top module can be auto detected by yosys, no need to set
@@ -41,27 +42,62 @@ CirMgr::readCirFromAbc(string fileName) {
     // constant node to be as the global one
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
 
-    cout << "setting PI's" << endl;
-    // create the PI's from gia
-    Gia_ManForEachPi(pGia, pObj, i) {
-        CirGate* gate = createGate(Gia_ObjId(pGia, pObj), PI_GATE);
-        _piList[i] = static_cast<CirPiGate*>(gate);
+    // traverse the obj's in topological order
+    Gia_ManForEachObj(pGia, pObj, i) {
+        // cout << "oo " << Gia_ObjIsPi(pGia, pObj) << " id " << Gia_ObjId(pGia, pObj) << endl;
+        unsigned iPi = 0, iPo = 0, iRi = 0, iRo = 0;
+        if(Gia_ObjIsPi(pGia, pObj)) {
+            CirPiGate* gate = new CirPiGate(Gia_ObjId(pGia, pObj), 0);
+            _piList[iPi++] = gate;
+            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
+        }
+        else if(Gia_ObjIsPo(pGia, pObj)) {
+            Gia_ObjSetTravIdCurrent(pGia, pObj);
+            CirPoGate *gate = new CirPoGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+            gate->setIn0(size_t(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)))));
+            _poList[iPo++] = gate;
+            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
+        }
+        else if(Gia_ObjIsAnd(pObj)) {
+            Gia_ObjSetTravIdCurrent(pGia, pObj);
+            CirAigGate *gate = new CirAigGate(Gia_ObjId(pGia, pObj), 0);
+            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
+            gate->setIn0(size_t(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)))));
+            gate->setIn1(size_t(getGate(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)))));
+        }
+        else if(Gia_ObjIsRo(pGia, pObj)) {
+            // cout << "I am ro" << endl;
+            CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
+            _roList[iRo++] = gate;
+            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
+        }
+        else if(Gia_ObjIsRi(pGia, pObj)) {
+           Gia_ObjSetTravIdCurrent(pGia, pObj);
+            CirRiGate *gate = new CirRiGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+            gate->setIn0(size_t(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)))));
+            _riList[iPo++] = gate;
+            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
+        }
+        else if(Gia_ObjIsConst0(pObj)) {
+            cout << "I am const0 " << Gia_ObjId(pGia, pObj) <<  endl;
+        }
+        else {
+            cout << "not defined gate type" << endl;
+        }
     }
 
-    cout << "setting PO's" << endl;
-    // create the PO
-    Gia_ManForEachPo(pGia, pObj, i) {
-        CirGate *gate = new CirPoGate(Gia_ObjId(pGia, pObj), 0);
-        _poList[i] = static_cast<CirPoGate*>(gate);
-    //   _totGateList[poId] = gate;
-        // create a new GVNetId corresponding to abc's id
-        // GVNetId id =
-        //     GVNetId::makeNetId(Gia_ObjId(pGia, pObj), 0, GV_NTK_OBJ_PO);
-        // createNet(id, GV_NTK_OBJ_PO);
-        // // map
-        // _id2GVNetId[id.id] = id;
-        // _id2Type[id.id]    = id.type;
-    }
+
+    // genConnections();
+    genDfsList();
+    // checkFloatList();
+    // checkUnusedList();
+
+    // generate the aig connections
+    // Gia_ManForEachObj(pGia, pObj, i) {
+    //     if(Gia_ObjIsTravIdCurrent(pGia, pObj)) continue;
+    //     Gia_ObjSetTravIdCurrent(pGia, pObj);
+    //     // use genconnection of each class to connect the items 
+    // }
 }
 
 CirGate* 
@@ -83,9 +119,14 @@ CirMgr::initCir(Gia_Man_t* pGia) {
     // TODO : Resize the list (PI/PO ...)
     // Create lists
     cout << "initializing..." << endl;
-   _piList = new CirPiGate*[Gia_ManPiNum(pGia)];
-   _poList = new CirPoGate*[Gia_ManPoNum(pGia)];
-   _riList = new CirRiGate*[Gia_ManRegNum(pGia)];
-   _roList = new CirRoGate*[Gia_ManRegNum(pGia)];
-   _totGateList = new CirGate*[Gia_ManObjNum(pGia)];
+    _numDecl[PI] = Gia_ManPiNum(pGia);
+   _piList = new CirPiGate*[_numDecl[PI]];
+   _numDecl[PO] = Gia_ManPoNum(pGia);
+   _poList = new CirPoGate*[_numDecl[PO]];
+   _numDecl[LATCH] = Gia_ManRegNum(pGia);
+   _riList = new CirRiGate*[_numDecl[LATCH]];
+   _roList = new CirRoGate*[_numDecl[LATCH]];
+   _numDecl[VARS] = Gia_ManObjNum(pGia);
+   _totGateList = new CirGate*[_numDecl[VARS]];
+   _numDecl[AIG] = Gia_ManAndNum(pGia);
 }

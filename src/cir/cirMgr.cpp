@@ -589,24 +589,25 @@ CirMgr::genConnections()
 void
 CirPoGate::genConnections()
 {
-   _in0 = cirMgr->checkConnectedGate(_in0());
-   cirMgr->getFanouts(_in0.gateId()).push_back(this);
+   // _in0 = cirMgr->checkConnectedGate(_in0());
+   // cout << "_in0 = " << _in0 << endl;
+   // cirMgr->getFanouts(_in0.gateId()).push_back(this);
 }
 
 void
 CirRiGate::genConnections()
 {
    _in0 = cirMgr->checkConnectedGate(_in0());
-   cirMgr->getFanouts(_in0.gateId()).push_back(this);
+   // cirMgr->getFanouts(_in0.gateId()).push_back(this);
 }
 
 void
 CirAigGate::genConnections()
 {
-   _in0 = cirMgr->checkConnectedGate(_in0());
-   cirMgr->getFanouts(_in0.gateId()).push_back(this);
-   _in1 = cirMgr->checkConnectedGate(_in1());
-   cirMgr->getFanouts(_in1.gateId()).push_back(this);
+   // _in0 = cirMgr->checkConnectedGate(_in0());
+   // cirMgr->getFanouts(_in0.gateId()).push_back(this);
+   // _in1 = cirMgr->checkConnectedGate(_in1());
+   // cirMgr->getFanouts(_in1.gateId()).push_back(this);
 }
 
 void
@@ -748,6 +749,9 @@ CirMgr::printSummary() const
    tot += _numDecl[PO];
    cout << "  " << setw(7) << left << "PO"
         << setw(7) << right << _numDecl[PO] << endl;
+   tot += _numDecl[LATCH];
+   cout << "  " << setw(7) << left << "LATCH"
+        << setw(7) << right << _numDecl[LATCH] << endl;
    tot += _numDecl[AIG];
    cout << "  " << setw(7) << left << "AIG"
         << setw(7) << right << _numDecl[AIG] << endl;
