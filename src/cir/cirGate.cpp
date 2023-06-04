@@ -14,6 +14,7 @@
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "util.h"
+#include "base/abc/abc.h"
 
 using namespace std;
 
@@ -191,3 +192,31 @@ CirGate::reportFanoutRecur(int level, int repLevel, bool isInv) const
    }
 }
 
+// set in0 by the cirgate
+void
+CirPoGate::setIn0(CirGate* faninGate, bool inv) {
+   CirGateV gateV = size_t(faninGate);
+   gateV.setInv(inv);
+   setIn0(gateV());
+}
+
+void
+CirRiGate::setIn0(CirGate* faninGate, bool inv) {
+   CirGateV gateV = size_t(faninGate);
+   gateV.setInv(inv);
+   setIn0(gateV());
+}
+
+void
+CirAigGate::setIn0(CirGate* faninGate, bool inv) {
+   CirGateV gateV = size_t(faninGate);
+   gateV.setInv(inv);
+   setIn0(gateV());
+}
+
+void
+CirAigGate::setIn1(CirGate* faninGate, bool inv) {
+   CirGateV gateV = size_t(faninGate);
+   gateV.setInv(inv);
+   setIn1(gateV());
+}

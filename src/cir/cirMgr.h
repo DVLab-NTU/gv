@@ -24,6 +24,12 @@ using namespace std;
 
 extern CirMgr *cirMgr;
 
+   enum CirFileType
+   {
+      VERILOG,
+      AIGER
+   };
+
 class CirMgr
 {
    enum CirMgrFlag { NO_FEC = 0x1 };
@@ -47,6 +53,7 @@ public:
    void resetFlag() const { _flag = 0; }
    unsigned getNumPIs() const { return _numDecl[PI]; }
    unsigned getNumPOs() const { return _numDecl[PO]; }
+   unsigned getNumLATCHs() const { return _numDecl[LATCH]; }
    unsigned getNumTots() const { return _numDecl[VARS] + _numDecl[PO] + 1; }
    CirPiGate* getPi(unsigned i) const { return _piList[i]; }
    CirPoGate* getPo(unsigned i) const { return _poList[i]; }
@@ -100,9 +107,12 @@ public:
 
    static CirGate *_const0;
    // --- MODIFICATION FOR SoCV HW5 (START) ---
-   void readCirFromAbc(string fileName);
+   void readCirFromAbc(string fileName, CirFileType fileType);
    void initCir(Gia_Man_t* pGia);
    CirGate* createGate(unsigned id, GateType type);
+   const bool setBddOrder(const bool& file);
+   void buildNtkBdd();
+   void buildBdd(const CirGate* gate);
    // ---  MODIFICATION FOR SoCV HW5 (END)  ---
 private:
    unsigned            _numDecl[TOT_PARSE_PORTS];

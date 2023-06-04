@@ -227,6 +227,7 @@ public:
    char* getName() const { return _name; }
    bool isPo() const { return true; }
    void setIn0(size_t i) { _in0 = i; }
+   void setIn0(CirGate* faninGate, bool inv = false);
 
    // Methods about circuit construction
    void genConnections();
@@ -311,6 +312,7 @@ public:
    char* getName() const { return _name; }
    bool isRi() const { return true; }
    void setIn0(size_t i) { _in0 = i; }
+   void setIn0(CirGate* faninGate, bool inv = false);
 
    // Methods about circuit construction
    void genConnections();
@@ -349,6 +351,8 @@ public:
    unsigned getNumFanins() const { return 2; }
    void setIn0(size_t i) { _in0 = i; }
    void setIn1(size_t i) { _in1 = i; }
+   void setIn0(CirGate* faninGate, bool inv = false);
+   void setIn1(CirGate* faninGate, bool inv = false);
 
    // Basic access methods
    GateType getType() const { return AIG_GATE; }

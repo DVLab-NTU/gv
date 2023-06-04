@@ -9,12 +9,15 @@
 #include <cirGate.h>
 #include "base/abc/abc.h"
 #include "gvModMgr.h"
+#include "gvAbcMgr.h"
 
 void 
-CirMgr::readCirFromAbc(string fileName) {
+CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     // TODO : Convert abc ntk to gv aig ntk
+    CirGateV gateV;
     Gia_Man_t* pGia = NULL;            // the gia pointer of abc
     Gia_Obj_t *pObj, *pObjRi, *pObjRo; // the obj element of gia
+    unsigned iPi = 0, iPo = 0, iRi = 0, iRo = 0;
 
     // abc function parameters
     char* pFileName = new char[100];
@@ -31,7 +34,12 @@ CirMgr::readCirFromAbc(string fileName) {
     int   c, fVerbose = 1; // set verbose to 1 to see which yosys command is used
     int   i, *pWire;
 
-    pGia = Gia_AigerRead(pFileName, 0, fSkipStrash, 0);
+    if(fileType == AIGER)
+        pGia = Gia_AigerRead(pFileName, 0, fSkipStrash, 0);
+    else if(fileType == VERILOG) {
+        pGia = abcMgr->get_Abc_Frame_t()->pGia;
+        cout << Gia_ManPoNum(pGia) << endl;
+    }
 
     // initialize the size of the containers
     initCir(pGia);
@@ -44,37 +52,31 @@ CirMgr::readCirFromAbc(string fileName) {
 
     // traverse the obj's in topological order
     Gia_ManForEachObj(pGia, pObj, i) {
-        // cout << "oo " << Gia_ObjIsPi(pGia, pObj) << " id " << Gia_ObjId(pGia, pObj) << endl;
-        unsigned iPi = 0, iPo = 0, iRi = 0, iRo = 0;
         if(Gia_ObjIsPi(pGia, pObj)) {
             CirPiGate* gate = new CirPiGate(Gia_ObjId(pGia, pObj), 0);
             _piList[iPi++] = gate;
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
         }
         else if(Gia_ObjIsPo(pGia, pObj)) {
-            Gia_ObjSetTravIdCurrent(pGia, pObj);
             CirPoGate *gate = new CirPoGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-            gate->setIn0(size_t(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)))));
+            gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
             _poList[iPo++] = gate;
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
         }
         else if(Gia_ObjIsAnd(pObj)) {
-            Gia_ObjSetTravIdCurrent(pGia, pObj);
             CirAigGate *gate = new CirAigGate(Gia_ObjId(pGia, pObj), 0);
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-            gate->setIn0(size_t(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)))));
-            gate->setIn1(size_t(getGate(Gia_ObjId(pGia, Gia_ObjFanin1(pObj)))));
+            gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
+            gate->setIn1(getGate(Gia_ObjId(pGia, Gia_ObjFanin1(pObj))), Gia_ObjFaninC1(pObj));
         }
         else if(Gia_ObjIsRo(pGia, pObj)) {
-            // cout << "I am ro" << endl;
             CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
             _roList[iRo++] = gate;
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
         }
         else if(Gia_ObjIsRi(pGia, pObj)) {
-           Gia_ObjSetTravIdCurrent(pGia, pObj);
             CirRiGate *gate = new CirRiGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-            gate->setIn0(size_t(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj)))));
+            gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
             _riList[iPo++] = gate;
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
         }
@@ -92,12 +94,6 @@ CirMgr::readCirFromAbc(string fileName) {
     // checkFloatList();
     // checkUnusedList();
 
-    // generate the aig connections
-    // Gia_ManForEachObj(pGia, pObj, i) {
-    //     if(Gia_ObjIsTravIdCurrent(pGia, pObj)) continue;
-    //     Gia_ObjSetTravIdCurrent(pGia, pObj);
-    //     // use genconnection of each class to connect the items 
-    // }
 }
 
 CirGate* 

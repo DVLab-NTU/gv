@@ -60,6 +60,7 @@ CirReadCmd::exec(const string& option)
    // check option
    vector<string> options;
    GVCmdExec::lexOptions(option, options);
+   CirFileType fileType = VERILOG;
 
    if (options.empty())
       return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
@@ -70,6 +71,9 @@ CirReadCmd::exec(const string& option)
       if (myStrNCmp("-Replace", options[i], 2) == 0) {
          if (doReplace) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA,options[i]);
          doReplace = true;
+      }
+      else if (myStrNCmp("-Aiger", options[i], 1) == 0) {
+         fileType = AIGER;
       }
       else {
          if (fileName.size())
@@ -90,9 +94,7 @@ CirReadCmd::exec(const string& option)
       }
    }
    cirMgr = new CirMgr;
-   cout << "start reading" << endl;
-   cirMgr->readCirFromAbc(fileName);
-   cout << "read done" << endl;
+   cirMgr->readCirFromAbc(fileName, fileType);
 
    // curCmd = CIRREAD;
 
