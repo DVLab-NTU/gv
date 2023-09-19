@@ -610,7 +610,7 @@ void
 GVWriteAigCmd::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "WRite aig: "
                       << "Write out the processing design into AIGER file"
-                      << endl;
+                      << endl; 
 }
 
 //----------------------------------------------------------------------
