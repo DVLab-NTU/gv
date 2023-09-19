@@ -156,7 +156,7 @@ GVRandomSetSafe::usage(const bool& verbose) const {
 void
 GVRandomSetSafe::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt SAfe: "
-                      << "Set safe rpoperty for random sim." << endl;
+                      << "Set safe property for random simulation." << endl;
 }
 
 //----------------------------------------------------------------------
