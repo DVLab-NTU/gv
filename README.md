@@ -39,5 +39,5 @@ cd GV/
 # GV's API & Tutorial
 - For GV usage, please check the document in [gv0/doc/GV_tutorial.pdf](https://github.com/ric2k1/gv0/tree/main/doc) 
 
-# GV's Development 
+# Develop on GV
 - If one would like to develop features on GV, please check the document in [gv0/doc/README.md](https://github.com/ric2k1/gv0/tree/main/doc) 
