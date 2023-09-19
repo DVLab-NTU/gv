@@ -26,7 +26,7 @@ cd GV/
 <img width="386" alt="Screen Shot 2023-09-19 at 3 19 13 PM" src="https://github.com/ric2k1/gv0/assets/45988775/19ea0c69-2bc5-4646-bb06-bd3f7b29a119">
 
 # GV's API & Tutorial
-- For GV usage, please check the document in [gv0/doc/GV_tutorial.pdf](https://github.com/ric2k1/gv0/tree/main/doc) (GV_tutorial.pdf):
+- For GV usage, please check the document in [gv0/doc/GV_tutorial.pdf](https://github.com/ric2k1/gv0/tree/main/doc) 
 
 # GV's Development 
-- If one would like to develop features on GV, please check the document in [gv0/doc/README.md](https://github.com/ric2k1/gv0/tree/main/doc) (README.md):
+- If one would like to develop features on GV, please check the document in [gv0/doc/README.md](https://github.com/ric2k1/gv0/tree/main/doc) 
