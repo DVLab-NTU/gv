@@ -1,0 +1,467 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.6	//
+AND	itp.h	/^    virtual AigPtr AND( const AigPtr & a , const AigPtr & b){return _ref.createAND( a, b);}$/;"	f	class:SITP
+AigCal	itp.h	/^class AigCal$/;"	c
+CC_MIN	itp.h	/^   int CC_MIN;\/\/ $/;"	m	class:ITPMgr
+CONST_MODE	itp.h	/^   enum CONST_MODE{ ON_THE_FLY , NONE , POST };$/;"	g	class:ITPMgr
+Checker	itp.h	/^    Checker():TRA_INT(0){}$/;"	f	struct:Checker
+Checker	itp.h	/^struct Checker : virtual public ProofTraverser $/;"	s
+Clause	SolverTypes.h	/^    Clause(bool learnt, const vec<Lit>& ps, ClauseId id_ = ClauseId_NULL) {$/;"	f	class:Clause
+Clause	SolverTypes.h	/^class Clause {$/;"	c
+ClauseId	SolverTypes.h	/^typedef int ClauseId;     \/\/ (might have to use uint64 one day...)$/;"	t
+ClauseId_NULL	SolverTypes.h	/^const   int ClauseId_NULL = INT_MIN;$/;"	v
+Clause_new	SolverTypes.h	/^inline Clause* Clause_new(bool learnt, const vec<Lit>& ps, ClauseId id = ClauseId_NULL) {$/;"	f
+DEFAULTS	File.h	40;"	d
+DEFAULTS	File.h	48;"	d
+Datum	Global.h	/^    typedef T   Datum;$/;"	t	class:vec
+Exception_EOF	File.h	/^class Exception_EOF {};$/;"	c
+File	File.h	/^    File(cchar* name, cchar* mode) : DEFAULTS {$/;"	f	class:File
+File	File.h	/^    File(int fd, FileMode mode, bool own_fd = true) : DEFAULTS  {$/;"	f	class:File
+File	File.h	/^    File(void) : DEFAULTS {}$/;"	f	class:File
+File	File.h	/^class File {$/;"	c
+FileMode	File.h	/^enum FileMode { READ, WRITE };$/;"	g
+File_BufSize	File.h	22;"	d
+File_h	File.h	2;"	d
+GClause	SolverTypes.h	/^    GClause(void* d) : data(d) {}$/;"	f	class:GClause
+GClause	SolverTypes.h	/^class GClause {$/;"	c
+GClause_NULL	SolverTypes.h	135;"	d
+GClause_new	SolverTypes.h	/^inline GClause GClause_new(Clause* c) { assert(((uintp)c & 1) == 0); return GClause((void*)c); }$/;"	f
+GClause_new	SolverTypes.h	/^inline GClause GClause_new(Lit p)     { return GClause((void*)(((intp)index(p) << 1) + 1)); }$/;"	f
+Gate	satTest.cpp	/^   Gate(unsigned i = 0): _gid(i) {}$/;"	f	class:Gate
+Gate	satTest.cpp	/^class Gate$/;"	c	file:
+Global_h	Global.h	21;"	d
+Heap	Heap.h	/^    Heap(C c) : comp(c) { heap.push(-1); }$/;"	f	class:Heap
+Heap	Heap.h	/^class Heap {$/;"	c
+Heap_h	Heap.h	21;"	d
+I64_fmt	Global.h	41;"	d
+I64_fmt	Global.h	47;"	d
+ITE	itp.h	/^    virtual AigPtr ITE(const AigPtr & c , const AigPtr & t , const AigPtr & f){ return OR( AND(c,t),AND(~c,f)) ; }$/;"	f	class:AigCal
+ITP	itp.h	/^   ITP(){}$/;"	f	class:ITP
+ITP	itp.h	/^class ITP : virtual public ProofTraverser $/;"	c
+ITPMgr	itp.h	/^   ITPMgr( ):$/;"	f	class:ITPMgr
+ITPMgr	itp.h	/^class ITPMgr$/;"	c
+ITP_CONTAINER	itp.h	/^   int ITP_CONTAINER;$/;"	m	class:ITPMgr
+ITP_H	itp.h	2;"	d
+ITP_PHASE	itp.h	/^   int ITP_PHASE;$/;"	m	class:ITPMgr
+InterpolantITP	itp.h	/^class InterpolantITP : virtual public ProofTraverser $/;"	c
+Key	Global.h	/^    typedef int Key;$/;"	t	class:vec
+L_LIT	Solver.h	205;"	d
+L_lit	Solver.h	206;"	d
+LessThan_default	Sort.h	/^struct LessThan_default {$/;"	s
+Lit	SolverTypes.h	/^    Lit() : x(2*var_Undef) {}   \/\/ (lit_Undef)$/;"	f	class:Lit
+Lit	SolverTypes.h	/^    explicit Lit(Var var, bool sgn = false) : x((var+var) + (int)sgn) {}$/;"	f	class:Lit
+Lit	SolverTypes.h	/^class Lit {$/;"	c
+MITP	itp.h	/^   MITP( ) :ITP(){}$/;"	f	class:MITP
+MITP	itp.h	/^class MITP : virtual public ITP , virtual public AigCal , virtual public ProofTraverser $/;"	c
+MITP_H	mitp.h	2;"	d
+MODE	itp.h	/^   int MODE;$/;"	m	class:ITPMgr
+MVITP	mitp.h	/^class MVITP : virtual public ProofTraverser $/;"	c
+MultiSITP	itp.cpp	/^MultiSITP::MultiSITP(unsigned n ) : _sitp( n , NULL )$/;"	f	class:MultiSITP
+MultiSITP	itp.h	/^class MultiSITP : virtual public ProofTraverser $/;"	c
+NONE	itp.h	/^   enum CONST_MODE{ ON_THE_FLY , NONE , POST };$/;"	e	enum:ITPMgr::CONST_MODE
+ON_THE_FLY	itp.h	/^   enum CONST_MODE{ ON_THE_FLY , NONE , POST };$/;"	e	enum:ITPMgr::CONST_MODE
+OR	itp.h	/^    virtual AigPtr OR( const AigPtr & a , const AigPtr & b){ return ~( AND ( (~a) , (~b)) );}$/;"	f	class:AigCal
+PFT_CONTAINER	itp.h	/^   int PFT_CONTAINER;$/;"	m	class:ITPMgr
+PITP	itp.h	/^   PITP():ITP(){}$/;"	f	class:PITP
+PITP	itp.h	/^class PITP : virtual public ITP , virtual public AigCal , virtual public ProofTraverser $/;"	c
+POST	itp.h	/^   enum CONST_MODE{ ON_THE_FLY , NONE , POST };$/;"	e	enum:ITPMgr::CONST_MODE
+Proof	Proof.cpp	/^Proof::Proof()$/;"	f	class:Proof
+Proof	Proof.cpp	/^Proof::Proof(ProofTraverser& t)$/;"	f	class:Proof
+Proof	Proof.h	/^class Proof {$/;"	c
+ProofTraverser	Proof.h	/^struct ProofTraverser {$/;"	s
+Proof_h	Proof.h	21;"	d
+READ	File.h	/^enum FileMode { READ, WRITE };$/;"	e	enum:FileMode
+SAT_H	sat.h	10;"	d
+SITP	itp.cpp	/^SITP::SITP( StrashCkt & r , bool p):_ref(r)$/;"	f	class:SITP
+SITP	itp.h	/^class SITP : virtual public ITP , virtual public AigCal , virtual public InterpolantITP $/;"	c
+SMITP	itp.h	/^    SMITP( StrashCkt & k , bool p ):SITP(k,p){}$/;"	f	class:SMITP
+SMITP	itp.h	/^class SMITP : virtual public SITP , virtual public MITP$/;"	c
+SPITP	itp.h	/^    SPITP( StrashCkt & k ,  bool p):SITP(k,p){}$/;"	f	class:SPITP
+SPITP	itp.h	/^class SPITP: virtual public SITP , virtual public PITP$/;"	c
+STATIC_ASSERTION_FAILURE	Global.h	/^template <> struct STATIC_ASSERTION_FAILURE<true>{};$/;"	s
+SatSolver	sat.h	/^      SatSolver() { }$/;"	f	class:SatSolver
+SatSolver	sat.h	/^class SatSolver$/;"	c
+SearchParams	Solver.h	/^    SearchParams(double v = 1, double c = 1, double r = 0) : var_decay(v), clause_decay(c), random_var_freq(r) { }$/;"	f	struct:SearchParams
+SearchParams	Solver.h	/^struct SearchParams {$/;"	s
+Solver	Solver.h	/^    Solver() : ok               (true)$/;"	f	class:Solver
+Solver	Solver.h	/^class Solver {$/;"	c
+SolverStats	Solver.h	/^    SolverStats() : starts(0), decisions(0), propagations(0), conflicts(0)$/;"	f	struct:SolverStats
+SolverStats	Solver.h	/^struct SolverStats {$/;"	s
+SolverTypes_h	SolverTypes.h	22;"	d
+Solver_h	Solver.h	21;"	d
+Sort_h	Sort.h	21;"	d
+TEMPLATE_FAIL	Global.h	58;"	d
+TRA_INT	Proof.h	/^    int             TRA_INT;$/;"	m	class:Proof
+TRA_INT	itp.h	/^    int TRA_INT;$/;"	m	struct:Checker
+TempFiles	Proof.cpp	/^class TempFiles {$/;"	c	file:
+Var	SolverTypes.h	/^typedef int Var;$/;"	t
+VarA	itp.cpp	/^const int ITP::VarA;$/;"	m	class:ITP	file:
+VarA	itp.h	/^   static const int VarA = -1 ;$/;"	m	class:ITP
+VarB	itp.cpp	/^const int ITP::VarB;$/;"	m	class:ITP	file:
+VarB	itp.h	/^   static const int VarB = -2 ; $/;"	m	class:ITP
+VarOrder	VarOrder.h	/^    VarOrder(const vec<char>& ass, const vec<double>& act) :$/;"	f	class:VarOrder
+VarOrder	VarOrder.h	/^class VarOrder {$/;"	c
+VarOrder_h	VarOrder.h	21;"	d
+VarOrder_lt	VarOrder.h	/^    VarOrder_lt(const vec<double>&  act) : activity(act) { }$/;"	f	struct:VarOrder_lt
+VarOrder_lt	VarOrder.h	/^struct VarOrder_lt {$/;"	s
+VarUnknow	itp.h	/^   static const int VarUnknow = -3 ; $/;"	m	class:ITP
+WRITE	File.h	/^enum FileMode { READ, WRITE };$/;"	e	enum:FileMode
+__SGI_STL_INTERNAL_RELOPS	Global.h	265;"	d
+_assump	sat.h	/^      vec<Lit>          _assump;    \/\/ Assumption List for assumption solve$/;"	m	class:SatSolver
+_curVar	sat.h	/^      Var               _curVar;    \/\/ Variable currently$/;"	m	class:SatSolver
+_gid	satTest.cpp	/^   unsigned   _gid;  \/\/ for debugging purpose...$/;"	m	class:Gate	file:
+_interpolant	itp.h	/^    AigPtr      _interpolant;$/;"	m	class:SITP
+_interpolant	itp.h	/^   AigPtr           _interpolant; \/\/ constructed $/;"	m	class:ITPMgr
+_inv	itp.h	/^   bool                 _inv;$/;"	m	class:ITP
+_itp	itp.h	/^   SITP           * _itp; \/\/ construction $/;"	m	class:ITPMgr
+_pf	itp.h	/^   Proof          * _pf;  \/\/ proof $/;"	m	class:ITPMgr
+_pft	itp.h	/^   ProofTraverser * _pft; \/\/ internal  $/;"	m	class:ITPMgr
+_ref	itp.h	/^    StrashCkt & _ref;$/;"	m	class:SITP
+_sitp	itp.h	/^    vector<SITP  *> _sitp;$/;"	m	class:MultiSITP
+_solver	sat.h	/^      Solver           *_solver;    \/\/ Pointer to a Minisat solver$/;"	m	class:SatSolver
+_subITP	itp.h	/^   vector<AigPtr  >     _subITP;$/;"	m	class:ITP
+_var	satTest.cpp	/^   Var        _var;$/;"	m	class:Gate	file:
+activity	Solver.h	/^    vec<double>         activity;         \/\/ A heuristic measurement of the activity of a variable.$/;"	m	class:Solver
+activity	SolverTypes.h	/^    float&    activity    ()      const { return *((float*)&data[size()]); }$/;"	f	class:Clause
+activity	VarOrder.h	/^    const vec<double>&  activity;    \/\/ var->act. Pointer to external activity table.$/;"	m	class:VarOrder
+activity	VarOrder.h	/^    const vec<double>&  activity;$/;"	m	struct:VarOrder_lt
+addAndCNF	sat.h	/^      void addAndCNF(Lit f, Lit a, Lit b) {$/;"	f	class:SatSolver
+addBinary	Solver.h	/^    void    addBinary (Lit p, Lit q)        { addBinary_tmp [0] = p; addBinary_tmp [1] = q; addClause(addBinary_tmp); }$/;"	f	class:Solver
+addBinary_tmp	Solver.h	/^    vec<Lit>            addBinary_tmp;$/;"	m	class:Solver
+addClause	Solver.h	/^    void    addClause (const vec<Lit>& ps , bool A = true)  { newClause(ps , false , ClauseId_NULL , A); }  $/;"	f	class:Solver
+addRoot	Proof.cpp	/^ClauseId Proof::addRoot(vec<Lit>& cl, bool A)$/;"	f	class:Proof
+addTernary	Solver.h	/^    void    addTernary(Lit p, Lit q, Lit r) { addTernary_tmp[0] = p; addTernary_tmp[1] = q; addTernary_tmp[2] = r; addClause(addTernary_tmp); }$/;"	f	class:Solver
+addTernary_tmp	Solver.h	/^    vec<Lit>            addTernary_tmp;$/;"	m	class:Solver
+addUnit	Solver.h	/^    void    addUnit   (Lit p)               { addUnit_tmp   [0] = p; addClause(addUnit_tmp); }$/;"	f	class:Solver
+addUnit_tmp	Solver.h	/^    vec<Lit>            addUnit_tmp;$/;"	m	class:Solver
+analyze	Solver.cpp	/^void Solver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btlevel)$/;"	f	class:Solver
+analyzeFinal	Solver.cpp	/^void Solver::analyzeFinal(Clause* confl, bool skip_first)$/;"	f	class:Solver
+analyze_removable	Solver.cpp	/^bool Solver::analyze_removable(Lit p, uint min_level)$/;"	f	class:Solver
+analyze_seen	Solver.h	/^    vec<char>           analyze_seen;$/;"	m	class:Solver
+analyze_stack	Solver.h	/^    vec<Lit>            analyze_stack;$/;"	m	class:Solver
+analyze_tmpbin	Solver.h	/^    Clause*             analyze_tmpbin;$/;"	m	class:Solver
+analyze_toclear	Solver.h	/^    vec<Lit>            analyze_toclear;$/;"	m	class:Solver
+assertProperty	sat.h	/^      void assertProperty(Var prop, bool val) {$/;"	f	class:SatSolver
+assigns	Solver.h	/^    vec<char>           assigns;          \/\/ The current assignments (lbool:s stored as char:s).$/;"	m	class:Solver
+assigns	VarOrder.h	/^    const vec<char>&    assigns;     \/\/ var->val. Pointer to external assignment table.$/;"	m	class:VarOrder
+assume	Solver.cpp	/^bool Solver::assume(Lit p) {$/;"	f	class:Solver
+assumeProperty	sat.h	/^      void assumeProperty(Var prop, bool val) {$/;"	f	class:SatSolver
+assumeRelease	sat.h	/^      void assumeRelease() { _assump.clear(); }$/;"	f	class:SatSolver
+assumpSolve	sat.h	/^      bool assumpSolve() { return _solver->solve(_assump); }$/;"	f	class:SatSolver
+base	itp.h	/^   vector<int>          base;$/;"	m	class:ITP
+beginChain	Proof.cpp	/^void Proof::beginChain(ClauseId start)$/;"	f	class:Proof
+buf	File.h	/^    uchar*      buf;        \/\/ Read or write buffer.$/;"	m	class:File
+cancelUntil	Solver.cpp	/^void Solver::cancelUntil(int level) {$/;"	f	class:Solver
+cap	Global.h	/^    int cap;$/;"	m	class:vec
+capacity	Global.h	/^    void     capacity (int size) { grow(size); }$/;"	f	class:vec
+cchar	Global.h	/^typedef const char    cchar;$/;"	t
+chain	itp.cpp	/^void Checker::chain  (const vec<ClauseId>& cs, const vec<Lit>& xs) $/;"	f	class:Checker
+chain	itp.cpp	/^void MITP::chain( const vec<ClauseId> & cs , const vec<Lit> & xs )$/;"	f	class:MITP
+chain	itp.cpp	/^void MultiSITP::chain  (const vec<ClauseId>& cs, const vec<Lit>& xs)$/;"	f	class:MultiSITP
+chain	itp.cpp	/^void PITP::chain( const vec<ClauseId> & cs , const vec<Lit> & xs )$/;"	f	class:PITP
+chain_id	Proof.h	/^    vec<ClauseId>   chain_id;$/;"	m	class:Proof
+chain_lit	Proof.h	/^    vec<Lit>        chain_lit;$/;"	m	class:Proof
+check	Solver.h	/^inline void check(bool expr) { assert(expr); }$/;"	f
+claBumpActivity	Solver.h	/^    void     claBumpActivity (Clause* c) { if ( (c->activity() += cla_inc) > 1e20 ) claRescaleActivity(); }$/;"	f	class:Solver
+claDecayActivity	Solver.h	/^    void     claDecayActivity  () { cla_inc *= cla_decay; }$/;"	f	class:Solver
+claRescaleActivity	Solver.cpp	/^void Solver::claRescaleActivity()$/;"	f	class:Solver
+cla_decay	Solver.h	/^    double              cla_decay;        \/\/ INVERSE decay factor for clause activity: stores 1\/decay.$/;"	m	class:Solver
+cla_inc	Solver.h	/^    double              cla_inc;          \/\/ Amount to bump next clause with.$/;"	m	class:Solver
+clause	Proof.h	/^    vec<Lit>        clause;$/;"	m	class:Proof
+clause	SolverTypes.h	/^    Clause*     clause   () const { return (Clause*)data; }$/;"	f	class:GClause
+clause_decay	Solver.h	/^    double  var_decay, clause_decay, random_var_freq;    \/\/ (reasonable values are: 0.95, 0.999, 0.02)    $/;"	m	struct:SearchParams
+clauses	Solver.h	/^    vec<Clause*>        clauses;          \/\/ List of problem clauses.$/;"	m	class:Solver
+clauses	itp.h	/^    vec< vec<Lit> >  clauses;$/;"	m	struct:Checker
+clauses_literals	Solver.h	/^    int64   clauses_literals, learnts_literals, max_literals, tot_literals;$/;"	m	struct:SolverStats
+clear	Global.h	/^void vec<T>::clear(bool dealloc) {$/;"	f	class:vec
+close	File.cpp	/^void File::close(void)$/;"	f	class:File
+comp	Heap.h	/^    C        comp;$/;"	m	class:Heap
+compress	Proof.cpp	/^void Proof::compress(Proof& dst, ClauseId goal)$/;"	f	class:Proof
+conflict	Solver.h	/^    vec<Lit>    conflict;           \/\/ If problem is unsatisfiable under assumptions, this vector represent the conflict clause expressed in the assumptions.$/;"	m	class:Solver
+conflict_id	Solver.h	/^    ClauseId    conflict_id;        \/\/ (In proof logging mode only.) ID for the clause 'conflict' (for proof traverseral). NOTE! The empty clause is always the last clause derived, but for conflicts under assumption, this is not necessarly true.$/;"	m	class:Solver
+conflicts	Solver.h	/^    int64   starts, decisions, propagations, conflicts;$/;"	m	struct:SolverStats
+copyTo	Global.h	/^    void copyTo(vec<T>& copy) const { copy.clear(); copy.growTo(sz); for (int i = 0; i < sz; i++) new (&copy[i]) T(data[i]); }$/;"	f	class:vec
+cpuTime	Global.h	/^static inline double cpuTime(void) {$/;"	f
+data	Global.h	/^    T*  data;$/;"	m	class:vec
+data	SolverTypes.h	/^    Lit     data[1];$/;"	m	class:Clause
+data	SolverTypes.h	/^    void*   data;$/;"	m	class:GClause
+decisionLevel	Solver.h	/^    int      decisionLevel() const { return trail_lim.size(); }$/;"	f	class:Solver
+decisions	Solver.h	/^    int64   starts, decisions, propagations, conflicts;$/;"	m	struct:SolverStats
+decode64	File.h	/^static inline int64  decode64(uint64 val)           { return ((val & 1) == 0) ? (int64)(val >> 1) : ~(int64)(val >> 1); }$/;"	f
+default_params	Solver.h	/^    SearchParams    default_params;     \/\/ Restart frequency etc.$/;"	m	class:Solver
+deleted	Proof.cpp	/^void Proof::deleted(ClauseId gone)$/;"	f	class:Proof
+deleted	Proof.h	/^    virtual void deleted(ClauseId c){}$/;"	f	struct:ProofTraverser
+deleted	itp.cpp	/^void Checker::deleted(ClauseId c) $/;"	f	class:Checker
+deleted	itp.cpp	/^void MultiSITP::deleted(ClauseId c)$/;"	f	class:MultiSITP
+done	itp.cpp	/^void Checker::done()$/;"	f	class:Checker
+done	itp.cpp	/^void MultiSITP::done   ()$/;"	f	class:MultiSITP
+done	itp.cpp	/^void SITP::done()$/;"	f	class:SITP
+drand	Global.h	/^static inline double drand(double& seed) {$/;"	f
+empty	Heap.h	/^    bool empty     ()         { return heap.size() == 1; }$/;"	f	class:Heap
+encode64	File.h	/^static inline uint64 encode64(int64  val)           { return (val >= 0) ? (uint64)val << 1 : (((uint64)(~val) << 1) | 1); }$/;"	f
+endChain	Proof.cpp	/^ClauseId Proof::endChain()$/;"	f	class:Proof
+enqueue	Solver.cpp	/^bool Solver::enqueue(Lit p, Clause* from)$/;"	f	class:Solver
+eof	File.h	/^    bool eof(void) {$/;"	f	class:File
+expensive_ccmin	Solver.h	/^    int             expensive_ccmin;    \/\/ Controls conflict clause minimization. TRUE by default.$/;"	m	class:Solver
+fd	File.h	/^    int         fd;         \/\/ Underlying file descriptor.$/;"	m	class:File
+files	Proof.cpp	/^    vec<cchar*> files;      \/\/ For clean-up purposed on abnormal exit.$/;"	m	class:TempFiles	file:
+flush	File.h	/^    void flush(void) {$/;"	f	class:File
+fp	Proof.h	/^    File            fp;$/;"	m	class:Proof
+fp_name	Proof.h	/^    cchar*          fp_name;$/;"	m	class:Proof
+fpos	Proof.h	/^    int64           fpos;$/;"	m	class:Proof
+genProofModel	satTest.cpp	/^genProofModel(SatSolver *s)$/;"	f
+getChar	File.h	/^    int getChar(void) {$/;"	f	class:File
+getCharQ	File.h	/^    int getCharQ(void) {            \/\/ Quick version with minimal overhead -- don't call this in the wrong mode!$/;"	f	class:File
+getInt	File.h	/^static inline uint64 getInt  (File& in)             { return decode64(getUInt(in)); }$/;"	f
+getMode	File.h	/^    FileMode getMode(void) {$/;"	f	class:File
+getUInt	File.cpp	/^uint64 getUInt(File& in)$/;"	f
+getVar	satTest.cpp	/^   Var getVar() const { return _var; }$/;"	f	class:Gate
+getmin	Heap.h	/^    int  getmin() {$/;"	f	class:Heap
+grow	Global.h	/^void vec<T>::grow(int min_cap) {$/;"	f	class:vec
+growTo	Global.h	/^void vec<T>::growTo(int size) {$/;"	f	class:vec
+growTo	Global.h	/^void vec<T>::growTo(int size, const T& pad) {$/;"	f	class:vec
+hash	SolverTypes.h	/^    uint hash() const { return (uint)x; }$/;"	f	class:Lit
+heap	Heap.h	/^    vec<int> heap;     \/\/ heap of ints$/;"	m	class:Heap
+heap	VarOrder.h	/^    Heap<VarOrder_lt>   heap;$/;"	m	class:VarOrder
+heapProperty	Heap.h	/^    bool heapProperty() {$/;"	f	class:Heap
+heapProperty	Heap.h	/^    bool heapProperty(int i) {$/;"	f	class:Heap
+id	SolverTypes.h	/^    ClauseId& id          ()      const { return *((ClauseId*)&data[size() + (int)learnt()]); }$/;"	f	class:Clause
+id	SolverTypes.h	/^inline Lit  id    (Lit p, bool sgn) { Lit q; q.x = p.x ^ (int)sgn; return q; }$/;"	f
+id_counter	Proof.h	/^    ClauseId        id_counter;$/;"	m	class:Proof
+inHeap	Heap.h	/^    bool inHeap    (int n)    { assert(ok(n)); return indices[n] != 0; }$/;"	f	class:Heap
+increase	Heap.h	/^    void increase  (int n)    { assert(ok(n)); assert(inHeap(n)); percolateUp(indices[n]); }$/;"	f	class:Heap
+index	SolverTypes.h	/^inline int  index (Lit p) { return p.x; }                \/\/ A "toInt" method that guarantees small, positive integers suitable for array indexing.$/;"	f
+indices	Heap.h	/^    vec<int> indices;  \/\/ int -> index in heap$/;"	m	class:Heap
+initCircuit	satTest.cpp	/^initCircuit()$/;"	f
+initialize	sat.h	/^      void initialize() {$/;"	f	class:SatSolver
+insert	Heap.h	/^    void insert(int n) {$/;"	f	class:Heap
+int64	Global.h	/^typedef INT64              int64;$/;"	t
+int64	Global.h	/^typedef long long          int64;$/;"	t
+interpolant	itp.h	/^    virtual AigPtr   interpolant(){return _interpolant;}$/;"	f	class:SITP
+intp	Global.h	/^typedef INT_PTR            intp;$/;"	t
+intp	Global.h	/^typedef __PTRDIFF_TYPE__   intp;$/;"	t
+irand	Global.h	/^static inline int irand(double& seed, int size) {$/;"	f
+isLit	SolverTypes.h	/^    bool        isLit    () const { return ((uintp)data & 1) == 1; }$/;"	f	class:GClause
+itpGen	itp.cpp	/^AigPtr ITPMgr::itpGen()$/;"	f	class:ITPMgr
+l_False	Global.h	/^const lbool l_False = toLbool(-1);$/;"	v
+l_True	Global.h	/^const lbool l_True  = toLbool( 1);$/;"	v
+l_Undef	Global.h	/^const lbool l_Undef = toLbool( 0);$/;"	v
+last	Global.h	/^    T&       last  (void)              { return data[sz-1]; }$/;"	f	class:vec
+last	Global.h	/^    const T& last  (void) const        { return data[sz-1]; }$/;"	f	class:vec
+last	Proof.h	/^    ClauseId last      () { assert(id_counter != ClauseId_NULL); return id_counter - 1; }$/;"	f	class:Proof
+lastToFirst_lt	Solver.cpp	/^    lastToFirst_lt(const vec<int>& t) : trail_pos(t) {}$/;"	f	class:lastToFirst_lt
+lastToFirst_lt	Solver.cpp	/^class lastToFirst_lt {  \/\/ Helper class to 'analyze' -- order literals from last to first occurance in 'trail[]'.$/;"	c	file:
+lbool	Global.h	/^    explicit lbool(int v) : value(v) { }$/;"	f	class:lbool
+lbool	Global.h	/^    lbool()       : value(0) { }$/;"	f	class:lbool
+lbool	Global.h	/^    lbool(bool x) : value((int)x*2-1) { }$/;"	f	class:lbool
+lbool	Global.h	/^class lbool {$/;"	c
+learnt	SolverTypes.h	/^    bool      learnt      ()      const { return size_learnt & 1; }$/;"	f	class:Clause
+learnts	Solver.h	/^    vec<Clause*>        learnts;          \/\/ List of learnt clauses.$/;"	m	class:Solver
+learnts_literals	Solver.h	/^    int64   clauses_literals, learnts_literals, max_literals, tot_literals;$/;"	m	struct:SolverStats
+left	Heap.h	/^static inline int left  (int i) { return i+i; }$/;"	f
+level	Solver.h	/^    vec<int>            level;            \/\/ 'level[var]' is the decision level at which assignment was made.$/;"	m	class:Solver
+lit	SolverTypes.h	/^    Lit         lit      () const { return toLit(((intp)data) >> 1); }$/;"	f	class:GClause
+locked	Solver.h	/^    bool     locked          (const Clause* c) const { return reason[var((*c)[0])] == c; }$/;"	f	class:Solver
+lseek64	File.h	13;"	d
+main	satTest.cpp	/^int main()$/;"	f
+max	Global.h	/^template<class T> static inline T max(T x, T y) { return (x > y) ? x : y; }$/;"	f
+max_literals	Solver.h	/^    int64   clauses_literals, learnts_literals, max_literals, tot_literals;$/;"	m	struct:SolverStats
+memReadStat	Global.h	/^static inline int memReadStat(int field)$/;"	f
+memUsed	Global.h	/^static inline int64 memUsed() { return (int64)memReadStat(0) * (int64)getpagesize(); }$/;"	f
+memUsed	Global.h	/^static inline int64 memUsed() {$/;"	f
+min	Global.h	/^template<class T> static inline T min(T x, T y) { return (x < y) ? x : y; }$/;"	f
+mode	File.h	/^    FileMode    mode;       \/\/ Reading or writing.$/;"	m	class:File
+model	Solver.h	/^    vec<lbool>  model;              \/\/ If problem is satisfiable, this vector contains the model (if any).$/;"	m	class:Solver
+moveTo	Global.h	/^    void moveTo(vec<T>& dest) { dest.clear(true); dest.data = data; dest.sz = sz; dest.cap = cap; data = NULL; sz = 0; cap = 0; }$/;"	f	class:vec
+nAssigns	Solver.h	/^    int     nAssigns() { return trail.size(); }$/;"	f	class:Solver
+nClauses	Solver.h	/^    int     nClauses() { return clauses.size(); }$/;"	f	class:Solver
+nLearnts	Solver.h	/^    int     nLearnts() { return learnts.size(); }$/;"	f	class:Solver
+nVars	Solver.h	/^    int     nVars     ()                    { return assigns.size(); }$/;"	f	class:Solver
+newClause	Solver.cpp	/^void Solver::newClause(const vec<Lit>& ps_, bool learnt, ClauseId id , bool A)$/;"	f	class:Solver
+newVar	Solver.cpp	/^Var Solver::newVar() {$/;"	f	class:Solver
+newVar	VarOrder.h	/^void VarOrder::newVar(void)$/;"	f	class:VarOrder
+newVar	sat.h	/^      inline Var newVar() { _solver->newVar(); return ++_curVar; }$/;"	f	class:SatSolver
+null	File.h	/^    bool null(void) {               \/\/ TRUE if no file is opened.$/;"	f	class:File
+ok	Heap.h	/^    bool ok(int n) { return n >= 0 && n < (int)indices.size(); }$/;"	f	class:Heap
+ok	Solver.h	/^    bool                ok;               \/\/ If FALSE, the constraints are already unsatisfiable. No part of the solver state may be used!$/;"	m	class:Solver
+okay	Solver.h	/^    bool    okay() { return ok; }       \/\/ FALSE means solver is in an conflicting state (must never be used again!)$/;"	f	class:Solver
+open	File.cpp	/^void File::open(cchar* name, cchar* mode_)$/;"	f	class:File
+open	File.cpp	/^void File::open(int file_descr, FileMode m, bool own)$/;"	f	class:File
+open	Proof.cpp	/^    char* open(File& fp)$/;"	f	class:TempFiles
+open64	File.h	14;"	d
+operator !=	Global.h	/^    bool  operator != (const lbool& other) const { return value != other.value; }$/;"	f	class:lbool
+operator !=	Global.h	/^template <class T> static inline bool operator != (const T& x, const T& y) { return !(x == y); }$/;"	f
+operator !=	SolverTypes.h	/^    bool        operator != (GClause c) const { return data != c.data; }$/;"	f	class:GClause
+operator ()	Solver.cpp	/^    bool operator () (Lit p, Lit q) { return trail_pos[var(p)] > trail_pos[var(q)]; }$/;"	f	class:lastToFirst_lt
+operator ()	Solver.cpp	/^struct reduceDB_lt { bool operator () (Clause* x, Clause* y) { return x->size() > 2 && (y->size() == 2 || x->activity() < y->activity()); } };$/;"	f	struct:reduceDB_lt
+operator ()	Sort.h	/^    bool operator () (T x, T y) { return x < y; }$/;"	f	struct:LessThan_default
+operator ()	VarOrder.h	/^    bool operator () (Var x, Var y) { return activity[x] > activity[y]; }$/;"	f	struct:VarOrder_lt
+operator <	SolverTypes.h	/^inline bool operator <  (Lit p, Lit q) { return index(p)  < index(q); }  \/\/ '<' guarantees that p, ~p are adjacent in the ordering.$/;"	f
+operator <=	Global.h	/^template <class T> static inline bool operator <= (const T& x, const T& y) { return !(y < x);  }$/;"	f
+operator =	Global.h	/^    vec<T>&  operator = (vec<T>& other) { TEMPLATE_FAIL; }$/;"	f	class:vec
+operator ==	Global.h	/^    bool  operator == (const lbool& other) const { return value == other.value; }$/;"	f	class:lbool
+operator ==	SolverTypes.h	/^    bool        operator == (GClause c) const { return data == c.data; }$/;"	f	class:GClause
+operator ==	SolverTypes.h	/^inline bool operator == (Lit p, Lit q) { return index(p) == index(q); }$/;"	f
+operator >	Global.h	/^template <class T> static inline bool operator >  (const T& x, const T& y) { return y < x;     }$/;"	f
+operator >=	Global.h	/^template <class T> static inline bool operator >= (const T& x, const T& y) { return !(x < y);  }$/;"	f
+operator T*	Global.h	/^    operator T*       (void)           { return data; }     \/\/ (unsafe but convenient)$/;"	f	class:vec
+operator []	Global.h	/^    T&       operator [] (int index)        { return data[index]; }$/;"	f	class:vec
+operator []	Global.h	/^    const T& operator [] (int index) const  { return data[index]; }$/;"	f	class:vec
+operator []	SolverTypes.h	/^    Lit       operator [] (int i) const { return data[i]; }$/;"	f	class:Clause
+operator []	SolverTypes.h	/^    Lit&      operator [] (int i)       { return data[i]; }$/;"	f	class:Clause
+operator []	itp.h	/^    SITP & operator[]( unsigned i ){ return * (_sitp[i] ); }$/;"	f	class:MultiSITP
+operator const T*	Global.h	/^    operator const T* (void) const     { return data; }$/;"	f	class:vec
+operator ~	Global.h	/^    lbool operator ~  (void)               const { return lbool(-value); }$/;"	f	class:lbool
+operator ~	SolverTypes.h	/^inline Lit operator ~ (Lit p) { Lit q; q.x = p.x ^ 1; return q; }$/;"	f
+order	Solver.h	/^    VarOrder            order;            \/\/ Keeps track of the decision variable order.$/;"	m	class:Solver
+own_fd	File.h	/^    bool        own_fd;     \/\/ Do we own the file descriptor? If so, will close file in destructor.$/;"	m	class:File
+parent	Heap.h	/^static inline int parent(int i) { return i >> 1; }$/;"	f
+percolateDown	Heap.h	/^    inline void percolateDown(int i)$/;"	f	class:Heap
+percolateUp	Heap.h	/^    inline void percolateUp(int i)$/;"	f	class:Heap
+pfGen	itp.cpp	/^ProofTraverser * ITPMgr::pfGen( Solver & S ,  StrashCkt & ckt) $/;"	f	class:ITPMgr
+phase	itp.h	/^    vector< bool > phase;$/;"	m	struct:Checker
+pop	Global.h	/^    void     pop    (void)             { sz--, data[sz].~T(); }$/;"	f	class:vec
+pos	File.h	/^    int         pos;        \/\/ Current position in buffer$/;"	m	class:File
+printInfo	sat.h	/^      void printInfo() const {$/;"	f	class:SatSolver
+printSolver	sat.h	/^      void printSolver() const { cout << "MiniSat ver 2.2.0"; }$/;"	f	class:SatSolver
+progressEstimate	Solver.cpp	/^double Solver::progressEstimate()$/;"	f	class:Solver
+progress_estimate	Solver.h	/^    double      progress_estimate;  \/\/ Set by 'search()'.$/;"	m	class:Solver
+proof	Solver.h	/^    Proof*          proof;              \/\/ Set this directly after constructing 'Solver' to enable proof logging. Initialized to NULL.$/;"	m	class:Solver
+propagate	Solver.cpp	/^Clause* Solver::propagate()$/;"	f	class:Solver
+propagate_tmpbin	Solver.h	/^    Clause*             propagate_tmpbin;$/;"	m	class:Solver
+propagations	Solver.h	/^    int64   starts, decisions, propagations, conflicts;$/;"	m	struct:SolverStats
+push	Global.h	/^    void     push  (const T& elem)     { if (sz == cap) grow(sz+1); new (&data[sz]) T(elem); sz++; }$/;"	f	class:vec
+push	Global.h	/^    void     push  (void)              { if (sz == cap) grow(sz+1); new (&data[sz]) T()    ; sz++; }$/;"	f	class:vec
+putChar	File.h	/^    int putChar(int chr) {$/;"	f	class:File
+putCharQ	File.h	/^    int putCharQ(int chr) {         \/\/ Quick version with minimal overhead -- don't call this in the wrong mode!$/;"	f	class:File
+putInt	File.h	/^static inline void   putInt  (File& out, int64 val) { putUInt(out, encode64(val)); }$/;"	f
+putUInt	File.cpp	/^void putUInt(File& out, uint64 val)$/;"	f
+qhead	Solver.h	/^    int                 qhead;            \/\/ Head of queue (as index into the trail -- no more explicit propagation queue in MiniSat).$/;"	m	class:Solver
+random_seed	VarOrder.h	/^    double              random_seed; \/\/ For the internal random number generator$/;"	m	class:VarOrder
+random_var_freq	Solver.h	/^    double  var_decay, clause_decay, random_var_freq;    \/\/ (reasonable values are: 0.95, 0.999, 0.02)    $/;"	m	struct:SearchParams
+reason	Solver.h	/^    vec<Clause*>        reason;           \/\/ 'reason[var]' is the clause that implied the variables current value, or 'NULL' if none.$/;"	m	class:Solver
+reduceDB	Solver.cpp	/^void Solver::reduceDB()$/;"	f	class:Solver
+reduceDB_lt	Solver.cpp	/^struct reduceDB_lt { bool operator () (Clause* x, Clause* y) { return x->size() > 2 && (y->size() == 2 || x->activity() < y->activity()); } };$/;"	s	file:
+release	Global.h	/^    T*       release  (void)           { T* ret = data; data = NULL; sz = 0; cap = 0; return ret; }$/;"	f	class:vec
+releaseDescriptor	File.h	/^    int releaseDescriptor(void) {   \/\/ Don't run UNIX function 'close()' on descriptor in 'File's 'close()'.$/;"	f	class:File
+remove	Solver.cpp	/^void Solver::remove(Clause* c, bool just_dealloc)$/;"	f	class:Solver
+removeWatch	Solver.cpp	/^void removeWatch(vec<Clause*>& ws, Clause* elem)$/;"	f
+reportf	Solver.h	28;"	d
+reset	sat.h	/^      void reset() {$/;"	f	class:SatSolver
+resetSolverData	sat.h	/^      void resetSolverData() { _assump.clear(); _curVar = 0; }$/;"	f	class:SatSolver
+resolve	Proof.cpp	/^void Proof::resolve(ClauseId next, Lit x)$/;"	f	class:Proof
+resolve	itp.cpp	/^AigPtr MITP::resolve(AigPtr p , Lit l , AigPtr q)$/;"	f	class:MITP
+resolve	itp.cpp	/^AigPtr PITP::resolve(AigPtr p , Lit l , AigPtr q)$/;"	f	class:PITP
+resolve	itp.cpp	/^void Checker::resolve(vec<Lit>& main, vec<Lit>& other, Lit l)$/;"	f	class:Checker
+right	Heap.h	/^static inline int right (int i) { return i+i + 1; }$/;"	f
+root	itp.cpp	/^void Checker::root   (const vec<Lit>& c , bool A) $/;"	f	class:Checker
+root	itp.cpp	/^void MITP::root( const vec<Lit> & c , bool A)$/;"	f	class:MITP
+root	itp.cpp	/^void MultiSITP::root   (const vec<Lit>& c , bool A)$/;"	f	class:MultiSITP
+root	itp.cpp	/^void PITP::root( const vec<Lit> & c , bool A)$/;"	f	class:PITP
+root_level	Solver.h	/^    int                 root_level;       \/\/ Level of first proper decision.$/;"	m	class:Solver
+save	Proof.cpp	/^bool Proof::save(cchar* filename)$/;"	f	class:Proof
+search	Solver.cpp	/^lbool Solver::search(int nof_conflicts, int nof_learnts, const SearchParams& params)$/;"	f	class:Solver
+seek	File.cpp	/^void File::seek(int64 file_pos, int whence)$/;"	f	class:File
+select	VarOrder.h	/^Var VarOrder::select(double random_var_freq)$/;"	f	class:VarOrder
+selectionSort	Sort.h	/^template <class T> static inline void selectionSort(T* array, int size) {$/;"	f
+selectionSort	Sort.h	/^void selectionSort(T* array, int size, LessThan lt)$/;"	f
+set	itp.h	/^    void set( unsigned i , SITP * s ){ _sitp[i] = s ;}$/;"	f	class:MultiSITP
+set	itp.h	/^   void set( bool i ){_inv = i; }$/;"	f	class:ITP
+setBounds	Heap.h	/^    void setBounds (int size) { assert(size >= 0); indices.growTo(size,0); }$/;"	f	class:Heap
+setMode	File.h	/^    void setMode(FileMode m) {$/;"	f	class:File
+setVar	satTest.cpp	/^   void setVar(const Var& v) { _var = v; }$/;"	f	class:Gate
+shrink	Global.h	/^    void     shrink (int nelems)       { assert(nelems <= sz); for (int i = 0; i < nelems; i++) sz--, data[sz].~T(); }$/;"	f	class:vec
+sign	SolverTypes.h	/^inline bool sign  (Lit p) { return p.x & 1; }$/;"	f
+simpDB_assigns	Solver.h	/^    int                 simpDB_assigns;   \/\/ Number of top-level assignments since last execution of 'simplifyDB()'.$/;"	m	class:Solver
+simpDB_props	Solver.h	/^    int64               simpDB_props;     \/\/ Remaining number of propagations that must be made before next execution of 'simplifyDB()'.$/;"	m	class:Solver
+simplify	Solver.cpp	/^bool Solver::simplify(Clause* c) const$/;"	f	class:Solver
+simplifyDB	Solver.cpp	/^void Solver::simplifyDB()$/;"	f	class:Solver
+size	File.h	/^    int         size;       \/\/ Size of buffer (at end of file, less than 'File_BufSize').$/;"	m	class:File
+size	Global.h	/^    int      size   (void) const       { return sz; }$/;"	f	class:vec
+size	SolverTypes.h	/^    int       size        ()      const { return size_learnt >> 1; }$/;"	f	class:Clause
+size	itp.cpp	/^unsigned SITP::size() $/;"	f	class:SITP
+size_learnt	SolverTypes.h	/^    uint    size_learnt;$/;"	m	class:Clause
+solve	Solver.cpp	/^bool Solver::solve(const vec<Lit>& assumps)$/;"	f	class:Solver
+solve	Solver.h	/^    bool    solve() { vec<Lit> tmp; return solve(tmp); }$/;"	f	class:Solver
+solve	sat.h	/^      bool solve() { _solver->solve(); return _solver->okay(); }$/;"	f	class:SatSolver
+sort	Sort.h	/^template <class T, class LessThan> void sort(T* array, int size, LessThan lt) {$/;"	f
+sort	Sort.h	/^template <class T, class LessThan> void sort(vec<T>& v, LessThan lt) {$/;"	f
+sort	Sort.h	/^template <class T> static inline void sort(T* array, int size) {$/;"	f
+sort	Sort.h	/^template <class T> void sort(vec<T>& v) {$/;"	f
+sort	Sort.h	/^void sort(T* array, int size, LessThan lt, double& seed)$/;"	f
+sortUnique	Sort.h	/^template <class T, class LessThan> void sortUnique(vec<T>& v, LessThan lt) {$/;"	f
+sortUnique	Sort.h	/^template <class T> static inline void sortUnique(T* array, int& size) {$/;"	f
+sortUnique	Sort.h	/^template <class T> void sortUnique(vec<T>& v) {$/;"	f
+sortUnique	Sort.h	/^void sortUnique(T* array, int& size, LessThan lt)$/;"	f
+starts	Solver.h	/^    int64   starts, decisions, propagations, conflicts;$/;"	m	struct:SolverStats
+stats	Solver.h	/^    SolverStats     stats;$/;"	m	class:Solver
+sz	Global.h	/^    int sz;$/;"	m	class:vec
+tell	File.cpp	/^int64 File::tell(void)$/;"	f	class:File
+temp_files	Proof.cpp	/^static TempFiles temp_files;       \/\/ (should be singleton)$/;"	v	file:
+toDimacs	SolverTypes.h	/^inline int toDimacs(Lit p) { return sign(p) ? -var(p) - 1 : var(p) + 1; }$/;"	f
+toInt	Global.h	/^    int toInt(void) const { return value; }$/;"	f	class:lbool
+toInt	Global.h	/^inline int   toInt  (lbool l) { return l.toInt(); }$/;"	f
+toLbool	Global.h	/^inline lbool toLbool(int   v) { return lbool(v);  }$/;"	f
+toLit	SolverTypes.h	/^inline Lit  toLit (int i) { Lit p; p.x = i; return p; }  \/\/ Inverse of 'index()'.$/;"	f
+totGate	satTest.cpp	/^vector<Gate *> totGate;$/;"	v
+tot_literals	Solver.h	/^    int64   clauses_literals, learnts_literals, max_literals, tot_literals;$/;"	m	struct:SolverStats
+trail	Solver.h	/^    vec<Lit>            trail;            \/\/ Assignment stack; stores all assigments made in the order they were made.$/;"	m	class:Solver
+trail_lim	Solver.h	/^    vec<int>            trail_lim;        \/\/ Separator indices for different decision levels in 'trail[]'.$/;"	m	class:Solver
+trail_pos	Solver.cpp	/^    const vec<int>& trail_pos;$/;"	m	class:lastToFirst_lt	file:
+trail_pos	Solver.h	/^    vec<int>            trail_pos;        \/\/ 'trail_pos[var]' is the variable's position in 'trail[]'. This supersedes 'level[]' in some sense, and 'level[]' will probably be removed in future releases.$/;"	m	class:Solver
+trav	Proof.h	/^    ProofTraverser* trav;$/;"	m	class:Proof
+traverse	Proof.cpp	/^void Proof::traverse(ProofTraverser& trav, ClauseId goal)$/;"	f	class:Proof
+traverse	itp.cpp	/^void Checker::traverse( ProofTraverser & itp )$/;"	f	class:Checker
+uchar	Global.h	/^typedef unsigned char uchar;$/;"	t
+uint64	Global.h	/^typedef UINT64             uint64;$/;"	t
+uint64	Global.h	/^typedef unsigned long long uint64;$/;"	t
+uintp	Global.h	/^typedef UINT_PTR           uintp;$/;"	t
+uintp	Global.h	/^typedef unsigned __PTRDIFF_TYPE__ uintp;$/;"	t
+undo	VarOrder.h	/^void VarOrder::undo(Var x)$/;"	f	class:VarOrder
+unit_id	Solver.h	/^    vec<ClauseId>       unit_id;          \/\/ 'unit_id[var]' is the clause ID for the unit literal 'var' or '~var' (if set at toplevel).$/;"	m	class:Solver
+unsign	SolverTypes.h	/^inline Lit  unsign(Lit p) { Lit q; q.x = p.x & ~1; return q; }$/;"	f
+update	VarOrder.h	/^void VarOrder::update(Var x)$/;"	f	class:VarOrder
+value	Global.h	/^    int     value;$/;"	m	class:lbool
+value	Solver.h	/^    lbool   value(Lit p) const { return sign(p) ? ~toLbool(assigns[var(p)]) : toLbool(assigns[var(p)]); }$/;"	f	class:Solver
+value	Solver.h	/^    lbool   value(Var x) const { return toLbool(assigns[x]); }$/;"	f	class:Solver
+var	SolverTypes.h	/^inline int  var   (Lit p) { return p.x >> 1; }$/;"	f
+varBumpActivity	Solver.h	/^    void     varBumpActivity(Lit p) {$/;"	f	class:Solver
+varDecayActivity	Solver.h	/^    void     varDecayActivity  () { if (var_decay >= 0) var_inc *= var_decay; }$/;"	f	class:Solver
+varRescaleActivity	Solver.cpp	/^void Solver::varRescaleActivity()$/;"	f	class:Solver
+var_Undef	SolverTypes.h	37;"	d
+var_decay	Solver.h	/^    double              var_decay;        \/\/ INVERSE decay factor for variable activity: stores 1\/decay. Use negative value for static variable order.$/;"	m	class:Solver
+var_decay	Solver.h	/^    double  var_decay, clause_decay, random_var_freq;    \/\/ (reasonable values are: 0.95, 0.999, 0.02)    $/;"	m	struct:SearchParams
+var_inc	Solver.h	/^    double              var_inc;          \/\/ Amount to bump next variable with.$/;"	m	class:Solver
+vcs	itp.h	/^    vec< vec< ClauseId > > vcs;$/;"	m	struct:Checker
+vec	Global.h	/^             vec        (vec<T>& other) { TEMPLATE_FAIL; }$/;"	f	class:vec
+vec	Global.h	/^    vec(T* array, int size)     : data(array), sz(size), cap(size) { }      \/\/ (takes ownership of array -- will be deallocated with 'xfree()')$/;"	f	class:vec
+vec	Global.h	/^    vec(int size)               : data(NULL) , sz(0)   , cap(0)    { growTo(size); }$/;"	f	class:vec
+vec	Global.h	/^    vec(int size, const T& pad) : data(NULL) , sz(0)   , cap(0)    { growTo(size, pad); }$/;"	f	class:vec
+vec	Global.h	/^    vec(void)                   : data(NULL) , sz(0)   , cap(0)    { }$/;"	f	class:vec
+vec	Global.h	/^class vec {$/;"	c
+verbosity	Solver.h	/^    int             verbosity;          \/\/ Verbosity level. 0=silent, 1=some progress report, 2=everything$/;"	m	class:Solver
+vxs	itp.h	/^    vec< vec<Lit> > vxs;$/;"	m	struct:Checker
+watches	Solver.h	/^    vec<vec<Clause*> >  watches;          \/\/ 'watches[lit]' is a list of constraints watching 'lit' (will go there if literal becomes true).$/;"	m	class:Solver
+x	SolverTypes.h	/^    int     x;$/;"	m	class:Lit
+xfree	Global.h	/^template<class T> static inline void xfree(T *ptr) {$/;"	f
+xmalloc	Global.h	/^template<class T> static inline T* xmalloc(size_t size) {$/;"	f
+xrealloc	Global.h	/^template<class T> static inline T* xrealloc(T* ptr, size_t size) {$/;"	f
+~AigCal	itp.h	/^    virtual ~AigCal(){};$/;"	f	class:AigCal
+~File	File.h	/^   ~File(void) {$/;"	f	class:File
+~Gate	satTest.cpp	/^   ~Gate() {}$/;"	f	class:Gate
+~ITPMgr	itp.cpp	/^ITPMgr::~ITPMgr()$/;"	f	class:ITPMgr
+~MITP	itp.h	/^   virtual ~MITP(){}$/;"	f	class:MITP
+~MultiSITP	itp.cpp	/^MultiSITP::~MultiSITP()$/;"	f	class:MultiSITP
+~PITP	itp.h	/^   virtual ~PITP(){}$/;"	f	class:PITP
+~ProofTraverser	Proof.h	/^    virtual ~ProofTraverser(){}$/;"	f	struct:ProofTraverser
+~SITP	itp.h	/^    virtual ~SITP(){}$/;"	f	class:SITP
+~SMITP	itp.h	/^    virtual ~SMITP(){}$/;"	f	class:SMITP
+~SPITP	itp.h	/^    virtual ~SPITP(){}$/;"	f	class:SPITP
+~SatSolver	sat.h	/^      ~SatSolver() { }$/;"	f	class:SatSolver
+~Solver	Solver.h	/^   ~Solver() {$/;"	f	class:Solver
+~TempFiles	Proof.cpp	/^   ~TempFiles()$/;"	f	class:TempFiles
+~vec	Global.h	/^   ~vec(void)                                                      { clear(true); }$/;"	f	class:vec

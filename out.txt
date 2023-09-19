@@ -1,0 +1,240 @@
+yosysSETUP> #set eng abc
+
+yosysSETUP> re d -v /home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v
+
+file name: /home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v
+
+-- Running command `read_verilog -sv /home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v' --
+
+1. Executing Verilog-2005 frontend: /home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v
+Parsing SystemVerilog input from `/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v' to AST representation.
+Generating RTLIL representation for module `\vendingMachine'.
+Successfully finished Verilog frontend.
+
+-- Running command `hierarchy -auto-top' --
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Finding top of design hierarchy..
+root of   0 design levels: vendingMachine      
+Automatically selected vendingMachine as design top module.
+
+2.2. Analyzing design hierarchy..
+Top module:  \vendingMachine
+
+2.3. Analyzing design hierarchy..
+Top module:  \vendingMachine
+Removed 0 unused modules.
+
+yosysSETUP> blast ntk
+
+-- Running command `hierarchy -auto-top; flatten; proc; techmap; setundef -zero; aigmap; write_aiger -map .map.txt ._temp_.aig' --
+
+3. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1. Analyzing design hierarchy..
+Top module:  \vendingMachine
+
+3.2. Analyzing design hierarchy..
+Top module:  \vendingMachine
+Removed 0 unused modules.
+
+4. Executing FLATTEN pass (flatten design).
+
+5. Executing PROC pass (convert processes to netlists).
+
+5.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+5.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72 in module vendingMachine.
+Removed 1 dead cases from process $proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14 in module vendingMachine.
+Marked 13 switch rules as full_case in process $proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14 in module vendingMachine.
+Removed a total of 1 dead cases.
+
+5.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 15 redundant assignments.
+Promoted 14 assignments to connections.
+
+5.4. Executing PROC_INIT pass (extract init attributes).
+
+5.5. Executing PROC_ARST pass (detect async resets in processes).
+
+5.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~14 debug messages>
+
+5.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+     1/15: $0\initialized[0:0]
+     2/15: $0\exchangeReady[0:0]
+     3/15: $0\serviceCoinType[1:0]
+     4/15: $0\serviceValue[7:0]
+     5/15: $0\inputValue[7:0]
+     6/15: $0\countNTD_1[2:0]
+     7/15: $0\countNTD_5[2:0]
+     8/15: $0\countNTD_10[2:0]
+     9/15: $0\countNTD_50[2:0]
+    10/15: $0\serviceTypeOut[1:0]
+    11/15: $0\itemTypeOut[1:0]
+    12/15: $0\coinOutNTD_1[2:0]
+    13/15: $0\coinOutNTD_5[2:0]
+    14/15: $0\coinOutNTD_10[2:0]
+    15/15: $0\coinOutNTD_50[2:0]
+Creating decoders for process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+     1/104: $6\serviceTypeOut_w[1:0]
+     2/104: $6\coinOutNTD_1_w[2:0]
+     3/104: $8\coinOutNTD_5_w[2:0]
+     4/104: $8\coinOutNTD_10_w[2:0]
+     5/104: $8\coinOutNTD_50_w[2:0]
+     6/104: $6\countNTD_1_w[2:0]
+     7/104: $8\countNTD_5_w[2:0]
+     8/104: $8\countNTD_10_w[2:0]
+     9/104: $8\countNTD_50_w[2:0]
+    10/104: $12\serviceCoinType_w[1:0]
+    11/104: $7\itemTypeOut_w[1:0]
+    12/104: $13\serviceValue_w[7:0]
+    13/104: $11\serviceCoinType_w[1:0]
+    14/104: $12\serviceValue_w[7:0]
+    15/104: $5\countNTD_1_w[2:0]
+    16/104: $7\countNTD_5_w[2:0]
+    17/104: $7\countNTD_10_w[2:0]
+    18/104: $7\countNTD_50_w[2:0]
+    19/104: $5\serviceTypeOut_w[1:0]
+    20/104: $6\itemTypeOut_w[1:0]
+    21/104: $5\coinOutNTD_1_w[2:0]
+    22/104: $7\coinOutNTD_5_w[2:0]
+    23/104: $7\coinOutNTD_10_w[2:0]
+    24/104: $7\coinOutNTD_50_w[2:0]
+    25/104: $10\serviceCoinType_w[1:0]
+    26/104: $11\serviceValue_w[7:0]
+    27/104: $6\countNTD_5_w[2:0]
+    28/104: $6\coinOutNTD_5_w[2:0]
+    29/104: $9\serviceCoinType_w[1:0]
+    30/104: $10\serviceValue_w[7:0]
+    31/104: $5\countNTD_5_w[2:0]
+    32/104: $5\coinOutNTD_5_w[2:0]
+    33/104: $8\serviceCoinType_w[1:0]
+    34/104: $9\serviceValue_w[7:0]
+    35/104: $6\countNTD_10_w[2:0]
+    36/104: $6\coinOutNTD_10_w[2:0]
+    37/104: $7\serviceCoinType_w[1:0]
+    38/104: $8\serviceValue_w[7:0]
+    39/104: $5\countNTD_10_w[2:0]
+    40/104: $5\coinOutNTD_10_w[2:0]
+    41/104: $6\serviceCoinType_w[1:0]
+    42/104: $7\serviceValue_w[7:0]
+    43/104: $6\countNTD_50_w[2:0]
+    44/104: $6\coinOutNTD_50_w[2:0]
+    45/104: $5\serviceCoinType_w[1:0]
+    46/104: $6\serviceValue_w[7:0]
+    47/104: $5\countNTD_50_w[2:0]
+    48/104: $5\coinOutNTD_50_w[2:0]
+    49/104: $4\serviceCoinType_w[1:0]
+    50/104: $5\serviceValue_w[7:0]
+    51/104: $4\countNTD_50_w[2:0]
+    52/104: $4\coinOutNTD_50_w[2:0]
+    53/104: $4\countNTD_1_w[2:0]
+    54/104: $4\countNTD_5_w[2:0]
+    55/104: $4\countNTD_10_w[2:0]
+    56/104: $4\serviceTypeOut_w[1:0]
+    57/104: $5\itemTypeOut_w[1:0]
+    58/104: $4\coinOutNTD_1_w[2:0]
+    59/104: $4\coinOutNTD_5_w[2:0]
+    60/104: $4\coinOutNTD_10_w[2:0]
+    61/104: $4\exchangeReady_w[0:0]
+    62/104: $4\itemTypeOut_w[1:0]
+    63/104: $4\serviceValue_w[7:0]
+    64/104: $3\exchangeReady_w[0:0]
+    65/104: $3\serviceValue_w[7:0]
+    66/104: $3\itemTypeOut_w[1:0]
+    67/104: $3\serviceCoinType_w[1:0]
+    68/104: $3\countNTD_1_w[2:0]
+    69/104: $3\countNTD_5_w[2:0]
+    70/104: $3\countNTD_10_w[2:0]
+    71/104: $3\countNTD_50_w[2:0]
+    72/104: $3\serviceTypeOut_w[1:0]
+    73/104: $3\coinOutNTD_1_w[2:0]
+    74/104: $3\coinOutNTD_5_w[2:0]
+    75/104: $3\coinOutNTD_10_w[2:0]
+    76/104: $3\coinOutNTD_50_w[2:0]
+    77/104: $2\exchangeReady_w[0:0]
+    78/104: $2\serviceCoinType_w[1:0]
+    79/104: $2\serviceValue_w[7:0]
+    80/104: $2\inputValue_w[7:0]
+    81/104: $2\countNTD_1_w[2:0]
+    82/104: $2\countNTD_5_w[2:0]
+    83/104: $2\countNTD_10_w[2:0]
+    84/104: $2\countNTD_50_w[2:0]
+    85/104: $2\serviceTypeOut_w[1:0]
+    86/104: $2\itemTypeOut_w[1:0]
+    87/104: $2\coinOutNTD_1_w[2:0]
+    88/104: $2\coinOutNTD_5_w[2:0]
+    89/104: $2\coinOutNTD_10_w[2:0]
+    90/104: $2\coinOutNTD_50_w[2:0]
+    91/104: $1\exchangeReady_w[0:0]
+    92/104: $1\serviceCoinType_w[1:0]
+    93/104: $1\serviceValue_w[7:0]
+    94/104: $1\inputValue_w[7:0]
+    95/104: $1\countNTD_1_w[2:0]
+    96/104: $1\countNTD_5_w[2:0]
+    97/104: $1\countNTD_10_w[2:0]
+    98/104: $1\countNTD_50_w[2:0]
+    99/104: $1\serviceTypeOut_w[1:0]
+   100/104: $1\itemTypeOut_w[1:0]
+   101/104: $1\coinOutNTD_1_w[2:0]
+   102/104: $1\coinOutNTD_5_w[2:0]
+   103/104: $1\coinOutNTD_10_w[2:0]
+   104/104: $1\coinOutNTD_50_w[2:0]
+
+5.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\vendingMachine.\coinOutNTD_50_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\coinOutNTD_10_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\coinOutNTD_5_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\coinOutNTD_1_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\itemTypeOut_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\serviceTypeOut_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\countNTD_50_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\countNTD_10_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\countNTD_5_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\countNTD_1_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\inputValue_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\serviceValue_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\serviceCoinType_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+No latch inferred for signal `\vendingMachine.\exchangeReady_w' from process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:119$14'.
+
+5.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vendingMachine.\coinOutNTD_50' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1233' with positive edge clock.
+Creating register for signal `\vendingMachine.\coinOutNTD_10' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1234' with positive edge clock.
+Creating register for signal `\vendingMachine.\coinOutNTD_5' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1235' with positive edge clock.
+Creating register for signal `\vendingMachine.\coinOutNTD_1' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1236' with positive edge clock.
+Creating register for signal `\vendingMachine.\itemTypeOut' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1237' with positive edge clock.
+Creating register for signal `\vendingMachine.\serviceTypeOut' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1238' with positive edge clock.
+Creating register for signal `\vendingMachine.\countNTD_50' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1239' with positive edge clock.
+Creating register for signal `\vendingMachine.\countNTD_10' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1240' with positive edge clock.
+Creating register for signal `\vendingMachine.\countNTD_5' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1241' with positive edge clock.
+Creating register for signal `\vendingMachine.\countNTD_1' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1242' with positive edge clock.
+Creating register for signal `\vendingMachine.\inputValue' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1243' with positive edge clock.
+Creating register for signal `\vendingMachine.\serviceValue' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1244' with positive edge clock.
+Creating register for signal `\vendingMachine.\serviceCoinType' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1245' with positive edge clock.
+Creating register for signal `\vendingMachine.\exchangeReady' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1246' with positive edge clock.
+Creating register for signal `\vendingMachine.\initialized' using process `\vendingMachine.$proc$/home/yenlu_mepu/GV/gv0/design/SoCV/vending/vending-simple.v:252$72'.
+  created $dff cell `$procdff$1247' with positive edge clock.
+
+5.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+5.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).

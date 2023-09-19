@@ -46,6 +46,24 @@ GVCmdExec::lexOptions(const string& option, vector<string>& tokens) const {
     }
 }
 
+bool
+GVCmdExec::lexSingleOption
+(const string& option, string& token, bool optional) const
+{
+   size_t n = myStrGetTok(option, token);
+   if (!optional) {
+      if (token.size() == 0) {
+         errorOption(GV_CMD_OPT_MISSING, "");
+         return false;
+      }
+   }
+   if (n != string::npos) {
+      errorOption(GV_CMD_OPT_EXTRA, option.substr(n));
+      return false;
+   }
+   return true;
+}
+
 GVCmdExecStatus
 GVCmdExec::errorOption(GVCmdOptionError err, const string& opt) const {
     switch (err) {
