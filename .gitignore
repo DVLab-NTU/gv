@@ -2,7 +2,7 @@
 /src/lib/*.so
 /src/lib/lib.d
 
-/src/ext/*.so
+src/ext/*.so
 
 /engine
 /include
@@ -10,6 +10,7 @@
 *.d
 *.a
 /gv
+/gv.debug
 /lib
 btorinfo.log
 test.btor
