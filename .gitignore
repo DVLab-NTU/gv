@@ -11,6 +11,8 @@ src/ext/*.so
 *.a
 /gv
 /gv.debug
+/yosys-abc
+/yosys-config
 /lib
 btorinfo.log
 test.btor
