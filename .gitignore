@@ -2,6 +2,8 @@
 /src/lib/*.so
 /src/lib/lib.d
 
+/src/ext/*.so
+
 /engine
 /include
 *.o
