@@ -22,6 +22,7 @@ extern "C"
     Abc_Frame_t* Abc_FrameGetGlobalFrame();
     int          Cmd_CommandExecute(Abc_Frame_t* pAbc, const char* sCommand);
     Abc_Ntk_t*   Abc_FrameReadNtk(Abc_Frame_t* p);
+    Gia_Man_t* Wln_BlastSystemVerilog(char* pFileName, char* pTopModule, char* pDefines, int fSkipStrash, int fInvert, int fTechMap, int fVerbose);
 }
 
 class AbcMgr

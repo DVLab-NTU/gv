@@ -109,10 +109,11 @@ public:
    // --- MODIFICATION FOR SoCV HW5 (START) ---
    void readCirFromAbc(string fileName, CirFileType fileType);
    void initCir(Gia_Man_t* pGia);
+   void buildNtkBdd();
+   void buildBdd(CirGate* gate);
+   void dfsOrder(vector<CirGate*>& nets);
    CirGate* createGate(unsigned id, GateType type);
    const bool setBddOrder(const bool& file);
-   void buildNtkBdd();
-   void buildBdd(const CirGate* gate);
    // ---  MODIFICATION FOR SoCV HW5 (END)  ---
 private:
    unsigned            _numDecl[TOT_PARSE_PORTS];

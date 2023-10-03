@@ -10,6 +10,7 @@
 #include "bddMgrV.h"
 #include "gvMsg.h"
 #include "gvNtk.h"
+#include "cirMgr.h"
 #include "util.h"
 #include <cassert>
 #include <cstring>
@@ -731,7 +732,8 @@ BSetOrderCmd::exec(const string& option) {
     bddMgrV->restart();
     // V3NtkHandler* const handler = v3Handler.getCurHandler();
 
-    setBddOrder = gvNtkMgr->setBddOrder(file);
+    // setBddOrder = gvNtkMgr->setBddOrder(file);
+    setBddOrder = cirMgr->setBddOrder(file);
     if (!setBddOrder)
         gvMsg(GV_MSG_ERR) << "Set BDD Variable Order Failed !!" << endl;
     else gvMsg(GV_MSG_IFO) << "Set BDD Variable Order Succeed !!" << endl;
@@ -766,7 +768,7 @@ BConstructCmd::exec(const string& option) {
     }
 
     bool isNet = false, isOutput = false;
-    if (myStrNCmp("-All", options[0], 2) == 0) gvNtkMgr->buildNtkBdd();
+    if (myStrNCmp("-All", options[0], 2) == 0) cirMgr->buildNtkBdd();
     else if (myStrNCmp("-Netid", options[0], 2) == 0) isNet = true;
     else if (myStrNCmp("-Output", options[0], 2) == 0) isOutput = true;
     else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);

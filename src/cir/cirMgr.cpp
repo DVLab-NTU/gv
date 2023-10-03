@@ -617,6 +617,9 @@ CirMgr::genDfsList()
    CirGate::setGlobalRef();
    for (unsigned i = 0, n = getNumPOs(); i < n; ++i)
       getPo(i)->genDfsList(_dfsList);
+
+   for (unsigned i = 0, n = getNumLATCHs() - 1; i < n; ++i)
+      getRi(i)->genDfsList(_dfsList);
 }
 
 void
@@ -658,9 +661,11 @@ CirAigGate::genDfsList(GateList& gateList)
 {
    setToGlobalRef();
    CirGate* g = _in0.gate();
+   cout << g->getGid()<<endl;
    if (!g->isGlobalRef())
       g->genDfsList(gateList);
    g = _in1.gate();
+   cout << g->getGid()<<endl;
    if (!g->isGlobalRef())
       g->genDfsList(gateList);
    gateList.push_back(this);
