@@ -68,7 +68,6 @@ CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
                 CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
                 _roList[iRo++] = gate;
                 _totGateList[gateId] = gate;
-                // cout << "Fanin: " <<Gia_ObjId(pGia, Gia_ObjFanin0(pObj)) << endl;
             }
         }
         else if(Gia_ObjIsPo(pGia, pObj)) {
@@ -82,29 +81,16 @@ CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
             int fanin0 = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
             int fanin1 = Gia_ObjId(pGia, Gia_ObjFanin1(pObj));
-            if(PPI2RO.count(fanin0)) 
-                fanin0 = PPI2RO[fanin0];
-            if(PPI2RO.count(fanin1)) 
-                fanin1 = PPI2RO[fanin1];
+            if(PPI2RO.count(fanin0)) fanin0 = PPI2RO[fanin0];
+            if(PPI2RO.count(fanin1)) fanin1 = PPI2RO[fanin1];
             gate->setIn0(getGate(fanin0), Gia_ObjFaninC0(pObj));
             gate->setIn1(getGate(fanin1), Gia_ObjFaninC1(pObj));
         }
         else if(Gia_ObjIsRo(pGia, pObj)) {
             int gateId = Gia_ObjId(pGia,pObj);
-            if(iPpi < iRo){
-                cout << _roList[iPpi]->getGid() << "<->" << Gia_ObjId(pGia,pObj) << endl;
-                PPI2RO[gateId] = _roList[iPpi]->getGid();
-            }
-            else{
-                cout << Gia_ObjId(pGia, pObj);
-                PPI2RO[gateId] = 0;
-            }
+            if(iPpi < iRo) PPI2RO[gateId] = _roList[iPpi]->getGid();
+            else PPI2RO[gateId] = 0;
             iPpi++;
-            // CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
-            // _roList[iRo++] = gate;
-            // _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-            // cout << "RO: "<< Gia_ObjId(pGia, pObj) << endl;
-            // cout << "Fanin: " <<Gia_ObjId(pGia, Gia_ObjFanin0(pObj)) << endl;
         }
         else if(Gia_ObjIsRi(pGia, pObj)) {
             CirRiGate *gate = new CirRiGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
@@ -114,28 +100,16 @@ CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
             gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
             _riList[iRi++] = gate;
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-            cout << "RI: "<< Gia_ObjId(pGia, pObj) << endl;
-            cout << "Fanin: " <<Gia_ObjId(pGia, Gia_ObjFanin0(pObj)) << endl;
-            cout << "Cp: " <<Gia_ObjFaninC0(pObj) << endl;
         }
         else if(Gia_ObjIsConst0(pObj)) {
             _totGateList[0] = CirMgr::_const0;
-            cout << "I am const0 " << Gia_ObjId(pGia, pObj) <<  endl;
         }
         else {
             assert(true);
             cout << "not defined gate type" << endl;
         }
     }
-    Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
-        cout << Gia_ObjId(pGia, pObjRo) << " <-> " << Gia_ObjId(pGia, pObjRi)<< endl;
-    }
-
-    cout << "PPI to RO: \n";
-    Gia_ManForEachRo(pGia, pObj, i) {
-        // cout << _roList[i]->getGid() << "<->" << Gia_ObjId(pGia,pObj) << endl;
-        cout << i << "<->" << Gia_ObjId(pGia,pObj) << endl;
-    }
+    
     // genConnections();
     genDfsList();
     // checkFloatList();

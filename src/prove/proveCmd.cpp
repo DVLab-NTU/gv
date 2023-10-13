@@ -13,6 +13,8 @@
 #include "util.h"
 #include <cstring>
 #include <iomanip>
+#include "cirMgr.h"
+#include "cirGate.h"
 
 using namespace std;
 
@@ -199,24 +201,27 @@ PCheckPropertyCmd::exec(const string& option) {
     if (!myStr2Int(options[1], num) || (num < 0))
         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
     if (isNet) {
-        if ((unsigned)num >= gvNtkMgr->getNetSize()) {
+        if ((unsigned)num >= cirMgr->getNumTots()) {
             gvMsg(GV_MSG_ERR) << "Net with Id " << num
                               << " does NOT Exist in Current Ntk !!" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
-        netId = GVNetId::makeNetId(num);
+        // netId = GVNetId::makeNetId(num);
     } else {
-        if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
+        if ((unsigned)num >= cirMgr->getNumPOs()) {
             gvMsg(GV_MSG_ERR) << "Output with Index " << num
                               << " does NOT Exist in Current Ntk !!" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
-        netId = gvNtkMgr->getOutput(num);
+        // netId = gvNtkMgr->getOutput(num);
     }
 
-    BddNodeV monitor = bddMgrV->getBddNodeV(netId.id);
+    // BddNodeV monitor = bddMgrV->getBddNodeV(netId.id);
+    BddNodeV monitor = bddMgrV->getBddNodeV(cirMgr->getPo(num)->getGid());
     assert(monitor());
-    bddMgrV->runPCheckProperty(gvNtkMgr->getNetNameFromId(netId.id), monitor);
+    // bddMgrV->runPCheckProperty(gvNtkMgr->getNetNameFromId(netId.id), monitor);
+    string mStr = "monitor";
+    bddMgrV->runPCheckProperty(mStr, monitor);
 
     return GV_CMD_EXEC_DONE;
 }

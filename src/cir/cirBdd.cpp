@@ -32,61 +32,25 @@ CirMgr::setBddOrder(const bool& file) {
     // build PI (primary input)
     for (unsigned i = 0, n = getNumPIs(); i < n; ++i) {
         CirPiGate* gate     = (file) ? getPi(i) : getPi(n - i - 1);
-        // string  netName = getNetNameFromId(nId.id);
         bddMgrV->addBddNodeV(gate->getGid(), bddMgrV->getSupport(supportId)());
-        // bddMgrV->addBddNodeV(gate->getName(), bddMgrV->getSupport(supportId)());
-        // cout << " Name : " << netName << "-> Id : " << nId.id << endl;
-        // cout << "Support Id : " << supportId << "\n\n";
-        // cout << " --- \n";
-        cout << "PI: " << gate->getGid() << endl;
         ++supportId;
     }
-    // build InOut (Not use)
-    // for (unsigned i = 0, n = getInoutSize(); i < n; ++i) {
-    //     const GVNetId& nId     = (file) ? getInout(i) : getInout(n - i - 1);
-    //     string         netName = getNetNameFromId(nId.id);
-    //     bddMgrV->addBddNodeV(nId.id, bddMgrV->getSupport(supportId)());
-    //     bddMgrV->addBddNodeV(netName, bddMgrV->getSupport(supportId)());
-    //     ++supportId;
-    // }
     // build FF_CS (X: current state)
     for (unsigned i = 0, n = getNumLATCHs(); i < n; ++i) {
         CirRoGate* gate = (file) ? getRo(i) : getRo(n - i - 1);
-        // string         netName = getNetNameFromId(nId.id);
         bddMgrV->addBddNodeV(gate->getGid(), bddMgrV->getSupport(supportId)());
-        // bddMgrV->addBddNodeV(gate->getName(), bddMgrV->getSupport(supportId)());
-        // cout << " Name : " << netName << "-> Id : " << nId.id << endl;
-        // cout << "Support Id : " << supportId << "\n\n";
-        // cout << " --- \n";
-        cout << "RO: "<< gate->getGid() << endl;
         ++supportId;
     }
     // build FF_NS (Y: next state)
     // here we only create "CS_name + _ns" for y_i
     for (unsigned i = 0, n = getNumLATCHs(); i < n; ++i) {
         CirRiGate* gate = (file) ? getRi(i) : getRi(n - i - 1);
-        // GVNetId        ri      = getInputNetId(nId, 0); // get RI
-        // string         netName = getNetNameFromId(ri.id);
         bddMgrV->addBddNodeV(gate->getName(), bddMgrV->getSupport(supportId)());
         ++supportId;
     }
     // Constants (const0 node, id=0)
     bddMgrV->addBddNodeV(_const0->getGid(), BddNodeV::_zero());
     ++supportId;
-
-    // for (uint32_t i = 0; i < getConstSize(); ++i) {
-    //     assert(getGateType(getConst(i)) == GV_NTK_OBJ_CONST0);
-    //     bddMgrV->addBddNodeV(getConst(i).id, BddNodeV::_zero());
-    //     ++supportId;
-    // }
-    // // FF that stores const0 (take as const0 node)
-    // for (uint32_t i = 0; i < getFFConst0Size(); ++i) {
-    //     assert(getGateType(getFFConst0(i)) == GV_NTK_OBJ_FF_NS);
-    //     bddMgrV->addBddNodeV(getFFConst0(i).id, BddNodeV::_zero());
-    //     bddMgrV->addBddNodeV(getRoIdFromRiId(getFFConst0(i).id),
-    //                          BddNodeV::_zero());
-    //     ++supportId;
-    // }
 
     return true;
 }
@@ -99,29 +63,18 @@ CirMgr::buildNtkBdd() {
     // Construct BDDs in the DFS order
 
     // build PO
-    // stack<GVNetId> s;
-    // for (unsigned i = 0; i < getNumPOs(); ++i) {
-    //     s.push(getPo(i));
-    // }
-    // while (s.size() > 0) {
-    //     buildBdd(s.top());
-    //     s.pop();
-    // }
-
     for (unsigned i = 0; i < getNumPOs(); ++i) {
         buildBdd(getPo(i));
     }
 
     // build next state (RI)
     for (unsigned i = 0; i < getNumLATCHs(); ++i) {
-        // GVNetId left = getInputNetId(getFF(i), 0); // get RI
         CirGate* left = getRi(i); // get RI
         if (bddMgrV->getBddNodeV(left->getGid()) == (size_t)0) {
             buildBdd(left);
         }
         BddNodeV ns = ((left->getIn0().isInv())? ~bddMgrV->getBddNodeV(left->getGid())
                                                : bddMgrV->getBddNodeV(left->getGid()));
-        // BddNodeV ns = bddMgrV->getBddNodeV(left->getGid());
     }
 }
 
@@ -141,14 +94,6 @@ CirMgr::buildBdd(CirGate* gate) {
             // build fanin
             left = orderedGates[i]->getIn0();
             right = orderedGates[i]->getIn1();
-            // leftBdd = bddMgrV->getBddNodeV(left.gateId());
-            // rightBdd= bddMgrV->getBddNodeV(right.gateId());
-            // if (bddMgrV->getBddNodeV(left.id) == (size_t)0) {
-            //     buildBdd(left);
-            // }
-            // if (bddMgrV->getBddNodeV(right.id) == (size_t)0) {
-            //     buildBdd(right);
-            // }
             BddNodeV newNode =((left.isInv()) ? ~bddMgrV->getBddNodeV(left.gateId())
                                             : bddMgrV->getBddNodeV(left.gateId())) &
                              ((right.isInv()) ? ~bddMgrV->getBddNodeV(right.gateId())
@@ -157,7 +102,6 @@ CirMgr::buildBdd(CirGate* gate) {
         }
         // PO, RI
         else if ((orderedGates[i]->getType() == RI_GATE) || (orderedGates[i]->getType() == PO_GATE)) {
-            // GVNetId  fanin   = getInputNetId(orderedNets[i], 0);
             CirGateV in0 = orderedGates[i]->getIn0();
             BddNodeV newNode = (in0.isInv()) ? ~bddMgrV->getBddNodeV(in0.gateId()) : bddMgrV->getBddNodeV(in0.gateId());
             bddMgrV->addBddNodeV(orderedGates[i]->getGid(), newNode());
