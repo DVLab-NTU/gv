@@ -244,12 +244,12 @@ CirMgr::readCircuit(const string& fileName)
 void
 CirMgr::deleteCircuit()
 {
-   if (_totGateList)
-      for (unsigned i = 1, n = getNumTots(); i < n; ++i)
-         if (_totGateList[i]) delete _totGateList[i];
-   if (_piList) { delete []_piList; _piList = 0; }
-   if (_poList) { delete []_poList; _poList = 0; }
-   if (_totGateList) { delete []_totGateList; _totGateList = 0; }
+   // if (_totGateList)
+   //    for (unsigned i = 1, n = getNumTots(); i < n; ++i)
+   //       if (_totGateList[i]) delete _totGateList[i];
+   if (!_piList.empty()) { _piList.clear(); }
+   if (!_poList.empty()) { _poList.clear(); }
+   // if (!_totGateList.empty()) { _totGateList.clear(); }
    if (_fanoutInfo) { delete []_fanoutInfo; _fanoutInfo = 0; }
    clearList<IdList>(_undefList);
    clearList<IdList>(_floatList);
@@ -309,13 +309,13 @@ CirMgr::parseHeader(ifstream& cirin)
    // }
 
    // Create lists
-   _piList = new CirPiGate*[_numDecl[PI]];
-   _poList = new CirPoGate*[_numDecl[PO]];
-   _riList = new CirRiGate*[_numDecl[LATCH]];
-   _roList = new CirRoGate*[_numDecl[LATCH]];
+   // _piList = new CirPiGate*[_numDecl[PI]];
+   // _poList = new CirPoGate*[_numDecl[PO]];
+   // _riList = new CirRiGate*[_numDecl[LATCH]];
+   // _roList = new CirRoGate*[_numDecl[LATCH]];
    // +1 for const
    unsigned numTots = getNumTots();
-   _totGateList = new CirGate*[numTots];
+   // _totGateList = new CirGate*[numTots];
    for (unsigned i = 0; i < numTots; ++i)
       _totGateList[i] = 0;
    _fanoutInfo = new GateList[numTots];
@@ -618,7 +618,7 @@ CirMgr::genDfsList()
    for (unsigned i = 0, n = getNumPOs(); i < n; ++i)
       getPo(i)->genDfsList(_dfsList);
 
-   for (unsigned i = 0, n = getNumLATCHs() - 1; i < n; ++i)
+   for (unsigned i = 0, n = getNumLATCHs(); i < n; ++i)
       getRi(i)->genDfsList(_dfsList);
 }
 

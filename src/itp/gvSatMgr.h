@@ -17,6 +17,8 @@
 #include <vector>
 // #include "SolverTypesV.h"
 #include "reader.h"
+#include "cirMgr.h"
+#include "cirGate.h"
 
 class GVNetId;
 typedef int ClauseId;
@@ -47,7 +49,7 @@ class SatProofRes
         GVSatSolver* getSatSolver() const { return _satSolver; }
 
         void reportResult(const string&) const;
-        void reportCex(const GVNetId&, const GVNtkMgr* const) const;
+        void reportCex(const CirGate*, const GVNtkMgr* const) const;
 
     private:
         uint32_t     _proved;
@@ -63,11 +65,11 @@ class SATMgr
         ~SATMgr() { reset(); }
 
         // entry point for SoCV SAT property checking
-        void verifyPropertyItp(const string& name, const GVNetId& monitor);
-        void verifyPropertyBmc(const string& name, const GVNetId& monitor);
+        void verifyPropertyItp(const string& name, const CirGate* monitor);
+        void verifyPropertyBmc(const string& name, const CirGate* monitor);
         // Various proof engines
-        void indBmc(const GVNetId&, SatProofRes&);
-        void itpUbmc(const GVNetId&, SatProofRes&);
+        void indBmc(const CirGate*, SatProofRes&);
+        void itpUbmc(const CirGate*, SatProofRes&);
 
         // bind with a solver to get proof info.
         void           bind(GVSatSolver* ptrMinisat);
@@ -77,9 +79,10 @@ class SATMgr
         void           markOnsetClause(const ClauseId& cid);
         void           markOffsetClause(const ClauseId& cid);
         // map var to V3Net (PPI)
-        void           mapVar2Net(const Var& var, const GVNetId& net);
+        void           mapVar2Net(const Var& var,  CirGate* net);
         // please be sure that you call these function right after a UNSAT solving
-        GVNetId        getItp() const;
+        // GVNetId        getItp() const;
+        CirGate*        getItp() const;
         vector<Clause> getUNSATCore() const;
         // get number of clauses (the latest clause id + 1)
         int            getNumClauses() const { return _ptrMinisat->getNumClauses(); }
@@ -91,8 +94,10 @@ class SATMgr
 
     private:
         // helper functions to get proof info.
-        GVNetId buildInitState() const;
-        GVNetId buildItp(const string& proofName) const;
+        // GVNetId buildInitState() const;
+        CirGate* buildInitState() const;
+        // GVNetId buildItp(const string& proofName) const;
+        CirGate* buildItp(const string& proofName) const;
         void    retrieveProof(Reader& rdr, vector<unsigned>& clausePos, vector<ClauseId>& usedClause) const;
         void    retrieveProof(Reader& rdr, vector<Clause>& unsatCore) const;
 
@@ -100,9 +105,10 @@ class SATMgr
         GVSatSolver* _ptrMinisat;
         // The duplicated V3Ntk
         GVNtkMgr*    _ntk;
+        CirMgr*      _cirNtk;
 
         // to handle interpolation
-        map<Var, GVNetId>         _var2Net;    // mapping common variables to net
+        map<Var, CirGate*>         _var2Net;    // mapping common variables to net
         vector<bool>              _isClauseOn; // record onset clauses
         // will be determined in retrieveProof, you don't need to take care about this!
         mutable vector<bool>      _isClaOnDup; // duplication & extension of _isClauseOn

@@ -6,6 +6,8 @@
   Copyright    [ ]
 ****************************************************************************/
 #include "gvNtk.h"
+#include "cirMgr.h"
+#include "cirGate.h"
 #include "base/abc/abc.h"
 #include "gvMsg.h"
 #include "map"

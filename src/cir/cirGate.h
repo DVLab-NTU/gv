@@ -101,6 +101,8 @@ public:
    unsigned getLineNo() const { return _lineNo; }
    virtual GateType getType() const = 0;
    virtual string getTypeStr() const = 0;
+   virtual void setIn0(CirGate*, bool inv){};
+   virtual void setIn1(CirGate*, bool inv){};
    virtual CirGateV getIn0() const { return 0; }
    virtual CirGateV getIn1() const { return 0; }
    virtual CirGate* getIn0Gate() const { return 0; }
@@ -271,6 +273,8 @@ public:
    void setName(char *s) { _name = s; }
    char* getName() const { return _name; }
    bool isRo() const { return true; }
+   void setIn0(size_t i) { _in0 = i; }
+   void setIn0(CirGate* faninGate, bool inv = false);
 
    // Methods about circuit construction
    void genDfsList(vector<CirGate*>&);

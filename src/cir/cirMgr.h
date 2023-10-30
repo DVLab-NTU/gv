@@ -51,10 +51,14 @@ public:
    void setFlag(CirMgrFlag f) const { _flag |= f; }
    void unsetFlag(CirMgrFlag f) const { _flag &= ~f; }
    void resetFlag() const { _flag = 0; }
-   unsigned getNumPIs() const { return _numDecl[PI]; }
-   unsigned getNumPOs() const { return _numDecl[PO]; }
-   unsigned getNumLATCHs() const { return _numDecl[LATCH]; }
-   unsigned getNumTots() const { return _numDecl[VARS] + _numDecl[PO] + 1; }
+   // unsigned getNumPIs() const { return _numDecl[PI]; }
+   // unsigned getNumPOs() const { return _numDecl[PO]; }
+   unsigned getNumPIs() const { return _piList.size(); }
+   unsigned getNumPOs() const { return _poList.size(); }
+   unsigned getNumLATCHs() const { return _riList.size(); }
+   unsigned getNumTots() const { return _totGateList.size(); }
+   // unsigned getNumLATCHs() const { return _numDecl[LATCH]; }
+   // unsigned getNumTots() const { return _numDecl[VARS] + _numDecl[PO] + 1; }
    CirPiGate* getPi(unsigned i) const { return _piList[i]; }
    CirPoGate* getPo(unsigned i) const { return _poList[i]; }
    CirRiGate* getRi(unsigned i) const { return _riList[i]; }
@@ -106,15 +110,16 @@ public:
    bool createMiter(CirMgr*, CirMgr*);
 
    static CirGate *_const0;
-   // --- MODIFICATION FOR SoCV HW5 (START) ---
+   // --- MODIFICATION FOR SoCV HW5 ---
    void readCirFromAbc(string fileName, CirFileType fileType);
    void initCir(Gia_Man_t* pGia);
    void buildNtkBdd();
    void buildBdd(CirGate* gate);
    void dfsOrder(vector<CirGate*>& nets);
-   CirGate* createGate(unsigned id, GateType type);
+   void addTotGate(CirGate* gate){_totGateList.push_back(gate);};
    const bool setBddOrder(const bool& file);
-   // ---  MODIFICATION FOR SoCV HW5 (END)  ---
+   CirGate* createGate(unsigned id, GateType type);
+   // --- MODIFICATION FOR SoCV HW5 ---
 private:
    unsigned            _numDecl[TOT_PARSE_PORTS];
    mutable unsigned    _flag;

@@ -9,6 +9,8 @@
 #include "gvSatCmd.h"
 #include "gvMsg.h"
 #include "gvSatMgr.h"
+#include "cirMgr.h"
+#include "cirGate.h"
 #include "util.h"
 #include <cstring>
 #include <iomanip>
@@ -41,6 +43,7 @@ SATVerifyItpCmd::exec(const string& option) {
 
     int     num = 0;
     GVNetId netId;
+    CirGate* gate;
     if (!myStr2Int(options[1], num) || (num < 0)) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
     if (isNet) {
         if ((unsigned)num >= gvNtkMgr->getNetSize()) {
@@ -54,12 +57,13 @@ SATVerifyItpCmd::exec(const string& option) {
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
         netId = gvNtkMgr->getOutput(num);
+        gate = cirMgr->getPo(num);
     }
     // get PO's input, since the PO is actually a redundant node and should be removed
     GVNetId redundantNode = gvNtkMgr->getGVNetId(netId.id);
     GVNetId monitor       = gvNtkMgr->getInputNetId(redundantNode, 0);
-    satMgr->verifyPropertyItp(gvNtkMgr->getNetNameFromId(redundantNode.id), monitor);
-
+    // satMgr->verifyPropertyItp(gvNtkMgr->getNetNameFromId(redundantNode.id), monitor);
+    satMgr->verifyPropertyItp("monitor", gate->getIn0Gate());
     return GV_CMD_EXEC_DONE;
 }
 
@@ -93,6 +97,7 @@ SATVerifyBmcCmd::exec(const string& option) {
 
     int     num = 0;
     GVNetId netId;
+    CirGate* gate;
     if (!myStr2Int(options[1], num) || (num < 0)) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
     if (isNet) {
         if ((unsigned)num >= gvNtkMgr->getNetSize()) {
@@ -106,11 +111,13 @@ SATVerifyBmcCmd::exec(const string& option) {
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
         netId = gvNtkMgr->getOutput(num);
+        gate = cirMgr->getPo(num);
     }
     // get PO's input, since the PO is actually a redundant node and should be removed
     GVNetId redundantNode = gvNtkMgr->getGVNetId(netId.id);
     GVNetId monitor       = gvNtkMgr->getInputNetId(redundantNode, 0);
-    satMgr->verifyPropertyBmc(gvNtkMgr->getNetNameFromId(redundantNode.id), monitor);
+    // satMgr->verifyPropertyBmc(gvNtkMgr->getNetNameFromId(redundantNode.id), monitor);
+    satMgr->verifyPropertyBmc("monitor", gate->getIn0Gate());
 
     return GV_CMD_EXEC_DONE;
 }

@@ -59,7 +59,7 @@ CirPiGate::printGate() const
 void
 CirRoGate::printGate() const
 {
-   cout << setw(4) << left << getTypeStr() << _gid;
+   cout << setw(4) << left << getTypeStr() << _gid << " " << _in0;
    if (_name) cout << " (" << _name << ")";
    cout << endl;
 }
@@ -195,6 +195,13 @@ CirGate::reportFanoutRecur(int level, int repLevel, bool isInv) const
 // set in0 by the cirgate
 void
 CirPoGate::setIn0(CirGate* faninGate, bool inv) {
+   CirGateV gateV = size_t(faninGate);
+   gateV.setInv(inv);
+   setIn0(gateV());
+}
+
+void
+CirRoGate::setIn0(CirGate* faninGate, bool inv) {
    CirGateV gateV = size_t(faninGate);
    gateV.setInv(inv);
    setIn0(gateV());

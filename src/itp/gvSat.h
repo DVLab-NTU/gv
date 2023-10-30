@@ -12,6 +12,8 @@
 #include "SolverV.h"
 #include "gvBitVec.h"
 #include "gvNtk.h"
+#include "cirGate.h"
+#include "cirMgr.h"
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -32,8 +34,8 @@ class GVSatSolver
         void       assumeRelease();
         void       assumeProperty(const size_t&, const bool&);
         void       assertProperty(const size_t&, const bool&);
-        void       assumeProperty(const GVNetId& id, const bool& invert, const uint32_t& depth);
-        void       assertProperty(const GVNetId& id, const bool& invert, const uint32_t& depth);
+        void       assumeProperty(const CirGate* gate, const bool& invert, const uint32_t& depth);
+        void       assertProperty(const CirGate* gate, const bool& invert, const uint32_t& depth);
         const bool simplify();
         const bool solve();
         const bool assump_solve();
@@ -41,7 +43,7 @@ class GVSatSolver
 
         // Network to Solver Functions
         const size_t        getFormula(const GVNetId&, const uint32_t&);
-        const GVBitVecX     getDataValue(const GVNetId&, const uint32_t&) const;
+        const GVBitVecX     getDataValue(const CirGate*, const uint32_t&) const;
         const bool          getDataValue(const size_t&) const;
         // Variable Interface Functions
         inline const size_t reserveFormula() { return getPosVar(newVar()); }
@@ -49,19 +51,19 @@ class GVSatSolver
         inline const size_t getNegFormula(const size_t& v) const { return (v ^ 1ul); }
 
         // Gate Formula to Solver Functions
-        void add_FALSE_Formula(const GVNetId&, const uint32_t&);
-        void add_PI_Formula(const GVNetId&, const uint32_t&);
-        void add_FF_Formula(const GVNetId&, const uint32_t&);
-        void add_AND_Formula(const GVNetId&, const uint32_t&);
+        void add_FALSE_Formula(const CirGate*, const uint32_t&);
+        void add_PI_Formula(const CirGate*, const uint32_t&);
+        void add_FF_Formula(const CirGate*, const uint32_t&);
+        void add_AND_Formula(const CirGate*, const uint32_t&);
 
-        void       addBoundedVerifyData(const GVNetId&, const uint32_t&);
-        const bool existVerifyData(const GVNetId&, const uint32_t&);
+        void       addBoundedVerifyData(const CirGate*, const uint32_t&);
+        const bool existVerifyData(const CirGate*, const uint32_t&);
         void       resizeNtkData(const uint32_t& num);
 
     private:
         const Var newVar();
-        const Var getVerifyData(const GVNetId&, const uint32_t&) const;
-        void      addBoundedVerifyDataRecursively(const GVNetId&, const uint32_t&);
+        const Var getVerifyData(const CirGate*, const uint32_t&) const;
+        void      addBoundedVerifyDataRecursively(const CirGate*, const uint32_t&);
 
         inline const Var    getOriVar(const size_t& v) const { return (Var)(v >> 1ul); }
         inline const size_t getPosVar(const Var& v) const { return (((size_t)v) << 1ul); }

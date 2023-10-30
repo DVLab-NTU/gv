@@ -110,6 +110,18 @@ CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
         }
     }
     
+    Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
+        if(i == getNumLATCHs()) break;
+
+        int riGid = Gia_ObjId(pGia, pObjRi), roGid = PPI2RO[Gia_ObjId(pGia,pObjRo)];
+        CirGate*   riGate = getGate(riGid);
+        CirRoGate* roGate = static_cast<CirRoGate*>(getGate(roGid));
+        roGate->setIn0(riGate, false);
+
+        // cout << Gia_ObjId(pGia, pObjRi) << endl;
+        // cout << Gia_ObjId(pGia, pObjRo) << " <---> "<< PPI2RO[Gia_ObjId(pGia,pObjRo)]<< endl;
+        // cout << " --- \n";
+    }
     // genConnections();
     genDfsList();
     // checkFloatList();
@@ -135,16 +147,21 @@ void
 CirMgr::initCir(Gia_Man_t* pGia) {
     // TODO : Resize the list (PI/PO ...)
     // Create lists
-    cout << "initializing..." << endl;
-    // _numDecl[PI] = Gia_ManPiNum(pGia);
-    _numDecl[PI] = Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1;
-   _piList = new CirPiGate*[_numDecl[PI]];
-   _numDecl[PO] = Gia_ManPoNum(pGia);
-   _poList = new CirPoGate*[_numDecl[PO]];
-   _numDecl[LATCH] = Gia_ManRegNum(pGia) - 1;
-   _riList = new CirRiGate*[_numDecl[LATCH]];
-   _roList = new CirRoGate*[_numDecl[LATCH]];
-   _numDecl[VARS] = Gia_ManObjNum(pGia);
-   _totGateList = new CirGate*[_numDecl[VARS]];
-   _numDecl[AIG] = Gia_ManAndNum(pGia);
+    cout << "initializing ..." << endl;
+    //    _numDecl[PI] = Gia_ManPiNum(pGia);
+    //    _piList = new CirPiGate*[_numDecl[PI]];
+    //    _numDecl[PO] = Gia_ManPoNum(pGia);
+    //    _numDecl[LATCH] = Gia_ManRegNum(pGia) - 1;
+    //    _poList = new CirPoGate*[_numDecl[PO]];
+    //    _riList = new CirRiGate*[_numDecl[LATCH]];
+    //    _roList = new CirRoGate*[_numDecl[LATCH]];
+    //    _numDecl[AIG] = Gia_ManAndNum(pGia);
+    //    _numDecl[VARS] = Gia_ManObjNum(pGia);
+    //    _totGateList = new CirGate*[_numDecl[VARS]];
+    //    _numDecl[PI] = Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1;
+    _poList.resize(Gia_ManPoNum(pGia));
+    _piList.resize(Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1);
+    _riList.resize(Gia_ManRegNum(pGia) - 1);
+    _roList.resize(Gia_ManRegNum(pGia) - 1);
+   _totGateList.resize(Gia_ManObjNum(pGia));
 }
