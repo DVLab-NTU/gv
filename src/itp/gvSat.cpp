@@ -258,6 +258,7 @@ GVSatSolver::addBoundedVerifyDataRecursively(const CirGate* gate, const uint32_t
             addBoundedVerifyDataRecursively(gate->getIn1Gate(), depth);
             add_AND_Formula(gate, depth);
         } else {
+            // CONST_GATE
             add_FALSE_Formula(gate, depth);
         }
     }

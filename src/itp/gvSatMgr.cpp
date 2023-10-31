@@ -121,10 +121,13 @@ SATMgr::itpUbmc(const CirGate* monitor, SatProofRes& pRes) {
     //    Mark the added clauses ( up to now ) to onset
     uint32_t i = 0, k = 0;
     gvSatSolver->addBoundedVerifyData(I, i);
+    num_clauses = getNumClauses();
     gvSatSolver->assumeProperty(I, false, i);
     gvSatSolver->addBoundedVerifyData(monitor, i);
+    num_clauses = getNumClauses();
     gvSatSolver->assumeProperty(monitor, false, i);
     gvSatSolver->simplify();
+    num_clauses = getNumClauses();
     if (gvSatSolver->assump_solve()) {
         pRes.setFired(i);
         return;
@@ -136,9 +139,9 @@ SATMgr::itpUbmc(const CirGate* monitor, SatProofRes& pRes) {
         gvSatSolver->addBoundedVerifyData(cirMgr->getRo(j), i);
         mapVar2Net(gvSatSolver->getVerifyData(cirMgr->getRo(j), i), cirMgr->getRo(j));
     }
-    i++; // i = 1
+    i++; // i = 2
     // map gvSatSolver vars to latch nets
-    for (size_t j = 0; j < gvNtkMgr->getFFSize(); ++j) {
+    for (size_t j = 0; j < cirMgr->getNumLATCHs(); ++j) {
         gvSatSolver->addBoundedVerifyData(cirMgr->getRo(j), i);
         mapVar2Net(gvSatSolver->getVerifyData(cirMgr->getRo(j), i), cirMgr->getRo(j));
     }
@@ -150,7 +153,7 @@ SATMgr::itpUbmc(const CirGate* monitor, SatProofRes& pRes) {
     }
     num_clauses = getNumClauses();
 
-    for (size_t j = 0; j < gvNtkMgr->getFFSize(); ++j) {
+    for (size_t j = 0; j < cirMgr->getNumLATCHs(); ++j) {
         gvSatSolver->addBoundedVerifyData(cirMgr->getRo(j), i);
         mapVar2Net(gvSatSolver->getVerifyData(cirMgr->getRo(j), i), cirMgr->getRo(j));
     }
@@ -639,16 +642,28 @@ SATMgr::buildItp(const string& proofName) const {
                             // nId = ~gvNtkMgr->createNet();
                             // gvNtkMgr->createGVAndGate(nId, ~nId1, ~nId2);
                             // nId1 = nId;
-                            nId = new CirAigGate(cirMgr->getNumTots(), 0);
-                            cirMgr->addTotGate(nId);
-                            nId->setIn0(nId1, true);
-                            nId->setIn1(nId2, true);
-                            // not finish or gate !!
+                            // ---
                             CirGate* tmpId = new CirAigGate(cirMgr->getNumTots(), 0);
                             cirMgr->addTotGate(tmpId);
-                            tmpId->setIn0(nId, true);
-                            tmpId->setIn1(cirMgr->_const0, true);
-                            nId1 = tmpId;
+                            tmpId->setIn0(nId1, true);
+                            tmpId->setIn1(nId2, true);
+                            // not finish or gate !!
+                            nId = new CirAigGate(cirMgr->getNumTots(), 0);
+                            cirMgr->addTotGate(nId);
+                            nId->setIn0(tmpId, true);
+                            nId->setIn1(cirMgr->_const0, true);
+                            nId1 = nId;
+
+                            // nId = new CirAigGate(cirMgr->getNumTots(), 0);
+                            // cirMgr->addTotGate(nId);
+                            // nId->setIn0(nId1, true);
+                            // nId->setIn1(nId2, true);
+                            // // not finish or gate !!
+                            // CirGate* tmpId = new CirAigGate(cirMgr->getNumTots(), 0);
+                            // cirMgr->addTotGate(tmpId);
+                            // tmpId->setIn0(nId, true);
+                            // tmpId->setIn1(cirMgr->_const0, true);
+                            // nId1 = tmpId;
                         }
                     }
                 } else {
@@ -688,15 +703,25 @@ SATMgr::buildItp(const string& proofName) const {
                             // nId = ~gvNtkMgr->createNet();
                             // gvNtkMgr->createGVAndGate(nId, ~nId1, ~nId2);
                             // nId1 = nId;
-                            nId = new CirAigGate(cirMgr->getNumTots(), 0);
-                            cirMgr->addTotGate(nId);
-                            nId->setIn0(nId1, true);
-                            nId->setIn1(nId2, true);
                             CirGate* tmpId = new CirAigGate(cirMgr->getNumTots(), 0);
                             cirMgr->addTotGate(tmpId);
-                            tmpId->setIn0(nId, true);
-                            tmpId->setIn1(cirMgr->_const0, true);
-                            nId1 = tmpId;
+                            tmpId->setIn0(nId1,true);
+                            tmpId->setIn1(nId2, true);
+                            nId = new CirAigGate(cirMgr->getNumTots(), 0);
+                            cirMgr->addTotGate(nId);
+                            nId->setIn0(tmpId,true);
+                            nId->setIn1(cirMgr->_const0, true);
+                            nId1 = nId;
+                            // ---
+                            // nId = new CirAigGate(cirMgr->getNumTots(), 0);
+                            // cirMgr->addTotGate(nId);
+                            // nId->setIn0(nId1, true);
+                            // nId->setIn1(nId2, true);
+                            // CirGate* tmpId = new CirAigGate(cirMgr->getNumTots(), 0);
+                            // cirMgr->addTotGate(tmpId);
+                            // tmpId->setIn0(nId, true);
+                            // tmpId->setIn1(cirMgr->_const0, true);
+                            // nId1 = tmpId;
                         }
                     } else { // Build AND Gate.
                         if (nId1 == CONST0 || nId2 == CONST0) {

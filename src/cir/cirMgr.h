@@ -112,7 +112,7 @@ public:
    static CirGate *_const0;
    // --- MODIFICATION FOR SoCV HW5 ---
    void readCirFromAbc(string fileName, CirFileType fileType);
-   void initCir(Gia_Man_t* pGia);
+   void initCir(Gia_Man_t* pGia, const CirFileType& type);
    void buildNtkBdd();
    void buildBdd(CirGate* gate);
    void dfsOrder(vector<CirGate*>& nets);

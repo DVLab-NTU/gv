@@ -35,19 +35,21 @@ CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     int   c, fVerbose = 1; // set verbose to 1 to see which yosys command is used
     int   i, *pWire;
 
-    if(fileType == AIGER)
+    if(fileType == AIGER){
         pGia = Gia_AigerRead(pFileName, 0, fSkipStrash, 0);
+        piNum = Gia_ManPiNum(pGia);
+    }
     else if(fileType == VERILOG) {
         pGia = abcMgr->get_Abc_Frame_t()->pGia;
         pGia = Wln_BlastSystemVerilog(pFileName,pTopModule,pDefines,fSkipStrash,fInvert,fTechMap,fVerbose);
         piNum = Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1; // PI (PI + PPI) - (REG (PPI + CONST0) - CONST0)
         // cout << Gia_ManPiNum(pGia) << endl;
         // cout << Gia_ManRegNum(pGia) << endl;
-        cout << "PI NUM : " << piNum << endl;
+        // cout << "PI NUM : " << piNum << endl;
     }
 
     // initialize the size of the containers
-    initCir(pGia);
+    initCir(pGia, fileType);
     // increment the global travel id for circuit traversing usage
     Gia_ManIncrementTravId(pGia);
 
@@ -77,20 +79,42 @@ CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
         }
         else if(Gia_ObjIsAnd(pObj)) {
+            bool inv0 = false, inv1 = false;
             CirAigGate *gate = new CirAigGate(Gia_ObjId(pGia, pObj), 0);
             _totGateList[Gia_ObjId(pGia, pObj)] = gate;
             int fanin0 = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
             int fanin1 = Gia_ObjId(pGia, Gia_ObjFanin1(pObj));
-            if(PPI2RO.count(fanin0)) fanin0 = PPI2RO[fanin0];
-            if(PPI2RO.count(fanin1)) fanin1 = PPI2RO[fanin1];
+            if(PPI2RO.count(fanin0)) {
+                // fanin0 = PPI2RO[fanin0];
+                // if(fanin0 == 0) inv0 = true;
+            }
+            if(PPI2RO.count(fanin1)) {
+                // fanin1 = PPI2RO[fanin1];
+                // if(fanin1 == 0) inv1 = true;
+            }
             gate->setIn0(getGate(fanin0), Gia_ObjFaninC0(pObj));
             gate->setIn1(getGate(fanin1), Gia_ObjFaninC1(pObj));
         }
         else if(Gia_ObjIsRo(pGia, pObj)) {
             int gateId = Gia_ObjId(pGia,pObj);
-            if(iPpi < iRo) PPI2RO[gateId] = _roList[iPpi]->getGid();
-            else PPI2RO[gateId] = 0;
-            iPpi++;
+            if(fileType == VERILOG){
+                if(iPpi < iRo) PPI2RO[gateId] = _roList[iPpi]->getGid();
+                else PPI2RO[gateId] = 0;
+                iPpi++;
+            }
+            else if(fileType == AIGER){
+                if(iRo < _roList.size()){
+                    CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
+                    _roList[iRo++] = gate;
+                    _totGateList[gateId] = gate;
+                }
+                else{
+                    CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
+                    _roList[iRo++] = gate;
+                    _totGateList[gateId] = gate;
+                    // PPI2RO[gateId] = 0;
+                }
+            }
         }
         else if(Gia_ObjIsRi(pGia, pObj)) {
             CirRiGate *gate = new CirRiGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
@@ -113,19 +137,36 @@ CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
         if(i == getNumLATCHs()) break;
 
-        int riGid = Gia_ObjId(pGia, pObjRi), roGid = PPI2RO[Gia_ObjId(pGia,pObjRo)];
+        int riGid = Gia_ObjId(pGia, pObjRi), roGid = 0;
+        // int roGid = PPI2RO[Gia_ObjId(pGia,pObjRo)];
+        // int roGid = Gia_ObjId(pGia,pObjRo);
+        if(fileType == VERILOG) roGid = PPI2RO[Gia_ObjId(pGia,pObjRo)];
+        else if(fileType == AIGER) roGid = Gia_ObjId(pGia,pObjRo);
         CirGate*   riGate = getGate(riGid);
         CirRoGate* roGate = static_cast<CirRoGate*>(getGate(roGid));
         roGate->setIn0(riGate, false);
 
         // cout << Gia_ObjId(pGia, pObjRi) << endl;
-        // cout << Gia_ObjId(pGia, pObjRo) << " <---> "<< PPI2RO[Gia_ObjId(pGia,pObjRo)]<< endl;
+        // cout << Gia_ObjId(pGia, pObjRo) << endl;//<< " <---> "<< PPI2RO[Gia_ObjId(pGia,pObjRo)]<< endl;
         // cout << " --- \n";
     }
+    // DEBUG
+    // CirGate*   riGate = getGate(1034);
+    // CirRoGate* roGate = static_cast<CirRoGate*>(getGate(136));
+    // roGate->setIn0(riGate, false);
+
     // genConnections();
     genDfsList();
     // checkFloatList();
     // checkUnusedList();
+
+    // DEBUG
+    for(int i = 0; i < _totGateList.size(); ++i){
+        CirGate* g = _totGateList[i];
+        // if (g->getType() == RI_GATE || g->getType() == PO_GATE) isPrint = true;
+        if(g) g->printGate();
+    }
+    _poList[0]->printGate();
 
 }
 
@@ -144,7 +185,7 @@ CirMgr::createGate(unsigned id, GateType type) {
 }
 
 void 
-CirMgr::initCir(Gia_Man_t* pGia) {
+CirMgr::initCir(Gia_Man_t* pGia,const CirFileType& fileType) {
     // TODO : Resize the list (PI/PO ...)
     // Create lists
     cout << "initializing ..." << endl;
@@ -160,8 +201,13 @@ CirMgr::initCir(Gia_Man_t* pGia) {
     //    _totGateList = new CirGate*[_numDecl[VARS]];
     //    _numDecl[PI] = Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1;
     _poList.resize(Gia_ManPoNum(pGia));
-    _piList.resize(Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1);
-    _riList.resize(Gia_ManRegNum(pGia) - 1);
-    _roList.resize(Gia_ManRegNum(pGia) - 1);
-   _totGateList.resize(Gia_ManObjNum(pGia));
+    int piNum = Gia_ManPiNum(pGia);
+    int regNum = Gia_ManRegNum(pGia);
+    if(fileType == VERILOG) _piList.resize(Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1);
+    else if(fileType == AIGER)  _piList.resize(Gia_ManPiNum(pGia)) ;
+    // _riList.resize(Gia_ManRegNum(pGia) - 1);
+    // _roList.resize(Gia_ManRegNum(pGia) - 1);
+    _riList.resize(Gia_ManRegNum(pGia));
+    _roList.resize(Gia_ManRegNum(pGia));
+    _totGateList.resize(Gia_ManObjNum(pGia));
 }

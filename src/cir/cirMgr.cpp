@@ -661,11 +661,11 @@ CirAigGate::genDfsList(GateList& gateList)
 {
    setToGlobalRef();
    CirGate* g = _in0.gate();
-   cout << g->getGid()<<endl;
+   // cout << g->getGid()<<endl;
    if (!g->isGlobalRef())
       g->genDfsList(gateList);
    g = _in1.gate();
-   cout << g->getGid()<<endl;
+   // cout << g->getGid()<<endl;
    if (!g->isGlobalRef())
       g->genDfsList(gateList);
    gateList.push_back(this);

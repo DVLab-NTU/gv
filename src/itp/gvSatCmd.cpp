@@ -52,18 +52,26 @@ SATVerifyItpCmd::exec(const string& option) {
         }
         netId = GVNetId::makeNetId(num);
     } else {
-        if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
+        if ((unsigned)num >= cirMgr->getNumPOs()) {
             gvMsg(GV_MSG_ERR) << "Output with Index " << num << " does NOT Exist in Current Ntk !!" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
-        netId = gvNtkMgr->getOutput(num);
+        // netId = gvNtkMgr->getOutput(num);
         gate = cirMgr->getPo(num);
     }
     // get PO's input, since the PO is actually a redundant node and should be removed
-    GVNetId redundantNode = gvNtkMgr->getGVNetId(netId.id);
-    GVNetId monitor       = gvNtkMgr->getInputNetId(redundantNode, 0);
+    // GVNetId redundantNode = gvNtkMgr->getGVNetId(netId.id);
+    // GVNetId monitor       = gvNtkMgr->getInputNetId(redundantNode, 0);
     // satMgr->verifyPropertyItp(gvNtkMgr->getNetNameFromId(redundantNode.id), monitor);
-    satMgr->verifyPropertyItp("monitor", gate->getIn0Gate());
+
+    CirGate* monitor = new CirAigGate(cirMgr->getNumTots(), 0); cirMgr->addTotGate(monitor);
+    monitor->setIn0(gate->getIn0Gate(), gate->getIn0().isInv());
+    monitor->setIn1(cirMgr->_const0, true);
+    satMgr->verifyPropertyItp("monitor", monitor);
+
+    // Ref
+    // satMgr->verifyPropertyItp("monitor", gate->getIn0Gate());
+
     return GV_CMD_EXEC_DONE;
 }
 
