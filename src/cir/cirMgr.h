@@ -111,6 +111,7 @@ public:
 
    static CirGate *_const0;
    // --- MODIFICATION FOR SoCV HW5 ---
+   CirGate *_const1;
    void readCirFromAbc(string fileName, CirFileType fileType);
    void initCir(Gia_Man_t* pGia, const CirFileType& type);
    void buildNtkBdd();

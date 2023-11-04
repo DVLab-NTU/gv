@@ -151,6 +151,10 @@ CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
         // cout << " --- \n";
     }
     // DEBUG
+    _const1 = new CirAigGate(getNumTots(), 0 ); addTotGate(_const1);
+    _const1->setIn0(_const0, true); _const1->setIn1(_const0, true);
+
+    // DEBUG
     // CirGate*   riGate = getGate(1034);
     // CirRoGate* roGate = static_cast<CirRoGate*>(getGate(136));
     // roGate->setIn0(riGate, false);

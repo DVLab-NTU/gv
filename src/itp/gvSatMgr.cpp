@@ -186,11 +186,14 @@ SATMgr::itpUbmc(const CirGate* monitor, SatProofRes& pRes) {
             markOffsetClause(j);
         }
         num_clauses = getNumClauses();
-
+        
         k = 0;
         R = I;
         S = getItp();
         for (; k < pRes.getMaxDepth(); ++k) {
+            // DEBUG                                                                                                                                                                                            
+            cout << "[LOG] "<< "i = " << i << " k = " << k << endl;
+
             gvSatSolver->assumeRelease();
             gvSatSolver->addBoundedVerifyData(S, 0);
             gvSatSolver->assumeProperty(S, false, 0);
@@ -229,7 +232,7 @@ SATMgr::itpUbmc(const CirGate* monitor, SatProofRes& pRes) {
             // gvNtkMgr->createGVAndGate(R_prime, ~R, ~S); // or(R, S)
             // Equal to ...
             tmp1->setIn0(R, true); tmp1->setIn1(S, true); 
-            R_prime->setIn0(tmp1, true); R_prime->setIn1(cirMgr->_const0, true); 
+            R_prime->setIn0(tmp1, true); R_prime->setIn1(cirMgr->_const1, false); //R_prime->setIn1(cirMgr->_const0, true); 
             // gvNtkMgr->createGVAndGate(tmp2, ~R, R_prime);
             // Equal to ...
             tmp2->setIn0(R, true); tmp2->setIn1(R_prime,false);
@@ -240,7 +243,7 @@ SATMgr::itpUbmc(const CirGate* monitor, SatProofRes& pRes) {
             // Equal to ...
             tmp4->setIn0(tmp2, true); tmp4->setIn1(tmp3, true);
             // INV
-            tmp5->setIn0(tmp4, true); tmp5->setIn1(cirMgr->_const0, true);
+            tmp5->setIn0(tmp4, true); tmp5->setIn1(cirMgr->_const1, false); //tmp5->setIn1(cirMgr->_const0, true);
 
             // gvSatSolver->addBoundedVerifyData(tmp4, 0);
             gvSatSolver->addBoundedVerifyData(tmp5, 0);
@@ -538,7 +541,7 @@ SATMgr::buildInitState() const {
     CirGate* in2;
     // and const 1 with the first latch
     I   = new CirAigGate(cirMgr->getNumTots(), 0); cirMgr->addTotGate(I);
-    in2 = new CirConstGate(cirMgr->_const0->getGid()); I->setIn0(cirMgr->_const0, true);
+    in2 = new CirConstGate(cirMgr->_const0->getGid()); I->setIn0(cirMgr->_const1, false); // I->setIn0(cirMgr->_const0, true);
     // iteratively and adn all the PI's negation with otthers
     for (size_t i = 0; i < cirMgr->getNumLATCHs(); ++i) {
         I->setIn1(cirMgr->getRo(i), true);
@@ -581,9 +584,10 @@ SATMgr::buildItp(const string& proofName) const {
     // CONST0 = gvNtkMgr->getConst(0);
     // CONST1 = ~CONST0;
     CirGate* CONST0 = cirMgr->_const0;
-    CirGate* CONST1 = new CirAigGate(cirMgr->getNumTots(),0);
-    cirMgr->addTotGate(CONST1);
-    CONST1->setIn0(cirMgr->_const0, true); CONST1->setIn1(cirMgr->_const0, true);
+    CirGate* CONST1 = cirMgr->_const1;
+    // CirGate* CONST1 = new CirAigGate(cirMgr->getNumTots(),0);
+    // cirMgr->addTotGate(CONST1);
+    // CONST1->setIn0(cirMgr->_const0, true); CONST1->setIn1(cirMgr->_const0, true);
 
     rdr.open(proofName.c_str());
     retrieveProof(rdr, clausePos, usedClause);
@@ -610,7 +614,8 @@ SATMgr::buildItp(const string& proofName) const {
                         CirGate* tmpId = new CirAigGate(cirMgr->getNumTots(), 0);
                         cirMgr->addTotGate(tmpId);
                         tmpId->setIn0(nId1, true);
-                        tmpId->setIn1(cirMgr->_const0, true);
+                        // tmpId->setIn1(cirMgr->_const0, true);
+                        tmpId->setIn1(CONST1, false);
                         nId1 = tmpId;
                         // nId1 = ~nId1;
                     }
@@ -618,7 +623,8 @@ SATMgr::buildItp(const string& proofName) const {
                         CirGate* tmpId = new CirAigGate(cirMgr->getNumTots(), 0);
                         cirMgr->addTotGate(tmpId);
                         tmpId->setIn0(nId, true);
-                        tmpId->setIn1(cirMgr->_const0, true);
+                        // tmpId->setIn1(cirMgr->_const0, true);
+                        tmpId->setIn1(CONST1, false);
                         // nId = ~nId;
                         nId = tmpId;
                     }
@@ -634,7 +640,8 @@ SATMgr::buildItp(const string& proofName) const {
                                 CirGate* tmpId = new CirAigGate(cirMgr->getNumTots(), 0);
                                 cirMgr->addTotGate(tmpId);
                                 tmpId->setIn0(nId2, true);
-                                tmpId->setIn1(cirMgr->_const0, true);
+                                // tmpId->setIn1(cirMgr->_const0, true);
+                                tmpId->setIn1(CONST1, false);
                                 // nId2 = ~nId2;
                                 nId2 = tmpId;
                             }
@@ -647,13 +654,13 @@ SATMgr::buildItp(const string& proofName) const {
                             cirMgr->addTotGate(tmpId);
                             tmpId->setIn0(nId1, true);
                             tmpId->setIn1(nId2, true);
-                            // not finish or gate !!
                             nId = new CirAigGate(cirMgr->getNumTots(), 0);
                             cirMgr->addTotGate(nId);
                             nId->setIn0(tmpId, true);
-                            nId->setIn1(cirMgr->_const0, true);
+                            // nId->setIn1(cirMgr->_const0, true);
+                            nId->setIn1(CONST1, false);
                             nId1 = nId;
-
+                            // ---
                             // nId = new CirAigGate(cirMgr->getNumTots(), 0);
                             // cirMgr->addTotGate(nId);
                             // nId->setIn0(nId1, true);
@@ -703,6 +710,7 @@ SATMgr::buildItp(const string& proofName) const {
                             // nId = ~gvNtkMgr->createNet();
                             // gvNtkMgr->createGVAndGate(nId, ~nId1, ~nId2);
                             // nId1 = nId;
+                            // ---
                             CirGate* tmpId = new CirAigGate(cirMgr->getNumTots(), 0);
                             cirMgr->addTotGate(tmpId);
                             tmpId->setIn0(nId1,true);
@@ -710,7 +718,8 @@ SATMgr::buildItp(const string& proofName) const {
                             nId = new CirAigGate(cirMgr->getNumTots(), 0);
                             cirMgr->addTotGate(nId);
                             nId->setIn0(tmpId,true);
-                            nId->setIn1(cirMgr->_const0, true);
+                            // nId->setIn1(cirMgr->_const0, true);
+                            nId->setIn1(CONST1, false);
                             nId1 = nId;
                             // ---
                             // nId = new CirAigGate(cirMgr->getNumTots(), 0);

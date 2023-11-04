@@ -66,7 +66,8 @@ SATVerifyItpCmd::exec(const string& option) {
 
     CirGate* monitor = new CirAigGate(cirMgr->getNumTots(), 0); cirMgr->addTotGate(monitor);
     monitor->setIn0(gate->getIn0Gate(), gate->getIn0().isInv());
-    monitor->setIn1(cirMgr->_const0, true);
+    // monitor->setIn1(cirMgr->_const0, true);
+    monitor->setIn1(cirMgr->_const1, false);
     satMgr->verifyPropertyItp("monitor", monitor);
 
     // Ref
