@@ -747,19 +747,20 @@ CirMgr::printSummary() const
    cout << endl;
    cout << "Circuit Statistics" << endl
         << "==================" << endl;
-   unsigned tot = 0;
-   tot += _numDecl[PI];
+   unsigned tot = _totGateList.size();
+   unsigned sum = 0;
+   sum += _piList.size();
    cout << "  " << setw(7) << left << "PI"
-        << setw(7) << right << _numDecl[PI] << endl;
-   tot += _numDecl[PO];
+        << setw(7) << right << _piList.size() << endl;
+   sum += _poList.size();
    cout << "  " << setw(7) << left << "PO"
-        << setw(7) << right << _numDecl[PO] << endl;
-   tot += _numDecl[LATCH];
+        << setw(7) << right << _poList.size() << endl;
+   sum += _roList.size();
    cout << "  " << setw(7) << left << "LATCH"
-        << setw(7) << right << _numDecl[LATCH] << endl;
-   tot += _numDecl[AIG];
+        << setw(7) << right << _roList.size() << endl;
+   // tot += _numDecl[AIG];
    cout << "  " << setw(7) << left << "AIG"
-        << setw(7) << right << _numDecl[AIG] << endl;
+        << setw(7) << right << tot - sum << endl;
    cout << "------------------" << endl;
    cout << "  Total  " << setw(7) << right << tot << endl;
 }

@@ -266,17 +266,17 @@ GVCmdMgr::execOneCmd() {
         // Check command types
         if (e) {
             GVCmdType cmdType = e->getGVCmdType();
-            if (getPrompt().find("vrf") != string::npos) {
-                if (_vrfMode.find(cmdType) == _vrfMode.end()) {
-                    cout << "Please switch to \"SETUP MODE\" !!" << endl;
-                    return GV_CMD_EXEC_NOP;
-                }
-            } else {
-                if (_setupMode.find(cmdType) == _setupMode.end()) {
-                    cout << "Please switch to \"VRF MODE\" !!" << endl;
-                    return GV_CMD_EXEC_NOP;
-                }
-            }
+            // if (getPrompt().find("vrf") != string::npos) {
+            //     if (_vrfMode.find(cmdType) == _vrfMode.end()) {
+            //         cout << "Please switch to \"SETUP MODE\" !!" << endl;
+            //         return GV_CMD_EXEC_NOP;
+            //     }
+            // } else {
+            //     if (_setupMode.find(cmdType) == _setupMode.end()) {
+            //         cout << "Please switch to \"VRF MODE\" !!" << endl;
+            //         return GV_CMD_EXEC_NOP;
+            //     }
+            // }
         }
 
         if (e) return e->exec(option);

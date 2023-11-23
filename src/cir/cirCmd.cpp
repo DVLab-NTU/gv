@@ -6,242 +6,218 @@
   Copyright    [ Copyleft(c) 2008-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>
-#include <iostream>
-#include <iomanip>
-#include "cirMgr.h"
-#include "cirGate.h"
 #include "cirCmd.h"
-#include "util.h"
+
+#include <cassert>
+#include <iomanip>
+#include <iostream>
+
+#include "cirGate.h"
+#include "cirMgr.h"
 #include "gvMsg.h"
+#include "util.h"
 
 using namespace std;
 
 extern CirMgr* cirMgr;
 extern int effLimit;
 
-bool
-GVinitCirCmd()
-{
-   return (gvCmdMgr->regCmd("CIRRead", 4, new CirReadCmd) &&
-         gvCmdMgr->regCmd("CIRPrint", 4, new CirPrintCmd) &&
-         gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd));
-         // gvCmdMgr->regCmd("CIRSWeep", 5, new CirSweepCmd) &&
-         // gvCmdMgr->regCmd("CIROPTimize", 6, new CirOptCmd) &&
-         // gvCmdMgr->regCmd("CIRSTRash", 6, new CirStrashCmd) &&
-         // gvCmdMgr->regCmd("CIRSIMulate", 6, new CirSimCmd) &&
-         // gvCmdMgr->regCmd("CIRFraig", 4, new CirFraigCmd) &&
-         // gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd) &&
-         // gvCmdMgr->regCmd("CIRMiter", 4, new CirMiterCmd) &&
-         // gvCmdMgr->regCmd("CIREFFort", 6, new CirEffortCmd));
+bool GVinitCirCmd() {
+    return (gvCmdMgr->regCmd("CIRRead", 4, new CirReadCmd) &&
+            gvCmdMgr->regCmd("CIRPrint", 4, new CirPrintCmd) &&
+            gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd));
+    // gvCmdMgr->regCmd("CIRSWeep", 5, new CirSweepCmd) &&
+    // gvCmdMgr->regCmd("CIROPTimize", 6, new CirOptCmd) &&
+    // gvCmdMgr->regCmd("CIRSTRash", 6, new CirStrashCmd) &&
+    // gvCmdMgr->regCmd("CIRSIMulate", 6, new CirSimCmd) &&
+    // gvCmdMgr->regCmd("CIRFraig", 4, new CirFraigCmd) &&
+    // gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd) &&
+    // gvCmdMgr->regCmd("CIRMiter", 4, new CirMiterCmd) &&
+    // gvCmdMgr->regCmd("CIREFFort", 6, new CirEffortCmd));
 }
 
-enum CirCmdState
-{
-   // Order matters! Do not change the order!!
-   CIRINIT,
-   CIRREAD,
-   CIROPT,
-   CIRSTRASH,
-   CIRSIMULATE,
-   CIRFRAIG,
-   // dummy end
-   CIRCMDTOT
+enum CirCmdState {
+    // Order matters! Do not change the order!!
+    CIRINIT,
+    CIRREAD,
+    CIROPT,
+    CIRSTRASH,
+    CIRSIMULATE,
+    CIRFRAIG,
+    // dummy end
+    CIRCMDTOT
 };
 
 static CirCmdState curCmd = CIRINIT;
 
 //----------------------------------------------------------------------
-//    CIRRead <(string fileName)> [-Replace]
+//    CIRRead <-Verilog | -Aiger> <(string fileName)> [-Replace]
 //----------------------------------------------------------------------
-GVCmdExecStatus
-CirReadCmd::exec(const string& option)
-{
-   // check option
-   vector<string> options;
-   GVCmdExec::lexOptions(option, options);
-   CirFileType fileType = VERILOG;
+GVCmdExecStatus CirReadCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    CirFileType fileType = VERILOG;
 
-   if (options.empty())
-      return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (options.empty())
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-   bool doReplace = false;
-   string fileName;
-   for (size_t i = 0, n = options.size(); i < n; ++i) {
-      if (myStrNCmp("-Replace", options[i], 2) == 0) {
-         if (doReplace) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA,options[i]);
-         doReplace = true;
-      }
-      else if (myStrNCmp("-Aiger", options[i], 1) == 0) {
-         fileType = AIGER;
-      }
-      else {
-         if (fileName.size())
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         fileName = options[i];
-      }
-   }
+    bool doReplace = false;
+    string fileName;
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        if (myStrNCmp("-Replace", options[i], 2) == 0) {
+            if (doReplace) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            doReplace = true;
+        } else if (myStrNCmp("-Verilog", options[i], 1) == 0) {
+            fileType = VERILOG;
+        } else if (myStrNCmp("-Aiger", options[i], 1) == 0) {
+            fileType = AIGER;
+        } else {
+            if (fileName.size())
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            fileName = options[i];
+        }
+    }
 
-   if (cirMgr != 0) {
-      if (doReplace) {
-         cerr << "Note: original circuit is replaced..." << endl;
-         curCmd = CIRINIT;
-         delete cirMgr; cirMgr = 0;
-      }
-      else {
-         cerr << "Error: circuit already exists!!" << endl;
-         return GV_CMD_EXEC_ERROR;
-      }
-   }
-   cirMgr = new CirMgr;
-   cirMgr->readCirFromAbc(fileName, fileType);
+    if (cirMgr != 0) {
+        if (doReplace) {
+            cerr << "Note: original circuit is replaced..." << endl;
+            curCmd = CIRINIT;
+            delete cirMgr;
+            cirMgr = 0;
+        } else {
+            cerr << "Error: circuit already exists!!" << endl;
+            return GV_CMD_EXEC_ERROR;
+        }
+    }
+    cirMgr = new CirMgr;
+    cirMgr->readCirFromAbc(fileName, fileType);
+    // curCmd = CIRREAD;
 
-   // curCmd = CIRREAD;
-
-   return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
-void
-CirReadCmd::usage(const bool& verbose) const
-{
-   gvMsg(GV_MSG_IFO) << "Usage: CIRRead <(string fileName)> [-Replace]" << endl;
+void CirReadCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: CIRRead <-Verilog | -Aiger> <(string fileName)> [-Replace]" << endl;
 }
 
-void
-CirReadCmd::help() const
-{
-   cout << setw(15) << left << "CIRRead: "
-        << "read in a circuit and construct the netlist" << endl;
+void CirReadCmd::help() const {
+    cout << setw(15) << left << "CIRRead: read in a circuit and construct the netlist" << endl;
 }
 
 //----------------------------------------------------------------------
 //    CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]
 //----------------------------------------------------------------------
 GVCmdExecStatus
-CirPrintCmd::exec(const string& option)
-{
-   // check option
-   string token;
-   GVCmdExec::lexSingleOption(option, token);
+CirPrintCmd::exec(const string& option) {
+    // check option
+    string token;
+    GVCmdExec::lexSingleOption(option, token);
 
-   if (!cirMgr) {
-      cerr << "Error: circuit is not yet constructed!!" << endl;
-      return GV_CMD_EXEC_ERROR;
-   }
-   if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
-      cirMgr->printSummary();
-   else if (myStrNCmp("-Netlist", token, 2) == 0)
-      cirMgr->printNetlist();
-   else if (myStrNCmp("-PI", token, 3) == 0)
-      cirMgr->printPIs();
-   else if (myStrNCmp("-PO", token, 3) == 0)
-      cirMgr->printPOs();
-   else if (myStrNCmp("-FLoating", token, 3) == 0)
-      cirMgr->printFloatGates();
-   else if (myStrNCmp("-FECpairs", token, 4) == 0)
-      cirMgr->printFECPairs();
-   else
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+    if (!cirMgr) {
+        cerr << "Error: circuit is not yet constructed!!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
+        cirMgr->printSummary();
+    else if (myStrNCmp("-Netlist", token, 2) == 0)
+        cirMgr->printNetlist();
+    else if (myStrNCmp("-PI", token, 3) == 0)
+        cirMgr->printPIs();
+    else if (myStrNCmp("-PO", token, 3) == 0)
+        cirMgr->printPOs();
+    else if (myStrNCmp("-FLoating", token, 3) == 0)
+        cirMgr->printFloatGates();
+    else if (myStrNCmp("-FECpairs", token, 4) == 0)
+        cirMgr->printFECPairs();
+    else
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
 
-   return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
-void
-CirPrintCmd::usage(const bool& verbose) const
-{  
-   gvMsg(GV_MSG_IFO) << "Usage: CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating "
-      << "| -FECpairs]" << endl;
+void CirPrintCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]" << endl;
 }
 
-void
-CirPrintCmd::help() const
-{  
-   cout << setw(15) << left << "CIRPrint: " << "print circuit\n";
+void CirPrintCmd::help() const {
+    cout << setw(15) << left << "CIRPrint: print circuit\n ";
 }
 
 //----------------------------------------------------------------------
 //    CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>
 //----------------------------------------------------------------------
 GVCmdExecStatus
-CirGateCmd::exec(const string& option)
-{
-   if (!cirMgr) {
-      cerr << "Error: circuit has not been read!!" << endl;
-      return GV_CMD_EXEC_ERROR;
-   }
+CirGateCmd::exec(const string& option) {
+    if (!cirMgr) {
+        cerr << "Error: circuit has not been read!!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
 
-   // check option
-   vector<string> options;
-   GVCmdExec::lexOptions(option, options);
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-   if (options.empty())
-      return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (options.empty())
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-   int gateId = -1, level = 0;
-   bool doFanin = false, doFanout = false;
-   CirGate* thisGate = 0;
-   for (size_t i = 0, n = options.size(); i < n; ++i) {
-      bool checkLevel = false;
-      if (myStrNCmp("-FANIn", options[i], 5) == 0) {
-         if (doFanin || doFanout)
+    int gateId = -1, level = 0;
+    bool doFanin = false, doFanout = false;
+    CirGate* thisGate = 0;
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        bool checkLevel = false;
+        if (myStrNCmp("-FANIn", options[i], 5) == 0) {
+            if (doFanin || doFanout)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            doFanin = true;
+            checkLevel = true;
+        } else if (myStrNCmp("-FANOut", options[i], 5) == 0) {
+            if (doFanin || doFanout)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            doFanout = true;
+            checkLevel = true;
+        } else if (!thisGate) {
+            if (!myStr2Int(options[i], gateId) || gateId < 0)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            thisGate = cirMgr->getGate(gateId);
+            if (!thisGate) {
+                cerr << "Error: Gate(" << gateId << ") not found!!" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+            }
+        } else if (thisGate)
+            return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+        else
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         doFanin = true;
-         checkLevel = true;
-      }
-      else if (myStrNCmp("-FANOut", options[i], 5) == 0) {
-         if (doFanin || doFanout)
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         doFanout = true;
-         checkLevel = true;
-      }
-      else if (!thisGate) {
-         if (!myStr2Int(options[i], gateId) || gateId < 0)
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         thisGate = cirMgr->getGate(gateId);
-         if (!thisGate) {
-            cerr << "Error: Gate(" << gateId << ") not found!!" << endl;
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-         }
-      }
-      else if (thisGate)
-         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
-      else
-         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-      if (checkLevel) {
-         if (++i == n)
-            return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
-         if (!myStr2Int(options[i], level) || level < 0)
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         checkLevel = true;
-      }
-   }
+        if (checkLevel) {
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            if (!myStr2Int(options[i], level) || level < 0)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            checkLevel = true;
+        }
+    }
 
-   if (!thisGate) {
-      cerr << "Error: Gate id is not specified!!" << endl;
-      return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options.back());
-   }
+    if (!thisGate) {
+        cerr << "Error: Gate id is not specified!!" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options.back());
+    }
 
-   if (doFanin)
-      thisGate->reportFanin(level);
-   else if (doFanout)
-      thisGate->reportFanout(level);
-   else
-      thisGate->reportGate();
+    if (doFanin)
+        thisGate->reportFanin(level);
+    else if (doFanout)
+        thisGate->reportFanout(level);
+    else
+        thisGate->reportGate();
 
-   return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
-void
-CirGateCmd::usage(const bool& verbose) const
-{
-   gvMsg(GV_MSG_IFO) << "Usage: CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>"
-      << endl;
+void CirGateCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>" << endl;
 }
 
-void
-CirGateCmd::help() const
-{
-   cout << setw(15) << left << "CIRGate: " << "report a gate\n";
+void CirGateCmd::help() const {
+    cout << setw(15) << left << "CIRGate: report a gate\n";
 }
 
 // //----------------------------------------------------------------------
@@ -430,7 +406,7 @@ CirGateCmd::help() const
 //       cirMgr->fileSim(patternFile);
 //    cirMgr->setSimLog(0);
 //    curCmd = CIRSIMULATE;
-   
+
 //    return GV_CMD_EXEC_DONE;
 // }
 
@@ -512,7 +488,7 @@ CirGateCmd::help() const
 //    ofstream outfile;
 //    for (size_t i = 0, n = options.size(); i < n; ++i) {
 //       if (myStrNCmp("-Output", options[i], 2) == 0) {
-//          if (hasFile) 
+//          if (hasFile)
 //             return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
 //          if (++i == n)
 //             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
@@ -591,12 +567,12 @@ CirGateCmd::help() const
 //       cerr << "Error: numbers of PIs are different!!" << endl;
 //       delete cm[0]; delete cm[1]; cirMgr = 0;
 //       return GV_CMD_EXEC_ERROR;
-//    } 
+//    }
 //    if (cm[0]->getNumPOs() != cm[1]->getNumPOs()) {
 //       cerr << "Error: numbers of POs are different!!" << endl;
 //       delete cm[0]; delete cm[1]; cirMgr = 0;
 //       return GV_CMD_EXEC_ERROR;
-//    } 
+//    }
 
 //    cirMgr = new CirMgr;
 //    if (!cirMgr->createMiter(cm[0], cm[1])) {
@@ -647,13 +623,12 @@ CirGateCmd::help() const
 
 // void
 // CirEffortCmd::usage(const bool& verbose) const
-// {  
+// {
 //    gvMsg(GV_MSG_IFO) << "Usage: CIREFFort <(int effortLimit)>" << endl;
 // }
 
 // void
 // CirEffortCmd::help() const
-// {  
+// {
 //    cout << setw(15) << left << "CIREFFort: " << "set SAT proof effort\n";
 // }
-

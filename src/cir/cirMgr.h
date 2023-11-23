@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include <fstream>
 #include <iostream>
 
@@ -105,22 +106,25 @@ public:
    void writeGate(ostream&, CirGate*) const;
 
    // Member functions about flags
-
    // for hidden command
    bool createMiter(CirMgr*, CirMgr*);
 
    static CirGate *_const0;
-   // --- MODIFICATION FOR SoCV HW5 ---
-   CirGate *_const1;
-   void readCirFromAbc(string fileName, CirFileType fileType);
+   // MODIFICATION FOR SOCV HOMEWORK
    void initCir(Gia_Man_t* pGia, const CirFileType& type);
-   void buildNtkBdd();
    void buildBdd(CirGate* gate);
-   void dfsOrder(vector<CirGate*>& nets);
+   void buildNtkBdd();
+   void readCirFromAbc(string fileName, CirFileType fileType);
    void addTotGate(CirGate* gate){_totGateList.push_back(gate);};
+   // void parseAigMapping(Gia_Man_t* pGia, map<unsigned, string>& id2Name);
    const bool setBddOrder(const bool& file);
-   CirGate* createGate(unsigned id, GateType type);
-   // --- MODIFICATION FOR SoCV HW5 ---
+   // CirGate* createGate(const GateType& type);
+   CirGate* createNotGate(CirGate* in0);
+   CirGate* createAndGate(CirGate* in0, CirGate* in1);
+   CirGate* createOrGate(CirGate* in0, CirGate* in1);
+   CirGate* createXorGate(CirGate* in0, CirGate* in1);
+   CirGate* _const1;
+
 private:
    unsigned            _numDecl[TOT_PARSE_PORTS];
    mutable unsigned    _flag;

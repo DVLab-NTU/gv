@@ -221,7 +221,7 @@ PCheckPropertyCmd::exec(const string& option) {
     assert(monitor());
     // bddMgrV->runPCheckProperty(gvNtkMgr->getNetNameFromId(netId.id), monitor);
     string mStr = "monitor";
-    bddMgrV->runPCheckProperty(mStr, monitor);
+    bddMgrV->runPCheckProperty(cirMgr->getPo(num)->getName(), monitor);
 
     return GV_CMD_EXEC_DONE;
 }
