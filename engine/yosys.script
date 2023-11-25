@@ -4,8 +4,8 @@ git clone https://github.com/YosysHQ/yosys.git
 # go to yosys/
 cd yosys/;
 
-# switch to version 0.23 of yosys 
-git checkout yosys-0.23
+# switch to version 0.35 of yosys 
+git checkout yosys-0.35
 
 # enable the libyosys.so flag
 sed -i -e "s/ENABLE_LIBYOSYS := 0/ENABLE_LIBYOSYS := 1/g" Makefile;
@@ -19,8 +19,11 @@ make config-gcc; make -j12; make libyosys.so; make install;
 # create gv_src/ directory
 mkdir gv_src;
 
+# rename yosys shared library 
+mv libyosys.so libyosyss.so
+
 # copy "yosys" shared library to gv_src/ directory
-mv libyosys.so gv_src/;
+mv libyosyss.so gv_src/;
 
 # copy "yosys" header files to gv_src/ directory
 cp -rf share/include/kernel gv_src/;
@@ -33,5 +36,5 @@ ln -fs engine/yosys/yosys-config ./yosys-config
 ln -fs engine/yosys/yosys-abc ./yosys-abc
 
 # go to src/eng and create symbol link
-echo "Creating softlink from engine/yosys/gv_src to src/eng/yosys ...";
-cd ./src/eng/; ln -fs ../../engine/yosys/gv_src ./yosys
+echo "Creating softlink from engine/yosys/gv_src to src/eng/yosyss ...";
+cd ./src/eng/; ln -fs ../../engine/yosys/gv_src ./yosyss
