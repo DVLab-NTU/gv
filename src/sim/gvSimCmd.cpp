@@ -11,7 +11,7 @@
 
 #include "gvNtk.h"
 bool
-GVinitSimCmd() {
+initSimCmd() {
     return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) &&
             gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
             gvCmdMgr->regCmd("SHow", 2, new GVShowCmd));

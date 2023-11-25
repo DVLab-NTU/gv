@@ -19,7 +19,7 @@
 using namespace std;
 
 bool
-GVinitProveCmd() {
+initProveCmd() {
     return (gvCmdMgr->regCmd("PINITialstate", 5, new PInitialStateCmd) &&
             gvCmdMgr->regCmd("PTRansrelation", 3, new PTransRelationCmd) &&
             gvCmdMgr->regCmd("PIMAGe", 5, new PImageCmd) &&

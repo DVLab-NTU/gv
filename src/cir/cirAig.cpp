@@ -13,10 +13,9 @@
 #include "base/abc/abc.h"
 #include "gvAbcMgr.h"
 #include "gvModMgr.h"
+#include "gvYosysMgr.h"
 #include "kernel/yosys.h"
 #include "util.h"
-
-USING_YOSYS_NAMESPACE
 
 string gateName(const string& name, const int& bit) {
     return name + "[" + to_string(bit) + "]";
@@ -66,12 +65,13 @@ void parseAigMapping(Gia_Man_t* pGia, map<unsigned, string>& id2Name) {
     }
 }
 
-void buildNameMapping(const string& fileName, Gia_Man_t* pGia, map<unsigned, string>& id2Name) {
-    run_pass("read_verilog " + fileName + "; hierarchy -auto-top; flatten; proc; techmap; setundef -zero; aigmap; write_aiger -map .map.txt ._temp_.aig");
-    parseAigMapping(pGia, id2Name);
-}
+// void buildNameMapping(const string& fileName, Gia_Man_t* pGia, map<unsigned, string>& id2Name) {
+//     yosysMgr->buildMapping(fileName);
+//     parseAigMapping(pGia, id2Name);
+// }
 
 void CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
+    // log_make_debug = true;
     CirGateV gateV;
     Gia_Man_t* pGia = NULL;             // the gia pointer of abc
     Gia_Obj_t *pObj, *pObjRi, *pObjRo;  // the obj element of gia
@@ -84,26 +84,29 @@ void CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     char* pFileName = new char[100];
     cout << "filename = " << fileName << endl;
     strcpy(pFileName, fileName.c_str());
-    char* pTopModule = NULL;  // the top module can be auto detected by yosys, no need to set
+    char* pTopModule = NULL;  
     char* pDefines = NULL;
-    int fBlast = 1;  // blast the ntk to gia (abc's aig data structure)
+    int fBlast = 1;  
     int fInvert = 0;
     int fTechMap = 1;
     int fSkipStrash = 0;
     int fCollapse = 0;
-    int c, fVerbose = 0;  // set verbose to 1 to see which yosys command is used
+    int c, fVerbose = 0;  
     int i, *pWire;
 
     if (fileType == AIGER)
         pGia = Gia_AigerRead(pFileName, 0, fSkipStrash, 0);
     else if (fileType == VERILOG)
         pGia = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fVerbose);
-    
+
     if (!pGia) {
         cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
         return;
     }
-    if (fileType == VERILOG) buildNameMapping(fileName, pGia, id2Name);
+    if (fileType == VERILOG) {
+        yosysMgr->buildMapping(fileName);
+        parseAigMapping(pGia, id2Name);
+    }
 
     // initialize the size of the containers
     initCir(pGia, fileType);

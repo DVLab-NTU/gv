@@ -2,15 +2,18 @@
 #define GV_ABC_CMD_C
 
 #include "gvAbcCmd.h"
+
+#include <string.h>
+
+#include <vector>
+
 #include "gvAbcMgr.h"
 #include "gvModMgr.h"
 #include "gvMsg.h"
 #include "util.h"
-#include <string.h>
-#include <vector>
 
-bool
-GVinitAbcCmd() {
+
+bool initAbcCmd() {
     if (abcMgr) delete abcMgr;
     abcMgr = new AbcMgr;
     return (gvCmdMgr->regCmd("ABCRead", 4, new GVABCReadCmd),
@@ -23,15 +26,17 @@ GVinitAbcCmd() {
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
-GVABCReadCmd ::exec(const string& option) {
+GVABCReadCmd::exec(const string& option) {
     vector<string> options;
-    string         fileName = "";
+    string fileName = "";
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
-        if (fileName == "") fileName = options[i];
-        else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+        if (fileName == "")
+            fileName = options[i];
+        else
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
     if (fileName == "")
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING,
@@ -40,13 +45,11 @@ GVABCReadCmd ::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVABCReadCmd ::usage(const bool& verbose) const {
+void GVABCReadCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: ABCRead " << endl;
 }
 
-void
-GVABCReadCmd ::help() const {
+void GVABCReadCmd::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCRead: "
                       << "Read netlist by ABC." << endl;
 }
@@ -56,29 +59,29 @@ GVABCReadCmd ::help() const {
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
-GVABCPrintCmd ::exec(const string& option) {
+GVABCPrintCmd::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    bool   basic = false, verbose = false;
+    bool basic = false, verbose = false;
     size_t n = options.size();
 
     if (options.size() > 1)
         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[1]);
     else if (options.size()) {
-        if (myStrNCmp("-Verbose", options[0], 2) == 0) verbose = true;
-        else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+        if (myStrNCmp("-Verbose", options[0], 2) == 0)
+            verbose = true;
+        else
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
     }
     (abcMgr->get_abcNtkMgr())->printSummary();
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVABCPrintCmd ::usage(const bool& verbose) const {
+void GVABCPrintCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: ABCPrint " << endl;
 }
 
-void
-GVABCPrintCmd ::help() const {
+void GVABCPrintCmd::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCPrint: "
                       << "Print netlist information." << endl;
 }
@@ -88,7 +91,7 @@ GVABCPrintCmd ::help() const {
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
-GVABCOriginalCmd ::exec(const string& option) {
+GVABCOriginalCmd::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     size_t n = options.size();
@@ -107,13 +110,11 @@ GVABCOriginalCmd ::exec(const string& option) {
     Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
 }
 
-void
-GVABCOriginalCmd ::usage(const bool& verbose) const {
+void GVABCOriginalCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: ABCCMD <command in ABC> " << endl;
 }
 
-void
-GVABCOriginalCmd ::help() const {
+void GVABCOriginalCmd::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCCMD: "
                       << "Directly call ABC's command." << endl;
 }

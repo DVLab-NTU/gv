@@ -15,7 +15,7 @@
 USING_YOSYS_NAMESPACE
 
 bool
-GVinitNtkCmd() {
+initNtkCmd() {
     if (gvNtkMgr) delete gvNtkMgr;
     gvNtkMgr = new GVNtkMgr;
     return (gvCmdMgr->regCmd("SEt Engine", 2, 1, new GVSetEngineCmd) &&

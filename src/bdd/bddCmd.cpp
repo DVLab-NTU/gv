@@ -7,21 +7,23 @@
  ****************************************************************************/
 
 #include "bddCmd.h"
-#include "bddMgrV.h"
-#include "gvMsg.h"
-#include "gvNtk.h"
-#include "cirMgr.h"
-#include "util.h"
+
 #include <cassert>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 
+#include "bddMgrV.h"
+#include "cirGate.h"
+#include "cirMgr.h"
+#include "gvMsg.h"
+#include "gvNtk.h"
+#include "util.h"
+
 using namespace std;
 
-bool
-GVinitBddCmd() {
+bool initBddCmd() {
     if (bddMgrV) delete bddMgrV;
     bddMgrV = new BddMgrV;
     return (gvCmdMgr->regCmd("BRESET", 6, new BResetCmd) &&
@@ -44,14 +46,13 @@ GVinitBddCmd() {
     return true;
 }
 
-bool
-isValidBddName(const string& str) {
+bool isValidBddName(const string& str) {
     int id;
     return (isValidVarName(str) || (myStr2Int(str, id) && id >= 0));
 }
 
 extern BddNodeV getBddNodeV(const string& bddName);
-bool            setBddOrder = false;
+bool setBddOrder = false;
 
 //----------------------------------------------------------------------
 //    BRESET <(size_t nSupports)> <(size_t hashSize)> <(size_t cacheSize)>
@@ -81,15 +82,13 @@ BResetCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BResetCmd::usage(const bool& verbose) const {
+void BResetCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO)
         << "Usage: BRESET <(size_t nSupports)> <(size_t hashSize)> "
         << "<(size_t cacheSize)>" << endl;
 }
 
-void
-BResetCmd::help() const {
+void BResetCmd::help() const {
     cout << setw(20) << left << "BRESET: "
          << "BDD reset" << endl;
 }
@@ -117,19 +116,18 @@ BSetVarCmd::exec(const string& option) {
             !bddMgrV->addBddNodeV(options[1], n()))
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         return GV_CMD_EXEC_DONE;
-    } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    } else
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BSetVarCmd::usage(const bool& verbose) const {
+void BSetVarCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BSETVar <(size_t level)> <(string varName)>"
                       << endl;
 }
 
-void
-BSetVarCmd::help() const {
+void BSetVarCmd::help() const {
     cout << setw(20) << left << "BSETVar: "
          << "BDD set a variable name for a support" << endl;
 }
@@ -159,14 +157,12 @@ BInvCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BInvCmd::usage(const bool& verbose) const {
+void BInvCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BINV <(string varName)> <(string bddName)>"
                       << endl;
 }
 
-void
-BInvCmd::help() const {
+void BInvCmd::help() const {
     cout << setw(20) << left << "BINV: "
          << "BDD Inv" << endl;
 }
@@ -200,14 +196,12 @@ BAndCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BAndCmd::usage(const bool& verbose) const {
+void BAndCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BAND <(string varName)> <(string bddName)>..."
                       << endl;
 }
 
-void
-BAndCmd::help() const {
+void BAndCmd::help() const {
     cout << setw(20) << left << "BAND: "
          << "BDD And" << endl;
 }
@@ -241,14 +235,12 @@ BOrCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BOrCmd::usage(const bool& verbose) const {
+void BOrCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BOR <(string varName)> <(string bddName)>..."
                       << endl;
 }
 
-void
-BOrCmd::help() const {
+void BOrCmd::help() const {
     cout << setw(20) << left << "BOR: "
          << "BDD Or" << endl;
 }
@@ -283,14 +275,12 @@ BNandCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BNandCmd::usage(const bool& verbose) const {
+void BNandCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BNAND <(string varName)> <(string bddName)>..."
                       << endl;
 }
 
-void
-BNandCmd::help() const {
+void BNandCmd::help() const {
     cout << setw(20) << left << "BNAND: "
          << "BDD Nand" << endl;
 }
@@ -325,14 +315,12 @@ BNorCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BNorCmd::usage(const bool& verbose) const {
+void BNorCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BNOR <(string varName)> <(string bddName)>..."
                       << endl;
 }
 
-void
-BNorCmd::help() const {
+void BNorCmd::help() const {
     cout << setw(20) << left << "BNOR: "
          << "BDD Nor" << endl;
 }
@@ -366,14 +354,12 @@ BXorCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BXorCmd::usage(const bool& verbose) const {
+void BXorCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BXOR <(string varName)> <(string bddName)>..."
                       << endl;
 }
 
-void
-BXorCmd::help() const {
+void BXorCmd::help() const {
     cout << setw(20) << left << "BXOR: "
          << "BDD Xor" << endl;
 }
@@ -408,14 +394,12 @@ BXnorCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BXnorCmd::usage(const bool& verbose) const {
+void BXnorCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BXNOR <(string varName)> <(string bddName)>..."
                       << endl;
 }
 
-void
-BXnorCmd::help() const {
+void BXnorCmd::help() const {
     cout << setw(20) << left << "BXNOR: "
          << "BDD Xnor" << endl;
 }
@@ -433,7 +417,8 @@ BCofactorCmd::exec(const string& option) {
     if (n > 3) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[3]);
 
     bool posCof = false;
-    if (myStrNCmp("-Positive", options[0], 2) == 0) posCof = true;
+    if (myStrNCmp("-Positive", options[0], 2) == 0)
+        posCof = true;
     else if (myStrNCmp("-Negative", options[0], 2) != 0)
         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
@@ -449,14 +434,12 @@ BCofactorCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BCofactorCmd::usage(const bool& verbose) const {
+void BCofactorCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BCOFactor <-Positive | -Negative> <(string "
                          "varName)> <(string bddName)>\n";
 }
 
-void
-BCofactorCmd::help() const {
+void BCofactorCmd::help() const {
     cout << setw(20) << left << "BCOFactor: "
          << "Retrieve BDD cofactor\n";
 }
@@ -489,14 +472,12 @@ BExistCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BExistCmd::usage(const bool& verbose) const {
+void BExistCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BEXist <(size_t level)> <(string varName)> "
                          "<(string bddName)>\n";
 }
 
-void
-BExistCmd::help() const {
+void BExistCmd::help() const {
     cout << setw(20) << left << "BEXist: "
          << "Perform BDD existential quantification\n";
 }
@@ -540,14 +521,12 @@ BCompareCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BCompareCmd::usage(const bool& verbose) const {
+void BCompareCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BCOMpare <(string bddName)> <(string bddName)>"
                       << endl;
 }
 
-void
-BCompareCmd::help() const {
+void BCompareCmd::help() const {
     cout << setw(20) << left << "BCOMpare: "
          << "BDD comparison" << endl;
 }
@@ -583,15 +562,13 @@ BSimulateCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BSimulateCmd::usage(const bool& verbose) const {
+void BSimulateCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO)
         << "Usage: BSIMulate <(string bddName)> <(bit_string inputPattern)>"
         << endl;
 }
 
-void
-BSimulateCmd::help() const {
+void BSimulateCmd::help() const {
     cout << setw(20) << left << "BSIMulate: "
          << "BDD simulation" << endl;
 }
@@ -608,8 +585,8 @@ BReportCmd::exec(const string& option) {
 
     if (options.empty()) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-    bool     doFile = false, doAddr = false, doRefCount = false;
-    string   bddNodeVName, fileName;
+    bool doFile = false, doAddr = false, doRefCount = false;
+    string bddNodeVName, fileName;
     BddNodeV bnode;
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         if (myStrNCmp("-File", options[i], 2) == 0) {
@@ -619,7 +596,7 @@ BReportCmd::exec(const string& option) {
                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING,
                                               options[i - 1]);
             fileName = options[i];
-            doFile   = true;
+            doFile = true;
         } else if (myStrNCmp("-ADDRess", options[i], 5) == 0) {
             if (doAddr)
                 return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
@@ -649,24 +626,23 @@ BReportCmd::exec(const string& option) {
         if (!ofs)
             return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, fileName);
         ofs << bnode << endl;
-    } else cout << bnode << endl;
+    } else
+        cout << bnode << endl;
 
     // always set to false afterwards
-    BddNodeV::_debugBddAddr  = false;
+    BddNodeV::_debugBddAddr = false;
     BddNodeV::_debugRefCount = false;
 
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BReportCmd::usage(const bool& verbose) const {
+void BReportCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO)
         << "Usage: BREPort <(string bddName)> [-ADDRess] [-REFcount]\n "
         << "               [-File <(string fileName)>]" << endl;
 }
 
-void
-BReportCmd::help() const {
+void BReportCmd::help() const {
     cout << setw(20) << left << "BREPort: "
          << "BDD report node" << endl;
 }
@@ -695,14 +671,11 @@ BDrawCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BDrawCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: BDRAW <(string bddName)> <(string fileName)>"
-                      << endl;
+void BDrawCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BDRAW <(string bddName)> <(string fileName)>" << endl;
 }
 
-void
-BDrawCmd::help() const {
+void BDrawCmd::help() const {
     cout << setw(20) << left << "BDRAW: "
          << "BDD graphic draw" << endl;
 }
@@ -725,10 +698,13 @@ BSetOrderCmd::exec(const string& option) {
         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[1]);
     }
     string token = options[0];
-    bool   file  = false;
-    if (myStrNCmp("-File", token, 2) == 0) file = true;
-    else if (myStrNCmp("-RFile", token, 3) == 0) file = false;
-    else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+    bool file = false;
+    if (myStrNCmp("-File", token, 2) == 0)
+        file = true;
+    else if (myStrNCmp("-RFile", token, 3) == 0)
+        file = false;
+    else
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     bddMgrV->restart();
     // V3NtkHandler* const handler = v3Handler.getCurHandler();
 
@@ -736,15 +712,14 @@ BSetOrderCmd::exec(const string& option) {
     setBddOrder = cirMgr->setBddOrder(file);
     if (!setBddOrder)
         gvMsg(GV_MSG_ERR) << "Set BDD Variable Order Failed !!" << endl;
-    else gvMsg(GV_MSG_IFO) << "Set BDD Variable Order Succeed !!" << endl;
+    else
+        gvMsg(GV_MSG_IFO) << "Set BDD Variable Order Succeed !!" << endl;
     return GV_CMD_EXEC_DONE;
 }
-void
-BSetOrderCmd::usage(const bool& verbose) const {
+void BSetOrderCmd::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: BSETOrder < -File | -RFile >" << endl;
 }
-void
-BSetOrderCmd::help() const {
+void BSetOrderCmd::help() const {
     cout << setw(20) << left << "BSETOrder: "
          << "Set BDD variable Order From Circuit." << endl;
 }
@@ -767,51 +742,54 @@ BConstructCmd::exec(const string& option) {
         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[2]);
     }
 
-    bool isNet = false, isOutput = false;
-    if (myStrNCmp("-All", options[0], 2) == 0) cirMgr->buildNtkBdd();
-    else if (myStrNCmp("-Netid", options[0], 2) == 0) isNet = true;
-    else if (myStrNCmp("-Output", options[0], 2) == 0) isOutput = true;
-    else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-    if (isOutput || isNet) {
+    bool isGate = false, isOutput = false;
+    if (myStrNCmp("-All", options[0], 2) == 0)
+        cirMgr->buildNtkBdd();
+    else if (myStrNCmp("-Gateid", options[0], 2) == 0)
+        isGate = true;
+    else if (myStrNCmp("-Output", options[0], 2) == 0)
+        isOutput = true;
+    else
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+    if (isOutput || isGate) {
         if (options.size() != 2)
             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[0]);
 
-        int     num = 0;
+        int num = 0;
         GVNetId netId;
+        CirGate* gate;
         if (!myStr2Int(options[1], num) || (num < 0))
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
-        if (isNet) {
-            if ((unsigned)num >= gvNtkMgr->getNetSize()) {
-                gvMsg(GV_MSG_ERR)
-                    << "Net with Id " << num
-                    << " does NOT Exist in Current Ntk !!" << endl;
+        if (isGate) {
+            // if ((unsigned)num >= gvNtkMgr->getNetSize()) {
+            if ((unsigned)num >= cirMgr->getNumTots()) {
+                gvMsg(GV_MSG_ERR) << "Gate with Id " << num << " does NOT Exist in Current Cir !!" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
             }
-            netId = GVNetId::makeNetId(num, 0, gvNtkMgr->getGateType(gvNtkMgr->getGVNetId(num)));
+            // netId = GVNetId::makeNetId(num, 0, gvNtkMgr->getGateType(gvNtkMgr->getGVNetId(num)));
+            gate = cirMgr->getGate(num);
         } else if (isOutput) {
-            if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
-                gvMsg(GV_MSG_ERR)
-                    << "Output with Index " << num
-                    << " does NOT Exist in Current Ntk !!" << endl;
+            // if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
+            if ((unsigned)num >= cirMgr->getNumPOs()) {
+                gvMsg(GV_MSG_ERR) << "Output with Index " << num << " does NOT Exist in Current Cir !!" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
             }
-            netId = gvNtkMgr->getOutput(num);
+            // netId = gvNtkMgr->getOutput(num);
+            gate = cirMgr->getPo(num);
         }
-        gvNtkMgr->buildBdd(netId);
+        // gvNtkMgr->buildBdd(netId);
+        cirMgr->buildBdd(gate);
     }
 
     return GV_CMD_EXEC_DONE;
 }
 
-void
-BConstructCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: BConstruct <-Netid <netId> | -Output < "
-                         "outputIndex > | -All > "
+void BConstructCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: BConstruct <-Gateid <gateId> | -Output <outputIndex> | -All > "
                       << endl;
 }
 
-void
-BConstructCmd::help() const {
+void BConstructCmd::help() const {
     cout << setw(20) << left << "BConstruct: "
          << "Build BDD From Current Design." << endl;
 }

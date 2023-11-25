@@ -15,7 +15,7 @@
 using namespace std;
 
 bool
-GVinitVrfCmd() {
+initVrfCmd() {
     return (gvCmdMgr->regCmd("Formal Verify", 1, 1, new GVFormalVerifyCmd));
 }
 

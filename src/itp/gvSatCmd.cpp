@@ -19,7 +19,7 @@ using namespace std;
 static SATMgr* satMgr = new SATMgr();
 
 bool
-GVinitItpCmd() {
+initItpCmd() {
     return (gvCmdMgr->regCmd("SATVerify ITP", 4, 3, new SATVerifyItpCmd) &&
             gvCmdMgr->regCmd("SATVerify BMC", 4, 3, new SATVerifyBmcCmd));
 }

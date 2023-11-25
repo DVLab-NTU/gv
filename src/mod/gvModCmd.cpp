@@ -12,7 +12,7 @@
 #include <vector>
 
 bool
-GVinitModCmd() {
+initModCmd() {
     if (gvModMgr) delete gvModMgr;
     gvModMgr = new GVModMgr;
     return (gvCmdMgr->regCmd("SEt SYStem", 2, 3, new GVSetSystemCmd) &&

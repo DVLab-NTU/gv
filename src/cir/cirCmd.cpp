@@ -22,7 +22,7 @@ using namespace std;
 extern CirMgr* cirMgr;
 extern int effLimit;
 
-bool GVinitCirCmd() {
+bool initCirCmd() {
     return (gvCmdMgr->regCmd("CIRRead", 4, new CirReadCmd) &&
             gvCmdMgr->regCmd("CIRPrint", 4, new CirPrintCmd) &&
             gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd));
@@ -68,9 +68,9 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         if (myStrNCmp("-Replace", options[i], 2) == 0) {
             if (doReplace) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
             doReplace = true;
-        } else if (myStrNCmp("-Verilog", options[i], 1) == 0) {
+        } else if (myStrNCmp("-Verilog", options[i], 2) == 0) {
             fileType = VERILOG;
-        } else if (myStrNCmp("-Aiger", options[i], 1) == 0) {
+        } else if (myStrNCmp("-Aiger", options[i], 2) == 0) {
             fileType = AIGER;
         } else {
             if (fileName.size())
@@ -102,7 +102,8 @@ void CirReadCmd::usage(const bool& verbose) const {
 }
 
 void CirReadCmd::help() const {
-    cout << setw(15) << left << "CIRRead: read in a circuit and construct the netlist" << endl;
+    cout << setw(20) << left << "CIRRead:"
+         << "Read in a circuit and construct the netlist" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -137,11 +138,12 @@ CirPrintCmd::exec(const string& option) {
 }
 
 void CirPrintCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]" << endl;
+    cout << "Usage: CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]" << endl;
 }
 
 void CirPrintCmd::help() const {
-    cout << setw(15) << left << "CIRPrint: print circuit\n ";
+    cout << setw(20) << left << "CIRPrint: "
+         << "Print circuit" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -213,11 +215,12 @@ CirGateCmd::exec(const string& option) {
 }
 
 void CirGateCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>" << endl;
+    cout << "Usage: CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>" << endl;
 }
 
 void CirGateCmd::help() const {
-    cout << setw(15) << left << "CIRGate: report a gate\n";
+    cout << setw(20) << left << "CIRGate:"
+         << "Report a gate" << endl;
 }
 
 // //----------------------------------------------------------------------

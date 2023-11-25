@@ -16,7 +16,7 @@
 #include "util.h"
 using namespace std;
 
-string   GVMsg::_allName = "";
+string GVMsg::_allName = "";
 ofstream GVMsg::_allout;
 GVMsgMgr gvMsg;
 
@@ -27,17 +27,18 @@ GVUsage gvUsage;
 //----------------------------------------------------------------------
 GVCmdMgr* gvCmdMgr = new GVCmdMgr("gv");
 
-extern bool GVinitCommonCmd();
-extern bool GVinitNtkCmd();
-extern bool GVinitSimCmd();
-extern bool GVinitVrfCmd();
-extern bool GVinitAbcCmd();
-extern bool GVinitModCmd();
-extern bool GVinitBddCmd();
-extern bool GVinitProveCmd();
-extern bool GVinitProveCmd();
-extern bool GVinitItpCmd();
-extern bool GVinitCirCmd();
+extern bool initCommonCmd();
+extern bool initNtkCmd();
+extern bool initSimCmd();
+extern bool initVrfCmd();
+extern bool initAbcCmd();
+extern bool initModCmd();
+extern bool initBddCmd();
+extern bool initProveCmd();
+extern bool initProveCmd();
+extern bool initItpCmd();
+extern bool initCirCmd();
+extern bool initYosysCmd();
 
 static void
 usage() {
@@ -50,13 +51,12 @@ myexit() {
     exit(-1);
 }
 
-int
-main(int argc, char** argv) {
+int main(int argc, char** argv) {
     myUsage.reset();
 
     ifstream dof;
 
-    if (argc == 3) { // -file <doFile>
+    if (argc == 3) {  // -file <doFile>
         if (myStrNCmp("-File", argv[1], 2) == 0) {
             if (!gvCmdMgr->openDofile(argv[2])) {
                 cout << "Error: cannot open file \"" << argv[2] << "\"!!\n";
@@ -70,10 +70,10 @@ main(int argc, char** argv) {
         cout << "Error: illegal number of argument (" << argc << ")!!\n";
         myexit();
     }
-    Yosys::yosys_setup();                     // initial yosys command
-    Yosys::log_streams.push_back(&std::cout); // log yosys message
-    if (!(GVinitCommonCmd() && GVinitNtkCmd() && GVinitSimCmd() && GVinitVrfCmd() &&
-          GVinitAbcCmd() && GVinitModCmd() && GVinitBddCmd() && GVinitProveCmd() && GVinitItpCmd() && GVinitCirCmd()))
+    // Yosys::yosys_setup();                      // initial yosys command
+    // Yosys::log_streams.push_back(&std::cout);  // log yosys message
+    if (!(initCommonCmd() && initNtkCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() &&
+          initModCmd() && initBddCmd() && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd()))
         return 1;
 
     GVCmdExecStatus status = GV_CMD_EXEC_DONE;
