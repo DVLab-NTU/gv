@@ -1,5 +1,5 @@
-SRCPKGS  = util cmd mod abc yosys bdd itp ntk cir sim vrf ext prove 
-LIBPKGS  = util cmd mod abc yosys bdd itp ntk cir sim vrf prove
+SRCPKGS  = util cmd mod abc yosys bdd itp ntk cir sim vrf ext prove gvsat
+LIBPKGS  = util cmd mod abc yosys bdd itp ntk cir sim vrf prove gvsat
 
 MAIN     = main
 
