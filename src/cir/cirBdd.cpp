@@ -1,20 +1,16 @@
 /****************************************************************************
-  FileName     [ v3NtkBdd.cpp ]
-  PackageName  [ v3/src/ntk ]
-  Synopsis     [ V3 Network to BDDs. ]
-  Author       [ Cheng-Yin Wu ]
-  Copyright    [ Copyright(c) 2012-present LaDs(III), GIEE, NTU, Taiwan ]
+  FileName     [ cirBdd.cpp ]
+  PackageName  [ cir ]
+  Synopsis     [ Define BDD manager functions ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-
-#ifndef V3_NTK_C
-#define V3_NTK_C
 
 #include "bddMgrV.h"   // MODIFICATION FOR SoCV BDD
 #include "bddNodeV.h"  // MODIFICATION FOR SoCV BDD
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "gvMsg.h"
-#include "stack"
 #include "util.h"
 
 extern BddMgrV* bddMgrV;  // MODIFICATION FOR SoCV BDD
@@ -106,4 +102,3 @@ void CirMgr::buildBdd(CirGate* gate) {
     }
 }
 
-#endif

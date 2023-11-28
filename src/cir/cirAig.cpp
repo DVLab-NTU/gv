@@ -1,9 +1,9 @@
 /****************************************************************************
   FileName     [ cirAig.cpp ]
   PackageName  [ cir ]
-  Synopsis     [ Define basic cir package commands ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ ]
+  Synopsis     [ Define GV cir/aig functions ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include <cirGate.h>
 #include <cirMgr.h>
@@ -65,12 +65,8 @@ void parseAigMapping(Gia_Man_t* pGia, map<unsigned, string>& id2Name) {
     }
 }
 
-// void buildNameMapping(const string& fileName, Gia_Man_t* pGia, map<unsigned, string>& id2Name) {
-//     yosysMgr->buildMapping(fileName);
-//     parseAigMapping(pGia, id2Name);
-// }
 
-void CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
+const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     // log_make_debug = true;
     CirGateV gateV;
     Gia_Man_t* pGia = NULL;             // the gia pointer of abc
@@ -82,16 +78,16 @@ void CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
 
     // abc function parameters
     char* pFileName = new char[100];
-    cout << "filename = " << fileName << endl;
+    // cout << "filename = " << fileName << endl;
     strcpy(pFileName, fileName.c_str());
-    char* pTopModule = NULL;  
+    char* pTopModule = NULL;
     char* pDefines = NULL;
-    int fBlast = 1;  
+    int fBlast = 1;
     int fInvert = 0;
     int fTechMap = 1;
     int fSkipStrash = 0;
     int fCollapse = 0;
-    int c, fVerbose = 0;  
+    int c, fVerbose = 0;
     int i, *pWire;
 
     if (fileType == AIGER)
@@ -101,7 +97,7 @@ void CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
 
     if (!pGia) {
         cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
-        return;
+        return false;
     }
     if (fileType == VERILOG) {
         yosysMgr->buildMapping(fileName);
@@ -190,10 +186,6 @@ void CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
         CirGate* riGate = getGate(riGid);
         CirRoGate* roGate = static_cast<CirRoGate*>(getGate(roGid));
         roGate->setIn0(riGate, false);
-
-        // cout << Gia_ObjId(pGia, pObjRi) << endl;
-        // cout << Gia_ObjId(pGia, pObjRo) << endl;//<< " <---> "<< PPI2RO[Gia_ObjId(pGia,pObjRo)]<< endl;
-        // cout << " --- \n";
     }
     // CONST1 Gate
     _const1 = new CirAigGate(getNumTots(), 0);
@@ -202,19 +194,12 @@ void CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     _const1->setIn1(_const0, true);
 
     genDfsList();
-
-    // DEBUG
-    // for (int i = 0; i < _totGateList.size(); ++i) {
-    //     CirGate* g = _totGateList[i];
-    //     // if (g->getType() == RI_GATE || g->getType() == PO_GATE) isPrint = true;
-    //     if (g) g->printGate();
-    // }
-    // _poList[0]->printGate();
+    return true;
 }
 
 void CirMgr::initCir(Gia_Man_t* pGia, const CirFileType& fileType) {
     // Create lists
-    cout << "initializing ..." << endl;
+    // cout << "initializing ..." << endl;
     int piNum = 0, regNum = 0, poNum = 0, totNum = 0;
     if (fileType == VERILOG) {
         piNum = Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1;
@@ -250,36 +235,36 @@ void CirMgr::initCir(Gia_Man_t* pGia, const CirFileType& fileType) {
 // }
 
 CirGate* CirMgr::createNotGate(CirGate* in0) {
-    CirGate* notGate = new CirAigGate(cirMgr->getNumTots(), 0);
-    cirMgr->addTotGate(notGate);
+    CirGate* notGate = new CirAigGate(getNumTots(), 0);
+    addTotGate(notGate);
     notGate->setIn0(in0, true);
     notGate->setIn1(_const1, false);
     return notGate;
 }
 
 CirGate* CirMgr::createAndGate(CirGate* in0, CirGate* in1) {
-    CirGate* andGate = new CirAigGate(cirMgr->getNumTots(), 0);
-    cirMgr->addTotGate(andGate);
+    CirGate* andGate = new CirAigGate(getNumTots(), 0);
+    addTotGate(andGate);
     andGate->setIn0(in0, false);
     andGate->setIn1(in1, false);
     return andGate;
 }
 
 CirGate* CirMgr::createOrGate(CirGate* in0, CirGate* in1) {
-    CirGate* tmpGate = new CirAigGate(cirMgr->getNumTots(), 0);
-    cirMgr->addTotGate(tmpGate);
+    CirGate* tmpGate = new CirAigGate(getNumTots(), 0);
+    addTotGate(tmpGate);
     tmpGate->setIn0(in0, true);
     tmpGate->setIn1(in1, true);
     return createNotGate(tmpGate);
 }
 
 CirGate* CirMgr::createXorGate(CirGate* in0, CirGate* in1) {
-    CirGate* tmpGate0 = new CirAigGate(cirMgr->getNumTots(), 0);
-    cirMgr->addTotGate(tmpGate0);
-    CirGate* tmpGate1 = new CirAigGate(cirMgr->getNumTots(), 0);
-    cirMgr->addTotGate(tmpGate1);
-    CirGate* tmpGate2 = new CirAigGate(cirMgr->getNumTots(), 0);
-    cirMgr->addTotGate(tmpGate2);
+    CirGate* tmpGate0 = new CirAigGate(getNumTots(), 0);
+    addTotGate(tmpGate0);
+    CirGate* tmpGate1 = new CirAigGate(getNumTots(), 0);
+    addTotGate(tmpGate1);
+    CirGate* tmpGate2 = new CirAigGate(getNumTots(), 0);
+    addTotGate(tmpGate2);
     tmpGate0->setIn0(in0, true);
     tmpGate0->setIn1(in1, false);
     tmpGate1->setIn0(in0, false);

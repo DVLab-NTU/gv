@@ -42,7 +42,7 @@ extern bool initYosysCmd();
 
 static void
 usage() {
-    cout << "Usage: cirTest [ -File < doFile > ]" << endl;
+    cout << "Usage: ./gv [ -File < doFile > ]" << endl;
 }
 
 static void
@@ -70,8 +70,8 @@ int main(int argc, char** argv) {
         cout << "Error: illegal number of argument (" << argc << ")!!\n";
         myexit();
     }
-    // Yosys::yosys_setup();                      // initial yosys command
-    // Yosys::log_streams.push_back(&std::cout);  // log yosys message
+
+    cout << "GV v0.3.0 - Copyright © 2022-2023, DVLab NTUEE.\n";
     if (!(initCommonCmd() && initNtkCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() &&
           initModCmd() && initBddCmd() && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd()))
         return 1;

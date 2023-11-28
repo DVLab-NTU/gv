@@ -1,5 +1,5 @@
 PKGFLAG   =
-EXTHDRS   = gvSatMgr.h gvSatCmd.h
+EXTHDRS   = gvSat.h 
 
 include ../Makefile.in
 include ../Makefile.lib

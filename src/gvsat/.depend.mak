@@ -1,5 +1,9 @@
-gvSimCmd.o: gvSimCmd.cpp gvSimCmd.h ../../include/gvCmdMgr.h \
- ../../include/gvAbcMgr.h ../../include/base/abc/abc.h \
+FileV.o: FileV.cpp FileV.h GlobalV.h
+gvBitVec.o: gvBitVec.cpp gvBitVec.h ../../include/gvIntType.h
+gvSat.o: gvSat.cpp gvSat.h SolverV.h ProofV.h SolverTypesV.h GlobalV.h \
+ FileV.h VarOrderV.h HeapV.h ../../include/cirGate.h \
+ ../../include/cirDef.h ../../include/myHash.h ../../include/gvSat.h \
+ ../../include/cirMgr.h ../../include/base/abc/abc.h \
  ../../include/misc/vec/vec.h ../../include/misc/util/abc_global.h \
  ../../include/misc/util/abc_namespaces.h ../../include/misc/vec/vecInt.h \
  ../../include/misc/vec/vecFlt.h ../../include/misc/vec/vecStr.h \
@@ -10,7 +14,8 @@ gvSimCmd.o: gvSimCmd.cpp gvSimCmd.h ../../include/gvCmdMgr.h \
  ../../include/aig/gia/gia.h ../../include/misc/vec/vecWec.h \
  ../../include/misc/util/utilCex.h ../../include/misc/st/st.h \
  ../../include/misc/st/stmm.h ../../include/misc/nm/nm.h \
- ../../include/misc/mem/mem.h ../../include/misc/extra/extra.h \
+ ../../include/misc/mem/mem.h ../../include/misc/extra/extra.h gvBitVec.h \
+ ../../include/gvIntType.h ../../include/gvNtk.h ../../include/gvAbcMgr.h \
  ../../include/base/main/main.h ../../include/base/abc/abc.h \
  ../../include/base/main/abcapis.h ../../include/base/cmd/cmd.h \
  ../../include/base/io/ioAbc.h ../../include/misc/util/utilNam.h \
@@ -23,12 +28,13 @@ gvSimCmd.o: gvSimCmd.cpp gvSimCmd.h ../../include/gvCmdMgr.h \
  ../../include/sat/bsat/satSolver.h ../../include/sat/bsat/satVec.h \
  ../../include/sat/bsat/satClause.h ../../include/misc/util/utilDouble.h \
  ../../include/aig/ioa/ioa.h ../../include/gvAbcNtk.h \
- ../../include/gvModMgr.h ../../include/gvCmdMgr.h ../../include/gvMsg.h \
- ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
- ../../include/gvNtk.h ../../include/gvAbcMgr.h \
  ../../include/kernel/sigtools.h ../../include/kernel/yosys.h \
  /usr/include/tcl8.6/tcl.h /usr/include/tcl8.6/tclDecls.h \
  /usr/include/tcl8.6/tclPlatDecls.h ../../include/kernel/hashlib.h \
  ../../include/kernel/log.h ../../include/kernel/rtlil.h \
  ../../include/kernel/constids.inc ../../include/kernel/register.h \
  ../../include/kernel/utils.h ../../include/kernel/yosys.h
+ProofV.o: ProofV.cpp ProofV.h SolverTypesV.h GlobalV.h FileV.h SortV.h
+reader.o: reader.cpp reader.h
+SolverV.o: SolverV.cpp SolverV.h ProofV.h SolverTypesV.h GlobalV.h \
+ FileV.h VarOrderV.h HeapV.h SortV.h

@@ -15,7 +15,7 @@
 #include <climits>
 #include <cstdlib>
 #include "cirDef.h"
-#include "sat.h"
+#include "gvSat.h"
 
 using namespace std;
 

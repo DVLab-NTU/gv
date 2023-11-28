@@ -14,6 +14,8 @@
 
 #include "cirGate.h"
 #include "cirMgr.h"
+#include "gvCmdMgr.h"
+#include "gvModMgr.h"
 #include "gvMsg.h"
 #include "util.h"
 
@@ -91,8 +93,8 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         }
     }
     cirMgr = new CirMgr;
-    cirMgr->readCirFromAbc(fileName, fileType);
-    // curCmd = CIRREAD;
+    if (cirMgr->readCirFromAbc(fileName, fileType))
+        gvModMgr->setInputFileExist(true);
 
     return GV_CMD_EXEC_DONE;
 }

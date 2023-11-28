@@ -114,9 +114,8 @@ public:
    void initCir(Gia_Man_t* pGia, const CirFileType& type);
    void buildBdd(CirGate* gate);
    void buildNtkBdd();
-   void readCirFromAbc(string fileName, CirFileType fileType);
    void addTotGate(CirGate* gate){_totGateList.push_back(gate);};
-   // void parseAigMapping(Gia_Man_t* pGia, map<unsigned, string>& id2Name);
+   const bool readCirFromAbc(string fileName, CirFileType fileType);
    const bool setBddOrder(const bool& file);
    // CirGate* createGate(const GateType& type);
    CirGate* createNotGate(CirGate* in0);

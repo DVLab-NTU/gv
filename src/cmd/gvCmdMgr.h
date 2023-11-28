@@ -51,7 +51,7 @@ enum GVCmdOptionError {
 };
 
 const unordered_set<GVCmdType> _setupMode{GV_CMD_TYPE_REVEALED, GV_CMD_TYPE_COMMON, GV_CMD_TYPE_NETWORK,
-                                          GV_CMD_TYPE_ABC, GV_CMD_TYPE_MOD, GV_CMD_TYPE_BDD, GV_CMD_TYPE_PROVE};
+                                          GV_CMD_TYPE_ABC, GV_CMD_TYPE_MOD, GV_CMD_TYPE_BDD};
 
 const unordered_set<GVCmdType> _vrfMode{GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON,
                                         GV_CMD_TYPE_MOD, GV_CMD_TYPE_PROVE, GV_CMD_TYPE_ITP};
@@ -78,8 +78,8 @@ public:
     inline void setCmdLen(unsigned n) { _cmdLen = n; }
     inline unsigned getCmdLen() const { return _cmdLen; }
     inline void setMandCmd(const string& str) { _mandCmd.push_back(str); }
-    inline const string& getMandCmd(size_t idx) const { return _mandCmd[idx]; }
     inline void setOptCmd(const string& str) { _optCmd.push_back(str); }
+    inline const string& getMandCmd(size_t idx) const { return _mandCmd[idx]; }
     inline const string& getOptCmd(size_t idx) const { return _optCmd[idx]; }
     bool checkCmd(const string&) const;
     bool checkCmd(const string&, size_t) const;

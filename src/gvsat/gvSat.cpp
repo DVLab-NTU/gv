@@ -10,70 +10,62 @@
 #define SAT_C
 
 #include "gvSat.h"
-#include "cirMgr.h"
-#include "cirGate.h"
+
 #include <cmath>
 #include <iomanip>
 
-GVSatSolver::GVSatSolver(GVNtkMgr* ntk) : _ntk(NULL) {
-    _solver        = new SolverV();
+#include "cirGate.h"
+#include "cirMgr.h"
+
+GVSatSolver::GVSatSolver(CirMgr* cirMgr) : _cirMgr(cirMgr) {
+    _solver = new SolverV();
     _solver->proof = new Proof();
     _assump.clear();
     _curVar = 0;
     _solver->newVar();
     ++_curVar;
-    // _ntkData = new vector<Var>[ntk->getNetSize()];
-    // for (uint32_t i = 0; i < ntk->getNetSize(); ++i) _ntkData[i].clear();
-    _ntkData = new vector<Var>[cirMgr->getNumTots()];
-    for (uint32_t i = 0; i < cirMgr->getNumTots(); ++i) _ntkData[i].clear();
+    _ntkData = new vector<Var>[_cirMgr->getNumTots()];
+    for (uint32_t i = 0; i < _cirMgr->getNumTots(); ++i) _ntkData[i].clear();
 }
 
 GVSatSolver::~GVSatSolver() {
     delete _solver;
     assumeRelease();
-    for (uint32_t i = 0; i < _ntk->getNetSize(); ++i) _ntkData[i].clear();
+    for (uint32_t i = 0; i < _cirMgr->getNumTots(); ++i) _ntkData[i].clear();
     delete[] _ntkData;
 }
 
-void
-GVSatSolver::reset() {
+void GVSatSolver::reset() {
     delete _solver;
-    _solver        = new SolverV();
+    _solver = new SolverV();
     _solver->proof = new Proof();
     _assump.clear();
     _curVar = 0;
     _solver->newVar();
     ++_curVar;
-    _ntkData = new vector<Var>[_ntk->getNetSize()];
-    for (uint32_t i = 0; i < _ntk->getNetSize(); ++i) _ntkData[i].clear();
+    _ntkData = new vector<Var>[_cirMgr->getNumTots()];
+    for (uint32_t i = 0; i < _cirMgr->getNumTots(); ++i) _ntkData[i].clear();
 }
 
-void
-GVSatSolver::assumeRelease() {
+void GVSatSolver::assumeRelease() {
     _assump.clear();
 }
 
-void
-GVSatSolver::assumeProperty(const size_t& var, const bool& invert) {
+void GVSatSolver::assumeProperty(const size_t& var, const bool& invert) {
     _assump.push(mkLit(getOriVar(var), invert ^ isNegFormula(var)));
 }
 
-void
-GVSatSolver::assertProperty(const size_t& var, const bool& invert) {
+void GVSatSolver::assertProperty(const size_t& var, const bool& invert) {
     _solver->addUnit(mkLit(getOriVar(var), invert ^ isNegFormula(var)));
 }
 
-void
-GVSatSolver::assumeProperty(const CirGate* gate, const bool& invert, const uint32_t& depth) {
+void GVSatSolver::assumeProperty(const CirGate* gate, const bool& invert, const uint32_t& depth) {
     const Var var = getVerifyData(gate, depth);
-    // _assump.push(mkLit(var, invert ^ id.cp));
     _assump.push(mkLit(var, invert));
 }
 
-void
-GVSatSolver::assertProperty(const CirGate* gate, const bool& invert, const uint32_t& depth) {
+void GVSatSolver::assertProperty(const CirGate* gate, const bool& invert, const uint32_t& depth) {
     const Var var = getVerifyData(gate, depth);
-    // _solver->addUnit(mkLit(var, invert ^ id.cp));
     _solver->addUnit(mkLit(var, invert));
 }
 
@@ -96,18 +88,22 @@ GVSatSolver::assump_solve() {
 
 const GVBitVecX
 GVSatSolver::getDataValue(const CirGate* gate, const uint32_t& depth) const {
-    Var       var = getVerifyData(gate, depth);
-    uint32_t  i, width = 1;
+    Var var = getVerifyData(gate, depth);
+    uint32_t i, width = 1;
     GVBitVecX value(width);
     // Modification for cir structure
     if (false) {
         for (i = 0; i < width; ++i)
-            if (gv_l_True == _solver->model[var + i]) value.set0(i);
-            else value.set1(i);
+            if (gv_l_True == _solver->model[var + i])
+                value.set0(i);
+            else
+                value.set1(i);
     } else {
         for (i = 0; i < width; ++i)
-            if (gv_l_True == _solver->model[var + i]) value.set1(i);
-            else value.set0(i);
+            if (gv_l_True == _solver->model[var + i])
+                value.set1(i);
+            else
+                value.set0(i);
     }
     return value;
 }
@@ -123,11 +119,9 @@ GVSatSolver::getFormula(const GVNetId& id, const uint32_t& depth) {
     // return (id.fanin0Cp ? getNegVar(var) : getPosVar(var));
 }
 
-void
-GVSatSolver::resizeNtkData(const uint32_t& num) {
-    // vector<Var>* tmp = new vector<Var>[_ntk->getNetSize()];
-    vector<Var>* tmp = new vector<Var>[cirMgr->getNumTots()];
-    for (uint32_t i = 0, j = cirMgr->getNumTots() - num; i < j; ++i) tmp[i] = _ntkData[i];
+void GVSatSolver::resizeNtkData(const uint32_t& num) {
+    vector<Var>* tmp = new vector<Var>[_cirMgr->getNumTots()];
+    for (uint32_t i = 0, j = _cirMgr->getNumTots() - num; i < j; ++i) tmp[i] = _ntkData[i];
     delete[] _ntkData;
     _ntkData = tmp;
 }
@@ -142,42 +136,35 @@ GVSatSolver::newVar() {
 
 const Var
 GVSatSolver::getVerifyData(const CirGate* gate, const uint32_t& depth) const {
-    if (depth >= _ntkData[gate->getGid()].size()) return 0;
-    else return _ntkData[gate->getGid()][depth];
+    if (depth >= _ntkData[gate->getGid()].size())
+        return 0;
+    else
+        return _ntkData[gate->getGid()][depth];
 }
 
-void
-GVSatSolver::add_FALSE_Formula(const CirGate* gate, const uint32_t& depth) {
-    // const uint32_t index = getGVNetIndex(out);
+void GVSatSolver::add_FALSE_Formula(const CirGate* gate, const uint32_t& depth) {
     const uint32_t index = gate->getGid();
     _ntkData[index].push_back(newVar());
     _solver->addUnit(mkLit(_ntkData[index].back(), true));
 }
 
-void
-GVSatSolver::add_PI_Formula(const CirGate* gate, const uint32_t& depth) {
-    // const uint32_t index = getGVNetIndex(out);
+void GVSatSolver::add_PI_Formula(const CirGate* gate, const uint32_t& depth) {
     const uint32_t index = gate->getGid();
     _ntkData[index].push_back(newVar());
 }
 
-void
-GVSatSolver::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
-    // const uint32_t index = getGVNetIndex(out);
+void GVSatSolver::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
     const uint32_t index = gate->getGid();
-    //  assert(depth == _ntkData[index].size());
-
     if (depth) {
         // Build FF I/O Relation
-        // const GVNetId in1  = _ntk->getInputNetId(out, 0);
-        CirGateV   in0  = gate->getIn0();
-        const Var  var1 = getVerifyData(in0.gate(), depth - 1);
+        CirGateV in0 = gate->getIn0();
+        const Var var1 = getVerifyData(in0.gate(), depth - 1);
 
         if (in0.isInv()) {
             // a <-> b
             _ntkData[index].push_back(newVar());
-            Lit      a = mkLit(_ntkData[index].back());
-            Lit      b = mkLit(var1, true);
+            Lit a = mkLit(_ntkData[index].back());
+            Lit b = mkLit(var1, true);
             vec<Lit> lits;
             lits.clear();
             lits.push(~a);
@@ -188,26 +175,24 @@ GVSatSolver::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
             lits.push(~b);
             _solver->addClause(lits);
             lits.clear();
-        } else _ntkData[index].push_back(var1);
-    } else { // Timeframe 0
+        } else
+            _ntkData[index].push_back(var1);
+    } else {  // Timeframe 0
         _ntkData[index].push_back(newVar());
     }
 }
 
-void
-GVSatSolver::add_AND_Formula(const CirGate* gate, const uint32_t& depth) {
+void GVSatSolver::add_AND_Formula(const CirGate* gate, const uint32_t& depth) {
     // const uint32_t index = getGVNetIndex(out);
     const uint32_t index = gate->getGid();
     _ntkData[index].push_back(newVar());
 
-    const Var&    var = _ntkData[index].back();
+    const Var& var = _ntkData[index].back();
     // Build AND I/O Relation
-    // const GVNetId in1  = _ntk->getInputNetId(out, 0);
-    // const GVNetId in2  = _ntk->getInputNetId(out, 1);
-    const CirGateV in0  = gate->getIn0();
-    const CirGateV in1  = gate->getIn1();
-    const Var     var0 = getVerifyData(in0.gate(), depth);
-    const Var     var1 = getVerifyData(in1.gate(), depth);
+    const CirGateV in0 = gate->getIn0();
+    const CirGateV in1 = gate->getIn1();
+    const Var var0 = getVerifyData(in0.gate(), depth);
+    const Var var1 = getVerifyData(in1.gate(), depth);
 
     Lit y = mkLit(var);
     Lit a = mkLit(var0, in0.isInv());
@@ -230,17 +215,16 @@ GVSatSolver::add_AND_Formula(const CirGate* gate, const uint32_t& depth) {
     lits.clear();
 }
 
-void
-GVSatSolver::addBoundedVerifyData(const CirGate* gate, const uint32_t& depth) {
+void GVSatSolver::addBoundedVerifyData(const CirGate* gate, const uint32_t& depth) {
     if (existVerifyData(gate, depth)) return;
     addBoundedVerifyDataRecursively(gate, depth);
 }
 
-void
-GVSatSolver::addBoundedVerifyDataRecursively(const CirGate* gate, const uint32_t& depth) {
+void GVSatSolver::addBoundedVerifyDataRecursively(const CirGate* gate, const uint32_t& depth) {
     GateType type = gate->getType();
     if (existVerifyData(gate, depth)) return;
-    if (type == PI_GATE) add_PI_Formula(gate, depth);
+    if (type == PI_GATE)
+        add_PI_Formula(gate, depth);
     else if (RO_GATE == type || RI_GATE == type) {
         uint32_t newDepth = depth;
         if (depth) {
@@ -248,8 +232,7 @@ GVSatSolver::addBoundedVerifyDataRecursively(const CirGate* gate, const uint32_t
             addBoundedVerifyDataRecursively(gate->getIn0Gate(), newDepth);
         }
         add_FF_Formula(gate, depth);
-    } 
-    else{
+    } else {
         if (type == PO_GATE) {
             addBoundedVerifyDataRecursively(gate->getIn0Gate(), depth);
             add_FF_Formula(gate, depth);
@@ -262,9 +245,6 @@ GVSatSolver::addBoundedVerifyDataRecursively(const CirGate* gate, const uint32_t
             add_FALSE_Formula(gate, depth);
         }
     }
-    // } else {
-    // //     assert(0);
-    // }
 }
 
 const bool
