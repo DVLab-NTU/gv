@@ -18,7 +18,7 @@ public:
     void reset();
 
     void setLogging(const bool& = false);
-    void buildMapping(const string& fileName);
+    void createMapping(const string& fileName);
 
 private:
 };

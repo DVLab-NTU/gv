@@ -5,14 +5,14 @@
 #Language: Cpp
 #
 ## ___ Short statement ___
-##  "if (a) return"; can be put on a single line.
-#AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+#  "if (a) return"; can be put on a single line.
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 #
 ## If "true", "while (true) continue"; can be put on a single line.
 #AllowShortLoopsOnASingleLine: true
 #
 ## int f() { return 0; } can be put on a single line.
-#AllowShortFunctionsOnASingleLine: Inline
+# AllowShortFunctionsOnASingleLine: Inline
 #
 ## ___ Align ___
 ## Horizontally aligns arguments after an open bracket.
@@ -24,8 +24,8 @@
 #  AcrossComments: true
 #  Consecutive: true
 #
-## Align consecutive assignments.
-#AlignConsecutiveAssignments: Consecutive
+# Align consecutive assignments.
+AlignConsecutiveAssignments: Consecutive
 #
 ## The return type of the function on its own line.
 #AlwaysBreakAfterDefinitionReturnType: TopLevel
@@ -33,12 +33,12 @@
 ## The column limit.
 #ColumnLimit: 80
 #
-## Extern and Class indent setting
-#BreakBeforeBraces: Custom
-#BraceWrapping:
-#    AfterExternBlock: true
-#    AfterClass: true
-#    AfterEnum: true
+# Extern and Class indent setting
+BreakBeforeBraces: Custom
+BraceWrapping:
+   AfterExternBlock: true
+   # AfterClass: true
+   # AfterEnum: true
 #
 #IndentAccessModifiers: true
 #PointerAlignment: Left
@@ -56,3 +56,9 @@ IndentRequires: false
 
 # puts public, private, on the same column with class definition
 AccessModifierOffset: -4
+
+AlignConsecutiveShortCaseStatements:
+   Enabled: true
+# Bin Pack
+# BinPackArguments: true
+# BinPackParameters: true

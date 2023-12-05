@@ -2,20 +2,23 @@
 #define GV_VRF_CMD_C
 
 #include "gvVrfCmd.h"
-#include "gvAbcMgr.h"
-#include "gvMsg.h"
-#include "gvUsage.h"
-#include "gvModMgr.h"
-#include "util.h"
+
+#include <stdio.h>
+
 #include <cstring>
 #include <iostream>
-#include <stdio.h>
 #include <string>
+
+#include "gvAbcMgr.h"
+#include "gvModMgr.h"
+#include "gvMsg.h"
+#include "gvUsage.h"
+#include "util.h"
+
 
 using namespace std;
 
-bool
-initVrfCmd() {
+bool initVrfCmd() {
     return (gvCmdMgr->regCmd("Formal Verify", 1, 1, new GVFormalVerifyCmd));
 }
 
@@ -25,29 +28,29 @@ initVrfCmd() {
 
 GVCmdExecStatus
 GVFormalVerifyCmd ::exec(const string& option) {
-    gvMsg(GV_MSG_IFO) << "I am GVFormalVerifyCmd " << endl;
+    cout << "I am GVFormalVerifyCmd " << endl;
 
     if (gvModMgr->getAigFileName() == "") {
-        gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" or \"VErilog2 Aig\" to read/make the aig file first !!\n";
+        cout << "[ERROR]: Please use command \"READ DESIGN\" or \"VErilog2 Aig\" to read/make the aig file first !!\n";
         return GV_CMD_EXEC_NOP;
     }
 
     bool bmc = false, pdr = false, itp = false, ind = false;
     // bmc
-    int    bmc_depth, bmc_S, bmc_T, bmc_H, bmc_G, bmc_C, bmc_D, bmc_J, bmc_I, bmc_P, bmc_Q, bmc_R;
+    int bmc_depth, bmc_S, bmc_T, bmc_H, bmc_G, bmc_C, bmc_D, bmc_J, bmc_I, bmc_P, bmc_Q, bmc_R;
     string bmc_option, bmc_L, bmc_W;
     // k-induction
-    int    PO_idx;
-    int    ind_F, ind_P, ind_C, ind_M, ind_L, ind_N, ind_B;
+    int PO_idx;
+    int ind_F, ind_P, ind_C, ind_M, ind_L, ind_N, ind_B;
     string ind_option;
     // pdr
-    int    pdr_M, pdr_F, pdr_C, pdr_D, pdr_Q, pdr_T, pdr_H, pdr_G, pdr_S;
+    int pdr_M, pdr_F, pdr_C, pdr_D, pdr_Q, pdr_T, pdr_H, pdr_G, pdr_S;
     string pdr_option, pdr_L, pdr_I;
     // itp
-    int    itp_C, itp_F, itp_T, itp_K;
+    int itp_C, itp_F, itp_T, itp_K;
     string itp_option, itp_L, itp_I;
 
-    char           fname[128];
+    char fname[128];
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
@@ -464,7 +467,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
     }
 
     // command
-    char   Command[1024], inname[128], formal_option[1024];
+    char Command[1024], inname[128], formal_option[1024];
     string cmd         = "";
     string aigFileName = gvModMgr->getAigFileName();
     strcpy(inname, aigFileName.c_str());
@@ -515,127 +518,123 @@ GVFormalVerifyCmd ::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVFormalVerifyCmd ::usage(const bool& verbose) const {
+void GVFormalVerifyCmd ::usage(const bool& verbose) const {
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           BMC
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "Usage: Formal Verify -bmc <int_depth> [-STHGCDJIPQR <num>] [-LW <filename>] [-axdursgvz]" << endl;
-    gvMsg(GV_MSG_IFO) << "\t         performs bounded model checking with dynamic unrolling" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-S <num> : the starting time frame" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-T <num> : runtime limit, in seconds" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-H <num> : runtime limit per output, in miliseconds (with \"-a\")" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-G <num> : runtime gap since the last CEX, in seconds" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-C <num> : max conflicts at an output" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-D <num> : max conflicts after jumping (0 = infinity)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-J <num> : the number of timeframes to jump (0 = not used)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-I <num> : the number of PIs to abstract" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-P <num> : the max number of learned clauses to keep (0=unused)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-Q <num> : delta value for learned clause removal" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-R <num> : percentage to keep for learned clause removal" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-L <filename> : the log file name" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-W <filename> : the log file name with per-output details" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-a       : solve all outputs (do not stop when one is SAT)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-x       : toggle storing CEXes when solving all outputs" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-d       : toggle dropping (replacing by 0) SAT outputs" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-u       : toggle performing structural OR-decomposition" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-r       : toggle disabling periodic restarts" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-s       : toggle using Satoko by Bruno Schmitt" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-g       : toggle using Glucose 3.0 by Gilles Audemard and Laurent Simon" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-v       : toggle verbose output" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-z       : toggle suppressing report about solved outputs" << endl;
+    cout << "Usage: Formal Verify -bmc <int_depth> [-STHGCDJIPQR <num>] [-LW <filename>] [-axdursgvz]" << endl;
+    cout << "\t         performs bounded model checking with dynamic unrolling" << endl;
+    cout << "\t-S <num> : the starting time frame" << endl;
+    cout << "\t-T <num> : runtime limit, in seconds" << endl;
+    cout << "\t-H <num> : runtime limit per output, in miliseconds (with \"-a\")" << endl;
+    cout << "\t-G <num> : runtime gap since the last CEX, in seconds" << endl;
+    cout << "\t-C <num> : max conflicts at an output" << endl;
+    cout << "\t-D <num> : max conflicts after jumping (0 = infinity)" << endl;
+    cout << "\t-J <num> : the number of timeframes to jump (0 = not used)" << endl;
+    cout << "\t-I <num> : the number of PIs to abstract" << endl;
+    cout << "\t-P <num> : the max number of learned clauses to keep (0=unused)" << endl;
+    cout << "\t-Q <num> : delta value for learned clause removal" << endl;
+    cout << "\t-R <num> : percentage to keep for learned clause removal" << endl;
+    cout << "\t-L <filename> : the log file name" << endl;
+    cout << "\t-W <filename> : the log file name with per-output details" << endl;
+    cout << "\t-a       : solve all outputs (do not stop when one is SAT)" << endl;
+    cout << "\t-x       : toggle storing CEXes when solving all outputs" << endl;
+    cout << "\t-d       : toggle dropping (replacing by 0) SAT outputs" << endl;
+    cout << "\t-u       : toggle performing structural OR-decomposition" << endl;
+    cout << "\t-r       : toggle disabling periodic restarts" << endl;
+    cout << "\t-s       : toggle using Satoko by Bruno Schmitt" << endl;
+    cout << "\t-g       : toggle using Glucose 3.0 by Gilles Audemard and Laurent Simon" << endl;
+    cout << "\t-v       : toggle verbose output" << endl;
+    cout << "\t-z       : toggle suppressing report about solved outputs" << endl;
 
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                       k-induction
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -ind <PO_idx> [-FPCMLNB num] [-sbrtv]" << endl;
-    gvMsg(GV_MSG_IFO) << "\t          : K-step induction strengthened with cut properties to prove the property" << endl;
-    gvMsg(GV_MSG_IFO) << "\t<PO_idx>  : the order of specified PO (idx starts from 0)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-F num : number of time frames for induction (1=simple)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-P num : number of time frames in the prefix (0=no prefix)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-C num : the max number of clauses to use for strengthening" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-M num : the cut size (2 <= M <= 12)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-L num : the max number of levels for cut computation" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-N num : the max number of cuts to compute at a node" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-B num : the max number of invariant batches to try" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-s     : toggle increment cut size in each batch" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-b     : toggle enabling BMC check" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-r     : toggle enabling register clauses" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-t     : toggle proving target / computing don't-cares" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-v     : toggle printing verbose information" << endl;
+    cout << "\nUsage: Formal Verify -ind <PO_idx> [-FPCMLNB num] [-sbrtv]" << endl;
+    cout << "\t          : K-step induction strengthened with cut properties to prove the property" << endl;
+    cout << "\t<PO_idx>  : the order of specified PO (idx starts from 0)" << endl;
+    cout << "\t-F num : number of time frames for induction (1=simple)" << endl;
+    cout << "\t-P num : number of time frames in the prefix (0=no prefix)" << endl;
+    cout << "\t-C num : the max number of clauses to use for strengthening" << endl;
+    cout << "\t-M num : the cut size (2 <= M <= 12)" << endl;
+    cout << "\t-L num : the max number of levels for cut computation" << endl;
+    cout << "\t-N num : the max number of cuts to compute at a node" << endl;
+    cout << "\t-B num : the max number of invariant batches to try" << endl;
+    cout << "\t-s     : toggle increment cut size in each batch" << endl;
+    cout << "\t-b     : toggle enabling BMC check" << endl;
+    cout << "\t-r     : toggle enabling register clauses" << endl;
+    cout << "\t-t     : toggle proving target / computing don't-cares" << endl;
+    cout << "\t-v     : toggle printing verbose information" << endl;
 
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           PDR
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -pdr [-MFCDQTHGS <num>] [-LI <filename>] [-axrmuyfqipdegjonctkvwz]" << endl;
-    gvMsg(GV_MSG_IFO) << "\t         model checking using property directed reachability (aka IC3)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-M <num> : limit on unused vars to trigger SAT solver recycling" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-F <num> : limit on timeframes explored to stop computation" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-C <num> : limit on conflicts in one SAT call (0 = no limit)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-D <num> : limit on conflicts during ind-generalization (0 = no limit)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-Q <num> : limit on proof obligations before a restart (0 = no limit)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-T <num> : runtime limit, in seconds (0 = no limit)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-H <num> : runtime limit per output, in miliseconds (with \"-a\")" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-G <num> : runtime gap since the last CEX (0 = no limit)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-S <num> : * value to seed the SAT solver with" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-L <filename> : the log file name" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-I <filename> : the invariant file name" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-a       : toggle solving all outputs even if one of them is SAT" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-x       : toggle storing CEXes when solving all outputs" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-r       : toggle using more effort in generalization" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-m       : toggle using monolythic CNF computation" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-u       : toggle updated X-valued simulation" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-y       : toggle using structural flop priorities" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-f       : toggle ordering flops by cost before generalization" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-q       : toggle creating only shortest counter-examples" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-i       : toggle clause pushing from an intermediate timeframe" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-p       : toggle reusing proof-obligations in the last timeframe" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-d       : toggle dumping invariant (valid if init state is all-0)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-e       : toggle using only support variables in the invariant" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-g       : toggle skipping expensive generalization step" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-j       : toggle using simplified generalization step" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-o       : toggle using property output as inductive hypothesis" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-n       : * toggle skipping \'down\' in generalization" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-c       : * toggle handling CTGs in \'down\'" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-t       : toggle using abstraction" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-k       : toggle using simplified refinement" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-v       : toggle printing optimization summary" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-w       : toggle printing detailed stats" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-z       : toggle suppressing report about solved outputs" << endl;
+    cout << "\nUsage: Formal Verify -pdr [-MFCDQTHGS <num>] [-LI <filename>] [-axrmuyfqipdegjonctkvwz]" << endl;
+    cout << "\t         model checking using property directed reachability (aka IC3)" << endl;
+    cout << "\t-M <num> : limit on unused vars to trigger SAT solver recycling" << endl;
+    cout << "\t-F <num> : limit on timeframes explored to stop computation" << endl;
+    cout << "\t-C <num> : limit on conflicts in one SAT call (0 = no limit)" << endl;
+    cout << "\t-D <num> : limit on conflicts during ind-generalization (0 = no limit)" << endl;
+    cout << "\t-Q <num> : limit on proof obligations before a restart (0 = no limit)" << endl;
+    cout << "\t-T <num> : runtime limit, in seconds (0 = no limit)" << endl;
+    cout << "\t-H <num> : runtime limit per output, in miliseconds (with \"-a\")" << endl;
+    cout << "\t-G <num> : runtime gap since the last CEX (0 = no limit)" << endl;
+    cout << "\t-S <num> : * value to seed the SAT solver with" << endl;
+    cout << "\t-L <filename> : the log file name" << endl;
+    cout << "\t-I <filename> : the invariant file name" << endl;
+    cout << "\t-a       : toggle solving all outputs even if one of them is SAT" << endl;
+    cout << "\t-x       : toggle storing CEXes when solving all outputs" << endl;
+    cout << "\t-r       : toggle using more effort in generalization" << endl;
+    cout << "\t-m       : toggle using monolythic CNF computation" << endl;
+    cout << "\t-u       : toggle updated X-valued simulation" << endl;
+    cout << "\t-y       : toggle using structural flop priorities" << endl;
+    cout << "\t-f       : toggle ordering flops by cost before generalization" << endl;
+    cout << "\t-q       : toggle creating only shortest counter-examples" << endl;
+    cout << "\t-i       : toggle clause pushing from an intermediate timeframe" << endl;
+    cout << "\t-p       : toggle reusing proof-obligations in the last timeframe" << endl;
+    cout << "\t-d       : toggle dumping invariant (valid if init state is all-0)" << endl;
+    cout << "\t-e       : toggle using only support variables in the invariant" << endl;
+    cout << "\t-g       : toggle skipping expensive generalization step" << endl;
+    cout << "\t-j       : toggle using simplified generalization step" << endl;
+    cout << "\t-o       : toggle using property output as inductive hypothesis" << endl;
+    cout << "\t-n       : * toggle skipping \'down\' in generalization" << endl;
+    cout << "\t-c       : * toggle handling CTGs in \'down\'" << endl;
+    cout << "\t-t       : toggle using abstraction" << endl;
+    cout << "\t-k       : toggle using simplified refinement" << endl;
+    cout << "\t-v       : toggle printing optimization summary" << endl;
+    cout << "\t-w       : toggle printing detailed stats" << endl;
+    cout << "\t-z       : toggle suppressing report about solved outputs" << endl;
 
     // ------------------------------------------------------------------------------------------------------------------------ //
     //                                                           ITP
     // ------------------------------------------------------------------------------------------------------------------------ //
-    gvMsg(GV_MSG_IFO) << "\nUsage: Formal Verify -itp [-CFTK <num>] [-LI <filename>] [-irtpomcgbqkdv]" << endl;
-    gvMsg(GV_MSG_IFO) << "\t         uses interpolation to prove the property" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-C <num> : the limit on conflicts for one SAT run" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-F <num> : the limit on number of frames to unroll" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-T <num> : the limit on runtime per output in seconds" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-K <num> : the number of steps in inductive checking" << endl;
-    gvMsg(GV_MSG_IFO) << "\t         (K = 1 works in all cases; K > 1 works without -t and -b)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-L <filename> : the log file name" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-I <filename> : the file name for dumping interpolant" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-i       : toggle dumping interpolant/invariant into a file" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-r       : toggle rewriting of the unrolled timeframes" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-t       : toggle adding transition into the initial state" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-p       : toggle using original Pudlak's interpolation procedure" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-o       : toggle using optimized Pudlak's interpolation procedure" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-m       : toggle using MiniSat-1.14p (now, Windows-only)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-c       : toggle using inductive containment check" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-g       : toggle using bias for global variables using SAT" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-b       : toggle using backward interpolation (works with -t)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-q       : toggle using property in two last timeframes" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-k       : toggle solving each output separately" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-d       : toggle dropping (replacing by 0) SAT outputs (with -k is used)" << endl;
-    gvMsg(GV_MSG_IFO) << "\t-v       : toggle verbose output" << endl;
+    cout << "\nUsage: Formal Verify -itp [-CFTK <num>] [-LI <filename>] [-irtpomcgbqkdv]" << endl;
+    cout << "\t         uses interpolation to prove the property" << endl;
+    cout << "\t-C <num> : the limit on conflicts for one SAT run" << endl;
+    cout << "\t-F <num> : the limit on number of frames to unroll" << endl;
+    cout << "\t-T <num> : the limit on runtime per output in seconds" << endl;
+    cout << "\t-K <num> : the number of steps in inductive checking" << endl;
+    cout << "\t         (K = 1 works in all cases; K > 1 works without -t and -b)" << endl;
+    cout << "\t-L <filename> : the log file name" << endl;
+    cout << "\t-I <filename> : the file name for dumping interpolant" << endl;
+    cout << "\t-i       : toggle dumping interpolant/invariant into a file" << endl;
+    cout << "\t-r       : toggle rewriting of the unrolled timeframes" << endl;
+    cout << "\t-t       : toggle adding transition into the initial state" << endl;
+    cout << "\t-p       : toggle using original Pudlak's interpolation procedure" << endl;
+    cout << "\t-o       : toggle using optimized Pudlak's interpolation procedure" << endl;
+    cout << "\t-m       : toggle using MiniSat-1.14p (now, Windows-only)" << endl;
+    cout << "\t-c       : toggle using inductive containment check" << endl;
+    cout << "\t-g       : toggle using bias for global variables using SAT" << endl;
+    cout << "\t-b       : toggle using backward interpolation (works with -t)" << endl;
+    cout << "\t-q       : toggle using property in two last timeframes" << endl;
+    cout << "\t-k       : toggle solving each output separately" << endl;
+    cout << "\t-d       : toggle dropping (replacing by 0) SAT outputs (with -k is used)" << endl;
+    cout << "\t-v       : toggle verbose output" << endl;
 }
 
-void
-GVFormalVerifyCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "Formal Verify: "
-                      << "Use options to execute specific formal engine." << endl;
+void GVFormalVerifyCmd ::help() const {
+    cout << setw(20) << left << "Formal Verify: "
+         << "Use options to execute specific formal engine." << endl;
 }
-
-
 
 #endif

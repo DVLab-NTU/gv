@@ -28,7 +28,6 @@ GVUsage gvUsage;
 GVCmdMgr* gvCmdMgr = new GVCmdMgr("gv");
 
 extern bool initCommonCmd();
-extern bool initNtkCmd();
 extern bool initSimCmd();
 extern bool initVrfCmd();
 extern bool initAbcCmd();
@@ -72,7 +71,7 @@ int main(int argc, char** argv) {
     }
 
     cout << "GV v0.3.0 - Copyright © 2022-2023, DVLab NTUEE.\n";
-    if (!(initCommonCmd() && initNtkCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() &&
+    if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() &&
           initModCmd() && initBddCmd() && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd()))
         return 1;
 

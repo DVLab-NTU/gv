@@ -13,7 +13,8 @@
 
 bool initYosysCmd() {
     if (yosysMgr) delete yosysMgr;
-    yosysMgr = new YosysMgr; yosysMgr->init();
+    yosysMgr = new YosysMgr;
+    yosysMgr->init();
     return (gvCmdMgr->regCmd("YSYSet", 4, new YosysSetCmd));
 }
 
@@ -30,7 +31,7 @@ GVCmdExecStatus YosysSetCmd::exec(const string& option) {
 
     bool doLog = false, isValid = false;
     int enable = 0;
-    size_t n = options.size();
+    size_t n   = options.size();
     if (myStrNCmp("-LOG", options[0], 4) == 0)
         doLog = true;
     else
@@ -48,12 +49,12 @@ GVCmdExecStatus YosysSetCmd::exec(const string& option) {
 }
 
 void YosysSetCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: YSYSet <-log (int enable)>" << endl;
+    cout << "Usage: YSYSet <-log (int enable)>" << endl;
 }
 
 void YosysSetCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "YSYSet: "
-                      << "Set the option of Yosys." << endl;
+    cout << setw(20) << left << "YSYSet: "
+         << "Set the option of Yosys." << endl;
 }
 
 #endif

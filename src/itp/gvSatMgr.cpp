@@ -25,7 +25,7 @@ void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     // duplicate the network, so you can modified
     // the ntk for the proving property without
     // destroying the original network
-    _cirMgr = new CirMgr();
+    _cirMgr  = new CirMgr();
     *_cirMgr = *cirMgr;
     SatProofRes pRes;
     GVSatSolver *gvSatSolver = new GVSatSolver(_cirMgr);
@@ -48,7 +48,7 @@ void SATMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
     // duplicate the network, so you can modified
     // the ntk for the proving property without
     // destroying the original network
-    _cirMgr = new CirMgr();
+    _cirMgr  = new CirMgr();
     *_cirMgr = *cirMgr;
     SatProofRes pRes;
     GVSatSolver *gvSatSolver = new GVSatSolver(_cirMgr);
@@ -97,7 +97,7 @@ void SATMgr::itpUbmc(const CirGate *monitor, SatProofRes &pRes) {
     bind(gvSatSolver);
 
     size_t num_clauses = getNumClauses();
-    bool proved = false;
+    bool proved        = false;
     gvSatSolver->assumeRelease();
     // GVNetId S, R, R_prime, tmp1, tmp2, tmp3, tmp4;
     CirGate *S;
@@ -220,8 +220,8 @@ void SATMgr::itpUbmc(const CirGate *monitor, SatProofRes &pRes) {
             // see if Si or Ri-1 equals to Ri
 
             unsigned gateSize = _cirMgr->getNumTots();
-            R_prime = _cirMgr->createOrGate(R, S);
-            tmp5 = _cirMgr->createXorGate(R, R_prime);
+            R_prime           = _cirMgr->createOrGate(R, S);
+            tmp5              = _cirMgr->createXorGate(R, R_prime);
             gvSatSolver->resizeNtkData(_cirMgr->getNumTots() - gateSize);
 
             gvSatSolver->addBoundedVerifyData(tmp5, 0);
@@ -239,7 +239,7 @@ void SATMgr::itpUbmc(const CirGate *monitor, SatProofRes &pRes) {
                     markOnsetClause(j);
                 }
                 num_clauses = getNumClauses();
-                R = R_prime;
+                R           = R_prime;
             }
         }
         if (proved) break;
@@ -567,7 +567,7 @@ CirGate *SATMgr::buildItp(const string &proofName) const {
                 }
                 if (_varGroup[idx >> 1] == COMMON) {
                     assert(_var2Net.find(idx >> 1) != _var2Net.end());
-                    nId = (_var2Net.find(idx >> 1))->second;
+                    nId  = (_var2Net.find(idx >> 1))->second;
                     nId1 = (_var2Net.find(idx >> 1))->second;
                     if ((idx & 1) == 1) nId1 = _cirMgr->createNotGate(nId1);
                     if ((idx & 1) == 1) nId = _cirMgr->createNotGate(nId);
@@ -579,7 +579,7 @@ CirGate *SATMgr::buildItp(const string &proofName) const {
                             assert(_var2Net.find(idx >> 1) != _var2Net.end());
                             nId2 = (_var2Net.find(idx >> 1))->second;
                             if ((idx & 1) == 1) nId2 = _cirMgr->createNotGate(nId2);
-                            nId = _cirMgr->createOrGate(nId1, nId2);
+                            nId  = _cirMgr->createOrGate(nId1, nId2);
                             nId1 = nId;
                         }
                     }
@@ -594,7 +594,7 @@ CirGate *SATMgr::buildItp(const string &proofName) const {
             // Derived Clause
             tmp_cid = cid - (tmp >> 1);
             assert(claItpLookup.find(tmp_cid) != claItpLookup.end());
-            nId = (claItpLookup.find(tmp_cid))->second;
+            nId  = (claItpLookup.find(tmp_cid))->second;
             nId1 = (claItpLookup.find(tmp_cid))->second;
             while (1) {
                 idx = rdr.get64();
@@ -607,32 +607,32 @@ CirGate *SATMgr::buildItp(const string &proofName) const {
                 if (nId1 != nId2) {
                     if (_varGroup[idx] == LOCAL_ON) {  // Local to A. Build OR Gate.
                         if (nId1 == CONST1 || nId2 == CONST1) {
-                            nId = CONST1;
+                            nId  = CONST1;
                             nId1 = nId;
                         } else if (nId1 == CONST0) {
-                            nId = nId2;
+                            nId  = nId2;
                             nId1 = nId;
                         } else if (nId2 == CONST0) {
-                            nId = nId1;
+                            nId  = nId1;
                             nId1 = nId;
                         } else {
                             // or
-                            nId = _cirMgr->createOrGate(nId1, nId2);
+                            nId  = _cirMgr->createOrGate(nId1, nId2);
                             nId1 = nId;
                         }
                     } else {  // Build AND Gate.
                         if (nId1 == CONST0 || nId2 == CONST0) {
-                            nId = CONST0;
+                            nId  = CONST0;
                             nId1 = nId;
                         } else if (nId1 == CONST1) {
-                            nId = nId2;
+                            nId  = nId2;
                             nId1 = nId;
                         } else if (nId2 == CONST1) {
-                            nId = nId1;
+                            nId  = nId1;
                             nId1 = nId;
                         } else {
                             // and
-                            nId = _cirMgr->createAndGate(nId1, nId2);
+                            nId  = _cirMgr->createAndGate(nId1, nId2);
                             nId1 = nId;
                         }
                     }
@@ -652,13 +652,13 @@ CirGate *SATMgr::buildItp(const string &proofName) const {
 
 void SatProofRes::reportResult(const string &name) const {
     // Report Verification Result
-    gvMsg(GV_MSG_IFO) << endl;
+    cout << endl;
     if (isProved()) {
-        gvMsg(GV_MSG_IFO) << "Monitor \"" << name << "\" is safe." << endl;
+        cout << "Monitor \"" << name << "\" is safe." << endl;
     } else if (isFired()) {
-        gvMsg(GV_MSG_IFO) << "Monitor \"" << name << "\" is violated." << endl;
+        cout << "Monitor \"" << name << "\" is violated." << endl;
     } else {
-        gvMsg(GV_MSG_IFO) << "UNDECIDED at depth = " << _maxDepth << endl;
+        cout << "UNDECIDED at depth = " << _maxDepth << endl;
     }
 }
 
@@ -668,16 +668,16 @@ void SatProofRes::reportCex(const CirGate *monitor, const CirMgr *const _cirMgr)
     // Output Pattern Value (PI + PIO)
     GVBitVecX dataValue;
     for (uint32_t i = 0; i <= _fired; ++i) {
-        gvMsg(GV_MSG_IFO) << i << ": ";
+        cout << i << ": ";
         for (int j = _cirMgr->getNumPIs() - 1; j >= 0; --j) {
             if (_satSolver->existVerifyData(_cirMgr->getPi(j), i)) {
                 dataValue = _satSolver->getDataValue(_cirMgr->getPi(j), i);
-                gvMsg(GV_MSG_IFO) << dataValue[0];
+                cout << dataValue[0];
             } else {
-                gvMsg(GV_MSG_IFO) << 'x';
+                cout << 'x';
             }
         }
-        gvMsg(GV_MSG_IFO) << endl;
+        cout << endl;
         assert(_satSolver->existVerifyData(monitor, i));
     }
 }

@@ -100,7 +100,7 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
 }
 
 void CirReadCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: CIRRead <-Verilog | -Aiger> <(string fileName)> [-Replace]" << endl;
+    cout << "Usage: CIRRead <-Verilog | -Aiger> <(string fileName)> [-Replace]" << endl;
 }
 
 void CirReadCmd::help() const {
@@ -173,12 +173,12 @@ CirGateCmd::exec(const string& option) {
         if (myStrNCmp("-FANIn", options[i], 5) == 0) {
             if (doFanin || doFanout)
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-            doFanin = true;
+            doFanin    = true;
             checkLevel = true;
         } else if (myStrNCmp("-FANOut", options[i], 5) == 0) {
             if (doFanin || doFanout)
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-            doFanout = true;
+            doFanout   = true;
             checkLevel = true;
         } else if (!thisGate) {
             if (!myStr2Int(options[i], gateId) || gateId < 0)
@@ -251,7 +251,7 @@ void CirGateCmd::help() const {
 // void
 // CirSweepCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRSWeep" << endl;
+//    cout << "Usage: CIRSWeep" << endl;
 // }
 
 // void
@@ -293,7 +293,7 @@ void CirGateCmd::help() const {
 // void
 // CirOptCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIROPTimize" << endl;
+//    cout << "Usage: CIROPTimize" << endl;
 // }
 
 // void
@@ -339,7 +339,7 @@ void CirGateCmd::help() const {
 // void
 // CirStrashCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRSTRash" << endl;
+//    cout << "Usage: CIRSTRash" << endl;
 // }
 
 // void
@@ -418,7 +418,7 @@ void CirGateCmd::help() const {
 // void
 // CirSimCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRSIMulate <-Random | -File <string patternFile>>\n"
+//    cout << "Usage: CIRSIMulate <-Random | -File <string patternFile>>\n"
 //       << "                   [-Output (string logFile)]" << endl;
 // }
 
@@ -459,7 +459,7 @@ void CirGateCmd::help() const {
 // void
 // CirFraigCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRFraig" << endl;
+//    cout << "Usage: CIRFraig" << endl;
 // }
 
 // void
@@ -531,7 +531,7 @@ void CirGateCmd::help() const {
 // void
 // CirWriteCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRWrite [(int gateId)][-Output (string aagFile)]" << endl;
+//    cout << "Usage: CIRWrite [(int gateId)][-Output (string aagFile)]" << endl;
 // }
 
 // void
@@ -595,7 +595,7 @@ void CirGateCmd::help() const {
 // void
 // CirMiterCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRMiter <(string inFile1)> <(string inFile2)> " << endl;
+//    cout << "Usage: CIRMiter <(string inFile1)> <(string inFile2)> " << endl;
 // }
 
 // void
@@ -629,7 +629,7 @@ void CirGateCmd::help() const {
 // void
 // CirEffortCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIREFFort <(int effortLimit)>" << endl;
+//    cout << "Usage: CIREFFort <(int effortLimit)>" << endl;
 // }
 
 // void

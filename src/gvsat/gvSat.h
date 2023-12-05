@@ -17,7 +17,7 @@
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "gvBitVec.h"
-#include "gvNtk.h"
+// #include "gvNtk.h"
 using namespace std;
 
 class SATMgr;
@@ -42,7 +42,7 @@ public:
     int getNumClauses() const { return _solver->nRootCla(); }
 
     // Network to Solver Functions
-    const size_t getFormula(const GVNetId&, const uint32_t&);
+    // const size_t getFormula(const GVNetId&, const uint32_t&);
     const GVBitVecX getDataValue(const CirGate*, const uint32_t&) const;
     const bool getDataValue(const size_t&) const;
     // Variable Interface Functions

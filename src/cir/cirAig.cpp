@@ -10,183 +10,117 @@
 
 #include <map>
 
-#include "base/abc/abc.h"
 #include "gvAbcMgr.h"
-#include "gvModMgr.h"
+#include "gvAbcNtk.h"
 #include "gvYosysMgr.h"
-#include "kernel/yosys.h"
 #include "util.h"
 
-string gateName(const string& name, const int& bit) {
-    return name + "[" + to_string(bit) + "]";
-}
-
-void parseAigMapping(Gia_Man_t* pGia, map<unsigned, string>& id2Name) {
-    string buffer;
-    ifstream mapFile;
-    int idx, bit;
-    string name;
-
-    mapFile.open(".map.txt");
-    assert(mapFile.is_open());
-    while (mapFile) {
-        if (!(mapFile >> buffer)) break;
-        // input
-        if (buffer == "input") {
-            mapFile >> buffer;
-            myStr2Int(buffer, idx);
-            mapFile >> buffer;
-            myStr2Int(buffer, bit);
-            mapFile >> buffer;
-            name = buffer;
-            id2Name[Gia_ObjId(pGia, Gia_ManPi(pGia, idx))] = gateName(name, bit);
-        }
-        // output
-        else if (buffer == "output") {
-            mapFile >> buffer;
-            myStr2Int(buffer, idx);
-            mapFile >> buffer;
-            myStr2Int(buffer, bit);
-            mapFile >> buffer;
-            name = buffer;
-            id2Name[Gia_ObjId(pGia, Gia_ManPo(pGia, idx))] = gateName(name, bit);
-        }
-        // FF
-        else if (buffer == "latch") {
-            mapFile >> buffer;
-            myStr2Int(buffer, idx);
-            mapFile >> buffer;
-            myStr2Int(buffer, bit);
-            mapFile >> buffer;
-            name = buffer;
-            id2Name[Gia_ObjId(pGia, Gia_ObjRiToRo(pGia, Gia_ManRi(pGia, idx)))] = gateName(name, bit);
-            id2Name[Gia_ObjId(pGia, Gia_ManRi(pGia, idx))] = gateName(name, bit) + "_ns";
-        }
-    }
-}
-
-
 const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
-    // log_make_debug = true;
-    CirGateV gateV;
-    Gia_Man_t* pGia = NULL;             // the gia pointer of abc
-    Gia_Obj_t *pObj, *pObjRi, *pObjRo;  // the obj element of gia
-    unsigned iPi = 0, iPpi = 0, iPo = 0, iRi = 0, iRo = 0;
-    unsigned piNum = 0;
-    map<int, int> PPI2RO;
+    Gia_Man_t* pGia = NULL;  // the gia pointer of abc
     map<unsigned, string> id2Name;
+    ABCParam param;
+    strcpy(param.pFileName, fileName.c_str());
+    cout << "filename = " << fileName << endl;
 
-    // abc function parameters
-    char* pFileName = new char[100];
-    // cout << "filename = " << fileName << endl;
-    strcpy(pFileName, fileName.c_str());
-    char* pTopModule = NULL;
-    char* pDefines = NULL;
-    int fBlast = 1;
-    int fInvert = 0;
-    int fTechMap = 1;
-    int fSkipStrash = 0;
-    int fCollapse = 0;
-    int c, fVerbose = 0;
-    int i, *pWire;
-
-    if (fileType == AIGER)
-        pGia = Gia_AigerRead(pFileName, 0, fSkipStrash, 0);
-    else if (fileType == VERILOG)
-        pGia = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fVerbose);
+    if (fileType == AIGER) {
+        abcMgr->readAig(param);
+        pGia = abcMgr->pGia;
+    } else if (fileType == VERILOG) {
+        param.fBlast   = 1;
+        param.fTechMap = 1;
+        abcMgr->readVerilog(param);
+        pGia = abcMgr->pGia;
+    }
 
     if (!pGia) {
         cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
         return false;
     }
+
     if (fileType == VERILOG) {
-        yosysMgr->buildMapping(fileName);
-        parseAigMapping(pGia, id2Name);
+        yosysMgr->createMapping(fileName);
+        abcMgr->buildAigName(id2Name);
     }
 
     // initialize the size of the containers
     initCir(pGia, fileType);
-    // increment the global travel id for circuit traversing usage
-    Gia_ManIncrementTravId(pGia);
-    // since we don't want to traverse the constant node, set the TravId of the
-    // constant node to be as the global one
-    Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
+    abcMgr->travPreprocess();
+    abcMgr->travAllObj(_piList, _poList, _roList, _riList, _totGateList, id2Name, fileType);
 
     // traverse the obj's in topological order
-    Gia_ManForEachObj(pGia, pObj, i) {
-        if (Gia_ObjIsPi(pGia, pObj)) {
-            int gateId = Gia_ObjId(pGia, pObj);
-            if (gateId <= _piList.size()) {
-                CirPiGate* gate = new CirPiGate(Gia_ObjId(pGia, pObj), 0);
-                _piList[iPi++] = gate;
-                _totGateList[gateId] = gate;
-            } else {
-                CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
-                _roList[iRo++] = gate;
-                _totGateList[gateId] = gate;
-            }
-        } else if (Gia_ObjIsPo(pGia, pObj)) {
-            string poName = "";
-            CirPoGate* gate = new CirPoGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-            poName = (id2Name.count(gate->getGid())) ? id2Name[gate->getGid()] : to_string(Gia_ObjId(pGia, pObj));
-            char* n = new char[poName.size() + 1];
-            strcpy(n, poName.c_str());
-            gate->setName(n);
-            gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
-            _poList[iPo++] = gate;
-            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-        } else if (Gia_ObjIsAnd(pObj)) {
-            CirAigGate* gate = new CirAigGate(Gia_ObjId(pGia, pObj), 0);
-            int fanin0 = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
-            int fanin1 = Gia_ObjId(pGia, Gia_ObjFanin1(pObj));
-            if (PPI2RO.count(fanin0)) fanin0 = PPI2RO[fanin0];
-            if (PPI2RO.count(fanin1)) fanin1 = PPI2RO[fanin1];
-            gate->setIn0(getGate(fanin0), Gia_ObjFaninC0(pObj));
-            gate->setIn1(getGate(fanin1), Gia_ObjFaninC1(pObj));
-            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-        } else if (Gia_ObjIsRo(pGia, pObj)) {
-            int gateId = Gia_ObjId(pGia, pObj);
-            if (fileType == VERILOG) {
-                PPI2RO[gateId] = 0;
-                if (iPpi < iRo) PPI2RO[gateId] = _roList[iPpi]->getGid();
-                iPpi++;
-            } else if (fileType == AIGER) {
-                CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
-                _roList[iRo++] = gate;
-                _totGateList[gateId] = gate;
-            }
-        } else if (Gia_ObjIsRi(pGia, pObj)) {
-            CirRiGate* gate = new CirRiGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-            string str = to_string(Gia_ObjId(pGia, pObj));
-            str = str + "_ns";
-            char* n = new char[str.size() + 1];
-            strcpy(n, str.c_str());
-            gate->setName(n);
-            gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
-            _riList[iRi++] = gate;
-            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-        } else if (Gia_ObjIsConst0(pObj)) {
-            _totGateList[0] = CirMgr::_const0;
-        } else {
-            cout << "not defined gate type" << endl;
-            assert(true);
-        }
-    }
+    // int i;
+    // Gia_ManForEachObj(pGia, pObj, i) {
+    //     if (Gia_ObjIsPi(pGia, pObj)) {
+    //         int gateId = Gia_ObjId(pGia, pObj);
+    //         if (gateId <= _piList.size()) {
+    //             CirPiGate* gate      = new CirPiGate(Gia_ObjId(pGia, pObj), 0);
+    //             _piList[iPi++]       = gate;
+    //             _totGateList[gateId] = gate;
+    //         } else {
+    //             CirRoGate* gate      = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
+    //             _roList[iRo++]       = gate;
+    //             _totGateList[gateId] = gate;
+    //         }
+    //     } else if (Gia_ObjIsPo(pGia, pObj)) {
+    //         string poName   = "";
+    //         CirPoGate* gate = new CirPoGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+    //         poName          = (id2Name.count(gate->getGid())) ? id2Name[gate->getGid()] : to_string(Gia_ObjId(pGia, pObj));
+    //         char* n         = new char[poName.size() + 1];
+    //         strcpy(n, poName.c_str());
+    //         gate->setName(n);
+    //         gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
+    //         _poList[iPo++]                      = gate;
+    //         _totGateList[Gia_ObjId(pGia, pObj)] = gate;
+    //     } else if (Gia_ObjIsAnd(pObj)) {
+    //         CirAigGate* gate = new CirAigGate(Gia_ObjId(pGia, pObj), 0);
+    //         int fanin0       = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
+    //         int fanin1       = Gia_ObjId(pGia, Gia_ObjFanin1(pObj));
+    //         if (PPI2RO.count(fanin0)) fanin0 = PPI2RO[fanin0];
+    //         if (PPI2RO.count(fanin1)) fanin1 = PPI2RO[fanin1];
+    //         gate->setIn0(getGate(fanin0), Gia_ObjFaninC0(pObj));
+    //         gate->setIn1(getGate(fanin1), Gia_ObjFaninC1(pObj));
+    //         _totGateList[Gia_ObjId(pGia, pObj)] = gate;
+    //     } else if (Gia_ObjIsRo(pGia, pObj)) {
+    //         int gateId = Gia_ObjId(pGia, pObj);
+    //         if (fileType == VERILOG) {
+    //             PPI2RO[gateId] = 0;
+    //             if (iPpi < iRo) PPI2RO[gateId] = _roList[iPpi]->getGid();
+    //             iPpi++;
+    //         } else if (fileType == AIGER) {
+    //             CirRoGate* gate      = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
+    //             _roList[iRo++]       = gate;
+    //             _totGateList[gateId] = gate;
+    //         }
+    //     } else if (Gia_ObjIsRi(pGia, pObj)) {
+    //         CirRiGate* gate = new CirRiGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
+    //         string str      = to_string(Gia_ObjId(pGia, pObj));
+    //         str             = str + "_ns";
+    //         char* n         = new char[str.size() + 1];
+    //         strcpy(n, str.c_str());
+    //         gate->setName(n);
+    //         gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
+    //         _riList[iRi++]                      = gate;
+    //         _totGateList[Gia_ObjId(pGia, pObj)] = gate;
+    //     } else if (Gia_ObjIsConst0(pObj)) {
+    //         _totGateList[0] = CirMgr::_const0;
+    //     } else {
+    //         cout << "not defined gate type" << endl;
+    //         assert(true);
+    //     }
+    // }
 
-    Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
-        if (i == getNumLATCHs()) break;
+    // Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
+    //     if (i == getNumLATCHs()) break;
 
-        int riGid = Gia_ObjId(pGia, pObjRi), roGid = 0;
-        // int roGid = PPI2RO[Gia_ObjId(pGia,pObjRo)];
-        // int roGid = Gia_ObjId(pGia,pObjRo);
-        if (fileType == VERILOG)
-            roGid = PPI2RO[Gia_ObjId(pGia, pObjRo)];
-        else if (fileType == AIGER)
-            roGid = Gia_ObjId(pGia, pObjRo);
-        CirGate* riGate = getGate(riGid);
-        CirRoGate* roGate = static_cast<CirRoGate*>(getGate(roGid));
-        roGate->setIn0(riGate, false);
-    }
+    //     int riGid = Gia_ObjId(pGia, pObjRi), roGid = 0;
+    //     // int roGid = PPI2RO[Gia_ObjId(pGia,pObjRo)];
+    //     // int roGid = Gia_ObjId(pGia,pObjRo);
+    //     if (fileType == VERILOG) roGid = PPI2RO[Gia_ObjId(pGia, pObjRo)];
+    //     else if (fileType == AIGER) roGid = Gia_ObjId(pGia, pObjRo);
+    //     CirGate* riGate   = getGate(riGid);
+    //     CirRoGate* roGate = static_cast<CirRoGate*>(getGate(roGid));
+    //     roGate->setIn0(riGate, false);
+    // }
     // CONST1 Gate
     _const1 = new CirAigGate(getNumTots(), 0);
     addTotGate(_const1);
@@ -199,16 +133,15 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
 
 void CirMgr::initCir(Gia_Man_t* pGia, const CirFileType& fileType) {
     // Create lists
-    // cout << "initializing ..." << endl;
     int piNum = 0, regNum = 0, poNum = 0, totNum = 0;
     if (fileType == VERILOG) {
-        piNum = Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1;
+        piNum  = Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1;
         regNum = Gia_ManRegNum(pGia) - 1;
     } else if (fileType == AIGER) {
-        piNum = Gia_ManPiNum(pGia);
+        piNum  = Gia_ManPiNum(pGia);
         regNum = Gia_ManRegNum(pGia);
     }
-    poNum = Gia_ManPoNum(pGia);
+    poNum  = Gia_ManPoNum(pGia);
     totNum = Gia_ManObjNum(pGia);
 
     _piList.resize(piNum);

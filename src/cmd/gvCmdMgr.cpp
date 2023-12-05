@@ -11,8 +11,8 @@
 #include "gvMsg.h"
 #include "util.h"
 
-
-extern "C" {
+extern "C"
+{
 #include <readline/history.h>
 #include <readline/readline.h>
 }
@@ -90,7 +90,7 @@ GVCmdExec::errorOption(GVCmdOptionError err, const string& opt) const {
 
 bool GVCmdExec::checkCmd(const string& check) const {
     unsigned len = this->getCmdLen();
-    bool result = false;
+    bool result  = false;
     size_t space = 0, nxt_space;
 
     for (unsigned word = 1; word <= len; ++word) {
@@ -99,7 +99,7 @@ bool GVCmdExec::checkCmd(const string& check) const {
 
         for (unsigned i = space + 1; i <= nxt_space; ++i) {
             string checkMand = check.substr(space, i - space);
-            string checkOpt = check.substr(i, nxt_space - space - i);
+            string checkOpt  = check.substr(i, nxt_space - space - i);
 
             if (checkMandCmd(checkMand, word) &&
                 (checkOpt.empty() || checkOptCmd(checkOpt, word))) {
@@ -110,7 +110,7 @@ bool GVCmdExec::checkCmd(const string& check) const {
         if (result == false) return false;
 
         result = false;
-        space = nxt_space + 1;
+        space  = nxt_space + 1;
     }
 
     return true;
@@ -123,7 +123,7 @@ bool GVCmdExec::checkCmd(const string& check, size_t idx) const {
 
     for (unsigned i = 1, n = check.size(); i <= n; ++i) {
         string checkMand = check.substr(0, i);
-        string checkOpt = check.substr(i, n + 1 - i);
+        string checkOpt  = check.substr(i, n + 1 - i);
 
         if (checkMandCmd(checkMand, idx) &&
             (checkOpt.empty() || checkOptCmd(checkOpt, idx))) {
@@ -187,7 +187,7 @@ bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp, GVCmdExec* e) {
     e->setOptCmd(str.substr(nCmp));
 
     GVCmdExecSet::iterator it = _cmdLib.find(e->getGVCmdType());
-    GVCmdExecSubSet* cmdSet = 0;
+    GVCmdExecSubSet* cmdSet   = 0;
     if (it == _cmdLib.end()) {
         cmdSet = new GVCmdExecSubSet();
         _cmdLib.insert(make_pair(e->getGVCmdType(), cmdSet));
@@ -198,8 +198,7 @@ bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp, GVCmdExec* e) {
     return true;
 }
 
-bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2,
-                      GVCmdExec* e) {
+bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2, GVCmdExec* e) {
     assert(e);
     assert(cmd.size());
     assert(nCmp1);
@@ -228,7 +227,7 @@ bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2,
     e->setOptCmd(str2.substr(nCmp2));
 
     GVCmdExecSet::iterator it = _cmdLib.find(e->getGVCmdType());
-    GVCmdExecSubSet* cmdSet = 0;
+    GVCmdExecSubSet* cmdSet   = 0;
     if (it == _cmdLib.end()) {
         cmdSet = new GVCmdExecSubSet();
         _cmdLib.insert(make_pair(e->getGVCmdType(), cmdSet));
@@ -241,7 +240,7 @@ bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2,
 GVCmdExecStatus
 GVCmdMgr::execOneCmd() {
     // Read User Command Input
-    string str = "";
+    string str    = "";
     char* execCmd = new char[1024];
     if (_dofile.is_open()) {
         getline(_dofile, str);
@@ -252,10 +251,13 @@ GVCmdMgr::execOneCmd() {
         execCmd = readline(getPrompt().c_str());
     assert(execCmd);
 
+    // Detect dofile comment(#) for debugging
+    if (execCmd[0] == '#') return GV_CMD_EXEC_NOP;
+
     if (addHistory(execCmd)) {
         add_history(_history.back().c_str());
         string option = "";
-        GVCmdExec* e = parseCmd(option);
+        GVCmdExec* e  = parseCmd(option);
         // Check command types
         if (e) {
             GVCmdType cmdType = e->getGVCmdType();
@@ -394,14 +396,14 @@ GVCmdMgr::getCmdListFromPart(const string& cmd) const {
 void GVCmdMgr::printHelps(bool revealed) const {
     GVCmdExecSet::const_iterator it;
     GVCmdExecSubSet::iterator is;
-    gvMsg(GV_MSG_IFO) << endl;
+    cout << endl;
     for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
         if ((revealed) ^ (it->first != GV_CMD_TYPE_REVEALED)) {
-            gvMsg(GV_MSG_IFO) << "========== " << GVCmdTypeString[it->first]
-                              << " Commands : ==========" << endl;
+            cout << "========== " << GVCmdTypeString[it->first]
+                 << " Commands : ==========" << endl;
             for (is = it->second->begin(); is != it->second->end(); ++is)
                 (*is)->help();
-            gvMsg(GV_MSG_IFO) << endl;
+            cout << endl;
         }
     }
 }
@@ -409,13 +411,13 @@ void GVCmdMgr::printHelps(bool revealed) const {
 void GVCmdMgr::printHistory(int nPrint) const {
     int historySize = _history.size();
     if (historySize == 0) {
-        gvMsg(GV_MSG_IFO) << "Empty command history!!" << endl;
+        cout << "Empty command history!!" << endl;
         return;
     }
     if ((nPrint < 0) || (nPrint > historySize)) nPrint = historySize;
     assert(historySize >= nPrint);
     for (int i = historySize - nPrint; i < historySize; ++i)
-        gvMsg(GV_MSG_IFO) << "   " << i << ": " << _history[i] << endl;
+        cout << "   " << i << ": " << _history[i] << endl;
 }
 
 bool GVCmdMgr::addHistory(char* cmd) {

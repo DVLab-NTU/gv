@@ -113,11 +113,11 @@ GVSatSolver::getDataValue(const size_t& var) const {
     return (isNegFormula(var)) ^ (gv_l_True == _solver->model[getOriVar(var)]);
 }
 
-const size_t
-GVSatSolver::getFormula(const GVNetId& id, const uint32_t& depth) {
+// const size_t
+// GVSatSolver::getFormula(const GVNetId& id, const uint32_t& depth) {
     // Var var = getVerifyData(id, depth);
     // return (id.fanin0Cp ? getNegVar(var) : getPosVar(var));
-}
+// }
 
 void GVSatSolver::resizeNtkData(const uint32_t& num) {
     vector<Var>* tmp = new vector<Var>[_cirMgr->getNumTots()];

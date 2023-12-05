@@ -12,7 +12,6 @@
 #include "gvMsg.h"
 #include "util.h"
 
-
 bool initAbcCmd() {
     if (abcMgr) delete abcMgr;
     abcMgr = new AbcMgr;
@@ -46,12 +45,12 @@ GVABCReadCmd::exec(const string& option) {
 }
 
 void GVABCReadCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: ABCRead " << endl;
+    cout << "Usage: ABCRead " << endl;
 }
 
 void GVABCReadCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCRead: "
-                      << "Read netlist by ABC." << endl;
+    cout << setw(20) << left << "ABCRead: "
+         << "Read netlist by ABC." << endl;
 }
 
 //----------------------------------------------------------------------
@@ -78,12 +77,12 @@ GVABCPrintCmd::exec(const string& option) {
 }
 
 void GVABCPrintCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: ABCPrint " << endl;
+    cout << "Usage: ABCPrint " << endl;
 }
 
 void GVABCPrintCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCPrint: "
-                      << "Print netlist information." << endl;
+    cout << setw(20) << left << "ABCPrint: "
+         << "Print netlist information." << endl;
 }
 
 //----------------------------------------------------------------------
@@ -111,12 +110,12 @@ GVABCOriginalCmd::exec(const string& option) {
 }
 
 void GVABCOriginalCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: ABCCMD <command in ABC> " << endl;
+    cout << "Usage: ABCCMD <command in ABC> " << endl;
 }
 
 void GVABCOriginalCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "ABCCMD: "
-                      << "Directly call ABC's command." << endl;
+    cout << setw(20) << left << "ABCCMD: "
+         << "Directly call ABC's command." << endl;
 }
 
 #endif

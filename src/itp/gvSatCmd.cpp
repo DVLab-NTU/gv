@@ -60,7 +60,7 @@ SATVerifyItpCmd::exec(const string& option) {
             gvMsg(GV_MSG_ERR) << "Output with Index " << num << " does NOT Exist in Current Ntk !!" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
-        gate = cirMgr->getPo(num);
+        gate        = cirMgr->getPo(num);
         monitorName = gate->getName();
     }
     // get PO's input, since the PO is actually a redundant node and should be removed
@@ -74,7 +74,7 @@ SATVerifyItpCmd::exec(const string& option) {
 }
 
 void SATVerifyItpCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: SATVerify ITP < -GateId <gateId> | -Output <outputIndex> >" << endl;
+    cout << "Usage: SATVerify ITP < -GateId <gateId> | -Output <outputIndex> >" << endl;
 }
 
 void SATVerifyItpCmd::help() const {
@@ -118,7 +118,7 @@ SATVerifyBmcCmd::exec(const string& option) {
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
         monitorName = cirMgr->getPo(num)->getName();
-        gate = cirMgr->getPo(num)->getIn0Gate();
+        gate        = cirMgr->getPo(num)->getIn0Gate();
     }
     // get PO's input, since the PO is actually a redundant node and should be removed
     satMgr->verifyPropertyBmc(monitorName, gate);
@@ -127,7 +127,7 @@ SATVerifyBmcCmd::exec(const string& option) {
 }
 
 void SATVerifyBmcCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: SATVerify BMC < -GateId <gateId> | -Output < outputIndex >> " << endl;
+    cout << "Usage: SATVerify BMC < -GateId <gateId> | -Output < outputIndex >> " << endl;
 }
 
 void SATVerifyBmcCmd::help() const {

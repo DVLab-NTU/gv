@@ -2,17 +2,19 @@
 #define GV_MOD_CMD_C
 
 #include "gvModCmd.h"
+
+#include <fstream>
+#include <iomanip>
+#include <string>
+#include <vector>
+
 #include "gvAbcMgr.h"
 #include "gvModMgr.h"
 #include "gvMsg.h"
 #include "kernel/yosys.h"
 #include "util.h"
-#include <fstream>
-#include <string>
-#include <vector>
 
-bool
-initModCmd() {
+bool initModCmd() {
     if (gvModMgr) delete gvModMgr;
     gvModMgr = new GVModMgr;
     return (gvCmdMgr->regCmd("SEt SYStem", 2, 3, new GVSetSystemCmd) &&
@@ -23,12 +25,12 @@ initModCmd() {
 GVCmdExecStatus
 GVSetSystemCmd::exec(const string& option) {
     if (!gvModMgr->getInputFileExist()) {
-        gvMsg(GV_MSG_IFO) << "[ERROR]: Please use command \"READ DESIGN\" to "
-                             "read the input file first !!\n";
+        cout << "[ERROR]: Please use command \"READ DESIGN\" to "
+                "read the input file first !!\n";
         return GV_CMD_EXEC_NOP;
     }
 
-    bool           setup = false, vrf = false;
+    bool setup = false, vrf = false;
     vector<string> options;
 
     GVCmdExec::lexOptions(option, options);
@@ -54,20 +56,17 @@ GVSetSystemCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVSetSystemCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: SEt SYStem <setup | vrf>" << endl;
+void GVSetSystemCmd::usage(const bool& verbose) const {
+    cout << "Usage: SEt SYStem <setup | vrf>" << endl;
 }
 
-void
-GVSetSystemCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt System: "
-                      << "Switch to setup/vrf mode." << endl;
+void GVSetSystemCmd::help() const {
+    cout << setw(20) << left << "SEt System: "
+         << "Switch to setup/vrf mode." << endl;
 }
 
 GVCmdExecStatus
 GVResetCmd ::exec(const string& option) {
-
     bool delete_abc   = true;
     bool delete_yosys = true;
 
@@ -103,28 +102,26 @@ GVResetCmd ::exec(const string& option) {
     // gvModMgr = new GVModMgr;
 }
 
-void
-GVResetCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: RESET SYStem [ Abc | Yosys ]" << endl;
-    gvMsg(GV_MSG_IFO)
+void GVResetCmd ::usage(const bool& verbose) const {
+    cout << "Usage: RESET SYStem [ Abc | Yosys ]" << endl;
+    cout
         << "       If engine is specified, only delete the ntk stored inside. "
            "However, it may be risky to only delete partial datas."
         << endl;
 }
 
-void
-GVResetCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "RESET SYStem: "
-                      << "Delete all ntks in gv and reset to setup mode."
-                      << endl;
+void GVResetCmd ::help() const {
+    cout << setw(20) << left << "RESET SYStem: "
+         << "Delete all ntks in gv and reset to setup mode."
+         << endl;
 }
 
 GVCmdExecStatus
 GVSetWizardCmd::exec(const string& option) {
-    GVCmdExecStatus status         = GV_CMD_EXEC_DONE;
-    bool            isFile         = false;
-    string          wizardFileName = "";
-    vector<string>  options;
+    GVCmdExecStatus status = GV_CMD_EXEC_DONE;
+    bool isFile            = false;
+    string wizardFileName  = "";
+    vector<string> options;
 
     gvModMgr->setWizard(true);
     GVCmdExec::lexOptions(option, options);
@@ -151,14 +148,14 @@ GVSetWizardCmd::exec(const string& option) {
     // Start read the wizard file content
     ifstream infile(wizardFileName);
     if (!infile) {
-        gvMsg(GV_MSG_IFO) << "[ERROR]: Wizard file name \"" + wizardFileName +
-                                 "\" not found !!\n";
+        cout << "[ERROR]: Wizard file name \"" + wizardFileName +
+                    "\" not found !!\n";
         return GV_CMD_EXEC_ERROR;
     }
 
-    string      prompt = "";
+    string prompt = "";
     vector<int> promptBound;
-    string      bound;
+    string bound;
 
     while (1) {
         getline(infile, bound);
@@ -172,7 +169,7 @@ GVSetWizardCmd::exec(const string& option) {
     }
 
     // Start the GV tutorial wizard
-    int  promptPos = 0, wizardIdx = 0, progress = 1;
+    int promptPos = 0, wizardIdx = 0, progress = 1;
     bool firstPrompt = true, debug = false;
     system("clear");
     while (status != GV_CMD_EXEC_QUIT) {
@@ -206,14 +203,12 @@ GVSetWizardCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVSetWizardCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: Type \"WIZard\" " << endl;
+void GVSetWizardCmd::usage(const bool& verbose) const {
+    cout << "Usage: Type \"WIZard\" " << endl;
 }
 
-void
-GVSetWizardCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "WIZard: "
-                      << "Start the GV turtorial wizard." << endl;
+void GVSetWizardCmd::help() const {
+    cout << setw(20) << left << "WIZard: "
+         << "Start the GV turtorial wizard." << endl;
 }
 #endif

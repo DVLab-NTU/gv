@@ -8,7 +8,7 @@
 
 #include "bddMgrV.h"
 #include "gvMsg.h"
-#include "gvNtk.h"
+// #include "gvNtk.h"
 #include "cirMgr.h"
 #include "cirGate.h"
 #include "util.h"
@@ -40,7 +40,6 @@ BddMgrV::buildPTransRelation() {
     // TODO : remember to set _tr, _tri
 
     BddNodeV delta, y;
-    GVNetId  delta_net;
 
     // build _tri
     for (unsigned i = 0; i < cirMgr->getNumLATCHs(); ++i) {

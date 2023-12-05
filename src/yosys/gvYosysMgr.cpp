@@ -20,12 +20,12 @@ void YosysMgr::setLogging(const bool& enable) {
         log_streams.pop_back();
 }
 
-void YosysMgr::buildMapping(const string& fileName) {
-    string yosys = "yosys -qp ";
-    string readVerilog = "read_verilog " + fileName + "; ";
-    string topModule = "hierarchy -auto-top; ";
-    string preProcess = "flatten; proc; techmap; setundef -zero; aigmap; ";
+void YosysMgr::createMapping(const string& fileName) {
+    string yosys           = "yosys -qp ";
+    string readVerilog     = "read_verilog " + fileName + "; ";
+    string topModule       = "hierarchy -auto-top; ";
+    string preProcess      = "flatten; proc; techmap; setundef -zero; aigmap; ";
     string writeAigMapping = "write_aiger -map .map.txt ._temp_.aig";
-    string command = yosys + "\"" + readVerilog + topModule + preProcess + writeAigMapping + "\"";
+    string command         = yosys + "\"" + readVerilog + topModule + preProcess + writeAigMapping + "\"";
     system(command.c_str());
 }

@@ -12,10 +12,11 @@
 #include <unistd.h>
 
 #include <cassert>
+#include <cstddef>
 #include <map>
 #include <vector>
 
-#include "gvNtk.h"
+// #include "gvNtk.h"
 #include "gvSat.h"
 // #include "SolverTypesV.h"
 #include "cirGate.h"
@@ -34,16 +35,16 @@ enum VAR_GROUP {
 
 class SatProofRes {
 public:
-    SatProofRes(GVSatSolver* s = 0) : _proved(GVNtkUD), _fired(GVNtkUD), _maxDepth(GVNtkUD), _satSolver(s) {}
+    SatProofRes(GVSatSolver* s = 0) : _proved(UINT_MAX), _fired(UINT_MAX), _maxDepth(UINT_MAX), _satSolver(s) {}
 
-    void setProved(uint32_t i) { _proved = i; }
-    void setFired(uint32_t i) { _fired = i; }
+    void setProved(size_t i) { _proved = i; }
+    void setFired(size_t i) { _fired = i; }
 
-    bool isProved() const { return (_proved != GVNtkUD); }
-    bool isFired() const { return (_fired != GVNtkUD); }
+    bool isProved() const { return (_proved != UINT_MAX); }
+    bool isFired() const { return (_fired != UINT_MAX); }
 
-    void setMaxDepth(uint32_t d) { _maxDepth = d; }
-    uint32_t getMaxDepth() const { return _maxDepth; }
+    void setMaxDepth(size_t d) { _maxDepth = d; }
+    size_t getMaxDepth() const { return _maxDepth; }
 
     void setSatSolver(GVSatSolver* s) { _satSolver = s; }
     GVSatSolver* getSatSolver() const { return _satSolver; }
@@ -52,9 +53,9 @@ public:
     void reportCex(const CirGate*, const CirMgr* const) const;
 
 private:
-    uint32_t _proved;
-    uint32_t _fired;
-    uint32_t _maxDepth;  // maximum proof depth
+    size_t _proved;
+    size_t _fired;
+    size_t _maxDepth;  // maximum proof depth
     GVSatSolver* _satSolver;
 };
 
