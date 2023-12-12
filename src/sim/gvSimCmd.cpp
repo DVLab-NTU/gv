@@ -6,11 +6,12 @@
 #include <fstream>
 #include <string>
 
-#include "gvAbcMgr.h"
+#include "abcMgr.h"
 #include "gvModMgr.h"
 #include "gvMsg.h"
-#include "util.h"
 #include "kernel/yosys.h"
+#include "util.h"
+
 USING_YOSYS_NAMESPACE
 
 bool initSimCmd() {

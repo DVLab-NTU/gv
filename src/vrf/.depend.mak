@@ -1,5 +1,5 @@
 gvVrfCmd.o: gvVrfCmd.cpp gvVrfCmd.h ../../include/gvCmdMgr.h \
- ../../include/gvAbcMgr.h ../../include/base/abc/abc.h \
+ ../../include/abcMgr.h ../../include/base/abc/abc.h \
  ../../include/misc/vec/vec.h ../../include/misc/util/abc_global.h \
  ../../include/misc/util/abc_namespaces.h ../../include/misc/vec/vecInt.h \
  ../../include/misc/vec/vecFlt.h ../../include/misc/vec/vecStr.h \
@@ -22,8 +22,13 @@ gvVrfCmd.o: gvVrfCmd.cpp gvVrfCmd.h ../../include/gvCmdMgr.h \
  ../../include/proof/fra/fra.h ../../include/opt/dar/dar.h \
  ../../include/sat/bsat/satSolver.h ../../include/sat/bsat/satVec.h \
  ../../include/sat/bsat/satClause.h ../../include/misc/util/utilDouble.h \
- ../../include/aig/ioa/ioa.h ../../include/gvAbcNtk.h \
- ../../include/gvMsg.h ../../include/gvUsage.h ../../include/gvMsg.h \
+ ../../include/aig/ioa/ioa.h ../../include/cirGate.h \
+ ../../include/cirDef.h ../../include/myHash.h ../../include/gvSat.h \
+ ../../include/SolverV.h ../../include/ProofV.h \
+ ../../include/SolverTypesV.h ../../include/GlobalV.h \
+ ../../include/FileV.h ../../include/VarOrderV.h ../../include/HeapV.h \
+ ../../include/cirMgr.h ../../include/gvBitVec.h \
  ../../include/gvIntType.h ../../include/gvModMgr.h \
- ../../include/gvCmdMgr.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/gvCmdMgr.h ../../include/gvMsg.h ../../include/gvUsage.h \
+ ../../include/gvMsg.h ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h

@@ -9,7 +9,7 @@
 #include "base/main/main.h"
 #include "base/main/mainInt.h"
 #include "cirGate.h"
-#include "gvAbcNtk.h"
+#include "cirMgr.h"
 
 using namespace std;
 
@@ -30,17 +30,16 @@ extern "C"
 }
 
 struct ABCParam {
-    ABCParam() : fBlast(0), fInvert(0), fTechMap(0), fSkipStrash(0), fCollapse(0), fVerbose(0), fGiaSimple(0), fCheck(0), pTopModule(NULL), pDefines(NULL) {
+    ABCParam() : fInvert(0), fTechMap(0), fSkipStrash(0), fVerbose(0),
+                 fGiaSimple(0), fCheck(0), pTopModule(NULL), pDefines(NULL) {
         pFileName = new char[100];
     };
     char* pFileName;
     char* pTopModule;
     char* pDefines;
-    int fBlast;
     int fInvert;
     int fTechMap;
     int fSkipStrash;
-    int fCollapse;
     int fVerbose;
     int fGiaSimple;
     int fCheck;
@@ -49,25 +48,22 @@ struct ABCParam {
 class AbcMgr {
 public:
     AbcMgr();
-    ~AbcMgr() { reset(); }
+    ~AbcMgr();
 
     void init();
     void reset();
-    void abcReadDesign(string&);
     void readAig(const ABCParam&);
     void readVerilog(const ABCParam&);
     void buildAigName(map<unsigned, string>&);
     void travPreprocess();
-    void travAllObj(vector<CirPiGate*>& piList, vector<CirPoGate*>& poList, vector<CirRoGate*>& roList, vector<CirRiGate*>& riList,
-                    vector<CirGate*>& totGateList, map<unsigned, string>& id2Name, const CirFileType& fileType);
+    void travAllObj(CirMgr*, const CirFileType&, map<unsigned, string>);
+    void initCir(CirMgr*, const CirFileType&);
 
     Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }
-    abcNtkMgr* get_abcNtkMgr() { return pNtkMgr; }
     Gia_Man_t* pGia;
 
 private:
     Abc_Frame_t* pAbc;
-    abcNtkMgr* pNtkMgr;
 };
 
 #endif

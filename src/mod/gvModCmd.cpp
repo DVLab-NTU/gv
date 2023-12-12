@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "gvAbcMgr.h"
+#include "abcMgr.h"
 #include "gvModMgr.h"
 #include "gvMsg.h"
 #include "kernel/yosys.h"

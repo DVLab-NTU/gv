@@ -62,3 +62,5 @@ AlignConsecutiveShortCaseStatements:
 # Bin Pack
 # BinPackArguments: true
 # BinPackParameters: true
+
+PackConstructorInitializers: BinPack

@@ -1,5 +1,5 @@
 PKGFLAG	  = $(DEBUG_FLAG)
-EXTHDRS	  = gvAbcCmd.h gvAbcMgr.h gvAbcNtk.h
+EXTHDRS	  = abcCmd.h abcMgr.h 
 
 include ../Makefile.in
 include ../Makefile.lib
