@@ -47,14 +47,20 @@ GVRandomSimCmd ::exec(const string& option) {
             command += " -v ";
             continue;
         }
-        if (myStrNCmp("-rst", token, 3) == 0) {
+        if (myStrNCmp("-reset", token, 3) == 0) {
             rst_set = true;
             ++i;
             rst = options[i];
+            // error handling: Yosys will rename "_" to "__", so please don't name the reset signal with underline, e.g. "i_rst"
+            // TODO: fix the renaming rule in Yosys
+            if (find(rst.begin(), rst.end(), '_') != rst.end()) {
+                cout << "Please avoid naming the reset signal with underline, e.g. \"i_rst\" is illegal but \"rst\" is okay " << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, rst);
+            }
             command += " -reset " + rst;
             continue;
         }
-        if (myStrNCmp("-rst_n", token, 4) == 0) {
+        if (myStrNCmp("-n_reset", token, 3) == 0) {
             rst_n_set = true;
             ++i;
             rst_n = options[i];
@@ -65,6 +71,12 @@ GVRandomSimCmd ::exec(const string& option) {
             clk_set = true;
             ++i;
             clk = options[i];
+            // error handling: Yosys will rename "_" to "__", so please don't name the clock signal with underline, e.g. "i_clk"
+            // TODO: fix the renaming rule in Yosys
+            if (find(clk.begin(), clk.end(), '_') != clk.end()) {
+                cout << "Please avoid naming the clock signal with underline, e.g. \"i_clk\" is illegal but \"clk\" is okay " << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, clk);
+            }
             command += " -clk " + clk;
             continue;
         }
@@ -117,11 +129,10 @@ GVRandomSimCmd ::exec(const string& option) {
 }
 
 void GVRandomSimCmd ::usage(const bool& verbose) const {
-    cout
-        << "Usage: RAndom Sim <-input file_name.v> [sim_cycle num_cycle_sim] "
-           "[-rst rst_name] [-rst_n rst_n_name] [-clk clk_name] "
-           "[-output out_file_name] [-v verbose print result] [-file stimulus]"
-        << endl;
+    cout << "Usage: RAndom Sim <-input file_name.v> [sim_cycle num_cycle_sim] "
+            "[-reset rst_name] [-n_reset rst_n_name] [-clk clk_name] "
+            "[-output out_file_name] [-v verbose print result] [-file stimulus]"
+         << endl;
 }
 
 void GVRandomSimCmd ::help() const {
@@ -206,12 +217,8 @@ GVShowCmd::exec(const string& option) {
                     "to read the file first !!\n ";
             return GV_CMD_EXEC_NOP;
         }
-        // string top_module_name =
-        //     gvRTLDesign->getDesign()->top_module()->name.str().substr(
-        //         1, strlen(yosys_design->top_module()->name.c_str()) - 1);
         string top_module_name =
-            yosys_design->top_module()->name.str().substr(
-                1, strlen(yosys_design->top_module()->name.c_str()) - 1);
+            yosys_design->top_module()->name.str().substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
 
         run_pass("hierarchy -top " + top_module_name);
         run_pass("proc");
@@ -222,8 +229,7 @@ GVShowCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 void GVShowCmd::usage(const bool& verbose) const {
-    cout
-        << "Usage: SHow < -Vcd <string vcd_filename> | -SCHematic >" << endl;
+    cout << "Usage: SHow < -Vcd <string vcd_filename> | -SCHematic >" << endl;
 }
 
 void GVShowCmd::help() const {

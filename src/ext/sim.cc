@@ -232,10 +232,20 @@ struct randomSim : public Pass {
                 {
                     if (!stimulus) // if no stimulus is given, we generate a random one
                     {
-                        ofs << "upper_bound = pow(2, " << wire->width << ");\n";
-                        ofs << "random_value = rand() % upper_bound;\n";
-                        ofs << "top.p_" << wire_name << ".set<unsigned>(random_value)"
+                        // (1) If there's a large-bits wire (e.g. 256-bits memory) that exceed "unsigned range (0 ~ 65535)", 
+                        //     please slice it to smaller wires, otherwise will cause error in Yosys 
+                        // (2) Also, if assigns a wrong size value to wires (e.g. assign "pow(2, 2)" to "256-bits memory"), it will violate Yosys assertion
+                        // TODO: preprocess the large-bits wire with ".slice()" and ".concat()" to assign value
+                        if (wire->width > 16) {
+                            log_error("There's a large-bits wire that exceed \"unsigned range (0 ~ 65535)\", please slice it to smaller wires all within 16 bits\n");
+                        }
+                        else {
+                            // randomly assign value 
+                            ofs << "upper_bound = pow(2, " << wire->width << ");\n";
+                            ofs << "random_value = rand() % upper_bound;\n";
+                            ofs << "top.p_" << wire_name << ".set<unsigned>(random_value)"
                             << ";\n";
+                        }
                     } else {
                         ofs << "top.p_" << wire_name << ".set<unsigned>(stimulus_signal[cycle][idx])"
                             << ";\n";
