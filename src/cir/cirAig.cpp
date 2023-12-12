@@ -11,7 +11,7 @@
 #include <map>
 
 #include "abcMgr.h"
-#include "gvYosysMgr.h"
+#include "yosysMgr.h"
 #include "util.h"
 
 /**

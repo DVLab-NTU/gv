@@ -38,7 +38,7 @@ void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     pRes.reportResult(name);
     if (pRes.isFired()) pRes.reportCex(monitor, _cirMgr);
 
-    delete gvSatSolver;
+    // delete gvSatSolver;
     delete _cirMgr;
     reset();
 }
@@ -61,7 +61,7 @@ void SATMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
     pRes.reportResult(name);
     if (pRes.isFired()) pRes.reportCex(monitor, _cirMgr);
 
-    delete gvSatSolver;
+    // delete gvSatSolver;
     delete _cirMgr;
     reset();
 }

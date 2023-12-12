@@ -10,7 +10,7 @@ git checkout yosys-0.35
 # enable the libyosys.so flag
 sed -i -e "s/ENABLE_LIBYOSYS := 0/ENABLE_LIBYOSYS := 1/g" Makefile;
 # modify the libyosys.so path
-sed -i -e "s/-install_name,\$(LIBDIR)\/libyosys.so/-install_name,\@rpath\/libyosys.so/g" Makefile;
+sed -i -e "s/-install_name,\$(LIBDIR)\/libyosys.so/-install_name,\@rpath\/libyosyss.so/g" Makefile;
 sed -i -e "s/-Wl,-soname,\$(LIBDIR)\/libyosys.so//g" Makefile;
 
 # make "yosys" shared library 

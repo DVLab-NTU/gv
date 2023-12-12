@@ -1,14 +1,14 @@
 #ifndef GV_ABC_CMD_C
 #define GV_ABC_CMD_C
 
-#include "gvYosysCmd.h"
+#include "yosysCmd.h"
 
 #include <string>
 #include <vector>
 
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
-#include "gvYosysMgr.h"
+#include "yosysMgr.h"
 #include "util.h"
 
 bool initYosysCmd() {

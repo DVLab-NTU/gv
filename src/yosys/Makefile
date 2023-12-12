@@ -1,5 +1,5 @@
 PKGFLAG	  = $(DEBUG_FLAG)
-EXTHDRS	  = gvYosysCmd.h gvYosysMgr.h
+EXTHDRS	  = yosysCmd.h yosysMgr.h
 
 include ../Makefile.in
 include ../Makefile.lib

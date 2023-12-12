@@ -1,4 +1,4 @@
-#include "gvYosysMgr.h"
+#include "yosysMgr.h"
 
 #include <cstdlib>
 
