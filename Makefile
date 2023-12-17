@@ -1,5 +1,5 @@
-SRCPKGS  = util cmd mod abc bdd itp ntk cir sim vrf ext prove 
-LIBPKGS  = util cmd mod abc bdd itp ntk cir sim vrf prove
+SRCPKGS  = util cmd abc mod yosys bdd itp sim cir vrf ext prove gvsat cad
+LIBPKGS  = util cmd abc mod yosys bdd itp sim cir vrf prove gvsat cad
 
 MAIN     = main
 
@@ -13,7 +13,7 @@ ENGPKGS	 += lgl
 ENGPKGS	 += btor2parser
 #ENGPKGS	 += minisat
 ENGPKGS	 += abcc
-ENGPKGS	 += yosys
+ENGPKGS	 += yosyss
 
 ENGSSRC	 = eng
 
@@ -68,6 +68,8 @@ clean:
 	@cd src/$(MAIN); make --no-print-directory clean
 	@echo "Removing $(EXEC)..."
 	@rm -f $(EXEC) 
+	@rm include/*
+	@rm lib/*
 
 ctags:	
 	@rm -f src/tags

@@ -7,17 +7,20 @@
  ****************************************************************************/
 
 #include "proveCmd.h"
-#include "bddMgrV.h"
-#include "gvMsg.h"
-#include "gvNtk.h"
-#include "util.h"
+
 #include <cstring>
 #include <iomanip>
 
+#include "bddMgrV.h"
+#include "cirGate.h"
+#include "cirMgr.h"
+#include "gvMsg.h"
+// #include "gvNtk.h"
+#include "util.h"
+
 using namespace std;
 
-bool
-GVinitProveCmd() {
+bool initProveCmd() {
     return (gvCmdMgr->regCmd("PINITialstate", 5, new PInitialStateCmd) &&
             gvCmdMgr->regCmd("PTRansrelation", 3, new PTransRelationCmd) &&
             gvCmdMgr->regCmd("PIMAGe", 5, new PImageCmd) &&
@@ -54,13 +57,11 @@ PInitialStateCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-PInitialStateCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: PINITialstate [(string varName)]" << endl;
+void PInitialStateCmd::usage(const bool& verbose) const {
+    cout << "Usage: PINITialstate [(string varName)]" << endl;
 }
 
-void
-PInitialStateCmd::help() const {
+void PInitialStateCmd::help() const {
     cout << setw(20) << left << "PINITialstate: "
          << "Set initial state BDD" << endl;
 }
@@ -70,7 +71,7 @@ PInitialStateCmd::help() const {
 //----------------------------------------------------------------------
 GVCmdExecStatus
 PTransRelationCmd::exec(const string& option) {
-    size_t         op = 0;
+    size_t op = 0;
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     if (options.size() > 2)
@@ -104,14 +105,12 @@ PTransRelationCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-PTransRelationCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO)
+void PTransRelationCmd::usage(const bool& verbose) const {
+    cout
         << "Usage: PTRansrelation [(string triName)] [(stirng trName)]" << endl;
 }
 
-void
-PTransRelationCmd::help() const {
+void PTransRelationCmd::help() const {
     cout << setw(20) << left << "PTRansrelation: "
          << "build the transition relationship in BDDs" << endl;
 }
@@ -131,8 +130,8 @@ PImageCmd::exec(const string& option) {
         return GV_CMD_EXEC_ERROR;
     }
 
-    int            level = 1;
-    string         name;
+    int level = 1;
+    string name;
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
@@ -156,15 +155,13 @@ PImageCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-PImageCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO)
+void PImageCmd::usage(const bool& verbose) const {
+    cout
         << "Usage: PIMAGe [-Next <(int numTimeframes)>] [(string varName)]"
         << endl;
 }
 
-void
-PImageCmd::help() const {
+void PImageCmd::help() const {
     cout << setw(20) << left << "PIMAGe: "
          << "build the next state images in BDDs" << endl;
 }
@@ -194,42 +191,42 @@ PCheckPropertyCmd::exec(const string& option) {
     else if (!myStrNCmp("-Output", options[0], 2)) isNet = false;
     else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
 
-    int     num = 0;
-    GVNetId netId;
+    int num = 0;
     if (!myStr2Int(options[1], num) || (num < 0))
         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
     if (isNet) {
-        if ((unsigned)num >= gvNtkMgr->getNetSize()) {
+        if ((unsigned)num >= cirMgr->getNumTots()) {
             gvMsg(GV_MSG_ERR) << "Net with Id " << num
                               << " does NOT Exist in Current Ntk !!" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
-        netId = GVNetId::makeNetId(num);
+        // netId = GVNetId::makeNetId(num);
     } else {
-        if ((unsigned)num >= gvNtkMgr->getOutputSize()) {
+        if ((unsigned)num >= cirMgr->getNumPOs()) {
             gvMsg(GV_MSG_ERR) << "Output with Index " << num
                               << " does NOT Exist in Current Ntk !!" << endl;
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
         }
-        netId = gvNtkMgr->getOutput(num);
+        // netId = gvNtkMgr->getOutput(num);
     }
 
-    BddNodeV monitor = bddMgrV->getBddNodeV(netId.id);
+    // BddNodeV monitor = bddMgrV->getBddNodeV(netId.id);
+    BddNodeV monitor = bddMgrV->getBddNodeV(cirMgr->getPo(num)->getGid());
     assert(monitor());
-    bddMgrV->runPCheckProperty(gvNtkMgr->getNetNameFromId(netId.id), monitor);
+    // bddMgrV->runPCheckProperty(gvNtkMgr->getNetNameFromId(netId.id), monitor);
+    string mStr = "monitor";
+    bddMgrV->runPCheckProperty(cirMgr->getPo(num)->getName(), monitor);
 
     return GV_CMD_EXEC_DONE;
 }
 
-void
-PCheckPropertyCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO)
+void PCheckPropertyCmd::usage(const bool& verbose) const {
+    cout
         << "Usage: PCHECKProperty < -Netid <netId> | -Output <outputIndex> >"
         << endl;
 }
 
-void
-PCheckPropertyCmd::help() const {
+void PCheckPropertyCmd::help() const {
     cout << setw(20) << left << "PCHECKProperty:"
          << "check the monitor by BDDs" << endl;
 }

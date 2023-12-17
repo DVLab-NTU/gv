@@ -8,7 +8,9 @@
 
 #include "bddMgrV.h"
 #include "gvMsg.h"
-#include "gvNtk.h"
+// #include "gvNtk.h"
+#include "cirMgr.h"
+#include "cirGate.h"
 #include "util.h"
 #include <iomanip>
 #include <iostream>
@@ -19,12 +21,12 @@ BddMgrV::buildPInitialState() {
     // TODO : remember to set _initState
     // set initial state to all zero
     BddNodeV newNode;
-    for (unsigned i = 0; i < gvNtkMgr->getFFSize(); ++i) {
+    for (unsigned i = 0; i < cirMgr->getNumLATCHs(); ++i) {
         if (i == 0) {
-            newNode = ite(bddMgrV->getBddNodeV(gvNtkMgr->getFF(i).id),
+            newNode = ite(bddMgrV->getBddNodeV(cirMgr->getRo(i)->getGid()),
                           BddNodeV::_zero, BddNodeV::_one);
         } else {
-            newNode = ite(bddMgrV->getBddNodeV(gvNtkMgr->getFF(i).id),
+            newNode = ite(bddMgrV->getBddNodeV(cirMgr->getRo(i)->getGid()),
                           BddNodeV::_zero, newNode);
         }
     }
@@ -38,21 +40,14 @@ BddMgrV::buildPTransRelation() {
     // TODO : remember to set _tr, _tri
 
     BddNodeV delta, y;
-    GVNetId  delta_net;
 
     // build _tri
-    for (unsigned i = 0; i < gvNtkMgr->getFFSize(); ++i) {
+    for (unsigned i = 0; i < cirMgr->getNumLATCHs(); ++i) {
         // next state (y)'s name
-        string nsStr = gvNtkMgr->getNetNameFromId(
-            gvNtkMgr->getInputNetId(gvNtkMgr->getFF(i), 0).id);
+        string nsStr = cirMgr->getRi(i)->getName();
         // get BDD by name
         y     = bddMgrV->getBddNodeV(nsStr);
-        delta = bddMgrV->getBddNodeV(
-            gvNtkMgr->getInputNetId(gvNtkMgr->getFF(i), 0).id);
-        delta_net = gvNtkMgr->getInputNetId(gvNtkMgr->getFF(i), 0);
-        if (bddMgrV->getBddNodeV(delta_net.id) == (size_t)0) {
-            gvNtkMgr->buildBdd(delta_net);
-        }
+        delta = bddMgrV->getBddNodeV(cirMgr->getRi(i)->getGid());
         // build _tri
         if (i == 0) {
             _tri = ~(y ^ delta);
@@ -63,11 +58,8 @@ BddMgrV::buildPTransRelation() {
 
     // build _tr
     _tr = _tri;
-    for (unsigned i = 0; i < gvNtkMgr->getInputSize(); ++i) {
-        _tr = _tr.exist(gvNtkMgr->getInput(i).id);
-    }
-    for (unsigned i = 0; i < gvNtkMgr->getInoutSize(); ++i) {
-        _tr = _tr.exist(gvNtkMgr->getInout(i).id);
+    for (unsigned i = 0; i < cirMgr->getNumPIs(); ++i) {
+        _tr = _tr.exist(cirMgr->getPi(i)->getGid());
     }
 }
 
@@ -115,15 +107,16 @@ BddMgrV::buildPImage(int level) {
         if (_reachStates.size() == 1) {
             ns = _tr & _initState;
         } else {
-            ns = _tr& restrict(_reachStates[_reachStates.size() - 1],
-                               (~_reachStates[_reachStates.size() - 2]));
+            ns = _tr& restrict(_reachStates[_reachStates.size() - 1], (~_reachStates[_reachStates.size() - 2]));
         }
         // existential
-        for (unsigned j = 0; j < gvNtkMgr->getFFSize(); ++j) {
-            ns = ns.exist(gvNtkMgr->getFF(j).id);
+        for (unsigned j = 0; j < cirMgr->getNumLATCHs(); ++j) {
+            ns = ns.exist(cirMgr->getRo(j)->getGid());
         }
-        ns = ns.nodeMove(gvNtkMgr->getFF(0).id + gvNtkMgr->getFFSize(),
-                         gvNtkMgr->getFF(0).id, isMoved);
+        int from = cirMgr->getRo(0)->getGid() + cirMgr->getNumLATCHs();
+        int to = cirMgr->getRo(0)->getGid();
+        ns = ns.nodeMove(cirMgr->getRo(0)->getGid() + cirMgr->getNumLATCHs(),
+                         cirMgr->getRo(0)->getGid(), isMoved);
         // isFixed ?
         if (_reachStates.size() == 0) {
             ns = ns | _initState;
@@ -164,22 +157,16 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
         }
         if(numofstate != 0)
             numofstate++;
-        //cout << "This is reachable state : \n" << _reachStates[numofstate];
-        //cout << "This is monitor : \n" << monitor;
         ns = monitor & _reachStates[numofstate];
-
-        //cout << "Monitor \"" << name << "\" is violated." << endl;
-        //cout << "Counter Example:" << endl;
-
         ns = ns.getCube(0);
         counter_ex.clear();
         /* === MODIFICATION FOR PROPERTY 0 IN c.v === */
         if(numofstate == 0 ){
             BddNodeV firstState = ns;
-            for (unsigned j = 0; j < gvNtkMgr->getFFSize(); ++j) {
-                firstState = firstState.exist(gvNtkMgr->getFF(j).id);
+            for (unsigned j = 0; j < cirMgr->getNumLATCHs(); ++j) {
+                firstState = firstState.exist(cirMgr->getRo(j)->getGid());
             }
-            for (unsigned j = 0; j < gvNtkMgr->getInputSize(); ++j) {
+            for (unsigned j = 0; j < cirMgr->getNumPIs(); ++j) {
                 if (firstState.getLeft() != BddNodeV::_zero){ 
                     if(firstState.isNegEdge()) timeframe.push_back(0);
                     else                       timeframe.push_back(1);
@@ -190,31 +177,29 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
                 }
             }
             counter_ex.push_back(timeframe);
-            //cout << firstState << endl;
-            //cout << firstState.toString();
         }
         /* === END OF MODIFICATION === */
         timeframe.clear();
 
         for (unsigned i = 0; i < numofstate; ++i) {
             // find legal current state
-            ns = ns.nodeMove(gvNtkMgr->getFF(0).id,
-                             gvNtkMgr->getFF(0).id + gvNtkMgr->getFFSize(),
+            ns = ns.nodeMove(cirMgr->getRo(0)->getGid(),
+                             cirMgr->getRo(0)->getGid() + cirMgr->getNumLATCHs(),
                              isMoved);
             ns = _tri & ns & _reachStates[numofstate - 1 - i];
-            for (unsigned j = 0; j < gvNtkMgr->getFFSize(); ++j) {
-                ns = ns.exist(gvNtkMgr->getFF(j).id + gvNtkMgr->getFFSize());
+            for (unsigned j = 0; j < cirMgr->getNumLATCHs(); ++j) {
+                ns = ns.exist(cirMgr->getRo(j)->getGid() + cirMgr->getNumLATCHs());
             }
 
             // find valid input value
-            for (unsigned j = 0; j < gvNtkMgr->getInputSize(); ++j) {
-                if (ns.getLeftCofactor(gvNtkMgr->getInput(j).id) !=
+            for (unsigned j = 0; j < cirMgr->getNumPIs(); ++j) {
+                if (ns.getLeftCofactor(cirMgr->getPi(j)->getGid()) !=
                     BddNodeV::_zero) {
-                    ns = ns.getLeftCofactor(gvNtkMgr->getInput(j).id);
+                    ns = ns.getLeftCofactor(cirMgr->getPi(j)->getGid());
                     timeframe.push_back(1);
-                } else if (ns.getRightCofactor(gvNtkMgr->getInput(j).id) !=
+                } else if (ns.getRightCofactor(cirMgr->getPi(j)->getGid()) !=
                            BddNodeV::_zero) {
-                    ns = ns.getRightCofactor(gvNtkMgr->getInput(j).id);
+                    ns = ns.getRightCofactor(cirMgr->getPi(j)->getGid());
                     timeframe.push_back(0);
                 } else {
                     cerr << "error in monitor" << endl;
@@ -225,7 +210,7 @@ BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
         }
         for (unsigned i = 0; i < counter_ex.size(); ++i) {
             cout << i << ": ";
-            for (unsigned j = 0; j < gvNtkMgr->getInputSize(); ++j) {
+            for (unsigned j = 0; j < cirMgr->getNumPIs(); ++j) {
                 cout << counter_ex[counter_ex.size() - 1 - i][j];
             }
             cout << endl;
