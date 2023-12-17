@@ -3,7 +3,7 @@ CSOBJS	= $(addsuffix .so, $(basename $(CSRCS)))
 CDEPS	= $(addsuffix .d, $(basename $(CSRCS)))
 
 YOSYSCONF	= ../../yosys-config -I../../include --build
-YOSYSCONF       = ../../yosys-config --exec --cxx --cxxflags -I../../include  --ldflags -o
+YOSYSCONF = ../../yosys-config --exec --cxx --cxxflags -I../../include  --ldflags -o
 
 all:	$(CSOBJS)
 

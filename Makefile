@@ -1,5 +1,5 @@
-SRCPKGS  = util cmd abc mod yosys bdd itp cir sim vrf ext prove gvsat cad
-LIBPKGS  = util cmd abc mod yosys bdd itp cir sim vrf prove gvsat cad
+SRCPKGS  = util cmd abc mod yosys bdd itp sim cir vrf ext prove gvsat cad
+LIBPKGS  = util cmd abc mod yosys bdd itp sim cir vrf prove gvsat cad
 
 MAIN     = main
 
@@ -68,6 +68,8 @@ clean:
 	@cd src/$(MAIN); make --no-print-directory clean
 	@echo "Removing $(EXEC)..."
 	@rm -f $(EXEC) 
+	@rm include/*
+	@rm lib/*
 
 ctags:	
 	@rm -f src/tags

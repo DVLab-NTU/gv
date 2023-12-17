@@ -1,6 +1,7 @@
 /src/lib/*.a
 /src/lib/*.so
 /src/lib/lib.d
+/src/*/*.mak
 
 /engine
 /include

@@ -34,6 +34,10 @@ void AbcMgr::reset() {
     delete pAbc;
 }
 
+static string gateName(const string& name, const int& bit) {
+    return name + "[" + to_string(bit) + "]";
+}
+
 void AbcMgr::readVerilog(const ABCParam& opt) {
     char* pFileName  = opt.pFileName;
     char* pTopModule = opt.pTopModule;
@@ -51,10 +55,6 @@ void AbcMgr::readAig(const ABCParam& opt) {
     int fGiaSimple  = opt.fGiaSimple;
     int fCheck      = opt.fCheck;
     pGia            = Gia_AigerRead(pFileName, fGiaSimple, fSkipStrash, fCheck);
-}
-
-static string gateName(const string& name, const int& bit) {
-    return name + "[" + to_string(bit) + "]";
 }
 
 void AbcMgr::buildAigName(map<unsigned, string>& id2Name) {

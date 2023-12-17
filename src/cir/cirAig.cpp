@@ -5,6 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+
 #include <cirGate.h>
 #include <cirMgr.h>
 
@@ -12,7 +13,6 @@
 
 #include "abcMgr.h"
 #include "yosysMgr.h"
-#include "util.h"
 
 /**
  * Reads a circuit from the ABC Gia.
