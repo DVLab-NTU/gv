@@ -29,6 +29,7 @@ GVCmdExecStatus
 GVFormalVerifyCmd ::exec(const string& option) {
     cout << "I am GVFormalVerifyCmd " << endl;
 
+    // FIXME: how to determine the file exists
     if (gvModMgr->getAigFileName() == "") {
         cout << "[ERROR]: Please use command \"READ DESIGN\" or \"VErilog2 Aig\" to read/make the aig file first !!\n";
         return GV_CMD_EXEC_NOP;
@@ -484,31 +485,31 @@ GVFormalVerifyCmd ::exec(const string& option) {
     }
 
     sprintf(Command, "read %s", inname);
-    Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+    abcMgr->execCmd(Command);
     sprintf(Command, "strash");
-    Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+    abcMgr->execCmd(Command);
 
     // if specify multi-formal engine (-bmc 100 -pdr -itp), then execute all
     if (bmc) {
         cout << "\nSuccess: bmc " << endl;
         sprintf(Command, "bmc3 -F %d%s", bmc_depth, formal_option);
-        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+        abcMgr->execCmd(Command);
     } else if (pdr) {
         cout << "\nSuccess: pdr " << endl;
         sprintf(Command, "pdr%s", formal_option);
-        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+        abcMgr->execCmd(Command);
     } else if (itp) {
         cout << "\nSuccess: itp " << endl;
         sprintf(Command, "int%s", formal_option);
-        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+        abcMgr->execCmd(Command);
     } else if (ind) {
         cout << "\nSuccess: k-induction " << endl;
         // extract PO
         sprintf(Command, "cone -O %d -s", PO_idx);
-        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+        abcMgr->execCmd(Command);
         // do k-induction
         sprintf(Command, "indcut %s", formal_option);
-        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+        abcMgr->execCmd(Command);
     }
 
     if ((!bmc) && (!pdr) && (!itp) && (!ind)) {

@@ -97,12 +97,11 @@ GVABCOriginalCmd::exec(const string& option) {
             command += " ";
         }
     }
-
     // calling abc's command
     char Command[1024], abcCmd[128];
     strcpy(abcCmd, command.c_str());
     sprintf(Command, "%s", abcCmd);
-    Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), Command);
+    abcMgr->execCmd(Command);
 }
 
 void GVABCOriginalCmd::usage(const bool& verbose) const {

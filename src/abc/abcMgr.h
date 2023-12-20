@@ -58,6 +58,7 @@ public:
     void travPreprocess();
     void travAllObj(CirMgr*, const CirFileType&, map<unsigned, string>);
     void initCir(CirMgr*, const CirFileType&);
+    void execCmd(char*);
 
     Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }
     Gia_Man_t* pGia;

@@ -197,3 +197,8 @@ void AbcMgr::initCir(CirMgr* _cirMgr, const CirFileType& fileType) {
     _cirMgr->_poList.resize(poNum);
     _cirMgr->_totGateList.resize(totNum);
 }
+
+void AbcMgr::execCmd(char* cmd) {
+    // calling abc's command
+    Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), cmd);
+}
