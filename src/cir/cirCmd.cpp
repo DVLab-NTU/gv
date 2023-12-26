@@ -84,8 +84,10 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         }
     }
     cirMgr = new CirMgr;
-    if (cirMgr->readCirFromAbc(fileName, fileType))
-        gvModMgr->setInputFileExist(true);
+    if (!cirMgr->readCirFromAbc(fileName, fileType)) {
+        delete cirMgr;
+        cirMgr = 0;
+    }
 
     return GV_CMD_EXEC_DONE;
 }

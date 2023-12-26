@@ -12,6 +12,7 @@
 #include <map>
 
 #include "abcMgr.h"
+#include "cirMgr.h"
 #include "yosysMgr.h"
 
 /**
@@ -33,6 +34,7 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
 
     strcpy(param.pFileName, fileName.c_str());
     cout << "filename = " << fileName << endl;
+    cirMgr->fileName = fileName;
 
     if (fileType == AIGER) {
         abcMgr->readAig(param);

@@ -60,19 +60,19 @@ public:
     void setFlag(CirMgrFlag f) const { _flag |= f; }
     void unsetFlag(CirMgrFlag f) const { _flag &= ~f; }
     void resetFlag() const { _flag = 0; }
-    // unsigned getNumPIs() const { return _numDecl[PI]; }
-    // unsigned getNumPOs() const { return _numDecl[PO]; }
+
     unsigned getNumPIs() const { return _piList.size(); }
     unsigned getNumPOs() const { return _poList.size(); }
     unsigned getNumLATCHs() const { return _riList.size(); }
     unsigned getNumTots() const { return _totGateList.size(); }
-    // unsigned getNumLATCHs() const { return _numDecl[LATCH]; }
-    // unsigned getNumTots() const { return _numDecl[VARS] + _numDecl[PO] + 1; }
+
     CirPiGate* getPi(unsigned i) const { return _piList[i]; }
     CirPoGate* getPo(unsigned i) const { return _poList[i]; }
     CirRiGate* getRi(unsigned i) const { return _riList[i]; }
     CirRoGate* getRo(unsigned i) const { return _roList[i]; }
     GateList& getFanouts(unsigned i) const { return _fanoutInfo[i]; }
+
+    string getFileName() const { return fileName; }
 
     // Member functions about circuit construction
     bool readCircuit(const string&);
@@ -83,24 +83,6 @@ public:
     void checkFloatList();
     void checkUnusedList();
     size_t checkConnectedGate(size_t);
-
-    // Member functions about circuit optimization
-    // void sweep();
-    // void optimize();
-    // bool checkAigOptimize(CirGate*, const CirGateV&, const CirGateV&, CirGateV&) const;
-    // void deleteAigGate(CirGate*);
-    // void deleteUndefGate(CirGate*);
-
-    // Member functions about simulation
-    // void randomSim();
-    // void fileSim(ifstream&);
-    // void setSimLog(ofstream* logFile) { _simLog = logFile; }
-
-    // Member functions about fraig
-    // void strash();
-    // IdList* getFECGrps(size_t i) const { return _fecGrps[i]; }
-    // void printFEC() const;
-    // void fraig();
 
     // Member functions about circuit reporting
     void printSummary() const;
@@ -148,6 +130,7 @@ private:
     vector<IdList*> _fecGrps;  // store litId; FECHash<GatePValue, IdList*>
     SimVector _fecVector;
     ofstream* _simLog;
+    string fileName;
 
     // private member functions for circuit parsing
     bool parseHeader(ifstream&);
@@ -169,21 +152,6 @@ private:
     unsigned gatherPatterns(ifstream&, SimPattern, size_t);
     void pSim1Pattern() const;
     void outputSimLog(size_t nPatterns = 64);
-
-    // private member functions about FRAIG
-    bool simAndCheckFEC();
-    bool initFEC();
-    bool checkFEC();
-    bool checkFECRecur(const IdList&, vector<IdList*>&);
-    void finalizeFEC();
-    void simplifyFECGrps();
-    void clearFECGrps();
-    void initProofModel(SatSolver&, const GateList&);
-    bool satCheckConst(SatSolver&, CirGate*, bool, SimPattern);
-    bool satCheckFEC(SatSolver&, CirGate*, CirGate*, bool, SimPattern);
-    void getSatAssignment(SatSolver&, SimPattern) const;
-    void simplifyByEQ();
-    void updateFECbySatPattern(SimPattern);
 };
 
 #endif  // CIR_MGR_H
