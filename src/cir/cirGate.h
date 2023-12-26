@@ -129,10 +129,10 @@ public:
     virtual void genDfsList(vector<CirGate*>&) { setToGlobalRef(); }
 
     // Methods about circuit optimization
-    virtual CirGateV optimize(bool phase, GateList&) {
-        setToGlobalRef();
-        return size_t(this) + (phase ? 1 : 0);
-    }
+    // virtual CirGateV optimize(bool phase, GateList&) {
+    //     setToGlobalRef();
+    //     return size_t(this) + (phase ? 1 : 0);
+    // }
     void merge(const string&, CirGate*, bool);
     // void replace(CirGate*, bool);
     void removeFanout(CirGate*) const;
@@ -259,7 +259,7 @@ public:
     }
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Printing functions
     void printGate() const;
@@ -352,7 +352,7 @@ public:
     }
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Printing functions
     void printGate() const;
@@ -392,7 +392,7 @@ public:
     void genDfsList(vector<CirGate*>&);
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Methods about circuit simulation
     void pSim() {

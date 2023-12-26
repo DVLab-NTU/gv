@@ -85,22 +85,22 @@ public:
     size_t checkConnectedGate(size_t);
 
     // Member functions about circuit optimization
-    void sweep();
-    void optimize();
-    bool checkAigOptimize(CirGate*, const CirGateV&, const CirGateV&, CirGateV&) const;
-    void deleteAigGate(CirGate*);
-    void deleteUndefGate(CirGate*);
+    // void sweep();
+    // void optimize();
+    // bool checkAigOptimize(CirGate*, const CirGateV&, const CirGateV&, CirGateV&) const;
+    // void deleteAigGate(CirGate*);
+    // void deleteUndefGate(CirGate*);
 
     // Member functions about simulation
-    void randomSim();
-    void fileSim(ifstream&);
-    void setSimLog(ofstream* logFile) { _simLog = logFile; }
+    // void randomSim();
+    // void fileSim(ifstream&);
+    // void setSimLog(ofstream* logFile) { _simLog = logFile; }
 
     // Member functions about fraig
-    void strash();
-    IdList* getFECGrps(size_t i) const { return _fecGrps[i]; }
-    void printFEC() const;
-    void fraig();
+    // void strash();
+    // IdList* getFECGrps(size_t i) const { return _fecGrps[i]; }
+    // void printFEC() const;
+    // void fraig();
 
     // Member functions about circuit reporting
     void printSummary() const;

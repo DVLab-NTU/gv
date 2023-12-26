@@ -679,22 +679,22 @@ CirConstGate::genDfsList(GateList& gateList)
 }
 
 // Remove the entries that getGate() = NULL
-void
-CirMgr::updateUndefList()
-{
-   size_t i = 0;
-   for (size_t j = 0, n = _undefList.size(); j< n; ++j) {
-      if (!getGate(_undefList[j])) continue; // has been deleted
-      if (_fanoutInfo[_undefList[j]].empty()) {
-         deleteUndefGate(getGate(_undefList[j]));
-         continue;
-      }
-      if (i != j) _undefList[i] = _undefList[j];   
-      ++i;
-   }
-   if (i == 0) clearList<IdList>(_undefList);
-   else _undefList.resize(i);
-}
+// void
+// CirMgr::updateUndefList()
+// {
+//    size_t i = 0;
+//    for (size_t j = 0, n = _undefList.size(); j< n; ++j) {
+//       if (!getGate(_undefList[j])) continue; // has been deleted
+//       if (_fanoutInfo[_undefList[j]].empty()) {
+//          deleteUndefGate(getGate(_undefList[j]));
+//          continue;
+//       }
+//       if (i != j) _undefList[i] = _undefList[j];   
+//       ++i;
+//    }
+//    if (i == 0) clearList<IdList>(_undefList);
+//    else _undefList.resize(i);
+// }
 
 void
 CirMgr::checkFloatList()

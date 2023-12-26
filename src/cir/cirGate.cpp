@@ -106,17 +106,17 @@ CirGate::reportGate() const
    cout << ", line " << _lineNo << endl;
 
    // Printing FEC Pairs
-   cout << "= FECs:";
-   if (isFEC()) {
-      IdList *fecs = cirMgr->getFECGrps(_fecId/2);
-      bool isInv = _fecId & 1;
-      for (size_t i = 0, n = fecs->size(); i < n; ++i) {
-         CirGate *g = cirMgr->litId2Gate((*fecs)[i]);
-         if (g == this) continue;
-         cout << ((isInv ^ ((*fecs)[i]%2 != 0))?" !":" ") << g->getGid();
-      }
-   }
-   cout << endl;
+   // cout << "= FECs:";
+   // if (isFEC()) {
+   //    IdList *fecs = cirMgr->getFECGrps(_fecId/2);
+   //    bool isInv = _fecId & 1;
+   //    for (size_t i = 0, n = fecs->size(); i < n; ++i) {
+   //       CirGate *g = cirMgr->litId2Gate((*fecs)[i]);
+   //       if (g == this) continue;
+   //       cout << ((isInv ^ ((*fecs)[i]%2 != 0))?" !":" ") << g->getGid();
+   //    }
+   // }
+   // cout << endl;
 
    // Printing sim value
    // cout << "= Value: " << _pValue << endl;

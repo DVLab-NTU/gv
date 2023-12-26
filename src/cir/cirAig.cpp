@@ -15,9 +15,7 @@
 #include "yosysMgr.h"
 
 /**
- * Reads a circuit from the ABC Gia.
- *
- * This function reads a circuit from the specified file using the ABC.
+ * @brief Reads a circuit from the ABC Gia.
  *
  * @param fileName   The name of the file containing the circuit.
  * @param fileType   The type of file (AIGER or VERILOG) to be read.
@@ -55,9 +53,7 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
 }
 
 /**
- * Creates a NOT gate in the circuit.
- *
- * This function creates a NOT gate in the circuit.
+ * @brief Creates a NOT gate in the circuit.
  *
  * @param in0 The input gate for the NOT gate.
  * @return    Returns a pointer to the created NOT gate.
@@ -71,9 +67,7 @@ CirGate* CirMgr::createNotGate(CirGate* in0) {
 }
 
 /**
- * Creates an AND gate in the circuit.
- *
- * This function creates an AND gate in the circuit.
+ * @brief  Creates an AND gate in the circuit.
  *
  * @param in0 The first input gate for the AND gate.
  * @param in1 The second input gate for the AND gate.
@@ -88,9 +82,7 @@ CirGate* CirMgr::createAndGate(CirGate* in0, CirGate* in1) {
 }
 
 /**
- * Creates an OR gate in the circuit.
- *
- * This function creates an OR gate in the circuit.
+ * @brief Creates an OR gate in the circuit.
  *
  * @param in0 The first input gate for the OR gate.
  * @param in1 The second input gate for the OR gate.
@@ -105,9 +97,7 @@ CirGate* CirMgr::createOrGate(CirGate* in0, CirGate* in1) {
 }
 
 /**
- * Creates an XOR gate in the circuit.
- *
- * This function creates an XOR gate in the circuit.
+ * @brief Creates an XOR gate in the circuit.
  *
  * @param in0 The first input gate for the XOR gate.
  * @param in1 The second input gate for the XOR gate.
