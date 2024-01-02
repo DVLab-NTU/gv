@@ -20,13 +20,9 @@ using namespace std;
 
 #include "base/abc/abc.h"
 #include "cirDef.h"
+#include "fileType.h"
 
 extern CirMgr* cirMgr;
-
-enum CirFileType {
-    VERILOG,
-    AIGER
-};
 
 class AbcMgr;
 class CirMgr {
@@ -84,7 +80,7 @@ public:
     void checkUnusedList();
     size_t checkConnectedGate(size_t);
 
-    // Member functions about circuit reporting
+    // Member functins about circuit reporting
     void printSummary() const;
     void printNetlist() const;
     void printPIs() const;
@@ -116,9 +112,11 @@ public:
     void createInput(const int& idx, const int& gateId);
     void createOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, string poName);
     void createRi(const int& idx, const int& gateId, const int& in0Id, const int& inv);
-    void createRo(const int& idx, const int& gateId);
+    int createRo(const int& idx, const int& gateId, const CirFileType& fileType);
     void createRiRo(const int& riGid, const int& roGid);
     void createAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv);
+    void createConst0();
+    void createConst1();
 
 private:
     unsigned _numDecl[TOT_PARSE_PORTS];

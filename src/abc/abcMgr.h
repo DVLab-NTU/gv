@@ -5,13 +5,11 @@
 #include <map>
 #include <string>
 
+#include "abcExt.h"
 #include "base/abc/abc.h"
 #include "base/main/main.h"
 #include "base/main/mainInt.h"
-#include "cirGate.h"
-#include "cirMgr.h"
-#include "abcExt.h"
-
+#include "util.h"
 
 using namespace std;
 
@@ -58,8 +56,8 @@ public:
     void readVerilog(const ABCParam&);
     void buildAigName(map<unsigned, string>&);
     void travPreprocess();
-    void travAllObj(CirMgr*, const CirFileType&, map<unsigned, string>);
-    void initCir(CirMgr*, const CirFileType&);
+    void travAllObj(const CirFileType&, map<unsigned, string>);
+    void initCir(const CirFileType&);
     void execCmd(char*);
 
     Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }

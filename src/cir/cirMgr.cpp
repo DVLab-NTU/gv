@@ -18,6 +18,7 @@
 #include <iostream>
 
 #include "cirGate.h"
+#include "fileType.h"
 #include "util.h"
 
 using namespace std;
@@ -238,8 +239,8 @@ void parseOutput(const int& idx, const int& gateId, const int& in0Id, const int&
     cirMgr->createOutput(idx, gateId, in0Id, inv, poName);
 }
 
-void parseRo(const int& idx, const int& gateId) {
-    cirMgr->createRo(idx, gateId);
+int parseRo(const int& idx, const int& gateId, const CirFileType& fileType) {
+    cirMgr->createRo(idx, gateId, fileType);
 }
 
 void parseRi(const int& idx, const int& gateId, const int& in0Id, const int& inv) {
@@ -252,6 +253,14 @@ void parseRiRo(const int& riGid, const int& roGid) {
 
 void parseAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv) {
     cirMgr->createAig(gateId, in0Id, in0Inv, in1Id, in1Inv);
+}
+
+void parseConst0() {
+    cirMgr->createConst0();
+}
+
+void parseConst1() {
+    cirMgr->createConst1();
 }
 
 void initCirMgr(const int& piNum, const int& poNum, const int& regNum, const int& totNum) {
@@ -276,10 +285,15 @@ void CirMgr::createOutput(const int& idx, const int& gateId, const int& in0Id, c
     _totGateList[gateId] = gate;
 }
 
-void CirMgr::createRo(const int& idx, const int& gateId) {
-    CirRoGate* gate      = new CirRoGate(gateId, 0);
-    _roList[idx]         = gate;
-    _totGateList[gateId] = gate;
+int CirMgr::createRo(const int& idx, const int& gateId, const CirFileType& fileType) {
+    if (fileType == VERILOG) {
+        return _roList[idx]->getGid();
+    } else if (fileType == AIGER) {
+        CirRoGate* gate      = new CirRoGate(gateId, 0);
+        _roList[idx]         = gate;
+        _totGateList[gateId] = gate;
+    }
+    return 0;
 }
 
 void CirMgr::createRi(const int& idx, const int& gateId, const int& in0Id, const int& inv) {
@@ -306,18 +320,25 @@ void CirMgr::createRiRo(const int& riGid, const int& roGid) {
     roGate->setIn0(riGate, false);
 }
 
+void CirMgr::createConst0() {
+    // CONST0 Gate
+    _totGateList[0] = CirMgr::_const0;
+}
+
+void CirMgr::createConst1() {
+    // CONST1 Gate
+    _const1 = new CirAigGate(getNumTots(), 0);
+    addTotGate(_const1);
+    _const1->setIn0(_const0, true);
+    _const1->setIn1(_const0, true);
+}
+
 void CirMgr::initCir(const int& piNum, const int& poNum, const int& regNum, const int& totNum) {
     _piList.resize(piNum);
     _riList.resize(regNum);
     _roList.resize(regNum);
     _poList.resize(poNum);
     _totGateList.resize(totNum);
-
-    // CONST1 Gate
-    _const1 = new CirAigGate(getNumTots(), 0);
-    addTotGate(_const1);
-    _const1->setIn0(_const0, true);
-    _const1->setIn1(_const0, true);
 }
 
 /**************************************************************/

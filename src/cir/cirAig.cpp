@@ -46,9 +46,9 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     }
 
     // initialize the size of the containers
-    abcMgr->initCir(this, fileType);
+    abcMgr->initCir(fileType);
     abcMgr->travPreprocess();
-    abcMgr->travAllObj(this, fileType, id2Name);
+    abcMgr->travAllObj(fileType, id2Name);
 
     genDfsList();
     return true;

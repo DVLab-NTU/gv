@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "abcMgr.h"
+#include "cirMgr.h"
 #include "gvModMgr.h"
 #include "gvMsg.h"
 #include "kernel/yosys.h"

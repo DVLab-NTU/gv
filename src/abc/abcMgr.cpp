@@ -9,7 +9,6 @@
 #include "abcExt.h"
 #include "base/abc/abc.h"
 #include "bdd/cudd/cudd.h"
-#include "cirGate.h"
 #include "cirMgr.h"
 #include "sat/cnf/cnf.h"
 #include "util.h"
@@ -99,7 +98,7 @@ void AbcMgr::travPreprocess() {
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
 }
 
-void AbcMgr::travAllObj(CirMgr* _cirMgr, const CirFileType& fileType, map<unsigned, string> id2Name) {
+void AbcMgr::travAllObj(const CirFileType& fileType, map<unsigned, string> id2Name) {
     Gia_Obj_t *pObj, *pObjRi, *pObjRo;  // the obj element of gia
     size_t i, iPi = 0, iPpi = 0, iPo = 0, iRi = 0, iRo = 0;
     map<int, int> PPI2RO;
@@ -108,15 +107,13 @@ void AbcMgr::travAllObj(CirMgr* _cirMgr, const CirFileType& fileType, map<unsign
         if (Gia_ObjIsPi(pGia, pObj)) {
             int gateId = Gia_ObjId(pGia, pObj);
             if (inputIsPi(gateId)) parseInput(iPi++, gateId);
-            else parseRo(iRo++, gateId);
-
+            else parseRo(iRo++, gateId, AIGER);
         } else if (Gia_ObjIsPo(pGia, pObj)) {
             int gateId    = Gia_ObjId(pGia, pObj);
             int in0Id     = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
             int inv       = Gia_ObjFaninC0(pObj);
             string poName = (id2Name.count(gateId)) ? id2Name[gateId] : to_string(gateId);
             parseOutput(iPo++, gateId, in0Id, inv, poName);
-
         } else if (Gia_ObjIsAnd(pObj)) {
             int gateId = Gia_ObjId(pGia, pObj);
             int in0Id  = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
@@ -126,15 +123,15 @@ void AbcMgr::travAllObj(CirMgr* _cirMgr, const CirFileType& fileType, map<unsign
             if (PPI2RO.count(in0Id)) in0Id = PPI2RO[in0Id];
             if (PPI2RO.count(in1Id)) in1Id = PPI2RO[in1Id];
             parseAig(gateId, in0Id, in0Inv, in1Id, in1Inv);
-
         } else if (Gia_ObjIsRo(pGia, pObj)) {
             int gateId = Gia_ObjId(pGia, pObj);
             if (fileType == VERILOG) {
                 PPI2RO[gateId] = 0;
-                if (iPpi < iRo) PPI2RO[gateId] = _cirMgr->_roList[iPpi]->getGid();
+                if (iPpi < iRo)
+                    PPI2RO[gateId] = parseRo(iPpi, 0, VERILOG);
                 iPpi++;
             } else if (fileType == AIGER) {
-                parseRo(iRo++, gateId);
+                parseRo(iRo++, gateId, AIGER);
             }
         } else if (Gia_ObjIsRi(pGia, pObj)) {
             int gateId = Gia_ObjId(pGia, pObj);
@@ -142,7 +139,7 @@ void AbcMgr::travAllObj(CirMgr* _cirMgr, const CirFileType& fileType, map<unsign
             int inv    = Gia_ObjFaninC0(pObj);
             parseRi(iRi++, gateId, in0Id, inv);
         } else if (Gia_ObjIsConst0(pObj)) {
-            _cirMgr->_totGateList[0] = CirMgr::_const0;
+            parseConst0();
         } else {
             cout << "not defined gate type" << endl;
             assert(true);
@@ -150,15 +147,18 @@ void AbcMgr::travAllObj(CirMgr* _cirMgr, const CirFileType& fileType, map<unsign
     }
 
     Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
-        if (i == _cirMgr->getNumLATCHs()) break;
+        if (i == cirMgr->getNumLATCHs()) break;
+        // if (i == iRo) break;
         int riGid = Gia_ObjId(pGia, pObjRi), roGid = 0;
         if (fileType == VERILOG) roGid = PPI2RO[Gia_ObjId(pGia, pObjRo)];
         else if (fileType == AIGER) roGid = Gia_ObjId(pGia, pObjRo);
         parseRiRo(riGid, roGid);
     }
+
+    parseConst1();
 }
 
-void AbcMgr::initCir(CirMgr* _cirMgr, const CirFileType& fileType) {
+void AbcMgr::initCir(const CirFileType& fileType) {
     // Create lists
     int piNum = 0, regNum = 0, poNum = 0, totNum = 0;
     if (fileType == VERILOG) {
