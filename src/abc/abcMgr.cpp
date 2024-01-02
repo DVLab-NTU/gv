@@ -6,11 +6,10 @@
 #include <iostream>
 #include <string>
 
+#include "abcExt.h"
 #include "base/abc/abc.h"
 #include "bdd/cudd/cudd.h"
 #include "cirGate.h"
-
-// #include "cirMgr.h"
 #include "cirMgr.h"
 #include "sat/cnf/cnf.h"
 #include "util.h"
@@ -32,6 +31,11 @@ void AbcMgr::init() {
 
 void AbcMgr::reset() {
     delete pAbc;
+}
+
+void AbcMgr::execCmd(char* cmd) {
+    // calling abc's command
+    Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), cmd);
 }
 
 static string gateName(const string& name, const int& bit) {
@@ -103,34 +107,26 @@ void AbcMgr::travAllObj(CirMgr* _cirMgr, const CirFileType& fileType, map<unsign
     Gia_ManForEachObj(pGia, pObj, i) {
         if (Gia_ObjIsPi(pGia, pObj)) {
             int gateId = Gia_ObjId(pGia, pObj);
-            if (gateId <= _cirMgr->_piList.size()) {
-                CirPiGate* gate               = new CirPiGate(Gia_ObjId(pGia, pObj), 0);
-                _cirMgr->_piList[iPi++]       = gate;
-                _cirMgr->_totGateList[gateId] = gate;
-            } else {
-                CirRoGate* gate               = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
-                _cirMgr->_roList[iRo++]       = gate;
-                _cirMgr->_totGateList[gateId] = gate;
-            }
+            if (inputIsPi(gateId)) parseInput(iPi++, gateId);
+            else parseRo(iRo++, gateId);
+
         } else if (Gia_ObjIsPo(pGia, pObj)) {
-            string poName   = "";
-            CirPoGate* gate = new CirPoGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-            poName          = (id2Name.count(gate->getGid())) ? id2Name[gate->getGid()] : to_string(Gia_ObjId(pGia, pObj));
-            char* n         = new char[poName.size() + 1];
-            strcpy(n, poName.c_str());
-            gate->setName(n);
-            gate->setIn0(_cirMgr->getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
-            _cirMgr->_poList[iPo++]                      = gate;
-            _cirMgr->_totGateList[Gia_ObjId(pGia, pObj)] = gate;
+            int gateId    = Gia_ObjId(pGia, pObj);
+            int in0Id     = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
+            int inv       = Gia_ObjFaninC0(pObj);
+            string poName = (id2Name.count(gateId)) ? id2Name[gateId] : to_string(gateId);
+            parseOutput(iPo++, gateId, in0Id, inv, poName);
+
         } else if (Gia_ObjIsAnd(pObj)) {
-            CirAigGate* gate = new CirAigGate(Gia_ObjId(pGia, pObj), 0);
-            int fanin0       = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
-            int fanin1       = Gia_ObjId(pGia, Gia_ObjFanin1(pObj));
-            if (PPI2RO.count(fanin0)) fanin0 = PPI2RO[fanin0];
-            if (PPI2RO.count(fanin1)) fanin1 = PPI2RO[fanin1];
-            gate->setIn0(_cirMgr->getGate(fanin0), Gia_ObjFaninC0(pObj));
-            gate->setIn1(_cirMgr->getGate(fanin1), Gia_ObjFaninC1(pObj));
-            _cirMgr->_totGateList[Gia_ObjId(pGia, pObj)] = gate;
+            int gateId = Gia_ObjId(pGia, pObj);
+            int in0Id  = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
+            int in1Id  = Gia_ObjId(pGia, Gia_ObjFanin1(pObj));
+            int in0Inv = Gia_ObjFaninC0(pObj);
+            int in1Inv = Gia_ObjFaninC1(pObj);
+            if (PPI2RO.count(in0Id)) in0Id = PPI2RO[in0Id];
+            if (PPI2RO.count(in1Id)) in1Id = PPI2RO[in1Id];
+            parseAig(gateId, in0Id, in0Inv, in1Id, in1Inv);
+
         } else if (Gia_ObjIsRo(pGia, pObj)) {
             int gateId = Gia_ObjId(pGia, pObj);
             if (fileType == VERILOG) {
@@ -138,21 +134,13 @@ void AbcMgr::travAllObj(CirMgr* _cirMgr, const CirFileType& fileType, map<unsign
                 if (iPpi < iRo) PPI2RO[gateId] = _cirMgr->_roList[iPpi]->getGid();
                 iPpi++;
             } else if (fileType == AIGER) {
-                CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
-
-                _cirMgr->_roList[iRo++]       = gate;
-                _cirMgr->_totGateList[gateId] = gate;
+                parseRo(iRo++, gateId);
             }
         } else if (Gia_ObjIsRi(pGia, pObj)) {
-            CirRiGate* gate = new CirRiGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-            string str      = to_string(Gia_ObjId(pGia, pObj));
-            str             = str + "_ns";
-            char* n         = new char[str.size() + 1];
-            strcpy(n, str.c_str());
-            gate->setName(n);
-            gate->setIn0(_cirMgr->getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
-            _cirMgr->_riList[iRi++]                      = gate;
-            _cirMgr->_totGateList[Gia_ObjId(pGia, pObj)] = gate;
+            int gateId = Gia_ObjId(pGia, pObj);
+            int in0Id  = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
+            int inv    = Gia_ObjFaninC0(pObj);
+            parseRi(iRi++, gateId, in0Id, inv);
         } else if (Gia_ObjIsConst0(pObj)) {
             _cirMgr->_totGateList[0] = CirMgr::_const0;
         } else {
@@ -166,16 +154,8 @@ void AbcMgr::travAllObj(CirMgr* _cirMgr, const CirFileType& fileType, map<unsign
         int riGid = Gia_ObjId(pGia, pObjRi), roGid = 0;
         if (fileType == VERILOG) roGid = PPI2RO[Gia_ObjId(pGia, pObjRo)];
         else if (fileType == AIGER) roGid = Gia_ObjId(pGia, pObjRo);
-        CirGate* riGate   = _cirMgr->getGate(riGid);
-        CirRoGate* roGate = static_cast<CirRoGate*>(_cirMgr->getGate(roGid));
-        roGate->setIn0(riGate, false);
+        parseRiRo(riGid, roGid);
     }
-
-    // CONST1 Gate
-    _cirMgr->_const1 = new CirAigGate(_cirMgr->getNumTots(), 0);
-    _cirMgr->addTotGate(_cirMgr->_const1);
-    _cirMgr->_const1->setIn0(_cirMgr->_const0, true);
-    _cirMgr->_const1->setIn1(_cirMgr->_const0, true);
 }
 
 void AbcMgr::initCir(CirMgr* _cirMgr, const CirFileType& fileType) {
@@ -191,14 +171,5 @@ void AbcMgr::initCir(CirMgr* _cirMgr, const CirFileType& fileType) {
     poNum  = Gia_ManPoNum(pGia);
     totNum = Gia_ManObjNum(pGia);
 
-    _cirMgr->_piList.resize(piNum);
-    _cirMgr->_riList.resize(regNum);
-    _cirMgr->_roList.resize(regNum);
-    _cirMgr->_poList.resize(poNum);
-    _cirMgr->_totGateList.resize(totNum);
-}
-
-void AbcMgr::execCmd(char* cmd) {
-    // calling abc's command
-    Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), cmd);
+    initCirMgr(piNum, poNum, regNum, totNum);
 }

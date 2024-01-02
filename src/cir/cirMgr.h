@@ -75,7 +75,7 @@ public:
     string getFileName() const { return fileName; }
 
     // Member functions about circuit construction
-    bool readCircuit(const string&);
+    // bool readCircuit(const string&);
     void deleteCircuit();
     void genConnections();
     void genDfsList();
@@ -99,7 +99,7 @@ public:
     bool createMiter(CirMgr*, CirMgr*);
     static CirGate* _const0;
     // MODIFICATION FOR SOCV HOMEWORK
-    void initCir(Gia_Man_t* pGia, const CirFileType& type);
+    void initCir(const int& piNum, const int& poNum, const int& regNum, const int& totNum);
     void buildBdd(CirGate* gate);
     void buildNtkBdd();
     void addTotGate(CirGate* gate) { _totGateList.push_back(gate); };
@@ -111,6 +111,14 @@ public:
     CirGate* createOrGate(CirGate* in0, CirGate* in1);
     CirGate* createXorGate(CirGate* in0, CirGate* in1);
     CirGate* _const1;
+
+    // Member functions for creating gate from the Gia object
+    void createInput(const int& idx, const int& gateId);
+    void createOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, string poName);
+    void createRi(const int& idx, const int& gateId, const int& in0Id, const int& inv);
+    void createRo(const int& idx, const int& gateId);
+    void createRiRo(const int& riGid, const int& roGid);
+    void createAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv);
 
 private:
     unsigned _numDecl[TOT_PARSE_PORTS];
@@ -134,7 +142,7 @@ private:
 
     // private member functions for circuit parsing
     bool parseHeader(ifstream&);
-    bool parseInput(ifstream&);
+    // bool parseInput(ifstream&);
     bool parseLatch(ifstream&);
     bool parseOutput(ifstream&);
     bool parseAig(ifstream&);

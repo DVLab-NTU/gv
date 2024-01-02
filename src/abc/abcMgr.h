@@ -10,6 +10,8 @@
 #include "base/main/mainInt.h"
 #include "cirGate.h"
 #include "cirMgr.h"
+#include "abcExt.h"
+
 
 using namespace std;
 
