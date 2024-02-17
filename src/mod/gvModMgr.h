@@ -38,7 +38,7 @@ public:
     int getSafe() { return _property; }
 
     // set functions
-    void setAigFileName(string aigFileName);
+    void setAigFileName(const string& aigFileName) { _aig_name = aigFileName; };
     void setTopModuleName(string topModuleName);
     void setGVMode(GVModType mode);
     void setGVEngine(GVModEngine engine);
