@@ -23,6 +23,7 @@ class CirPiGate;
 class CirPoGate;
 class CirRiGate;
 class CirRoGate;
+class CirAigGate;
 class CirMgr;
 class SatSolver;
 
@@ -39,6 +40,7 @@ typedef vector<CirRiGate*> RiArray;
 typedef vector<CirRoGate*> RoArray;
 typedef vector<CirPiGate*> PiArray;
 typedef vector<CirPoGate*> PoArray;
+typedef vector<CirAigGate*> AigArray;
 // typedef HashMap<CirPValue, IdList*>   FECHash;
 typedef size_t* SimPattern;
 typedef vector<SimPattern> SimVector;

@@ -30,6 +30,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
     cout << "I am GVFormalVerifyCmd " << endl;
 
     // FIXME: how to determine the file exists
+    gvModMgr->setAigFileName("./b.aig");
     if (gvModMgr->getAigFileName() == "") {
         cout << "[ERROR]: Please use command \"READ DESIGN\" or \"VErilog2 Aig\" to read/make the aig file first !!\n";
         return GV_CMD_EXEC_NOP;

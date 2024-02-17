@@ -27,7 +27,8 @@ extern int effLimit;
 bool initCirCmd() {
     return (gvCmdMgr->regCmd("CIRRead", 4, new CirReadCmd) &&
             gvCmdMgr->regCmd("CIRPrint", 4, new CirPrintCmd) &&
-            gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd));
+            gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd)) &&
+           gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd);
 }
 
 enum CirCmdState {
@@ -216,4 +217,74 @@ void CirGateCmd::usage(const bool& verbose) const {
 void CirGateCmd::help() const {
     cout << setw(20) << left << "CIRGate:"
          << "Report a gate" << endl;
+}
+
+//----------------------------------------------------------------------
+//    CIRWrite [(int gateId)][-Output (string aagFile)]
+//----------------------------------------------------------------------
+GVCmdExecStatus
+CirWriteCmd::exec(const string& option) {
+    if (!cirMgr) {
+        cerr << "Error: circuit is not yet constructed!!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+
+    if (options.empty()) {
+        cirMgr->writeAag(cout);
+        return GV_CMD_EXEC_DONE;
+    }
+    bool binFormat = false;
+    bool hasFile   = false;
+    int gateId;
+    CirGate* thisGate = NULL;
+    string outFileName;
+    ofstream outfile;
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        if (myStrNCmp("-Output", options[i], 2) == 0) {
+            if (hasFile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            string outFileName = options[i].c_str();
+            outfile.open(options[i].c_str(), ios::out);
+            binFormat = (outFileName.substr(outFileName.size() - 3) == "aig") ? true : false;
+            if (!outfile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[1]);
+            hasFile = true;
+            cirMgr->setFileName(outFileName);
+        } else if (myStr2Int(options[i], gateId) && gateId >= 0) {
+            if (thisGate != NULL)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            thisGate = cirMgr->getGate(gateId);
+            if (!thisGate) {
+                cerr << "Error: Gate(" << gateId << ") not found!!" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            }
+            if (!thisGate->isAig()) {
+                cerr << "Error: Gate(" << gateId << ") is NOT an AIG!!" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            }
+        } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+    }
+
+    if (!thisGate) {
+        assert(hasFile);
+        if (binFormat) cirMgr->writeAig(outfile, outFileName);
+        else cirMgr->writeAag(outfile);
+    } else if (hasFile) cirMgr->writeGate(outfile, thisGate);
+    else cirMgr->writeGate(cout, thisGate);
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void CirWriteCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: CIRWrite [(int gateId)][-Output (string aagFile)]" << endl;
+}
+
+void CirWriteCmd::help() const {
+    cout << setw(15) << left << "CIRWrite: "
+         << "write the netlist to an ASCII AIG file (.aag)\n";
 }

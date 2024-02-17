@@ -56,16 +56,19 @@ public:
     void setFlag(CirMgrFlag f) const { _flag |= f; }
     void unsetFlag(CirMgrFlag f) const { _flag &= ~f; }
     void resetFlag() const { _flag = 0; }
+    void setFileName(const string& f) { fileName = f; }
 
     unsigned getNumPIs() const { return _piList.size(); }
     unsigned getNumPOs() const { return _poList.size(); }
     unsigned getNumLATCHs() const { return _riList.size(); }
+    unsigned getNumAIGs() const { return _aigList.size(); }
     unsigned getNumTots() const { return _totGateList.size(); }
 
     CirPiGate* getPi(unsigned i) const { return _piList[i]; }
     CirPoGate* getPo(unsigned i) const { return _poList[i]; }
     CirRiGate* getRi(unsigned i) const { return _riList[i]; }
     CirRoGate* getRo(unsigned i) const { return _roList[i]; }
+    CirAigGate* getAig(unsigned i) const { return _aigList[i]; }
     GateList& getFanouts(unsigned i) const { return _fanoutInfo[i]; }
 
     string getFileName() const { return fileName; }
@@ -88,6 +91,7 @@ public:
     void printFloatGates() const;
     void printFECPairs() const;
     void writeAag(ostream&) const;
+    void writeAig(ostream& outfile, const string& fileName) const;
     void writeGate(ostream&, CirGate*) const;
 
     // Member functions about flags
@@ -119,12 +123,14 @@ public:
     void createConst1();
 
 private:
-    unsigned _numDecl[TOT_PARSE_PORTS];
+    // unsigned _numDecl[TOT_PARSE_PORTS];
+    unsigned _numDecl[TOT_GATE];
     mutable unsigned _flag;
     PiArray _piList;
     PoArray _poList;
     RiArray _riList;
     RoArray _roList;
+    AigArray _aigList;
     // IDs in _undefList are NOT sorted!!
     IdList _undefList;
     // Make sure the IDs of the following lists are sorted!!
