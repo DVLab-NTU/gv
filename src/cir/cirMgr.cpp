@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -972,11 +973,16 @@ void CirMgr::writeAag(ostream& outfile) const {
     size_t nAig = 0;
     for (size_t i = 0, n = _dfsList.size(); i < n; ++i)
         if (_dfsList[i]->isAig()) ++nAig;
-    outfile << "aag " << _numDecl[VARS] << " " << _numDecl[PI] << " "
+    outfile << "aag " << _numDecl[VARS] + nAig << " " << _numDecl[PI] << " "
             << _numDecl[LATCH] << " " << _numDecl[PO] << " "
             << nAig << endl;
     for (size_t i = 0, n = _numDecl[PI]; i < n; ++i)
         outfile << (getPi(i)->getGid() * 2) << endl;
+
+    // Update Latch for sequential circuit.
+    for (size_t i = 0, n = _numDecl[LATCH]; i < n; ++i)
+        outfile << getRo(i)->getGid() * 2 << " " << getRi(i)->getIn0().litId() << endl;
+
     for (size_t i = 0, n = _numDecl[PO]; i < n; ++i)
         outfile << getPo(i)->getIn0().litId() << endl;
     for (size_t i = 0, n = _dfsList.size(); i < n; ++i) {
@@ -993,6 +999,13 @@ void CirMgr::writeAag(ostream& outfile) const {
             outfile << "o" << i << " " << getPo(i)->getName() << endl;
     outfile << "c" << endl;
     outfile << "AAG output by Chung-Yang (Ric) Huang" << endl;
+}
+
+void CirMgr::writeAig(ostream& outfile, const string& fileName) const {
+    ofstream outFileAag(".tmp.aag", ios::out);
+    writeAag(outFileAag);
+    string command = "./aigtoaig .tmp.aag " + fileName;
+    system(command.c_str());
 }
 
 void CirMgr::writeGate(ostream& outfile, CirGate* g) const {
