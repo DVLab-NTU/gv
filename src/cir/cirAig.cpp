@@ -15,63 +15,9 @@
 
 #include "abcMgr.h"
 #include "cirDef.h"
+#include "cirGate.h"
 #include "cirMgr.h"
 #include "yosysMgr.h"
-
-static inline void reorderGateId(map<unsigned, unsigned>& aigIdDict) {
-    unsigned nxtId = 1;
-    for (int i = 0, n = cirMgr->getNumPIs(); i < n; ++i) {
-        CirGate* gate   = cirMgr->getPi(i);
-        unsigned gateId = gate->getGid();
-        if (!gate->isGlobalRef()) {
-            cout << "Redundant PI Gate Id: " << gateId << "\n";
-            continue;
-        }
-        assert(nxtId == gate->getGid());
-        ++nxtId;
-        cout << "PI id: " << cirMgr->getPi(i)->getGid() << "\n";
-    }
-    cout << " ===== \n";
-    for (int i = 0, n = cirMgr->getNumLATCHs(); i < n; ++i) {
-        CirGate* gate   = cirMgr->getRo(i);
-        unsigned gateId = gate->getGid();
-        if (!gate->isGlobalRef()) {
-            cout << "Redundant RO Gate Id: " << gateId << "\n";
-            continue;
-        }
-        if (nxtId != gate->getGid()) {
-            aigIdDict[gateId] = nxtId++;
-            cout << "RO old id: " << gateId << " new id: " << aigIdDict[gateId] << "\n";
-        }
-        // cout << "RO id: " << cirMgr->getRo(i)->getGid() << "\n";
-    }
-    cout << " ===== \n";
-    for (int i = 0, n = cirMgr->getNumAIGs(); i < n; ++i) {
-        CirGate* gate   = cirMgr->getAig(i);
-        unsigned gateId = gate->getGid();
-        if (!gate->isGlobalRef()) {
-            cout << "Redundant AIG Gate Id: " << gateId << "\n";
-            continue;
-        }
-        if (nxtId != gate->getGid()) {
-            aigIdDict[gateId] = nxtId++;
-            cout << "AIG old id: " << gateId << " new id: " << aigIdDict[gateId] << "\n";
-        }
-    }
-    cout << " ===== \n";
-    for (int i = 0, n = cirMgr->getNumPOs(); i < n; ++i) {
-        CirGate* gate   = cirMgr->getPo(i);
-        unsigned gateId = gate->getGid();
-        if (!gate->isGlobalRef()) {
-            cout << "Redundant PO Gate Id: " << gateId << "\n";
-            continue;
-        }
-        if (nxtId != gate->getGid()) {
-            aigIdDict[gateId] = nxtId++;
-            cout << "PO old id: " << gateId << " new id: " << aigIdDict[gateId] << "\n";
-        }
-    }
-}
 
 /**
  * @brief Reads a circuit from the ABC Gia.
@@ -111,27 +57,70 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     genDfsList();
 
     // TEST
-    _numDecl[RO_GATE]  = 0;
-    _numDecl[PI_GATE]  = 0;
-    _numDecl[PO_GATE]  = 0;
+    _numDecl[RO_GATE]  = _riList.size();
+    _numDecl[PI_GATE]  = _piList.size();
+    _numDecl[PO_GATE]  = _poList.size();
     _numDecl[AIG_GATE] = 0;
     for (int i = 0; i < _dfsList.size(); ++i) {
         if (_dfsList[i]->getType() == AIG_GATE) {
             CirAigGate* aigGate = static_cast<CirAigGate*>(_dfsList[i]);
             _aigList.push_back(aigGate);
             _numDecl[AIG_GATE]++;
-        } else if (_dfsList[i]->getType() == PI_GATE) _numDecl[PI_GATE]++;
-        else if (_dfsList[i]->getType() == PO_GATE) _numDecl[PO_GATE]++;
-        else if (_dfsList[i]->getType() == RO_GATE) _numDecl[RO_GATE]++;
+        }
+        // else if (_dfsList[i]->getType() == PI_GATE) _numDecl[PI_GATE]++;
+        // else if (_dfsList[i]->getType() == PO_GATE)
+        // _numDecl[PO_GATE]++;
+        // else if (_dfsList[i]->getType() == RO_GATE)
+        //     _numDecl[RO_GATE]++;
     }
     // reorder id
-    map<unsigned, unsigned> aigIdDict;
+    IDMap aigIdDict;
     reorderGateId(aigIdDict);
-
     abcMgr->cirToAig(aigIdDict);
     // TEST END
 
     return true;
+}
+
+/**
+ * @brief Reorder all the gates id for AIG.
+ *
+ * @param aigIdDict The mapping bewtween the old id and new id.
+ */
+void CirMgr::reorderGateId(IDMap& aigIdDict) {
+    unsigned nxtId = 1;
+    for (int i = 0, n = cirMgr->getNumPIs(); i < n; ++i) {
+        CirGate* gate   = cirMgr->getPi(i);
+        unsigned gateId = gate->getGid();
+        if (nxtId != gate->getGid()) {
+            aigIdDict[gateId] = nxtId;
+        }
+        nxtId++;
+    }
+    for (int i = 0, n = cirMgr->getNumLATCHs(); i < n; ++i) {
+        CirGate* gate   = cirMgr->getRo(i);
+        unsigned gateId = gate->getGid();
+        if (nxtId != gate->getGid()) {
+            aigIdDict[gateId] = nxtId;
+        }
+        nxtId++;
+    }
+    for (int i = 0, n = cirMgr->getNumAIGs(); i < n; ++i) {
+        CirGate* gate   = cirMgr->getAig(i);
+        unsigned gateId = gate->getGid();
+        if (nxtId != gate->getGid()) {
+            aigIdDict[gateId] = nxtId;
+        }
+        nxtId++;
+    }
+    for (int i = 0, n = cirMgr->getNumPOs(); i < n; ++i) {
+        CirGate* gate   = cirMgr->getPo(i);
+        unsigned gateId = gate->getGid();
+        if (nxtId != gate->getGid()) {
+            aigIdDict[gateId] = nxtId;
+        }
+        nxtId++;
+    }
 }
 
 /**

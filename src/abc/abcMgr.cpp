@@ -360,7 +360,7 @@ void AbcMgr::cirToGia() {
     // return pNew;
 }
 
-void AbcMgr::cirToAig(map<unsigned, unsigned> &aigIdDict) {
+void AbcMgr::cirToAig(IDMap &aigIdDict) {
     // ProgressBar *pProgress;
     FILE *pFile;
     Vec_Ptr_t *vNodes, *vTerms;
@@ -407,15 +407,15 @@ void AbcMgr::cirToAig(map<unsigned, unsigned> &aigIdDict) {
     for (i = 0; i < nInputs; i++) {
         pObj = Abc_NtkCreatePi(pNtkNew);
         Vec_PtrPush(vNodes, pObj);
-        printf("Creating PI: %d \n", pObj->Id);
+        // printf("Creating PI: %d \n", pObj->Id);
     }
-    printf(" ----- \n");
+    // printf(" ----- \n");
     // create the POs
     for (i = 0; i < nOutputs; i++) {
         pObj = Abc_NtkCreatePo(pNtkNew);
-        printf("Creating PO: %d \n", pObj->Id);
+        // printf("Creating PO: %d \n", pObj->Id);
     }
-    printf(" ----- \n");
+    // printf(" ----- \n");
     // create the latches
     nDigits = Abc_Base10Log(nLatches);
     for (i = 0; i < nLatches; i++) {
@@ -427,10 +427,10 @@ void AbcMgr::cirToAig(map<unsigned, unsigned> &aigIdDict) {
         Abc_ObjAddFanin(pNode1, pObj);
         Vec_PtrPush(vNodes, pNode1);
 
-        printf("Creating Latch pObj: %d \n", pObj->Id);
-        printf("Creating Latch pNode0: %d \n", pNode0->Id);
-        printf("Creating Latch pNode1: %d \n", pNode1->Id);
-        printf("\n");
+        // printf("Creating Latch pObj: %d \n", pObj->Id);
+        // printf("Creating Latch pNode0: %d \n", pNode0->Id);
+        // printf("Creating Latch pNode1: %d \n", pNode1->Id);
+        // printf("\n");
         // assign names to latch and its input
         //        Abc_ObjAssignName( pObj, Abc_ObjNameDummy("_L", i, nDigits), NULL );
         //        printf( "Creating latch %s with input %d and output %d.\n", Abc_ObjName(pObj), pNode0->Id, pNode1->Id );
@@ -466,32 +466,30 @@ void AbcMgr::cirToAig(map<unsigned, unsigned> &aigIdDict) {
         assert(Vec_PtrSize(vNodes) == i + 1 + nInputs + nLatches);
         Vec_PtrPush(vNodes, Abc_AigAnd((Abc_Aig_t *)pNtkNew->pManFunc, pNode0, pNode1));
 
-        printf("Creating Aig uLit0: %d \n", uLit0);
-        printf("Creating Aig uLit1: %d \n", uLit1);
-        printf("Creating Aig pNode0: %d \n", pNode0->Id);
-        printf("Creating Aig pNode1: %d \n", pNode1->Id);
-        printf("\n");
+        // printf("Creating Aig uLit0: %d \n", uLit0);
+        // printf("Creating Aig uLit1: %d \n", uLit1);
+        // printf("Creating Aig pNode0: %d \n", pNode0->Id);
+        // printf("Creating Aig pNode1: %d \n", pNode1->Id);
+        // printf("\n");
     }
-    // Extra_ProgressBarStop(pProgress);
 
-    // remember the place where symbols begin
-    pSymbols = pCur;
-
-    // read the latch driver literals
-    pCur = pDrivers;
-    // if (pContents[3] == ' ')  // standard AIGER
+    int offset = 0;
     if (true)  // standard AIGER
     {
         Abc_NtkForEachLatchInput(pNtkNew, pObj, i) {
             // uLit0 = atoi(pCur);
-            uLit0 = cirMgr->getRi(i)->getIn0Gate()->getGid();
+            // if (i + offset == 45 || i + offset == 85)
+            //     offset++;
+            uLit0 = cirMgr->getRi(i + offset)->getIn0Gate()->getGid();
             if (aigIdDict.count(uLit0))
                 uLit0 = aigIdDict[uLit0];
             // while (*pCur != ' ' && *pCur != '\n') pCur++;
             // if (*pCur == ' ')  // read initial value
             if (true)  // read initial value
+            // if (false)  // read initial value
             {
                 int Init = -1;
+                // int Init = 0;
                 // pCur++;
                 // Init = atoi(pCur);
                 if (Init == 0)
@@ -505,7 +503,7 @@ void AbcMgr::cirToAig(map<unsigned, unsigned> &aigIdDict) {
                 }
             }
             // pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0 >> 1), (uLit0 & 1));  //^ (uLit0 < 2) );
-            int c0 = cirMgr->getRi(i)->getIn0().isInv();
+            int c0 = cirMgr->getRi(i + offset)->getIn0().isInv();
             pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0), (c0));
             Abc_ObjAddFanin(pObj, pNode0);
         }
@@ -522,20 +520,6 @@ void AbcMgr::cirToAig(map<unsigned, unsigned> &aigIdDict) {
             pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0), c0);  //^ (uLit0 < 2) );
             Abc_ObjAddFanin(pObj, pNode0);
         }
-    } else {
-        // read the latch driver literals
-        Abc_NtkForEachLatchInput(pNtkNew, pObj, i) {
-            uLit0  = Vec_IntEntry(vLits, i);
-            pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0 >> 1), (uLit0 & 1));
-            Abc_ObjAddFanin(pObj, pNode0);
-        }
-        // read the PO driver literals
-        Abc_NtkForEachPo(pNtkNew, pObj, i) {
-            uLit0  = Vec_IntEntry(vLits, i + Abc_NtkLatchNum(pNtkNew));
-            pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0 >> 1), (uLit0 & 1));
-            Abc_ObjAddFanin(pObj, pNode0);
-        }
-        Vec_IntFree(vLits);
     }
 
     // read the names if present

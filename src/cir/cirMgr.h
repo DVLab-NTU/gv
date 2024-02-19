@@ -122,6 +122,9 @@ public:
     void createConst0();
     void createConst1();
 
+    // Reorder the gate id
+    void reorderGateId(IDMap& aigIdDict);
+
 private:
     // unsigned _numDecl[TOT_PARSE_PORTS];
     unsigned _numDecl[TOT_GATE];

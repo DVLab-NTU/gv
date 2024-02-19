@@ -9,6 +9,7 @@
 #ifndef CIR_DEF_H
 #define CIR_DEF_H
 
+#include <unordered_map>
 #include <vector>
 // #include "myHash.h"
 
@@ -42,6 +43,7 @@ typedef vector<CirPiGate*> PiArray;
 typedef vector<CirPoGate*> PoArray;
 typedef vector<CirAigGate*> AigArray;
 // typedef HashMap<CirPValue, IdList*>   FECHash;
+typedef unordered_map<unsigned, unsigned> IDMap;
 typedef size_t* SimPattern;
 typedef vector<SimPattern> SimVector;
 

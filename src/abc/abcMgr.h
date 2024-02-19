@@ -9,6 +9,7 @@
 #include "base/abc/abc.h"
 #include "base/main/main.h"
 #include "base/main/mainInt.h"
+#include "cirDef.h"
 #include "util.h"
 
 using namespace std;
@@ -61,7 +62,7 @@ public:
     void travAllObj(const CirFileType&, map<unsigned, string>);
     void initCir(const CirFileType&);
     void cirToGia();
-    void cirToAig(map<unsigned, unsigned>& aigIdDict);
+    void cirToAig(IDMap& aigIdDict);
     void execCmd(char*);
 
     Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }

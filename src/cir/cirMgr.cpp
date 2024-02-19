@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <iostream>
 
+#include "cirDef.h"
 #include "cirGate.h"
 #include "fileType.h"
 #include "util.h"
@@ -912,6 +913,9 @@ void CirMgr::printSummary() const {
 void CirMgr::printNetlist() const {
     cout << endl;
     for (unsigned i = 0, n = _dfsList.size(); i < n; ++i) {
+        // GateType type = _dfsList[i]->getType();
+        // if (!(type == RO_GATE) && !(type == RI_GATE))
+        //     continue;
         cout << "[" << i << "] ";
         _dfsList[i]->printGate();
     }
