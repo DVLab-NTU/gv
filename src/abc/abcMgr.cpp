@@ -146,7 +146,6 @@ void AbcMgr::travAllObj(const CirFileType &fileType, map<unsigned, string> id2Na
     }
 
     Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
-        // if (i == cirMgr->getNumLATCHs()) break;
         if (i == iRo) break;
         int riGid = Gia_ObjId(pGia, pObjRi), roGid = 0;
         if (fileType == VERILOG) roGid = PPI2RO[Gia_ObjId(pGia, pObjRo)];
@@ -197,7 +196,6 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
     // allocate the empty AIG
     pNtkNew           = Abc_NtkAlloc(ABC_NTK_STRASH, ABC_FUNC_AIG, 1);
     pNtkNew->nConstrs = nConstr;
-
     // prepare the array of nodes
     vNodes          = Vec_PtrAlloc(1 + nInputs + nLatches + nAnds);
     Abc_Obj_t *zero = Abc_ObjNot(Abc_AigConst1(pNtkNew));
@@ -208,7 +206,6 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
         pObj = Abc_NtkCreatePi(pNtkNew);
         Vec_PtrPush(vNodes, pObj);
     }
-
     // create the POs
     for (i = 0; i < nOutputs; i++) {
         pObj = Abc_NtkCreatePo(pNtkNew);
@@ -228,11 +225,8 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
 
     // create the AND gates
     for (i = 0; i < nAnds; i++) {
-        uLit = cirMgr->getAig(i)->getGid() << 1;
-        // uLit0 = cirMgr->getAig(i)->getIn0Gate()->getGid();
-        // uLit1 = cirMgr->getAig(i)->getIn1Gate()->getGid();
-        uLit0 = getAigIn0Id(i);
-        uLit1 = getAigIn1Id(i);
+        uLit0 = getAigIn0Gid(i);
+        uLit1 = getAigIn1Gid(i);
         c0    = getAigIn0Cp(i);
         c1    = getAigIn1Cp(i);
 
@@ -246,17 +240,16 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
 
     // create the LATCH inputs
     Abc_NtkForEachLatchInput(pNtkNew, pObj, i) {
-        uLit0 = cirMgr->getRi(i)->getIn0Gate()->getGid();
-        c0    = cirMgr->getRi(i)->getIn0().isInv();
+        uLit0 = getRiIn0Gid(i);
+        c0    = getRiIn0Cp(i);
         if (aigIdMap.count(uLit0)) uLit0 = aigIdMap[uLit0];
         pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0), (c0));
         Abc_ObjAddFanin(pObj, pNode0);
     }
-
     // read the PO driver literals
     Abc_NtkForEachPo(pNtkNew, pObj, i) {
-        uLit0  = cirMgr->getPo(i)->getIn0Gate()->getGid();
-        int c0 = cirMgr->getPo(i)->getIn0().isInv();
+        uLit0 = getPoIn0Gid(i);
+        c0    = getPoIn0Cp(i);
         if (aigIdMap.count(uLit0)) uLit0 = aigIdMap[uLit0];
         pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0), c0);  //^ (uLit0 < 2) );
         Abc_ObjAddFanin(pObj, pNode0);
@@ -264,14 +257,11 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
 
     // read the names if present
     Abc_NtkShortNames(pNtkNew);
-
     // skipping the comments
     // ABC_FREE(pContents);
     Vec_PtrFree(vNodes);
-
     // remove the extra nodes
     Abc_AigCleanup((Abc_Aig_t *)pNtkNew->pManFunc);
-
     // check the result
     int fCheck = 1;
     if (fCheck && !Abc_NtkCheckRead(pNtkNew)) {

@@ -23,9 +23,13 @@ extern unsigned getNumPIs();
 extern unsigned getNumPOs();
 extern unsigned getNumLATCHs();
 extern unsigned getNumAIGs();
-extern unsigned getAigIn0Id(const unsigned& idx);
-extern unsigned getAigIn1Id(const unsigned& idx);
+extern unsigned getAigIn0Gid(const unsigned& idx);
+extern unsigned getAigIn1Gid(const unsigned& idx);
+extern unsigned getPoIn0Gid(const unsigned& idx);
+extern unsigned getRiIn0Gid(const unsigned& idx);
 extern int getAigIn0Cp(const unsigned& idx);
 extern int getAigIn1Cp(const unsigned& idx);
+extern int getPoIn0Cp(const unsigned& idx);
+extern int getRiIn0Cp(const unsigned& idx);
 
 #endif
