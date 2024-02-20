@@ -269,6 +269,19 @@ void initCirMgr(const int& piNum, const int& poNum, const int& regNum, const int
     cirMgr->initCir(piNum, poNum, regNum, totNum);
 }
 
+unsigned getNumPIs() { return cirMgr->getNumPIs(); }
+unsigned getNumPOs() { return cirMgr->getNumPOs(); }
+unsigned getNumLATCHs() { return cirMgr->getNumLATCHs(); }
+unsigned getNumAIGs() { return cirMgr->getNumAIGs(); }
+unsigned getAigIn0Gid(const unsigned& idx) { return cirMgr->getAig(idx)->getIn0Gate()->getGid(); }
+unsigned getAigIn1Gid(const unsigned& idx) { return cirMgr->getAig(idx)->getIn1Gate()->getGid(); }
+unsigned getPoIn0Gid(const unsigned& idx) { return cirMgr->getPo(idx)->getIn0Gate()->getGid(); }
+unsigned getRiIn0Gid(const unsigned& idx) { return cirMgr->getRi(idx)->getIn0Gate()->getGid(); }
+int getAigIn0Cp(const unsigned& idx) { return cirMgr->getAig(idx)->getIn0().isInv(); }
+int getAigIn1Cp(const unsigned& idx) { return cirMgr->getAig(idx)->getIn1().isInv(); }
+int getPoIn0Cp(const unsigned& idx) { return cirMgr->getPo(idx)->getIn0().isInv(); }
+int getRiIn0Cp(const unsigned& idx) { return cirMgr->getRi(idx)->getIn0().isInv(); }
+
 // ____________
 
 void CirMgr::createInput(const int& idx, const int& gateId) {
@@ -314,6 +327,7 @@ void CirMgr::createAig(const int& gateId, const int& in0Id, const int& in0Inv, c
     gate->setIn0(getGate(in0Id), in0Inv);
     gate->setIn1(getGate(in1Id), in1Inv);
     _totGateList[gateId] = gate;
+    _aigList.push_back(gate);
 }
 
 void CirMgr::createRiRo(const int& riGid, const int& roGid) {

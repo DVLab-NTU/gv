@@ -123,7 +123,7 @@ public:
     void createConst1();
 
     // Reorder the gate id
-    void reorderGateId(IDMap& aigIdDict);
+    void reorderGateId(IDMap& aigIdMap);
 
 private:
     // unsigned _numDecl[TOT_PARSE_PORTS];

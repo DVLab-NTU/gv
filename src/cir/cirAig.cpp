@@ -56,28 +56,13 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
 
     genDfsList();
 
-    // TEST
-    _numDecl[RO_GATE]  = _riList.size();
-    _numDecl[PI_GATE]  = _piList.size();
-    _numDecl[PO_GATE]  = _poList.size();
-    _numDecl[AIG_GATE] = 0;
-    for (int i = 0; i < _dfsList.size(); ++i) {
-        if (_dfsList[i]->getType() == AIG_GATE) {
-            CirAigGate* aigGate = static_cast<CirAigGate*>(_dfsList[i]);
-            _aigList.push_back(aigGate);
-            _numDecl[AIG_GATE]++;
-        }
-        // else if (_dfsList[i]->getType() == PI_GATE) _numDecl[PI_GATE]++;
-        // else if (_dfsList[i]->getType() == PO_GATE)
-        // _numDecl[PO_GATE]++;
-        // else if (_dfsList[i]->getType() == RO_GATE)
-        //     _numDecl[RO_GATE]++;
-    }
-    // reorder id
-    IDMap aigIdDict;
-    reorderGateId(aigIdDict);
-    abcMgr->cirToAig(aigIdDict);
-    // TEST END
+    // DEBUG
+    IDMap aigIdMap;
+    reorderGateId(aigIdMap);
+    bool v = false;
+    abcMgr->cirToAig(aigIdMap);
+    abcMgr->runPDR(v);
+    // END
 
     return true;
 }
@@ -85,15 +70,15 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
 /**
  * @brief Reorder all the gates id for AIG.
  *
- * @param aigIdDict The mapping bewtween the old id and new id.
+ * @param aigIdMap The mapping bewtween the old id and the new id.
  */
-void CirMgr::reorderGateId(IDMap& aigIdDict) {
+void CirMgr::reorderGateId(IDMap& aigIdMap) {
     unsigned nxtId = 1;
     for (int i = 0, n = cirMgr->getNumPIs(); i < n; ++i) {
         CirGate* gate   = cirMgr->getPi(i);
         unsigned gateId = gate->getGid();
         if (nxtId != gate->getGid()) {
-            aigIdDict[gateId] = nxtId;
+            aigIdMap[gateId] = nxtId;
         }
         nxtId++;
     }
@@ -101,15 +86,18 @@ void CirMgr::reorderGateId(IDMap& aigIdDict) {
         CirGate* gate   = cirMgr->getRo(i);
         unsigned gateId = gate->getGid();
         if (nxtId != gate->getGid()) {
-            aigIdDict[gateId] = nxtId;
+            aigIdMap[gateId] = nxtId;
         }
         nxtId++;
     }
     for (int i = 0, n = cirMgr->getNumAIGs(); i < n; ++i) {
         CirGate* gate   = cirMgr->getAig(i);
         unsigned gateId = gate->getGid();
+        if (!gate->isGlobalRef()) {
+            cout << "Redundant AIG Node !!\n";
+        }
         if (nxtId != gate->getGid()) {
-            aigIdDict[gateId] = nxtId;
+            aigIdMap[gateId] = nxtId;
         }
         nxtId++;
     }
@@ -117,7 +105,7 @@ void CirMgr::reorderGateId(IDMap& aigIdDict) {
         CirGate* gate   = cirMgr->getPo(i);
         unsigned gateId = gate->getGid();
         if (nxtId != gate->getGid()) {
-            aigIdDict[gateId] = nxtId;
+            aigIdMap[gateId] = nxtId;
         }
         nxtId++;
     }
