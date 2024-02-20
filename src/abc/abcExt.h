@@ -19,5 +19,13 @@ extern void parseRiRo(const int& riGid, const int& roGid);
 extern int parseRo(const int& idx, const int& gateId, const CirFileType& fileType);
 extern void parseConst0();
 extern void parseConst1();
+extern unsigned getNumPIs();
+extern unsigned getNumPOs();
+extern unsigned getNumLATCHs();
+extern unsigned getNumAIGs();
+extern unsigned getAigIn0Id(const unsigned& idx);
+extern unsigned getAigIn1Id(const unsigned& idx);
+extern int getAigIn0Cp(const unsigned& idx);
+extern int getAigIn1Cp(const unsigned& idx);
 
 #endif

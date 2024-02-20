@@ -62,8 +62,11 @@ public:
     void travAllObj(const CirFileType&, map<unsigned, string>);
     void initCir(const CirFileType&);
     void cirToGia();
-    void cirToAig(IDMap& aigIdDict);
+    void cirToAig(IDMap& aigIdMap);
     void execCmd(char*);
+
+    // Verification command
+    void runPDR(const bool& verbose);
 
     Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }
     Gia_Man_t* pGia;
