@@ -10,7 +10,7 @@
 #define BDD_MGRV_H
 
 #include <map>
-#include "myHash.h"
+#include "myHashMap.h"
 #include "bddNodeV.h"
 
 using namespace std;
@@ -69,7 +69,7 @@ private:
 
 class BddMgrV
 {
-typedef Hash<BddHashKeyV, BddNodeVInt*> BddHash;
+typedef HashMap<BddHashKeyV, BddNodeVInt*> BddHash;
 typedef Cache<BddCacheKeyV, size_t>    BddCache;
 
 public:

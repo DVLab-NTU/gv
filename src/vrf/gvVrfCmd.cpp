@@ -17,8 +17,12 @@
 
 using namespace std;
 
+CirMgr* ECO_FileRead(string oldName, string newName);
+void DoEco(CirMgr* cirMgr);
+
 bool initVrfCmd() {
-    return (gvCmdMgr->regCmd("Formal Verify", 1, 1, new GVFormalVerifyCmd));
+    return (gvCmdMgr->regCmd("Formal Verify", 1, 1, new GVFormalVerifyCmd) &&
+    gvCmdMgr->regCmd("FUNCtional ECO", 4, 3, new GVFunctionalEcoCmd));
 }
 
 //------------------------------------------------------------------------------------------------------------
@@ -635,6 +639,45 @@ void GVFormalVerifyCmd ::usage(const bool& verbose) const {
 void GVFormalVerifyCmd ::help() const {
     cout << setw(20) << left << "Formal Verify: "
          << "Use options to execute specific formal engine." << endl;
+}
+
+//----------------------------------------------------------------------
+// FUNCtional ECO <-old old.v -new new.v>
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVFunctionalEcoCmd::exec(const string& option) {
+    // cout << "I am GVRandomSetSafe " << endl;
+
+    string newName="", oldName="";
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    cout << "option size = " << options.size() << endl;
+    if (options.size() != 4) {
+        cout << "Please enter a valid value!" << endl;
+        return GV_CMD_EXEC_DONE;
+    }
+    oldName = options[1];
+    newName = options[3];
+    cirMgr = ECO_FileRead(oldName, newName);
+    cirMgr->printSummary();
+    DoEco(cirMgr);
+    
+    
+    
+    // gvModMgr->setSafe(stoi(options[0]));
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVFunctionalEcoCmd::usage(const bool& verbose) const {
+    cout << "FUNCtional ECO <-old old.v -new new.v>" << endl;
+}
+
+void
+GVFunctionalEcoCmd::help() const {
+    cout << setw(20) << left << "FUNCtional ECO: "
+                      << "Perform Functional ECO on the two given circuits as cad contest2021." << endl;
 }
 
 #endif
