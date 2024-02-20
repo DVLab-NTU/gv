@@ -210,7 +210,6 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
     for (i = 0; i < nOutputs; i++) {
         pObj = Abc_NtkCreatePo(pNtkNew);
     }
-
     // create the latches
     nDigits = Abc_Base10Log(nLatches);
     for (i = 0; i < nLatches; i++) {
@@ -222,7 +221,6 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
         Abc_ObjAddFanin(pNode1, pObj);
         Vec_PtrPush(vNodes, pNode1);
     }
-
     // create the AND gates
     for (i = 0; i < nAnds; i++) {
         uLit0 = getAigIn0Gid(i);
@@ -237,7 +235,6 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
         assert(Vec_PtrSize(vNodes) == i + 1 + nInputs + nLatches);
         Vec_PtrPush(vNodes, Abc_AigAnd((Abc_Aig_t *)pNtkNew->pManFunc, pNode0, pNode1));
     }
-
     // create the LATCH inputs
     Abc_NtkForEachLatchInput(pNtkNew, pObj, i) {
         uLit0 = getRiIn0Gid(i);
@@ -271,6 +268,13 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
 
     // save the new network
     pNtk = pNtkNew;
+}
+
+void AbcMgr::writeBlif(const string &fileName) {
+    Abc_Ntk_t *pNtkTemp = Abc_NtkToNetlist(pNtk);
+    char *pFileName     = new char[100];
+    strcpy(pFileName, fileName.c_str());
+    Io_WriteBlif(pNtkTemp, pFileName, 1, 0, 1);
 }
 
 void AbcMgr::runPDR(const bool &verbose) {
