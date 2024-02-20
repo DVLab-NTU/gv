@@ -7,6 +7,7 @@
 enum CirFileType {
     VERILOG,
     AIGER,
+    AAG,
     BLIF
 };
 
