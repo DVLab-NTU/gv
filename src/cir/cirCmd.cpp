@@ -14,10 +14,12 @@
 
 #include "cirGate.h"
 #include "cirMgr.h"
+#include "fileType.h"
 #include "gvCmdMgr.h"
 #include "gvModMgr.h"
 #include "gvMsg.h"
 #include "util.h"
+#include "yosysMgr.h"
 
 using namespace std;
 
@@ -66,6 +68,8 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
             fileType = VERILOG;
         } else if (myStrNCmp("-Aiger", options[i], 2) == 0) {
             fileType = AIGER;
+        } else if (myStrNCmp("-Blif", options[i], 2) == 0) {
+            fileType = BLIF;
         } else {
             if (fileName.size())
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
@@ -79,16 +83,24 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
             curCmd = CIRINIT;
             delete cirMgr;
             cirMgr = 0;
+            yosysMgr->reset();
         } else {
             cerr << "Error: circuit already exists!!" << endl;
             return GV_CMD_EXEC_ERROR;
         }
     }
     cirMgr = new CirMgr;
-    if (!cirMgr->readCirFromAbc(fileName, fileType)) {
-        delete cirMgr;
-        cirMgr = 0;
+    if (fileType == BLIF) {
+        cirMgr->readBlif(fileName);
+    } else {
+        if (!cirMgr->readCirFromAbc(fileName, fileType)) {
+            delete cirMgr;
+            cirMgr = 0;
+        }
+        // Save the word-leve information
+        if (fileType == VERILOG) yosysMgr->readVerilog(fileName);
     }
+    // yosysMgr->writeAiger("vending.aig");
 
     return GV_CMD_EXEC_DONE;
 }
@@ -220,7 +232,7 @@ void CirGateCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    CIRWrite [(int gateId)][-Output (string aagFile)]
+//    CIRWrite <-Aag [(int gateId)] | -Aig | -Blif> <-Output (string fileName)>
 //----------------------------------------------------------------------
 GVCmdExecStatus
 CirWriteCmd::exec(const string& option) {
@@ -236,26 +248,33 @@ CirWriteCmd::exec(const string& option) {
         cirMgr->writeAag(cout);
         return GV_CMD_EXEC_DONE;
     }
-    bool binFormat = false;
-    bool hasFile   = false;
+    CirFileType fileType;
+    bool hasFile = false;
     int gateId;
     CirGate* thisGate = NULL;
     string outFileName;
     ofstream outfile;
     for (size_t i = 0, n = options.size(); i < n; ++i) {
-        if (myStrNCmp("-Output", options[i], 2) == 0) {
+        if (myStrNCmp("-Aiger", options[i], 2) == 0) {
+            fileType = AIGER;
+        } else if (myStrNCmp("-Aag", options[i], 2) == 0) {
+            fileType = AAG;
+        } else if (myStrNCmp("-Blif", options[i], 2) == 0) {
+            fileType = BLIF;
+        } else if (myStrNCmp("-Output", options[i], 2) == 0) {
             if (hasFile)
                 return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
             if (++i == n)
                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
-            string outFileName = options[i].c_str();
-            outfile.open(options[i].c_str(), ios::out);
-            binFormat = (outFileName.substr(outFileName.size() - 3) == "aig") ? true : false;
-            if (!outfile)
-                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[1]);
+            outFileName = options[i].c_str();
+            // outfile.open(options[i].c_str(), ios::out);
+            // if (!outfile)
+            // return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[1]);
             hasFile = true;
             cirMgr->setFileName(outFileName);
         } else if (myStr2Int(options[i], gateId) && gateId >= 0) {
+            if (fileType != AAG)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
             if (thisGate != NULL)
                 return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
             thisGate = cirMgr->getGate(gateId);
@@ -270,13 +289,18 @@ CirWriteCmd::exec(const string& option) {
         } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
     }
 
-    if (!thisGate) {
-        assert(hasFile);
-        if (binFormat) cirMgr->writeAig(outfile, outFileName);
-        else cirMgr->writeAag(outfile);
-    } else if (hasFile) cirMgr->writeGate(outfile, thisGate);
-    else cirMgr->writeGate(cout, thisGate);
+    if (!hasFile) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "-Output");
 
+    cout << outFileName << "\n";
+    if (fileType == BLIF) yosysMgr->writeBlif(outFileName);
+    else if (fileType == AIGER) yosysMgr->writeAiger(outFileName);
+    else {
+        if (!thisGate) {
+            assert(hasFile);
+            cirMgr->writeAag(outfile);
+        } else if (hasFile) cirMgr->writeGate(outfile, thisGate);
+        else cirMgr->writeGate(cout, thisGate);
+    }
     return GV_CMD_EXEC_DONE;
 }
 

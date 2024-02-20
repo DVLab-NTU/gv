@@ -91,7 +91,7 @@ public:
     void printFloatGates() const;
     void printFECPairs() const;
     void writeAag(ostream&) const;
-    void writeAig(ostream& outfile, const string& fileName) const;
+    void writeBlif(const string&) const;
     void writeGate(ostream&, CirGate*) const;
 
     // Member functions about flags
@@ -99,17 +99,18 @@ public:
     bool createMiter(CirMgr*, CirMgr*);
     static CirGate* _const0;
     // MODIFICATION FOR SOCV HOMEWORK
-    void initCir(const int& piNum, const int& poNum, const int& regNum, const int& totNum);
-    void buildBdd(CirGate* gate);
+    void initCir(const int&, const int&, const int&, const int&);
+    void buildBdd(CirGate*);
     void buildNtkBdd();
     void addTotGate(CirGate* gate) { _totGateList.push_back(gate); };
-    const bool readCirFromAbc(string fileName, CirFileType fileType);
-    const bool setBddOrder(const bool& file);
+    const bool readCirFromAbc(string, CirFileType);
+    const bool readBlif(const string&) const;
+    const bool setBddOrder(const bool&);
     // CirGate* createGate(const GateType& type);
-    CirGate* createNotGate(CirGate* in0);
-    CirGate* createAndGate(CirGate* in0, CirGate* in1);
-    CirGate* createOrGate(CirGate* in0, CirGate* in1);
-    CirGate* createXorGate(CirGate* in0, CirGate* in1);
+    CirGate* createNotGate(CirGate*);
+    CirGate* createAndGate(CirGate*, CirGate*);
+    CirGate* createOrGate(CirGate*, CirGate*);
+    CirGate* createXorGate(CirGate*, CirGate*);
     CirGate* _const1;
 
     // Member functions for creating gate from the Gia object
