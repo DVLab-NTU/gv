@@ -280,6 +280,7 @@ GVCmdMgr::execOneCmd() {
     }
     delete[] execCmd;
     cout << endl;
+
     return GV_CMD_EXEC_NOP;
 }
 
