@@ -29,17 +29,14 @@
 const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     ABCParam param;
     map<unsigned, string> id2Name;
-
     ifstream cirin(fileName);
     if (!cirin) {
         cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
         return false;
     }
-
     strcpy(param.pFileName, fileName.c_str());
     cout << "filename = " << fileName << endl;
     cirMgr->fileName = fileName;
-
     if (fileType == AIGER) {
         abcMgr->readAig(param);
     } else if (fileType == VERILOG) {
@@ -48,22 +45,19 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
         yosysMgr->createMapping(fileName);
         abcMgr->buildAigName(id2Name);
     }
-
     // initialize the size of the containers
     abcMgr->initCir(fileType);
     abcMgr->travPreprocess();
     abcMgr->travAllObj(fileType, id2Name);
-
     genDfsList();
 
     // DEBUG
-    IDMap aigIdMap;
-    reorderGateId(aigIdMap);
-    bool v = false;
-    abcMgr->cirToAig(aigIdMap);
-    abcMgr->runPDR(v);
+    // IDMap aigIdMap;
+    // reorderGateId(aigIdMap);
+    // abcMgr->cirToAig(aigIdMap);
+    // bool v = false;
+    // abcMgr->runPDR(v);
     // END
-
     return true;
 }
 
@@ -94,6 +88,7 @@ void CirMgr::reorderGateId(IDMap& aigIdMap) {
         CirGate* gate   = cirMgr->getAig(i);
         unsigned gateId = gate->getGid();
         if (!gate->isGlobalRef()) {
+            assert(true);
             cout << "Redundant AIG Node !!\n";
         }
         if (nxtId != gate->getGid()) {
