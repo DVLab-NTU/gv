@@ -8,14 +8,15 @@
 
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
-#include "yosysMgr.h"
 #include "util.h"
+#include "yosysMgr.h"
 
 bool initYosysCmd() {
     if (yosysMgr) delete yosysMgr;
     yosysMgr = new YosysMgr;
     yosysMgr->init();
-    return (gvCmdMgr->regCmd("YSYSet", 4, new YosysSetCmd));
+    return (gvCmdMgr->regCmd("YSYSet", 4, new YosysSetCmd)) &&
+           (gvCmdMgr->regCmd("Print Info", 2, 2, new YosysPrintInfoCmd));
 }
 
 //----------------------------------------------------------------------
@@ -55,6 +56,37 @@ void YosysSetCmd::usage(const bool& verbose) const {
 void YosysSetCmd::help() const {
     cout << setw(20) << left << "YSYSet: "
          << "Set the option of Yosys." << endl;
+}
+
+GVCmdExecStatus
+YosysPrintInfoCmd::exec(const string& option) {
+    bool verbose = false;
+    // check options
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    // try to match options
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        if (myStrNCmp("-Verbose", token, 2) == 0) {
+            verbose = true;
+            continue;
+        } else {
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+        }
+    }
+    yosysMgr->printDesignInfo(verbose);
+    return GV_CMD_EXEC_DONE;
+}
+
+void YosysPrintInfoCmd ::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: PRint Info [-Verbose]" << endl;
+}
+
+void YosysPrintInfoCmd ::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "PRint Info: "
+                      << "Print circuit information extracted by our parser."
+                      << endl;
 }
 
 #endif
