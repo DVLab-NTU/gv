@@ -907,7 +907,8 @@ void CirMgr::writeGate(ostream& outfile, CirGate* g) const {
         if (faninCone[i]->getGid() > maxId) maxId = faninCone[i]->getGid();
     }
     outfile << "aag " << maxId << " " << npi << " 0 1 " << nAig << endl;
-    for (size_t i = 0, n = _numDecl[PI]; i < n; ++i)
+    // for (size_t i = 0, n = _numDecl[PI]; i < n; ++i)
+    for (size_t i = 0, n = cirMgr->getNumPIs(); i < n; ++i)
         if (getPi(i)->isGlobalRef())
             outfile << (getPi(i)->getGid() * 2) << endl;
     outfile << g->getGid() * 2 << endl;
@@ -917,7 +918,7 @@ void CirMgr::writeGate(ostream& outfile, CirGate* g) const {
         outfile << f->getGid() * 2 << " " << f->getIn0().litId() << " "
                 << f->getIn1().litId() << endl;
     }
-    for (size_t i = 0, n = _numDecl[PI], j = 0; i < n; ++i)
+    for (size_t i = 0, n = cirMgr->getNumPIs(), j = 0; i < n; ++i)
         if (getPi(i)->isGlobalRef() && getPi(i)->getName())
             outfile << "i" << j++ << " " << getPi(i)->getName() << endl;
     outfile << "o0 " << g->getGid() << endl;

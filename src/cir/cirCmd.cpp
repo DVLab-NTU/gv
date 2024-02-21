@@ -11,6 +11,7 @@
 #include <cassert>
 #include <iomanip>
 #include <iostream>
+#include <streambuf>
 
 #include "cirGate.h"
 #include "cirMgr.h"
@@ -58,8 +59,8 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
     if (options.empty())
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-    bool doReplace = false;
-    string fileName;
+    bool doReplace = false, fileError = false;
+    string fileName, fileExt;
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         if (myStrNCmp("-Replace", options[i], 2) == 0) {
             if (doReplace) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
@@ -76,7 +77,17 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
             fileName = options[i];
         }
     }
-
+    if (fileType == VERILOG) {
+        fileExt   = fileName.substr(fileName.size() - 2);
+        fileError = (fileExt != ".v");
+    } else if (fileType == AIGER) {
+        fileExt   = fileName.substr(fileName.size() - 4);
+        fileError = (fileExt != ".aig");
+    } else if (fileType == BLIF) {
+        fileExt   = fileName.substr(fileName.size() - 5);
+        fileError = (fileExt != ".blif");
+    }
+    if (fileError) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, fileName);
     if (cirMgr != 0) {
         if (doReplace) {
             cerr << "Note: original circuit is replaced..." << endl;
@@ -97,11 +108,9 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
             delete cirMgr;
             cirMgr = 0;
         }
-        // Save the word-leve information
+        // Save the word-level information
         if (fileType == VERILOG) yosysMgr->readVerilog(fileName);
     }
-    // yosysMgr->writeAiger("vending.aig");
-
     return GV_CMD_EXEC_DONE;
 }
 
@@ -267,9 +276,9 @@ CirWriteCmd::exec(const string& option) {
             if (++i == n)
                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
             outFileName = options[i].c_str();
-            // outfile.open(options[i].c_str(), ios::out);
-            // if (!outfile)
-            // return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[1]);
+            outfile.open(options[i].c_str(), ios::out);
+            if (!outfile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[1]);
             hasFile = true;
             cirMgr->setFileName(outFileName);
         } else if (myStr2Int(options[i], gateId) && gateId >= 0) {
@@ -305,10 +314,10 @@ CirWriteCmd::exec(const string& option) {
 }
 
 void CirWriteCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: CIRWrite [(int gateId)][-Output (string aagFile)]" << endl;
+    cout << "Usage: CIRWrite <-Aag [(int gateId)] | -Aig | -Blif> <-Output (string fileName)>" << endl;
 }
 
 void CirWriteCmd::help() const {
-    cout << setw(15) << left << "CIRWrite: "
+    cout << setw(20) << left << "CIRWrite: "
          << "write the netlist to an ASCII AIG file (.aag)\n";
 }
