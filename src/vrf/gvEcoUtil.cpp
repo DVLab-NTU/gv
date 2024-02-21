@@ -16,6 +16,7 @@
 #include "cirMgr.h"
 #include "cirGate.h"
 #include "cirCut.h"
+# include "ecoMgr.h"
 
 extern "C"{
   Aig_Man_t * Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
@@ -81,7 +82,8 @@ string abcNetId2Name(int id) {
 }
 
 
-CirMgr* ECO_FileRead(string oldName, string newName) {
+EcoMgr* ECO_FileRead(string oldName, string newName) {
+    EcoMgr* pEcoMgr;
     unordered_map<Abc_Obj_t *, string> aigNode2Gate;
     unordered_map<Abc_Obj_t *, bool> aigNode2GateComp;
     unordered_map<Abc_Obj_t *, vector<string> > aigNode2GateMiter;
@@ -136,6 +138,9 @@ CirMgr* ECO_FileRead(string oldName, string newName) {
 
     cirMgrOld->readCirFromAbcNtk(pNtkOldStrash);
     cirMgrNew->readCirFromAbcNtk(pNtkNewStrash);
+
+    pEcoMgr->setOldCir(cirMgrOld);
+    pEcoMgr->setNewCir(cirMgrNew);
 
     // enumerate cut
     CirCutMan* pCutManOld=new CirCutMan;
@@ -225,7 +230,7 @@ CirMgr* ECO_FileRead(string oldName, string newName) {
       }
       
     }
-    for(std::vector<int>::reverse_iterator poIdx=poIdx2Delete.rbegin(); poIdx!=poIdx2Delete.rend(); poIdx++) {
+    for(std::vector<int>::reverse_iterator poIdx=poIdx2Delete.rbegin(); poIdx!=static_cast<std::vector<int>::reverse_iterator>(poIdx2Delete.rend()); poIdx++) {
       Abc_NtkDeleteObj(Abc_NtkPo(pNtkMiterFraig, *poIdx));
     }
     // reassign the id's of the ntk
@@ -237,17 +242,21 @@ CirMgr* ECO_FileRead(string oldName, string newName) {
     // Abc_NtkShow( pNtkMiterFraig, 0, 0, 1, 0 );
 
     // Convert to gv ntk
-    cirMgr = new CirMgr;
-    cirMgr->readCirFromAbcNtk(pNtkMiterFraig);
-    return cirMgr;
+    CirMgr* miter = new CirMgr;
+    miter->readCirFromAbcNtk(pNtkMiterFraig);
+
+    // assign it to eco mgr
+    pEcoMgr->setMiter(miter);
+    return pEcoMgr;
 }
 
 // Simulate the pattern from the given cut to the root node
-// void
-// CirMgr::gateRandomSim(CirGate* rootGate, CirCut* leafGates) {
-//    for (size_t i = 0, n = getNumPIs(); i < n; ++i)
-//       _piList[i]->setPValue(patterns[i]);
-// }
+void
+CirMgr::gateRandomSim(CirGate* rootGate, CirCut* cut) {
+  size_t patterns[cut->cutSize];
+   for (size_t i = 0, n = getNumPIs(); i < n; ++i)
+      _piList[i]->setPValue(patterns[i]);
+}
 
 void
 CirMgr::ReadSimVal() {
