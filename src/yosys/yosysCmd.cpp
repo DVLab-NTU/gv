@@ -16,7 +16,8 @@ bool initYosysCmd() {
     yosysMgr = new YosysMgr;
     yosysMgr->init();
     return (gvCmdMgr->regCmd("YSYSet", 4, new YosysSetCmd)) &&
-           (gvCmdMgr->regCmd("Print Info", 2, 2, new YosysPrintInfoCmd));
+           (gvCmdMgr->regCmd("PRint INfo", 2, 2, new YosysPrintInfoCmd)) &&
+           (gvCmdMgr->regCmd("SHow", 2, new YosysShowCmd));
 }
 
 //----------------------------------------------------------------------
@@ -89,4 +90,21 @@ void YosysPrintInfoCmd ::help() const {
                       << endl;
 }
 
+//----------------------------------------------------------------------
+// SHow
+//----------------------------------------------------------------------
+GVCmdExecStatus
+YosysShowCmd::exec(const string& option) {
+    yosysMgr->showSchematic();
+    return GV_CMD_EXEC_DONE;
+}
+void YosysShowCmd::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO)
+        << "Usage: SHow" << endl;
+}
+
+void YosysShowCmd::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SHow : "
+                      << "Show the schematic of the design." << endl;
+}
 #endif

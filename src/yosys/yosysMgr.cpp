@@ -1,5 +1,6 @@
 #include "yosysMgr.h"
 
+#include <cstddef>
 #include <cstdlib>
 #include <filesystem>
 #include <iomanip>
@@ -143,4 +144,12 @@ void YosysMgr::printDesignInfo(const bool& verbose) {
     } else
         cout << "#PI = " << numPI << ", #PO = " << numPO
              << ", #PIO = " << numPIO << "\n";
+}
+
+void YosysMgr::showSchematic() {
+    if (yosys_design->top_module() == nullptr) return;
+    run_pass("hierarchy -auto-top");
+    run_pass("proc");
+    run_pass("opt");
+    run_pass("show");
 }

@@ -20,6 +20,7 @@ public:
     void setLogging(const bool& = false);
     void createMapping(const string&);
     void printDesignInfo(const bool&);
+    void showSchematic();
     void readBlif(const string&);
     void readVerilog(const string&);
     void readAiger(const string&);
