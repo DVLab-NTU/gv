@@ -157,9 +157,9 @@ void AbcMgr::travAllObj(const CirFileType &fileType, map<unsigned, string> id2Na
 
 void AbcMgr::initCir(const CirFileType &fileType) {
     // Create lists
-    int piNum = 0, regNum = 0, poNum = 0, totNum = 0;
+    int piNum = Gia_ManPiNum(pGia), regNum = Gia_ManRegNum(pGia), poNum = 0, totNum = 0;
     if (fileType == VERILOG) {
-        piNum  = Gia_ManPiNum(pGia) - Gia_ManRegNum(pGia) + 1;
+        piNum  = (Gia_ManRegNum(pGia)) ? piNum - regNum + 1 : piNum;
         regNum = ((Gia_ManRegNum(pGia) - 1) < 0) ? 0 : Gia_ManRegNum(pGia) - 1;
     } else if (fileType == AIGER) {
         piNum  = Gia_ManPiNum(pGia);

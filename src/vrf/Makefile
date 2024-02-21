@@ -1,5 +1,5 @@
 PKGFLAG   = $(DEBUG_FLAG)
-EXTHDRS   = gvVrfCmd.h ecoMgr.h
+EXTHDRS   = gvVrfCmd.h
 
 include ../Makefile.in
 include ../Makefile.lib
