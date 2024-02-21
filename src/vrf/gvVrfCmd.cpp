@@ -659,11 +659,11 @@ GVFunctionalEcoCmd::exec(const string& option) {
         return GV_CMD_EXEC_DONE;
     }
 
-    EcoMgr* pEcoMgr;
+    EcoMgr* pEcoMgr=new EcoMgr;
     oldName = options[1];
     newName = options[3];
-    pEcoMgr = ECO_FileRead(oldName, newName);
-    // DoEco(pEcoMgr);
+    pEcoMgr->ECO_FileRead(oldName, newName);
+    pEcoMgr->DoEco();
     
     
     

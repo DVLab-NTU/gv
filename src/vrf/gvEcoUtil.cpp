@@ -82,8 +82,8 @@ string abcNetId2Name(int id) {
   return "n" + to_string(id);
 }
 
-
-EcoMgr* ECO_FileRead(string oldName, string newName) {
+void
+EcoMgr::ECO_FileRead(string oldName, string newName) {
     EcoMgr* pEcoMgr;
     unordered_map<Abc_Obj_t *, string> aigNode2Gate;
     unordered_map<Abc_Obj_t *, bool> aigNode2GateComp;
@@ -140,8 +140,8 @@ EcoMgr* ECO_FileRead(string oldName, string newName) {
     cirMgrOld->readCirFromAbcNtk(pNtkOldStrash);
     cirMgrNew->readCirFromAbcNtk(pNtkNewStrash);
 
-    pEcoMgr->setOldCir(cirMgrOld);
-    pEcoMgr->setNewCir(cirMgrNew);
+    setOldCir(cirMgrOld);
+    setNewCir(cirMgrNew);
     
     // store the node mapping...
     Abc_NtkForEachNode( pNtkOld, pNode, i )
@@ -212,8 +212,10 @@ EcoMgr* ECO_FileRead(string oldName, string newName) {
       }
       
     }
-    for(std::vector<int>::reverse_iterator poIdx=poIdx2Delete.rbegin(); poIdx!=static_cast<std::vector<int>::reverse_iterator>(poIdx2Delete.rend()); poIdx++) {
-      Abc_NtkDeleteObj(Abc_NtkPo(pNtkMiterFraig, *poIdx));
+
+    for(int i=poIdx2Delete.size() - 1; i >= 0; i--) {
+      int poIdx=poIdx2Delete[i];
+      Abc_NtkDeleteObj(Abc_NtkPo(pNtkMiterFraig, poIdx));
     }
     // reassign the id's of the ntk
     Abc_NtkReassignIds(pNtkMiterFraig);
@@ -228,8 +230,7 @@ EcoMgr* ECO_FileRead(string oldName, string newName) {
     miter->readCirFromAbcNtk(pNtkMiterFraig);
 
     // assign it to eco mgr
-    pEcoMgr->setMiter(miter);
-    return pEcoMgr;
+    setMiter(miter);
 }
 
 // enumerate the k-feasible cuts of the circuit
@@ -280,10 +281,11 @@ CirMgr::ReadSimVal() {
       
 }
 
-void DoEco(EcoMgr* pEcoMgr) {
-  CirMgr* newCir=pEcoMgr->getNewCir();
-  CirMgr* oldCir=pEcoMgr->getOldCir();
-  CirMgr* miter=pEcoMgr->getMiter();
+void
+EcoMgr::DoEco() {
+  CirMgr* newCir=getNewCir();
+  CirMgr* oldCir=getOldCir();
+  CirMgr* miter=getMiter();
 
   cout << "enumerating cuts..." << endl;
   CirCutMan* pCutManOld=enumerateCut(oldCir, 5);
@@ -294,11 +296,12 @@ void DoEco(EcoMgr* pEcoMgr) {
   //     CirGate* gate=oldCir->getGate(i);
   //     if(!gate) continue;
   //     if(gate && gate->getType()!=AIG_GATE) continue;
-  //     vector<CirCut*> cuts=pCutManOld->gate2Cut[gate];
-  //     for(int j=0; j<cuts.size(); j++) {
+      // cout << "count " << pCutManOld->gate2Cut.count(gate)<< endl;
+      // if(pCutManOld->gate2Cut.count(gate)) cuts=pCutManOld->gate2Cut[gate];
+      // for(int j=0; j<pCutManOld->gate2Cut[gate].size(); j++) {
   //       cutSim(gate, cuts[j]);
-  //     }
-  //   }
+      // }
+    // }
 
   
 
