@@ -225,7 +225,7 @@ CirMgr* ECO_FileRead(string oldName, string newName) {
       }
       
     }
-    for(vector<int>::reverse_iterator poIdx=poIdx2Delete.rbegin(); poIdx!=poIdx2Delete.rend(); poIdx++) {
+    for(std::vector<int>::reverse_iterator poIdx=poIdx2Delete.rbegin(); poIdx!=poIdx2Delete.rend(); poIdx++) {
       Abc_NtkDeleteObj(Abc_NtkPo(pNtkMiterFraig, *poIdx));
     }
     // reassign the id's of the ntk
@@ -242,6 +242,13 @@ CirMgr* ECO_FileRead(string oldName, string newName) {
     return cirMgr;
 }
 
+// Simulate the pattern from the given cut to the root node
+// void
+// CirMgr::gateRandomSim(CirGate* rootGate, CirCut* leafGates) {
+//    for (size_t i = 0, n = getNumPIs(); i < n; ++i)
+//       _piList[i]->setPValue(patterns[i]);
+// }
+
 void
 CirMgr::ReadSimVal() {
   unsigned nObjs = cirMgr->getNumTots();
@@ -252,6 +259,7 @@ CirMgr::ReadSimVal() {
   }
   
       for (unsigned i = 0; i < _dfsList.size(); ++i) {
+        // TODO : read the sim val automatically, which is set to 64 now
         for (size_t j = 0; j < 64; ++j) {
           patterns[i] >>= 1;
         }
@@ -260,7 +268,6 @@ CirMgr::ReadSimVal() {
 }
 
 void DoEco(CirMgr* cirMgr) {
-  // cout << "simulation" << endl;
   ofstream logFile;
   // logFile.open("simout.txt", ios::out);
   // cirMgr->setSimLog(&logFile);
