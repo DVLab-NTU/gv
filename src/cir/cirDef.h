@@ -25,6 +25,8 @@ class CirRiGate;
 class CirRoGate;
 class CirMgr;
 class SatSolver;
+class CirCut;
+class CirCutMan;
 
 typedef vector<CirGate*> GateList;
 typedef vector<CirGateV> GateVList;

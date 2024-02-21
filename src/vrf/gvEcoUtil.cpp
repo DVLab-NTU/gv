@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 #include "base/abc/abc.h"
 #include "base/main/main.h"
 #include "base/main/mainInt.h"
@@ -16,7 +17,7 @@
 #include "cirMgr.h"
 #include "cirGate.h"
 #include "cirCut.h"
-# include "ecoMgr.h"
+#include "ecoMgr.h"
 
 extern "C"{
   Aig_Man_t * Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
@@ -141,25 +142,6 @@ EcoMgr* ECO_FileRead(string oldName, string newName) {
 
     pEcoMgr->setOldCir(cirMgrOld);
     pEcoMgr->setNewCir(cirMgrNew);
-
-    // enumerate cut
-    CirCutMan* pCutManOld=new CirCutMan;
-    CirGate::setGlobalRef();
-    for(int i=0; i<cirMgrOld->getNumTots(); i++) {
-      CirGate* gate=cirMgrOld->getGate(i);
-      if(!gate) continue;
-      if(gate && gate->getType()!=AIG_GATE) continue;
-      
-      pCutManOld->gateGetCuts(gate, 5);
-    }
-    CirCutMan* pCutManNew=new CirCutMan;
-    for(int i=0; i<cirMgrNew->getNumTots(); i++) {
-      CirGate* gate=cirMgrNew->getGate(i);
-      if(!gate) continue;
-      if(gate && gate->getType()!=AIG_GATE) continue;
-      
-      pCutManNew->gateGetCuts(gate, 5);
-    }
     
     // store the node mapping...
     Abc_NtkForEachNode( pNtkOld, pNode, i )
@@ -250,12 +232,34 @@ EcoMgr* ECO_FileRead(string oldName, string newName) {
     return pEcoMgr;
 }
 
+// enumerate the k-feasible cuts of the circuit
+CirCutMan* enumerateCut(CirMgr* pCirMgr, int k) {
+    CirCutMan* pCutMan=new CirCutMan;
+    CirGate::setGlobalRef();
+    for(int i=0; i<pCirMgr->getNumTots(); i++) {
+      CirGate* gate=pCirMgr->getGate(i);
+      if(!gate) continue;
+      if(gate && gate->getType()!=AIG_GATE) continue;
+      
+      pCutMan->gateGetCuts(gate, k);
+    }
+}
+
 // Simulate the pattern from the given cut to the root node
 void
-CirMgr::gateRandomSim(CirGate* rootGate, CirCut* cut) {
-  size_t patterns[cut->cutSize];
-   for (size_t i = 0, n = getNumPIs(); i < n; ++i)
-      _piList[i]->setPValue(patterns[i]);
+cutSim(CirGate* rootGate, CirCut* cut) {
+  const int cutSize=cut->cutSize;
+  size_t patterns[cutSize];
+  
+  for(int i=0; i<pow(2, cutSize); i++) {
+    int pattern=i;
+    for(int j=0; j<cutSize; j++) {
+      patterns[j]=pattern%2;
+      pattern >>= 1;
+    }
+  }
+  for (size_t i = 0, n = cutSize; i < n; ++i)
+    cut->leafNodes[i]->setPValue(patterns[i]);
 }
 
 void
@@ -276,12 +280,30 @@ CirMgr::ReadSimVal() {
       
 }
 
-void DoEco(CirMgr* cirMgr) {
-  ofstream logFile;
-  // logFile.open("simout.txt", ios::out);
-  // cirMgr->setSimLog(&logFile);
-  cirMgr->randomSim();
-  cirMgr->ReadSimVal();
+void DoEco(EcoMgr* pEcoMgr) {
+  CirMgr* newCir=pEcoMgr->getNewCir();
+  CirMgr* oldCir=pEcoMgr->getOldCir();
+  CirMgr* miter=pEcoMgr->getMiter();
+
+  cout << "enumerating cuts..." << endl;
+  CirCutMan* pCutManOld=enumerateCut(oldCir, 5);
+  CirCutMan* pCutManNew=enumerateCut(newCir, 5);
+
+  cout << "doing simulation for the cuts" << endl;
+  // for(int i=0; i<oldCir->getNumTots(); i++) {
+  //     CirGate* gate=oldCir->getGate(i);
+  //     if(!gate) continue;
+  //     if(gate && gate->getType()!=AIG_GATE) continue;
+  //     vector<CirCut*> cuts=pCutManOld->gate2Cut[gate];
+  //     for(int j=0; j<cuts.size(); j++) {
+  //       cutSim(gate, cuts[j]);
+  //     }
+  //   }
+
+  
+
+  // cirMgr->randomSim();
+  // cirMgr->ReadSimVal();
   
 }
 

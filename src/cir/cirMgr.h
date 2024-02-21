@@ -20,6 +20,7 @@ using namespace std;
 
 #include "base/abc/abc.h"
 #include "cirDef.h"
+#include "cirCut.h"
 
 extern CirMgr* cirMgr;
 
@@ -96,6 +97,7 @@ public:
     void fileSim(ifstream&);
     void setSimLog(ofstream* logFile) { _simLog = logFile; }
     void ReadSimVal();
+    void cutSim(CirGate* rootGate, CirCut* cut);
 
     // Member functions about fraig
     void strash();

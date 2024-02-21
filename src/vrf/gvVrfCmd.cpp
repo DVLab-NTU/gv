@@ -14,11 +14,12 @@
 #include "gvMsg.h"
 #include "gvUsage.h"
 #include "util.h"
+#include "ecoMgr.h"
 
 using namespace std;
 
-CirMgr* ECO_FileRead(string oldName, string newName);
-void DoEco(CirMgr* cirMgr);
+EcoMgr* ECO_FileRead(string oldName, string newName);
+void DoEco(EcoMgr* cirMgr);
 
 bool initVrfCmd() {
     return (gvCmdMgr->regCmd("Formal Verify", 1, 1, new GVFormalVerifyCmd) &&
@@ -657,11 +658,12 @@ GVFunctionalEcoCmd::exec(const string& option) {
         cout << "Please enter a valid value!" << endl;
         return GV_CMD_EXEC_DONE;
     }
+
+    EcoMgr* pEcoMgr;
     oldName = options[1];
     newName = options[3];
-    cirMgr = ECO_FileRead(oldName, newName);
-    cirMgr->printSummary();
-    DoEco(cirMgr);
+    pEcoMgr = ECO_FileRead(oldName, newName);
+    // DoEco(pEcoMgr);
     
     
     
