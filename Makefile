@@ -1,5 +1,7 @@
-SRCPKGS  = util cmd abc mod yosys bdd itp sim cir vrf ext prove gvsat cad
-LIBPKGS  = util cmd abc mod yosys bdd itp sim vrf cir prove gvsat cad
+# SRCPKGS  = util cmd abc mod yosys bdd itp sim cir vrf ext prove gvsat 
+# LIBPKGS  = util cmd abc mod yosys bdd itp sim cir vrf prove gvsat
+SRCPKGS  = util cmd cir abc yosys bdd mod sat itp sim vrf ext prove 
+LIBPKGS  = util cmd abc bdd cir yosys mod itp sim vrf prove sat
 
 MAIN     = main
 

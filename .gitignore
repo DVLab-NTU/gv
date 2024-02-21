@@ -1,26 +1,30 @@
-/src/lib/*.a
-/src/lib/*.so
-/src/lib/lib.d
-/src/*/*.mak
+# engine files and folders
+engine/
+# static library files
+lib/
+# headers files
+include/
 
+# makefile files
+src/*/*.mak
+# object files
+src/*/*.o
+# yosys extension files
 src/ext/*.so
+src/ext/*.d
 
-/engine
-/include
-*.o
-*.d
-*.a
-/gv
-/gv.debug
-/yosys-abc
-/yosys-config
-/lib
-btorinfo.log
-test.btor
-*.dofile
-*.v
-*.btor
+# yosys execution files
+yosys-abc
+yosys-config
+
+# vscode configuration files and folders
+.vscode/
+
+# vim configuration files and folders
+.cache/
+compile_commands.json
+
+# design and log files
 *.aig
-.vscode
-*.mak
-
+*.v
+*.txt

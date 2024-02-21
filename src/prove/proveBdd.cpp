@@ -9,15 +9,15 @@
 #include "bddMgrV.h"
 #include "gvMsg.h"
 // #include "gvNtk.h"
-#include "cirMgr.h"
-#include "cirGate.h"
-#include "util.h"
 #include <iomanip>
 #include <iostream>
 #include <vector>
 
-void
-BddMgrV::buildPInitialState() {
+#include "cirGate.h"
+#include "cirMgr.h"
+#include "util.h"
+
+void BddMgrV::buildPInitialState() {
     // TODO : remember to set _initState
     // set initial state to all zero
     BddNodeV newNode;
@@ -35,8 +35,7 @@ BddMgrV::buildPInitialState() {
     _reachStates.push_back(_initState);
 }
 
-void
-BddMgrV::buildPTransRelation() {
+void BddMgrV::buildPTransRelation() {
     // TODO : remember to set _tr, _tri
 
     BddNodeV delta, y;
@@ -90,17 +89,15 @@ BddNodeV BddMgrV::restrict(const BddNodeV& f, const BddNodeV& g) {
     return newNode;
 }
 
-void
-BddMgrV::buildPImage(int level) {
+void BddMgrV::buildPImage(int level) {
     // TODO : remember to add _reachStates and set _isFixed
     // note:: _reachStates record the set of reachable states
     BddNodeV cube, ns;
-    bool     isMoved;
+    bool isMoved;
     _isFixed = false;
     for (unsigned i = 0; i < level; ++i) {
         if (_isFixed) {
-            cout << "Fixed point is reached (time : " << _reachStates.size() - 1
-                 << ")" << endl;
+            cout << "Fixed point is reached (time : " << _reachStates.size() - 1 << ")" << endl;
             break;
         }
         // build next state
@@ -114,9 +111,9 @@ BddMgrV::buildPImage(int level) {
             ns = ns.exist(cirMgr->getRo(j)->getGid());
         }
         int from = cirMgr->getRo(0)->getGid() + cirMgr->getNumLATCHs();
-        int to = cirMgr->getRo(0)->getGid();
-        ns = ns.nodeMove(cirMgr->getRo(0)->getGid() + cirMgr->getNumLATCHs(),
-                         cirMgr->getRo(0)->getGid(), isMoved);
+        int to   = cirMgr->getRo(0)->getGid();
+        ns       = ns.nodeMove(cirMgr->getRo(0)->getGid() + cirMgr->getNumLATCHs(),
+                               cirMgr->getRo(0)->getGid(), isMoved);
         // isFixed ?
         if (_reachStates.size() == 0) {
             ns = ns | _initState;
@@ -139,41 +136,39 @@ BddMgrV::buildPImage(int level) {
     }
 }
 
-void
-BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
+void BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
     // TODO : prove the correctness of AG(~monitor)
-    BddNodeV             result, cs, ns, test;
-    bool                 isMoved;
-    int                  numofstate = _reachStates.size() - 1;
+    BddNodeV result, cs, ns, test;
+    bool isMoved;
+    int numofstate = _reachStates.size() - 1;
     vector<vector<bool>> counter_ex;
-    vector<bool>         timeframe;
+    vector<bool> timeframe;
 
     ns = monitor & _reachStates.back();
     if (ns != BddNodeV::_zero) {
         // ~p can backtrace to init state ?
         while ((monitor & _reachStates[numofstate]).countCube() != 0) {
-            if(numofstate == 0) break;
+            if (numofstate == 0) break;
             numofstate--;
         }
-        if(numofstate != 0)
+        if (numofstate != 0)
             numofstate++;
         ns = monitor & _reachStates[numofstate];
         ns = ns.getCube(0);
         counter_ex.clear();
         /* === MODIFICATION FOR PROPERTY 0 IN c.v === */
-        if(numofstate == 0 ){
+        if (numofstate == 0) {
             BddNodeV firstState = ns;
             for (unsigned j = 0; j < cirMgr->getNumLATCHs(); ++j) {
                 firstState = firstState.exist(cirMgr->getRo(j)->getGid());
             }
             for (unsigned j = 0; j < cirMgr->getNumPIs(); ++j) {
-                if (firstState.getLeft() != BddNodeV::_zero){ 
-                    if(firstState.isNegEdge()) timeframe.push_back(0);
-                    else                       timeframe.push_back(1);
-                }
-                else if (firstState.getRight() != BddNodeV::_zero){
-                    if(firstState.isNegEdge()) timeframe.push_back(1);
-                    else                       timeframe.push_back(0);
+                if (firstState.getLeft() != BddNodeV::_zero) {
+                    if (firstState.isNegEdge()) timeframe.push_back(0);
+                    else timeframe.push_back(1);
+                } else if (firstState.getRight() != BddNodeV::_zero) {
+                    if (firstState.isNegEdge()) timeframe.push_back(1);
+                    else timeframe.push_back(0);
                 }
             }
             counter_ex.push_back(timeframe);

@@ -18,7 +18,14 @@ public:
     void reset();
 
     void setLogging(const bool& = false);
-    void createMapping(const string& fileName);
+    void createMapping(const string&);
+    void printDesignInfo(const bool&);
+    void showSchematic();
+    void readBlif(const string&);
+    void readVerilog(const string&);
+    void readAiger(const string&);
+    void writeBlif(const string&);
+    void writeAiger(const string&);
 
 private:
 };

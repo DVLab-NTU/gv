@@ -7,6 +7,8 @@
 #include <string>
 
 #include "abcMgr.h"
+#include "cirDef.h"
+#include "cirMgr.h"
 #include "gvModMgr.h"
 #include "gvMsg.h"
 #include "kernel/yosys.h"
@@ -116,7 +118,8 @@ GVRandomSimCmd ::exec(const string& option) {
     // load the random_sim plugin in yosys
     run_pass("plugin -i ./src/ext/sim.so");
 
-    if (!file_name_set) command += " -input " + gvModMgr->getInputFileName();
+    // if (!file_name_set) command += " -input " + gvModMgr->getInputFileName();
+    if (!file_name_set) command += " -input " + cirMgr->getFileName();
     // cout << "safe  =========================== " + gvModMgr -> getSafe() <<
     // endl;
     if (gvModMgr->getSafe() != -1)
@@ -212,9 +215,8 @@ GVShowCmd::exec(const string& option) {
         infile.close();
     } else if (schematic) {
         // Problem!! --- (2)
-        if (!gvModMgr->getInputFileExist()) {
-            cout << "[ERROR]: Please use command \"READ DESIGN\" "
-                    "to read the file first !!\n ";
+        if (cirMgr == 0) {
+            cout << "[ERROR]: Please use command \"READ DESIGN\" to read the file first !!\n ";
             return GV_CMD_EXEC_NOP;
         }
         string top_module_name =

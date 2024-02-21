@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "cirDef.h"
-#include "gvSat.h"
+// #include "gvSat.h"
 
 using namespace std;
 
@@ -99,8 +99,10 @@ private:
 
 class CirGate {
 public:
+    // CirGate(unsigned g, unsigned l) : _gid(g), _lineNo(l), _fecId(UINT_MAX),
+    //                                   _ref(0), _pValue(0), _eqGate(0), _satVar(0) {}
     CirGate(unsigned g, unsigned l) : _gid(g), _lineNo(l), _fecId(UINT_MAX),
-                                      _ref(0), _pValue(0), _eqGate(0), _satVar(0) {}
+                                      _ref(0), _pValue(0), _eqGate(0) {}
     virtual ~CirGate() {}
 
     // Basic access methods
@@ -129,10 +131,10 @@ public:
     virtual void genDfsList(vector<CirGate*>&) { setToGlobalRef(); }
 
     // Methods about circuit optimization
-    virtual CirGateV optimize(bool phase, GateList&) {
-        setToGlobalRef();
-        return size_t(this) + (phase ? 1 : 0);
-    }
+    // virtual CirGateV optimize(bool phase, GateList&) {
+    //     setToGlobalRef();
+    //     return size_t(this) + (phase ? 1 : 0);
+    // }
     void merge(const string&, CirGate*, bool);
     // void replace(CirGate*, bool);
     void removeFanout(CirGate*) const;
@@ -157,8 +159,8 @@ public:
     }
     void resetEqGate() { _eqGate = 0; }
     const CirGateV& getEqGate() const { return _eqGate; }
-    void setSatVar(Var v) { _satVar = v; }
-    Var getSatVar() const { return _satVar; }
+    // void setSatVar(Var v) { _satVar = v; }
+    // Var getSatVar() const { return _satVar; }
 
     // Printing functions
     virtual void printGate() const = 0;
@@ -192,7 +194,7 @@ protected:
     mutable unsigned _ref;
     CirPValue _pValue;
     CirGateV _eqGate;
-    Var _satVar;
+    // Var _satVar;
 
     static unsigned _globalRef_s;
 
@@ -259,7 +261,7 @@ public:
     }
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Printing functions
     void printGate() const;
@@ -352,7 +354,7 @@ public:
     }
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Printing functions
     void printGate() const;
@@ -396,7 +398,7 @@ public:
     void genDfsList(vector<CirGate*>&);
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Methods about circuit simulation
     void pSim() {

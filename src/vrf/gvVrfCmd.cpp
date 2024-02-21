@@ -10,20 +10,16 @@
 #include <string>
 
 #include "abcMgr.h"
+#include "cirDef.h"
+#include "cirMgr.h"
 #include "gvModMgr.h"
-#include "gvMsg.h"
-#include "gvUsage.h"
 #include "util.h"
-#include "ecoMgr.h"
 
 using namespace std;
 
-EcoMgr* ECO_FileRead(string oldName, string newName);
-void DoEco(EcoMgr* cirMgr);
-
 bool initVrfCmd() {
-    return (gvCmdMgr->regCmd("Formal Verify", 1, 1, new GVFormalVerifyCmd) &&
-    gvCmdMgr->regCmd("FUNCtional ECO", 4, 3, new GVFunctionalEcoCmd));
+    return (gvCmdMgr->regCmd("Formal Verify", 1, 1, new GVFormalVerifyCmd)) &&
+           (gvCmdMgr->regCmd("PDR", 3, new GVPdrCmd));
 }
 
 //------------------------------------------------------------------------------------------------------------
@@ -35,6 +31,7 @@ GVFormalVerifyCmd ::exec(const string& option) {
     cout << "I am GVFormalVerifyCmd " << endl;
 
     // FIXME: how to determine the file exists
+    gvModMgr->setAigFileName("./b.aig");
     if (gvModMgr->getAigFileName() == "") {
         cout << "[ERROR]: Please use command \"READ DESIGN\" or \"VErilog2 Aig\" to read/make the aig file first !!\n";
         return GV_CMD_EXEC_NOP;
@@ -643,43 +640,37 @@ void GVFormalVerifyCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// FUNCtional ECO <-old old.v -new new.v>
+//    PDR [-Verbose]
 //----------------------------------------------------------------------
-
-GVCmdExecStatus
-GVFunctionalEcoCmd::exec(const string& option) {
-    // cout << "I am GVRandomSetSafe " << endl;
-
-    string newName="", oldName="";
+GVCmdExecStatus GVPdrCmd::exec(const string& option) {
+    // check option
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    cout << "option size = " << options.size() << endl;
-    if (options.size() != 4) {
-        cout << "Please enter a valid value!" << endl;
-        return GV_CMD_EXEC_DONE;
+
+    bool verbose = false;
+    string fileName;
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        if (myStrNCmp("-Verbose", options[i], 2) == 0)
+            verbose = true;
     }
 
-    EcoMgr* pEcoMgr=new EcoMgr;
-    oldName = options[1];
-    newName = options[3];
-    pEcoMgr->ECO_FileRead(oldName, newName);
-    pEcoMgr->DoEco();
-    
-    
-    
-    // gvModMgr->setSafe(stoi(options[0]));
+    if (cirMgr) {
+        IDMap aigIdMap;
+        cirMgr->reorderGateId(aigIdMap);
+        abcMgr->cirToAig(aigIdMap);
+        abcMgr->runPDR(verbose);
+    }
+
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVFunctionalEcoCmd::usage(const bool& verbose) const {
-    cout << "FUNCtional ECO <-old old.v -new new.v>" << endl;
+void GVPdrCmd::usage(const bool& verbose) const {
+    cout << "Usage: PDR [-Verbose]" << endl;
 }
 
-void
-GVFunctionalEcoCmd::help() const {
-    cout << setw(20) << left << "FUNCtional ECO: "
-                      << "Perform Functional ECO on the two given circuits as cad contest2021." << endl;
+void GVPdrCmd::help() const {
+    cout << setw(20) << left << "PDR:"
+         << "Model checking using property directed reachability in abc." << endl;
 }
 
 #endif

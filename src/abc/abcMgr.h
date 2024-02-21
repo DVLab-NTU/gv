@@ -5,11 +5,12 @@
 #include <map>
 #include <string>
 
+#include "abcExt.h"
 #include "base/abc/abc.h"
 #include "base/main/main.h"
 #include "base/main/mainInt.h"
-#include "cirGate.h"
-#include "cirMgr.h"
+#include "cirDef.h"
+#include "util.h"
 
 using namespace std;
 
@@ -18,6 +19,7 @@ extern AbcMgr* abcMgr;
 typedef struct Abc_Frame_t_ Abc_Frame_t;
 typedef struct Abc_Ntk_t_ Abc_Ntk_t;
 typedef struct Abc_Obj_t_ Abc_Obj_t;
+typedef struct Pdr_Par_t_ Pdr_Par_t;
 
 extern "C"
 {
@@ -27,6 +29,7 @@ extern "C"
     Abc_Frame_t* Abc_FrameGetGlobalFrame();
     Abc_Ntk_t* Abc_FrameReadNtk(Abc_Frame_t* p);
     Gia_Man_t* Wln_BlastSystemVerilog(char* pFileName, char* pTopModule, char* pDefines, int fSkipStrash, int fInvert, int fTechMap, int fVerbose);
+    int Abc_NtkDarPdr(Abc_Ntk_t* pNtk, Pdr_Par_t* pPars);
 }
 
 struct ABCParam {
@@ -56,15 +59,22 @@ public:
     void readVerilog(const ABCParam&);
     void buildAigName(map<unsigned, string>&);
     void travPreprocess();
-    void travAllObj(CirMgr*, const CirFileType&, map<unsigned, string>);
-    void initCir(CirMgr*, const CirFileType&);
+    void travAllObj(const CirFileType&, map<unsigned, string>);
+    void initCir(const CirFileType&);
+    void cirToGia();
+    void cirToAig(IDMap&);
     void execCmd(char*);
+
+    // Verification command
+    void runPDR(const bool&);
+    void writeBlif(const string&);
 
     Abc_Frame_t* get_Abc_Frame_t() { return pAbc; }
     Gia_Man_t* pGia;
 
 private:
     Abc_Frame_t* pAbc;
+    Abc_Ntk_t* pNtk;
 };
 
 #endif

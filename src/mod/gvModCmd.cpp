@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "abcMgr.h"
+#include "cirMgr.h"
 #include "gvModMgr.h"
 #include "gvMsg.h"
 #include "kernel/yosys.h"
@@ -18,15 +19,12 @@ bool initModCmd() {
     if (gvModMgr) delete gvModMgr;
     gvModMgr = new GVModMgr;
     return (gvCmdMgr->regCmd("SEt SYStem", 2, 3, new GVSetSystemCmd) &&
-            gvCmdMgr->regCmd("RESET SYStem", 5, 3, new GVResetCmd) &&
-            gvCmdMgr->regCmd("WIZard", 3, new GVSetWizardCmd));
+            gvCmdMgr->regCmd("RESET SYStem", 5, 3, new GVResetCmd));
 }
 
-GVCmdExecStatus
-GVSetSystemCmd::exec(const string& option) {
-    if (!gvModMgr->getInputFileExist()) {
-        cout << "[ERROR]: Please use command \"READ DESIGN\" to "
-                "read the input file first !!\n";
+GVCmdExecStatus GVSetSystemCmd::exec(const string& option) {
+    if (cirMgr == 0) {
+        cout << "[ERROR]: Please use command \"READ DESIGN\" to read the input file first !!\n";
         return GV_CMD_EXEC_NOP;
     }
 
@@ -65,8 +63,7 @@ void GVSetSystemCmd::help() const {
          << "Switch to setup/vrf mode." << endl;
 }
 
-GVCmdExecStatus
-GVResetCmd ::exec(const string& option) {
+GVCmdExecStatus GVResetCmd ::exec(const string& option) {
     bool delete_abc   = true;
     bool delete_yosys = true;
 
@@ -112,103 +109,7 @@ void GVResetCmd ::usage(const bool& verbose) const {
 
 void GVResetCmd ::help() const {
     cout << setw(20) << left << "RESET SYStem: "
-         << "Delete all ntks in gv and reset to setup mode."
-         << endl;
+         << "Delete all ntks in gv and reset to setup mode." << endl;
 }
 
-GVCmdExecStatus
-GVSetWizardCmd::exec(const string& option) {
-    GVCmdExecStatus status = GV_CMD_EXEC_DONE;
-    bool isFile            = false;
-    string wizardFileName  = "";
-    vector<string> options;
-
-    gvModMgr->setWizard(true);
-    GVCmdExec::lexOptions(option, options);
-    if (options.size() < 2)
-        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING,
-                                      "<-File> <(string wizardFileName)>");
-
-    size_t n = options.size();
-    for (size_t i = 0; i < n; ++i) {
-        const string& token = options[i];
-        if (myStrNCmp("-File", token, 2) == 0) {
-            if (isFile) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else {
-                isFile = true;
-            }
-        } else if (isFile) {
-            if (wizardFileName != "")
-                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else {
-                wizardFileName = token;
-            }
-        } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-    }
-    // Start read the wizard file content
-    ifstream infile(wizardFileName);
-    if (!infile) {
-        cout << "[ERROR]: Wizard file name \"" + wizardFileName +
-                    "\" not found !!\n";
-        return GV_CMD_EXEC_ERROR;
-    }
-
-    string prompt = "";
-    vector<int> promptBound;
-    string bound;
-
-    while (1) {
-        getline(infile, bound);
-        if (stoi(bound) == 0) break;
-        promptBound.push_back(stoi(bound));
-        cout << bound << endl;
-        for (int i = 0; i < stoi(bound); ++i) {
-            getline(infile, prompt);
-            gvModMgr->setWizardContent(prompt);
-        }
-    }
-
-    // Start the GV tutorial wizard
-    int promptPos = 0, wizardIdx = 0, progress = 1;
-    bool firstPrompt = true, debug = false;
-    system("clear");
-    while (status != GV_CMD_EXEC_QUIT) {
-        gvCmdMgr->setPrompt();
-        gvModMgr->printWizardPrompt(promptPos, promptBound[wizardIdx]);
-        if (!firstPrompt)
-            gvModMgr->printWizardProgress(progress, promptBound.size());
-
-        status = gvCmdMgr->execOneCmd();
-
-        if (wizardIdx == promptBound.size() - 1) {
-            system("clear");
-            break;
-        }
-
-        if (status == GV_CMD_EXEC_DONE || firstPrompt || debug) {
-            promptPos = promptBound[wizardIdx] + promptPos;
-            wizardIdx++;
-        }
-        cout << endl;
-
-        if (!firstPrompt) {
-            if (status == GV_CMD_EXEC_DONE || debug) {
-                gvModMgr->printWizardPrompt(-1, promptBound[wizardIdx]);
-                progress++;
-            } else gvModMgr->printWizardPrompt(-2, promptBound[wizardIdx]);
-        } else firstPrompt = false;
-
-        system("clear");
-    }
-    return GV_CMD_EXEC_DONE;
-}
-
-void GVSetWizardCmd::usage(const bool& verbose) const {
-    cout << "Usage: Type \"WIZard\" " << endl;
-}
-
-void GVSetWizardCmd::help() const {
-    cout << setw(20) << left << "WIZard: "
-         << "Start the GV turtorial wizard." << endl;
-}
 #endif
