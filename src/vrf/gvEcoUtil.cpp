@@ -225,7 +225,7 @@ CirMgr* ECO_FileRead(string oldName, string newName) {
       }
       
     }
-    for(auto poIdx=poIdx2Delete.rbegin(); poIdx!=poIdx2Delete.rend(); poIdx++) {
+    for(vector<int>::reverse_iterator poIdx=poIdx2Delete.rbegin(); poIdx!=poIdx2Delete.rend(); poIdx++) {
       Abc_NtkDeleteObj(Abc_NtkPo(pNtkMiterFraig, *poIdx));
     }
     // reassign the id's of the ntk
@@ -246,19 +246,15 @@ void
 CirMgr::ReadSimVal() {
   unsigned nObjs = cirMgr->getNumTots();
   size_t patterns[nObjs];
-  // cirMgr->printNetlist();
+
   for (unsigned i = 0, n = _dfsList.size(); i < n; ++i) {
-      // if(cirMgr->getGate(i)->getPValue()()) continue;
       patterns[i] = _dfsList[i]->getPValue()();
   }
   
       for (unsigned i = 0; i < _dfsList.size(); ++i) {
-        // cout << _dfsList[i]->getName() << endl;
         for (size_t j = 0; j < 64; ++j) {
-          // cout << (patterns[i] & 0x1);
           patterns[i] >>= 1;
         }
-        // cout << endl;
       }
       
 }
