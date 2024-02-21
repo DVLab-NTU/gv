@@ -27,11 +27,11 @@ extern int effLimit;
 bool initCirCmd() {
     return (gvCmdMgr->regCmd("CIRRead", 4, new CirReadCmd) &&
             gvCmdMgr->regCmd("CIRPrint", 4, new CirPrintCmd) &&
-            gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd));
+            gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd) &&
     // gvCmdMgr->regCmd("CIRSWeep", 5, new CirSweepCmd) &&
     // gvCmdMgr->regCmd("CIROPTimize", 6, new CirOptCmd) &&
     // gvCmdMgr->regCmd("CIRSTRash", 6, new CirStrashCmd) &&
-    // gvCmdMgr->regCmd("CIRSIMulate", 6, new CirSimCmd) &&
+    gvCmdMgr->regCmd("CIRSIMulate", 6, new CirSimCmd));
     // gvCmdMgr->regCmd("CIRFraig", 4, new CirFraigCmd) &&
     // gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd) &&
     // gvCmdMgr->regCmd("CIRMiter", 4, new CirMiterCmd) &&
@@ -349,85 +349,85 @@ void CirGateCmd::help() const {
 //         << "perform structural hash on the circuit netlist\n";
 // }
 
-// //----------------------------------------------------------------------
-// //    CIRSIMulate <-Random | -File <string patternFile>>
-// //                [-Output (string logFile)]
-// //----------------------------------------------------------------------
-// GVCmdExecStatus
-// CirSimCmd::exec(const string& option)
-// {
-//    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
-//       return GV_CMD_EXEC_ERROR;
-//    }
-//    // check option
-//    vector<string> options;
-//    GVCmdExec::lexOptions(option, options);
+//----------------------------------------------------------------------
+//    CIRSIMulate <-Random | -File <string patternFile>>
+//                [-Output (string logFile)]
+//----------------------------------------------------------------------
+GVCmdExecStatus
+CirSimCmd::exec(const string& option)
+{
+   if (!cirMgr) {
+      cerr << "Error: circuit is not yet constructed!!" << endl;
+      return GV_CMD_EXEC_ERROR;
+   }
+   // check option
+   vector<string> options;
+   GVCmdExec::lexOptions(option, options);
 
-//    ifstream patternFile;
-//    ofstream logFile;
-//    bool doRandom = false, doFile = false, doLog = false;
-//    for (size_t i = 0, n = options.size(); i < n; ++i) {
-//       if (myStrNCmp("-Random", options[i], 2) == 0) {
-//          if (doRandom || doFile)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//          doRandom = true;
-//       }
-//       else if (myStrNCmp("-File", options[i], 2) == 0) {
-//          if (doRandom || doFile)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//          if (++i == n)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
-//          patternFile.open(options[i].c_str(), ios::in);
-//          if (!patternFile)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
-//          doFile = true;
-//       }
-//       else if (myStrNCmp("-Output", options[i], 2) == 0) {
-//          if (doLog)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//          if (++i == n)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
-//          logFile.open(options[i].c_str(), ios::out);
-//          if (!logFile)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
-//          doLog = true;
-//       }
-//       else
-//          return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//    }
+   ifstream patternFile;
+   ofstream logFile;
+   bool doRandom = false, doFile = false, doLog = false;
+   for (size_t i = 0, n = options.size(); i < n; ++i) {
+      if (myStrNCmp("-Random", options[i], 2) == 0) {
+         if (doRandom || doFile)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+         doRandom = true;
+      }
+      else if (myStrNCmp("-File", options[i], 2) == 0) {
+         if (doRandom || doFile)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+         if (++i == n)
+            return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
+         patternFile.open(options[i].c_str(), ios::in);
+         if (!patternFile)
+            return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+         doFile = true;
+      }
+      else if (myStrNCmp("-Output", options[i], 2) == 0) {
+         if (doLog)
+            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+         if (++i == n)
+            return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
+         logFile.open(options[i].c_str(), ios::out);
+         if (!logFile)
+            return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+         doLog = true;
+      }
+      else
+         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+   }
 
-//    if (!doRandom && !doFile)
-//       return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+   if (!doRandom && !doFile)
+      return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-//    assert (curCmd != CIRINIT);
-//    if (doLog)
-//       cirMgr->setSimLog(&logFile);
-//    else cirMgr->setSimLog(0);
+   assert (curCmd != CIRINIT);
+   if (doLog)
+      cirMgr->setSimLog(&logFile);
+   else cirMgr->setSimLog(0);
 
-//    if (doRandom)
-//       cirMgr->randomSim();
-//    else
-//       cirMgr->fileSim(patternFile);
-//    cirMgr->setSimLog(0);
-//    curCmd = CIRSIMULATE;
+   if (doRandom)
+      cirMgr->randomSim();
+   else
+      cirMgr->fileSim(patternFile);
+   cirMgr->setSimLog(0);
+   curCmd = CIRSIMULATE;
 
-//    return GV_CMD_EXEC_DONE;
-// }
+   return GV_CMD_EXEC_DONE;
+}
 
-// void
-// CirSimCmd::usage(const bool& verbose) const
-// {
-//    cout << "Usage: CIRSIMulate <-Random | -File <string patternFile>>\n"
-//       << "                   [-Output (string logFile)]" << endl;
-// }
+void
+CirSimCmd::usage(const bool& verbose) const
+{
+   cout << "Usage: CIRSIMulate <-Random | -File <string patternFile>>\n"
+      << "                   [-Output (string logFile)]" << endl;
+}
 
-// void
-// CirSimCmd::help() const
-// {
-//    cout << setw(15) << left << "CIRSIMulate: "
-//         << "perform Boolean logic simulation on the circuit\n";
-// }
+void
+CirSimCmd::help() const
+{
+   cout << setw(15) << left << "CIRSIMulate: "
+        << "perform Boolean logic simulation on the circuit\n";
+}
 
 // //----------------------------------------------------------------------
 // //    CIRFraig

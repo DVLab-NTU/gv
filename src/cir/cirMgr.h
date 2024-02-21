@@ -20,6 +20,7 @@ using namespace std;
 
 #include "base/abc/abc.h"
 #include "cirDef.h"
+#include "cirCut.h"
 
 extern CirMgr* cirMgr;
 
@@ -95,6 +96,8 @@ public:
     void randomSim();
     void fileSim(ifstream&);
     void setSimLog(ofstream* logFile) { _simLog = logFile; }
+    void ReadSimVal();
+    void cutSim(CirGate* rootGate, CirCut* cut);
 
     // Member functions about fraig
     void strash();
@@ -118,10 +121,12 @@ public:
     static CirGate* _const0;
     // MODIFICATION FOR SOCV HOMEWORK
     void initCir(Gia_Man_t* pGia, const CirFileType& type);
+    void initCir(Abc_Ntk_t* pNtk);
     void buildBdd(CirGate* gate);
     void buildNtkBdd();
     void addTotGate(CirGate* gate) { _totGateList.push_back(gate); };
     const bool readCirFromAbc(string fileName, CirFileType fileType);
+    void readCirFromAbcNtk(Abc_Ntk_t* pNtk);
     const bool setBddOrder(const bool& file);
     // CirGate* createGate(const GateType& type);
     CirGate* createNotGate(CirGate* in0);

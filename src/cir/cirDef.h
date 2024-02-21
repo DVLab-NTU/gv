@@ -10,7 +10,7 @@
 #define CIR_DEF_H
 
 #include <vector>
-// #include "myHash.h"
+#include "myHashMap.h"
 
 using namespace std;
 
@@ -25,6 +25,8 @@ class CirRiGate;
 class CirRoGate;
 class CirMgr;
 class SatSolver;
+class CirCut;
+class CirCutMan;
 
 typedef vector<CirGate*> GateList;
 typedef vector<CirGateV> GateVList;
@@ -39,7 +41,7 @@ typedef vector<CirRiGate*> RiArray;
 typedef vector<CirRoGate*> RoArray;
 typedef vector<CirPiGate*> PiArray;
 typedef vector<CirPoGate*> PoArray;
-// typedef HashMap<CirPValue, IdList*>   FECHash;
+typedef HashMap<CirPValue, IdList*>   FECHash;
 typedef size_t* SimPattern;
 typedef vector<SimPattern> SimVector;
 

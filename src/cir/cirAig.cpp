@@ -54,6 +54,95 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
     return true;
 }
 
+void 
+CirMgr::initCir(Abc_Ntk_t* pNtk) {
+    _piList.resize(Abc_NtkPiNum(pNtk));
+    _riList.resize(Abc_NtkLatchNum(pNtk));
+    _roList.resize(Abc_NtkLatchNum(pNtk));
+    _poList.resize(Abc_NtkPoNum(pNtk));
+    _totGateList.resize(Abc_NtkObjNum(pNtk));
+}
+
+void 
+CirMgr::readCirFromAbcNtk(Abc_Ntk_t* pNtk) {
+    // TODO : Convert abc ntk to gv aig ntk
+    CirGateV gateV;
+    // Abc_Ntk_t* pNtk = NULL;            // the gia pointer of abc
+    Abc_Obj_t *pObj, *pObjRi, *pObjRo; // the obj element of gia
+    unsigned iPi = 0, iPo = 0, iRi = 0, iRo = 0;
+    int i;
+
+
+    // initialize the size of the containers
+    initCir(pNtk);
+    // increment the global travel id for circuit traversing usage
+    // Abc_NtkIncrementTravId(pNtk);
+
+    // since we don't want to traverse the constant node, set the TravId of the
+    // constant node to be as the global one
+    // Abc_NodeSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
+
+    // set the const node
+    _totGateList[0] = _const0;
+
+    // traverse the obj's in topological order
+    Abc_NtkForEachObj( pNtk, pObj, i) {
+        char *name = new char[strlen(Abc_ObjName(pObj))+1]; strcpy(name, Abc_ObjName(pObj));
+        if(Abc_ObjIsPi(pObj)) {
+            CirPiGate* gate = new CirPiGate(Abc_ObjId(pObj), 0);
+            _piList[iPi++] = gate;
+            _totGateList[Abc_ObjId(pObj)] = gate;
+            gate->setName(name);
+        }
+        else if(Abc_ObjIsPo(pObj)) {
+        //  cout << "po is not in topological order, handle afterwards..." << endl;   
+        }
+        else if(Abc_ObjIsNode(pObj)) {
+            CirAigGate *gate = new CirAigGate(Abc_ObjId(pObj), 0);
+            _totGateList[Abc_ObjId(pObj)] = gate;
+            gate->setIn0(getGate(Abc_ObjId(Abc_ObjFanin0(pObj))), Abc_ObjFaninC0(pObj));
+            gate->setIn1(getGate(Abc_ObjId(Abc_ObjFanin1(pObj))), Abc_ObjFaninC1(pObj));
+            // char *name = new char[strlen(Abc_ObjName(pObj))+1]; strcpy(name, Abc_ObjName(pObj));
+            gate->setName(name);
+        }
+        // TODO : handle latches
+
+        // else if(Abc_ObjIsBo(pObj)) {
+        //     CirRoGate* gate = new CirRoGate(Abc_ObjId(pObj), 0);
+        //     _roList[iRo++] = gate;
+        //     _totGateList[Abc_ObjId(pObj)] = gate;
+        // }
+        // else if(Abc_ObjIsBi(pObj)) {
+        //     CirRiGate *gate = new CirRiGate(Abc_ObjId(pObj), 0, Abc_ObjId(Abc_ObjFanin0(pObj)));
+        //     gate->setIn0(getGate(Abc_ObjId(Abc_ObjFanin0(pObj))), Abc_ObjFaninC0(pObj));
+        //     _riList[iPo++] = gate;
+        //     _totGateList[Abc_ObjId(pObj)] = gate;
+        // }
+        else if(Abc_AigNodeIsConst(pObj)) {
+            // cout << "I am const1 " << Abc_ObjId(pObj) <<  endl;
+        }
+        else {
+            // cout << "not defined gate type" << endl;
+        }
+    }
+    // handle the po's
+    Abc_NtkForEachPo(pNtk, pObj, i) {
+        char *name = new char[strlen(Abc_ObjName(pObj))+1]; strcpy(name, Abc_ObjName(pObj));
+        CirPoGate *gate = new CirPoGate(Abc_ObjId(pObj), 0, Abc_ObjId(Abc_ObjFanin0(pObj)));
+        gate->setIn0(getGate(Abc_ObjId(Abc_ObjFanin0(pObj))), Abc_ObjFaninC0(pObj));
+        _poList[iPo++] = gate;
+        _totGateList[Abc_ObjId( pObj)] = gate;
+        gate->setName(name);
+    }
+    
+
+    cout << "generating dfs..." << endl;
+    genDfsList();
+    // checkFloatList();
+    // checkUnusedList();
+
+}
+
 /**
  * Creates a NOT gate in the circuit.
  *
