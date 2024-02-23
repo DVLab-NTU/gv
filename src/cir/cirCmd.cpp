@@ -125,7 +125,7 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
 }
 
 void CirReadCmd::usage(const bool& verbose) const {
-    cout << "Usage: CIRRead <-Verilog | -Aiger> <(string fileName)> [-Replace]" << endl;
+    cout << "Usage: CIRRead <-Verilog | -Aiger | -Blif> <(string fileName)> [-Replace]" << endl;
 }
 
 void CirReadCmd::help() const {
