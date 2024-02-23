@@ -70,7 +70,8 @@ int main(int argc, char** argv) {
         myexit();
     }
 
-    cout << "GV v0.3.0 - Copyright © 2022-2023, DVLab NTUEE.\n";
+    // cout << "GV v0.3.0 - Copyright © 2022-2023, DVLab NTUEE.\n";
+    cout << "[EXPERIMENTAL VERSION 0.4]\n";
     if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() &&
           initModCmd() && initBddCmd() && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd()))
         return 1;
@@ -79,7 +80,7 @@ int main(int argc, char** argv) {
     while (status != GV_CMD_EXEC_QUIT) {
         gvCmdMgr->setPrompt();
         status = gvCmdMgr->execOneCmd();
-        cout << endl;
+        // cout << endl;
     }
     return 0;
 }
