@@ -101,7 +101,11 @@ void YosysMgr::printDesignInfo(const bool& verbose) {
         numNot = 0, numLe = 0, numGe = 0;
     RTLIL::Module* topModule = yosys_design->top_module();
     // Check design
-    if (topModule == nullptr) return;
+    if (topModule == nullptr) {
+        cout << "[ERROR]: Please read the word-level design first !!\n";
+        cout << "[ERROR]: Use \"cirprint\" to print the aig info.\n";
+        return;
+    }
     // print info
     cout << "Modules in current design: ";
     string moduleName = topModule->name.str();
