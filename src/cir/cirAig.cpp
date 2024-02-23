@@ -34,12 +34,13 @@ const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
         return false;
     }
     strcpy(param.pFileName, fileName.c_str());
-    cout << "filename = " << fileName << endl;
+    // cout << "filename = " << fileName << endl;
     cirMgr->fileName = fileName;
     if (fileType == AIGER) {
         abcMgr->readAig(param);
     } else if (fileType == VERILOG) {
         param.fTechMap = 1;
+        param.fVerbose = 0;
         abcMgr->readVerilog(param);
         yosysMgr->createMapping(fileName);
         abcMgr->buildAigName(id2Name);

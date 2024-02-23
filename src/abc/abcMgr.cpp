@@ -51,8 +51,9 @@ void AbcMgr::readVerilog(const ABCParam &opt) {
     int fInvert      = opt.fInvert;
     int fTechMap     = opt.fTechMap;
     int fSkipStrash  = opt.fSkipStrash;
+    int fLibInDir    = opt.fLibInDir;
     int fVerbose     = opt.fVerbose;
-    pGia             = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fVerbose);
+    pGia             = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fLibInDir, fVerbose);
 }
 
 void AbcMgr::readAig(const ABCParam &opt) {
