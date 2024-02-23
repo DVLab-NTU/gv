@@ -3,7 +3,7 @@
   PackageName  [ cir ]
   Synopsis     [ Define basic cir package commands ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2008-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "cirCmd.h"

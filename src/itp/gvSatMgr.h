@@ -3,7 +3,7 @@
   PackageName  [ sat ]
   Synopsis     [ Define sat prove package interface ]
   Author       [ ]
-  Copyright    [ Copyleft(c) 2010 LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
  ****************************************************************************/
 
 #ifndef SAT_MGR_H_

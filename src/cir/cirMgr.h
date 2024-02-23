@@ -3,7 +3,7 @@
   PackageName  [ cir ]
   Synopsis     [ Define circuit manager ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2008-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef CIR_MGR_H

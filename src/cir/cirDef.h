@@ -3,7 +3,7 @@
   PackageName  [ cir ]
   Synopsis     [ Define basic data or var for cir package ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2012-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef CIR_DEF_H

@@ -3,7 +3,7 @@
   PackageName  [ ]
   Synopsis     [ BDD Manager functions ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2005-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "bddMgrV.h"
@@ -32,8 +32,8 @@ BddMgrV* bddMgrV = 0;  // new BddMgrV;
 //----------------------------------------------------------------------
 static void swapBddNodeV(BddNodeV& f, BddNodeV& g) {
     BddNodeV tmp = f;
-    f = g;
-    g = tmp;
+    f            = g;
+    g            = tmp;
 }
 
 //----------------------------------------------------------------------
@@ -62,8 +62,8 @@ void BddMgrV::init(size_t nin, size_t h, size_t c) {
     // This must be called first
     BddNodeV::setBddMgrV(this);
     BddNodeVInt::_terminal = uniquify(0, 0, 0);
-    BddNodeV::_one = BddNodeV(BddNodeVInt::_terminal, BDD_POS_EDGEV);
-    BddNodeV::_zero = BddNodeV(BddNodeVInt::_terminal, BDD_NEG_EDGEV);
+    BddNodeV::_one         = BddNodeV(BddNodeVInt::_terminal, BDD_POS_EDGEV);
+    BddNodeV::_zero        = BddNodeV(BddNodeVInt::_terminal, BDD_NEG_EDGEV);
 
     _supports.reserve(nin + 1);
     _supports.push_back(BddNodeV::_one);
@@ -74,8 +74,8 @@ void BddMgrV::init(size_t nin, size_t h, size_t c) {
 // Called by the BSETOrder command
 void BddMgrV::restart() {
     size_t nin = _supports.size() - 1;
-    size_t h = _uniqueTable.numBuckets();
-    size_t c = _computedTable.size();
+    size_t h   = _uniqueTable.numBuckets();
+    size_t c   = _computedTable.size();
 
     init(nin, h, c);
 }
@@ -131,12 +131,12 @@ BddMgrV::ite(BddNodeV f, BddNodeV g, BddNodeV h) {
     BddNodeV fl = f.getLeftCofactor(v),
              gl = g.getLeftCofactor(v),
              hl = h.getLeftCofactor(v);
-    BddNodeV t = ite(fl, gl, hl);
+    BddNodeV t  = ite(fl, gl, hl);
 
     BddNodeV fr = f.getRightCofactor(v),
              gr = g.getRightCofactor(v),
              hr = h.getRightCofactor(v);
-    BddNodeV e = ite(fr, gr, hr);
+    BddNodeV e  = ite(fr, gr, hr);
 
     // get result
     if (t == e) {
@@ -159,7 +159,7 @@ BddMgrV::ite(BddNodeV f, BddNodeV g, BddNodeV h) {
 
     // check unique table
     BddNodeVInt* ni = uniquify(t(), e(), v);
-    ret_t = size_t(ni);
+    ret_t           = size_t(ni);
 #if !(DO_STD_ITE)
     if (moveBubble) ret_t = ret_t ^ BDD_NEG_EDGEV;
 #endif
@@ -212,8 +212,8 @@ void BddMgrV::standardize(BddNodeV& f, BddNodeV& g, BddNodeV& h, bool& isNegEdge
         f = ~f;
     }
     if (g.isNegEdge()) {
-        g = ~g;
-        h = ~h;
+        g         = ~g;
+        h         = ~h;
         isNegEdge = !isNegEdge;
     }
 }

@@ -3,7 +3,7 @@
   PackageName  [ bdd ]
   Synopsis     [ Define BDD commands ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2005-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
  ****************************************************************************/
 
 #include "bddCmd.h"

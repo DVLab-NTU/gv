@@ -3,7 +3,7 @@
   PackageName  [ cir ]
   Synopsis     [ Define basic gate data structures ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2008-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef CIR_GATE_H
@@ -373,8 +373,10 @@ private:
 
 class CirAigGate : public CirGate {
 public:
-    CirAigGate(unsigned g, unsigned l): CirGate(g, l) , _name(0) {}
-   ~CirAigGate() { if (_name) delete[]_name; }
+    CirAigGate(unsigned g, unsigned l) : CirGate(g, l), _name(0) {}
+    ~CirAigGate() {
+        if (_name) delete[] _name;
+    }
     CirGateV getIn0() const { return _in0; }
     CirGateV getIn1() const { return _in1; }
     CirGate* getIn0Gate() const { return _in0.gate(); }
@@ -384,9 +386,8 @@ public:
     void setIn1(size_t i) { _in1 = i; }
     void setIn0(CirGate* faninGate, bool inv = false);
     void setIn1(CirGate* faninGate, bool inv = false);
-    void setName(char *s) { _name = s; }
-   char* getName() const { return _name; }
-
+    void setName(char* s) { _name = s; }
+    char* getName() const { return _name; }
 
     // Basic access methods
     GateType getType() const { return AIG_GATE; }
@@ -414,7 +415,7 @@ public:
 private:
     CirGateV _in0;
     CirGateV _in1;
-    char    *_name;
+    char* _name;
 
     // Private methods about circuit optimization
     void replaceFanin(CirGate* o, CirGate* n, bool inv) {

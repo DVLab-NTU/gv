@@ -3,7 +3,7 @@
   PackageName  [ util ]
   Synopsis     [ Define the prototypes of the exported utility functions ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef UTIL_H
 #define UTIL_H

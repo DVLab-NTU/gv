@@ -3,7 +3,7 @@
   PackageName  [ prove ]
   Synopsis     [ For BDD-based verification ]
   Author       [ ]
-  Copyright    [ Copyleft(c) 2010-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "bddMgrV.h"
