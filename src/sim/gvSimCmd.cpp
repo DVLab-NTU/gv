@@ -35,11 +35,6 @@ GVRandomSimCmd ::exec(const string& option) {
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
 
-    // DEBUG
-    run_pass("hierarchy -auto-top");
-    yosys_design->top_module();
-    // END
-
     command +=
         "-top " + yosys_design->top_module()->name.str().substr(
                       1, strlen(yosys_design->top_module()->name.c_str()) - 1);
