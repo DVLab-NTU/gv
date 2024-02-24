@@ -60,10 +60,9 @@ void AbcMgr::readAig(const ABCParam &opt) {
     char *pFileName = opt.pFileName;
     int fSkipStrash = opt.fSkipStrash;
     int fGiaSimple  = opt.fGiaSimple;
-    // int fCheck      = opt.fCheck;
-    int fCheck = 1;
-    pGia       = Gia_AigerRead(pFileName, fGiaSimple, fSkipStrash, fCheck);
-    // Io_Read(pFileName, IO_FILE_AIGER, fCheck, fCheck);
+    int fCheck      = opt.fCheck;
+    // int fCheck = 1;
+    pGia = Gia_AigerRead(pFileName, fGiaSimple, fSkipStrash, fCheck);
 }
 
 void AbcMgr::buildAigName(map<unsigned, string> &id2Name) {
