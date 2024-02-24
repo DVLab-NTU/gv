@@ -28,7 +28,6 @@ extern "C"
     int Cmd_CommandExecute(Abc_Frame_t* pAbc, const char* sCommand);
     Abc_Frame_t* Abc_FrameGetGlobalFrame();
     Abc_Ntk_t* Abc_FrameReadNtk(Abc_Frame_t* p);
-    // Gia_Man_t* Wln_BlastSystemVerilog(char* pFileName, char* pTopModule, char* pDefines, int fSkipStrash, int fInvert, int fTechMap, int fVerbose);
     Gia_Man_t* Wln_BlastSystemVerilog(char* pFileName, char* pTopModule, char* pDefines, int fSkipStrash, int fInvert, int fTechMap, int fLibInDir, int fVerbose);
     int Abc_NtkDarPdr(Abc_Ntk_t* pNtk, Pdr_Par_t* pPars);
 }
