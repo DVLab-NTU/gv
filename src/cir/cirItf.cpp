@@ -67,8 +67,6 @@ int getAigIn1Cp(const unsigned& idx) { return cirMgr->getAig(idx)->getIn1().isIn
 int getPoIn0Cp(const unsigned& idx) { return cirMgr->getPo(idx)->getIn0().isInv(); }
 int getRiIn0Cp(const unsigned& idx) { return cirMgr->getRi(idx)->getIn0().isInv(); }
 
-// ____________
-
 void CirMgr::createInput(const int& idx, const int& gateId) {
     CirPiGate* gate      = new CirPiGate(gateId, 0);
     _piList[idx]         = gate;
