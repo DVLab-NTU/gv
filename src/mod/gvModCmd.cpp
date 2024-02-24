@@ -18,8 +18,7 @@
 bool initModCmd() {
     if (gvModMgr) delete gvModMgr;
     gvModMgr = new GVModMgr;
-    return (gvCmdMgr->regCmd("SEt SYStem", 2, 3, new GVSetSystemCmd) &&
-            gvCmdMgr->regCmd("RESET SYStem", 5, 3, new GVResetCmd));
+    return (gvCmdMgr->regCmd("SEt SYStem", 2, 3, new GVSetSystemCmd));
 }
 
 GVCmdExecStatus GVSetSystemCmd::exec(const string& option) {
@@ -63,53 +62,53 @@ void GVSetSystemCmd::help() const {
          << "Switch to setup/vrf mode." << endl;
 }
 
-GVCmdExecStatus GVResetCmd ::exec(const string& option) {
-    bool delete_abc   = true;
-    bool delete_yosys = true;
+// GVCmdExecStatus GVResetCmd ::exec(const string& option) {
+//     bool delete_abc   = true;
+//     bool delete_yosys = true;
 
-    vector<string> options;
-    GVCmdExec::lexOptions(option, options);
-    if (options.size() > 1)
-        return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[1]);
-    if (options.size() == 1) {
-        const string& token = options[0];
-        if (myStrNCmp("abc", token, 1) == 0) {
-            delete_yosys = false;
-        } else if (myStrNCmp("yosys", token, 1) == 0) {
-            delete_abc = false;
-        } else {
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-        }
-    }
+//     vector<string> options;
+//     GVCmdExec::lexOptions(option, options);
+//     if (options.size() > 1)
+//         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[1]);
+//     if (options.size() == 1) {
+//         const string& token = options[0];
+//         if (myStrNCmp("abc", token, 1) == 0) {
+//             delete_yosys = false;
+//         } else if (myStrNCmp("yosys", token, 1) == 0) {
+//             delete_abc = false;
+//         } else {
+//             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
+//         }
+//     }
 
-    if (delete_abc) {
-        Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), "empty");
-        if (abcMgr) delete abcMgr;
-        abcMgr = new AbcMgr;
-    }
+//     if (delete_abc) {
+//         Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), "empty");
+//         if (abcMgr) delete abcMgr;
+//         abcMgr = new AbcMgr;
+//     }
 
-    if (delete_yosys) {
-        Yosys::run_pass("delete");
-    }
+//     if (delete_yosys) {
+//         Yosys::run_pass("delete");
+//     }
 
-    myUsage.reset();
-    gvModMgr->reset();
+//     myUsage.reset();
+//     gvModMgr->reset();
 
-    // if (gvModMgr) delete gvModMgr;
-    // gvModMgr = new GVModMgr;
-}
+//     // if (gvModMgr) delete gvModMgr;
+//     // gvModMgr = new GVModMgr;
+// }
 
-void GVResetCmd ::usage(const bool& verbose) const {
-    cout << "Usage: RESET SYStem [ Abc | Yosys ]" << endl;
-    cout
-        << "       If engine is specified, only delete the ntk stored inside. "
-           "However, it may be risky to only delete partial datas."
-        << endl;
-}
+// void GVResetCmd ::usage(const bool& verbose) const {
+//     cout << "Usage: RESET SYStem [ Abc | Yosys ]" << endl;
+//     cout
+//         << "       If engine is specified, only delete the ntk stored inside. "
+//            "However, it may be risky to only delete partial datas."
+//         << endl;
+// }
 
-void GVResetCmd ::help() const {
-    cout << setw(20) << left << "RESET SYStem: "
-         << "Delete all ntks in gv and reset to setup mode." << endl;
-}
+// void GVResetCmd ::help() const {
+//     cout << setw(20) << left << "RESET SYStem: "
+//          << "Delete all ntks in gv and reset to setup mode." << endl;
+// }
 
 #endif
