@@ -1,9 +1,9 @@
 #include "yosysMgr.h"
 
-#include <cstddef>
 #include <cstdlib>
-#include <filesystem>
 #include <iomanip>
+
+#include "fileType.h"
 
 YosysMgr* yosysMgr;
 
@@ -14,6 +14,8 @@ void YosysMgr::init() {
 void YosysMgr::reset() {
     delete Yosys::yosys_design;
     Yosys::yosys_design = new RTLIL::Design;
+
+    RTLIL::Design* gvYsysDesign = new RTLIL::Design;
 }
 
 void YosysMgr::setLogging(const bool& enable) {
@@ -21,6 +23,16 @@ void YosysMgr::setLogging(const bool& enable) {
         log_streams.push_back(&std::cout);
     else if (!enable && !log_streams.empty())
         log_streams.pop_back();
+}
+
+void YosysMgr::saveDesign(const string& designName) {
+    string command = "design -save " + designName;
+    run_pass(command);
+}
+
+void YosysMgr::loadDesign(const string& designName) {
+    string command = "design -load " + designName;
+    run_pass(command);
 }
 
 void YosysMgr::createMapping(const string& fileName) {
@@ -34,25 +46,32 @@ void YosysMgr::createMapping(const string& fileName) {
 }
 
 void YosysMgr::readBlif(const string& fileName) {
-    string command = "read_blif " + fileName;
+    _fileType               = BLIF;
+    const string designName = fileTypeStr[BLIF];
+    string command          = "read_blif " + fileName;
     run_pass(command);
+    saveDesign(designName);
 }
 
 void YosysMgr::readVerilog(const string& fileName) {
-    string command = "read_verilog -sv " + fileName;
+    _fileType               = VERILOG;
+    const string designName = fileTypeStr[VERILOG];
+    const string command    = "read_verilog -sv " + fileName;
     run_pass(command);
+    saveDesign(designName);
 }
 
 void YosysMgr::readAiger(const string& fileName) {
-    string command = "read_aiger " + fileName;
-    run_pass(command);
+    // string command = "read_aiger " + fileName;
+    // run_pass(command);
+    _fileType = AIGER;
 }
 
 void YosysMgr::writeBlif(const string& fileName) {
+    loadDesign(fileTypeStr[VERILOG]);
     string command;
     run_pass(command);
     command = "hierarchy -auto-top ";
-    // command += "vendingMachine";
     run_pass(command);
     command = "hierarchy -check";
     run_pass(command);
@@ -88,6 +107,7 @@ void YosysMgr::writeBlif(const string& fileName) {
 }
 
 void YosysMgr::writeAiger(const string& fileName) {
+    loadDesign(fileTypeStr[VERILOG]);
     string topModule       = "hierarchy -auto-top; ";
     string preProcess      = "flatten; proc; techmap; setundef -zero; aigmap; ";
     string writeAigMapping = "write_aiger " + fileName;
@@ -99,13 +119,15 @@ void YosysMgr::printDesignInfo(const bool& verbose) {
     int numFF = 0, numPI = 0, numPO = 0, numPIO = 0, numConst = 0, numNet = 0;
     int numMux = 0, numAnd = 0, numAdd = 0, numSub = 0, numMul = 0, numEq = 0,
         numNot = 0, numLe = 0, numGe = 0;
-    RTLIL::Module* topModule = yosys_design->top_module();
     // Check design
-    if (topModule == nullptr) {
+    if (_fileType == AIGER) {
         cout << "[ERROR]: Please read the word-level design first !!\n";
         cout << "[ERROR]: Use \"cirprint\" to print the aig info.\n";
         return;
     }
+
+    loadDesign(fileTypeStr[_fileType]);
+    RTLIL::Module* topModule = yosys_design->top_module();
     // print info
     cout << "Modules in current design: ";
     string moduleName = topModule->name.str();
