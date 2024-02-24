@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include "fileType.h"
 #include "myUsage.h"
 #include "rnGen.h"
 
@@ -74,3 +75,9 @@ size_t getHashSize(size_t s) {
     if (s < 536870912) return 5000011;
     return 7000003;
 }
+
+const std::string fileTypeStr[4] = {
+    "VERILOG",
+    "AIG",
+    "AAG",
+    "BLIF"};

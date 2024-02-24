@@ -121,12 +121,12 @@ public:
     bool createMiter(CirMgr*, CirMgr*);
     static CirGate* _const0;
     // MODIFICATION FOR SOCV HOMEWORK
-    void initCir(Gia_Man_t* pGia, const CirFileType& type);
+    void initCir(Gia_Man_t* pGia, const FileType& type);
     void initCir(const int&, const int&, const int&, const int&);
     void buildBdd(CirGate*);
     void buildNtkBdd();
     void addTotGate(CirGate* gate) { _totGateList.push_back(gate); };
-    const bool readCirFromAbc(string, CirFileType);
+    const bool readCirFromAbc(string, FileType);
     const bool readBlif(const string&) const;
     const bool setBddOrder(const bool&);
     // CirGate* createGate(const GateType& type);
@@ -140,7 +140,7 @@ public:
     void createInput(const int& idx, const int& gateId);
     void createOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, string poName);
     void createRi(const int& idx, const int& gateId, const int& in0Id, const int& inv);
-    int createRo(const int& idx, const int& gateId, const CirFileType& fileType);
+    int createRo(const int& idx, const int& gateId, const FileType& fileType);
     void createRiRo(const int& riGid, const int& roGid);
     void createAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv);
     void createConst0();

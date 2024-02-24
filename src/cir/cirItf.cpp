@@ -26,7 +26,7 @@ void parseOutput(const int& idx, const int& gateId, const int& in0Id, const int&
     cirMgr->createOutput(idx, gateId, in0Id, inv, poName);
 }
 
-int parseRo(const int& idx, const int& gateId, const CirFileType& fileType) {
+int parseRo(const int& idx, const int& gateId, const FileType& fileType) {
     cirMgr->createRo(idx, gateId, fileType);
 }
 
@@ -85,7 +85,7 @@ void CirMgr::createOutput(const int& idx, const int& gateId, const int& in0Id, c
     _totGateList[gateId] = gate;
 }
 
-int CirMgr::createRo(const int& idx, const int& gateId, const CirFileType& fileType) {
+int CirMgr::createRo(const int& idx, const int& gateId, const FileType& fileType) {
     if (fileType == VERILOG) {
         return _roList[idx]->getGid();
     } else if (fileType == AIGER) {

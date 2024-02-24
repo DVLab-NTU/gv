@@ -16,7 +16,7 @@ extern void parseOutput(const int& idx, const int& gateId, const int& in0Id, con
 extern void parseAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv);
 extern void parseRi(const int& idx, const int& gateId, const int& in0Id, const int& inv);
 extern void parseRiRo(const int& riGid, const int& roGid);
-extern int parseRo(const int& idx, const int& gateId, const CirFileType& fileType);
+extern int parseRo(const int& idx, const int& gateId, const FileType& fileType);
 extern void parseConst0();
 extern void parseConst1();
 extern unsigned getNumPIs();

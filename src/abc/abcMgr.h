@@ -61,8 +61,8 @@ public:
     void readVerilog(const ABCParam&);
     void buildAigName(map<unsigned, string>&);
     void travPreprocess();
-    void travAllObj(const CirFileType&, map<unsigned, string>);
-    void initCir(const CirFileType&);
+    void travAllObj(const FileType&, map<unsigned, string>);
+    void initCir(const FileType&);
     void cirToGia();
     void cirToAig(IDMap&);
     void execCmd(char*);

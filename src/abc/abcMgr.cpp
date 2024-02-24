@@ -104,7 +104,7 @@ void AbcMgr::travPreprocess() {
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
 }
 
-void AbcMgr::travAllObj(const CirFileType &fileType, map<unsigned, string> id2Name) {
+void AbcMgr::travAllObj(const FileType &fileType, map<unsigned, string> id2Name) {
     Gia_Obj_t *pObj, *pObjRi, *pObjRo;  // the obj element of gia
     size_t i, iPi = 0, iPpi = 0, iPo = 0, iRi = 0, iRo = 0;
     map<int, int> PPI2RO;
@@ -156,7 +156,7 @@ void AbcMgr::travAllObj(const CirFileType &fileType, map<unsigned, string> id2Na
     parseConst1();
 }
 
-void AbcMgr::initCir(const CirFileType &fileType) {
+void AbcMgr::initCir(const FileType &fileType) {
     // Create lists
     int piNum = Gia_ManPiNum(pGia), regNum = Gia_ManRegNum(pGia), poNum = 0, totNum = 0;
     if (fileType == VERILOG) {

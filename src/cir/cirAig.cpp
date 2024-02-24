@@ -25,7 +25,7 @@
  * @param fileType   The type of file (AIGER or VERILOG) to be read.
  * @return           Returns true if the circuit is successfully read; otherwise, false.
  */
-const bool CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
+const bool CirMgr::readCirFromAbc(string fileName, FileType fileType) {
     ABCParam param;
     map<unsigned, string> id2Name;
     ifstream cirin(fileName);

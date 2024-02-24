@@ -63,7 +63,7 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
     // check option
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    CirFileType fileType = VERILOG;
+    FileType fileType = VERILOG;
 
     if (options.empty())
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
@@ -119,6 +119,7 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         }
         // Save the word-level information
         if (fileType == VERILOG) yosysMgr->readVerilog(fileName);
+        else yosysMgr->readAiger(fileName);
     }
     curCmd = CIRREAD;
     return GV_CMD_EXEC_DONE;
@@ -267,7 +268,7 @@ CirWriteCmd::exec(const string& option) {
         cirMgr->writeAag(cout);
         return GV_CMD_EXEC_DONE;
     }
-    CirFileType fileType;
+    FileType fileType;
     bool hasFile = false;
     int gateId;
     CirGate* thisGate = NULL;

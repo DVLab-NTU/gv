@@ -84,12 +84,22 @@ GVRandomSimCmd ::exec(const string& option) {
             ++i;
             out_file_name = options[i];
             command += " -output " + out_file_name;
+            ofstream outfile;
+            outfile.open(stimulus_file_name, ios::in);
+            if (!outfile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+            outfile.close();
             continue;
         }
         if (myStrNCmp("-file", token, 1) == 0) {
             ++i;
             stimulus_file_name = options[i];
             command += " -file " + stimulus_file_name;
+            ifstream infile;
+            infile.open(stimulus_file_name, ios::in);
+            if (!infile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+            infile.close();
             continue;
         }
         if (myStrNCmp("-vcd", token, 4) == 0) {
@@ -100,7 +110,9 @@ GVRandomSimCmd ::exec(const string& option) {
         }
     }
     // load the random_sim plugin in yosys
-    run_pass("plugin -i ./src/ext/sim.so");
+    // TODO: Fix the extension path
+    // cout << __APPLE__ << endl;
+    run_pass("plugin -i /home/hchchiu/dvlab/newgv/merge/gv0/src/ext/sim.so");
 
     if (!file_name_set) command += " -input " + cirMgr->getFileName();
     // cout << "safe  =========================== " + gvModMgr -> getSafe() <<
