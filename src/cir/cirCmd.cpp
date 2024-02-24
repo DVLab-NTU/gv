@@ -330,7 +330,7 @@ void CirWriteCmd::usage(const bool& verbose) const {
 
 void CirWriteCmd::help() const {
     cout << setw(20) << left << "CIRWrite: "
-         << "Write the netlist to an ASCII AIG file (.aag)\n";
+         << "Write the netlist to an AIG/AAG/BLIF file\n";
 }
 
 // void
