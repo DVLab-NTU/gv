@@ -70,8 +70,7 @@ int main(int argc, char** argv) {
         myexit();
     }
 
-    // cout << "GV v0.3.0 - Copyright © 2022-2023, DVLab NTUEE.\n";
-    cout << "[EXPERIMENTAL VERSION 0.4]\n";
+    // cout << "GV v0.3.0 - Copyright © 2023-present, DVLab NTUEE.\n";
     if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() &&
           initModCmd() && initBddCmd() && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd()))
         return 1;
