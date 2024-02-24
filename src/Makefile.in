@@ -21,9 +21,10 @@ ABCFLGS = -DABC_USE_STDINT_H
 
 CFLAGS	= $(ENGFLGS) $(PKGFLAG) -O3 -DNDEBUG -Wall -Wno-parentheses -Wno-unused-function 
 CFLAGS	= $(ENGFLGS) $(PKGFLAG) -g -Wall -Wno-parentheses -Wno-unused-function
-
 # DISABLE ALL WARNINGS
 CFLAGS += -w -std=c++14
+# PATH TO sim.so
+CFLAGS += -DGV_SIMSO_PATH=\"$(SIM_FLAG)\"
 SHELL = bash
 OS  = $(shell uname -s)
 

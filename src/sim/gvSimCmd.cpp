@@ -111,8 +111,8 @@ GVRandomSimCmd ::exec(const string& option) {
     }
     // load the random_sim plugin in yosys
     // TODO: Fix the extension path
-    // cout << __APPLE__ << endl;
-    run_pass("plugin -i /home/hchchiu/dvlab/newgv/merge/gv0/src/ext/sim.so");
+    const string importPlugin = "plugin -i ";
+    run_pass(importPlugin + GV_SIMSO_PATH + "sim.so");
 
     if (!file_name_set) command += " -input " + cirMgr->getFileName();
     // cout << "safe  =========================== " + gvModMgr -> getSafe() <<

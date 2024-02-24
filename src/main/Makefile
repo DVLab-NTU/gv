@@ -11,7 +11,6 @@ LIBABSPATH = $(patsubst %src/main/Makefile, %lib/,$(TOPPATH))
 MACLIB     = /opt/homebrew/lib
 OS         = $(shell uname -s)
 
-
 target: $(TARGET)
 	
 $(TARGET): $(COBJS) $(LIBDEP)
