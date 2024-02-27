@@ -22,22 +22,15 @@ bool initSimCmd() {
 //----------------------------------------------------------------------
 GVCmdExecStatus
 GVRandomSimCmd ::exec(const string& option) {
-    gvMsg(GV_MSG_IFO) << "I am GVRandomSimCmd " << endl;
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n = options.size();
-
-    string opt, rst = "reset", rst_n = "reset", clk = "clk", in_file_name,
-                out_file_name, command = "random_sim ",
-                vcd_file_name = ".waves.vcd";
-    string stimulus_file_name, cycles;
-
+    size_t n   = options.size();
+    string rst = "reset", rst_n = "reset", clk = "clk", command = "random_sim ", vcd_file_name = ".waves.vcd";
+    string opt, in_file_name, out_file_name, stimulus_file_name, cycles;
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
 
-    command +=
-        "-top " + yosys_design->top_module()->name.str().substr(
-                      1, strlen(yosys_design->top_module()->name.c_str()) - 1);
+    command += "-top " + yosysMgr->getTopModuleName();
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
         if (myStrNCmp("-v", token, 1) == 0) {
@@ -109,20 +102,13 @@ GVRandomSimCmd ::exec(const string& option) {
             continue;
         }
     }
-    // load the random_sim plugin in yosys
-    // TODO: Fix the extension path
-    const string importPlugin = "plugin -i ";
-    run_pass(importPlugin + GV_SIMSO_PATH + "sim.so");
-
     if (!file_name_set) command += " -input " + cirMgr->getFileName();
-    // cout << "safe  =========================== " + gvModMgr -> getSafe() <<
-    // endl;
-    if (gvModMgr->getSafe() != -1)
-        command += " -safe " + std::to_string((gvModMgr->getSafe()));
-
-    cout << command << "\n";
+    if (yosysMgr->getSafeProperty() != -1) command += " -safe " + to_string((yosysMgr->getSafeProperty()));
+    // load the random_sim plugin in yosys
+    yosysMgr->loadSimPlugin();
     // execute "random_sim" command
-    run_pass(command);
+    yosysMgr->runPass(command);
+
     return GV_CMD_EXEC_DONE;
 }
 
@@ -141,7 +127,7 @@ void GVRandomSimCmd ::help() const {
 }
 
 //----------------------------------------------------------------------
-// RAndom Sim
+// SEt SAfe <#PO>
 //----------------------------------------------------------------------
 
 GVCmdExecStatus
@@ -155,7 +141,8 @@ GVRandomSetSafe::exec(const string& option) {
         gvMsg(GV_MSG_IFO) << "Please enter a valid value!" << endl;
         return GV_CMD_EXEC_DONE;
     }
-    gvModMgr->setSafe(stoi(options[0]));
+    yosysMgr->setSafeProperty(stoi(options[0]));
+
     return GV_CMD_EXEC_DONE;
 }
 

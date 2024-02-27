@@ -38,8 +38,3 @@ void GVModMgr::setModPromt() {
     _modPrompt = GVModTypeString[_gvMode];
     gvCmdMgr->updateModPrompt(_modPrompt);
 }
-
-void GVModMgr::setSafe(int p) {
-    _property    = p;
-    _propertySet = true;
-}

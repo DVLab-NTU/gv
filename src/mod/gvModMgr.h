@@ -35,7 +35,6 @@ public:
     };
     string getInputFileName() { return _inputFileName; };
     string getAigFileName() { return _aig_name; };
-    int getSafe() { return _property; }
 
     // set functions
     void setAigFileName(const string& aigFileName) { _aig_name = aigFileName; };
@@ -43,7 +42,6 @@ public:
     void setGVMode(GVModType mode);
     void setGVEngine(GVModEngine engine);
     void setModPromt();
-    void setSafe(int p);
 
     // reset
     void reset();
