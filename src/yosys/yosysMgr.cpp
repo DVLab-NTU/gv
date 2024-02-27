@@ -250,3 +250,44 @@ void YosysMgr::showSchematic() {
     run_pass("opt");
     run_pass("show");
 }
+
+/**
+ * @brief Retrieves the name of the top module.
+ *
+ * This function retrieves the name of the top module in the current Yosys design.
+ *
+ * @return A string containing the name of the top module.
+ *         If the design has not been loaded, an empty string is returned.
+ */
+string YosysMgr::getTopModuleName() const {
+    if (!yosys_design) {
+        cout << "[ERROR]: Please read the word-level design first !!\n";
+        return "";
+    }
+    RTLIL::Module* top   = yosys_design->top_module();
+    string topModuleName = top->name.substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
+    return topModuleName;
+}
+
+/**
+ * @brief Loads the simulation plugin.
+ *
+ * This function loads the simulation plugin by running a Yosys command.
+ *
+ * @note The simulation plugin file path is assumed to be defined in the GV_SIMSO_PATH macro.
+ */
+void YosysMgr::loadSimPlugin() {
+    string command = "plugin -i ";
+    run_pass(command + GV_SIMSO_PATH + "sim.so");
+}
+
+/**
+ * @brief Runs a Yosys pass with the specified command.
+ *
+ * This function runs a Yosys pass with the given command.
+ *
+ * @param command The command string specifying the Yosys pass to run.
+ */
+void YosysMgr::runPass(const string& command) {
+    run_pass(command);
+}
