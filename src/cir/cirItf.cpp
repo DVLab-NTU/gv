@@ -8,51 +8,21 @@
 
 /**
  * @brief Decide whether the input is PI or RO
- *
  */
-bool inputIsPi(const int& gateId) {
-    return gateId <= cirMgr->getNumPIs();
-}
+bool inputIsPi(const int& gateId) { return gateId <= cirMgr->getNumPIs(); }
 
+void initCirMgr(const int& piNum, const int& poNum, const int& regNum, const int& totNum) { cirMgr->initCir(piNum, poNum, regNum, totNum); }
 /**
- * @brief Parse the primary input of Gia from the ABC
- *
+ * @brief Parse the Gia from the ABC into the circuit of GV
  */
-void parseInput(const int& idx, const int& gateId) {
-    cirMgr->createInput(idx, gateId);
-}
-
-void parseOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, string poName) {
-    cirMgr->createOutput(idx, gateId, in0Id, inv, poName);
-}
-
-int parseRo(const int& idx, const int& gateId, const FileType& fileType) {
-    cirMgr->createRo(idx, gateId, fileType);
-}
-
-void parseRi(const int& idx, const int& gateId, const int& in0Id, const int& inv) {
-    cirMgr->createRi(idx, gateId, in0Id, inv);
-}
-
-void parseRiRo(const int& riGid, const int& roGid) {
-    cirMgr->createRiRo(riGid, roGid);
-}
-
-void parseAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv) {
-    cirMgr->createAig(gateId, in0Id, in0Inv, in1Id, in1Inv);
-}
-
-void parseConst0() {
-    cirMgr->createConst0();
-}
-
-void parseConst1() {
-    cirMgr->createConst1();
-}
-
-void initCirMgr(const int& piNum, const int& poNum, const int& regNum, const int& totNum) {
-    cirMgr->initCir(piNum, poNum, regNum, totNum);
-}
+void parseInput(const int& idx, const int& gateId) { cirMgr->createInput(idx, gateId); }
+void parseOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, string poName) { cirMgr->createOutput(idx, gateId, in0Id, inv, poName); }
+void parseRo(const int& idx, const int& gateId, const FileType& fileType) { cirMgr->createRo(idx, gateId, fileType); }
+void parseRi(const int& idx, const int& gateId, const int& in0Id, const int& inv) { cirMgr->createRi(idx, gateId, in0Id, inv); }
+void parseRiRo(const int& riGid, const int& roGid) { cirMgr->createRiRo(riGid, roGid); }
+void parseAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv) { cirMgr->createAig(gateId, in0Id, in0Inv, in1Id, in1Inv); }
+void parseConst0() { cirMgr->createConst0(); }
+void parseConst1() { cirMgr->createConst1(); }
 
 unsigned getNumPIs() { return cirMgr->getNumPIs(); }
 unsigned getNumPOs() { return cirMgr->getNumPOs(); }
