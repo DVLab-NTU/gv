@@ -34,8 +34,7 @@ const bool CirMgr::readCirFromAbc(string fileName, FileType fileType) {
         return false;
     }
     strcpy(param.pFileName, fileName.c_str());
-    // cout << "filename = " << fileName << endl;
-    cirMgr->fileName = fileName;
+    setFileName(fileName);
     if (fileType == AIGER) {
         abcMgr->readAig(param);
     } else if (fileType == VERILOG) {
