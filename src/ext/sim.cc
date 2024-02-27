@@ -122,7 +122,7 @@ struct randomSim : public Pass {
                     ++num_inputs;
             }
             std::string command =
-                "yosys -p \"read_verilog " + verilog_file_name + "; hierarchy -top " + top_module_name + "; write_cxxrtl .sim.cpp;\"";
+                "yosys -qp \"read_verilog " + verilog_file_name + "; hierarchy -top " + top_module_name + "; write_cxxrtl .sim.cpp;\"";
             run_command(command);
             std::string   wire_name;
             std::string   module_name;
