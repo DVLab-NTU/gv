@@ -7,17 +7,35 @@
 
 YosysMgr* yosysMgr;
 
+/**
+ * @brief Initializes the Yosys framework.
+ *
+ * This function initializes the Yosys framework by calling the yosys_setup()
+ */
 void YosysMgr::init() {
     Yosys::yosys_setup();
 }
 
+/**
+ * @brief Resets the Yosys framework to its initial state.
+ *
+ * This function resets the Yosys framework by deleting the existing yosys_design pointer
+ * and creating a new, empty one.
+ */
 void YosysMgr::reset() {
     delete Yosys::yosys_design;
     Yosys::yosys_design = new RTLIL::Design;
-
-    RTLIL::Design* gvYsysDesign = new RTLIL::Design;
 }
 
+/**
+ * @brief Enables or disables logging to standard output.
+ *
+ * This function allows enabling or disabling logging to standard output.
+ *
+ * @param enable A boolean indicating whether logging should be enabled or disabled.
+ *               - If true, logging to standard output will be enabled.
+ *               - If false, logging to standard output will be disabled.
+ */
 void YosysMgr::setLogging(const bool& enable) {
     if (enable && log_streams.empty())
         log_streams.push_back(&std::cout);
@@ -25,16 +43,38 @@ void YosysMgr::setLogging(const bool& enable) {
         log_streams.pop_back();
 }
 
+/**
+ * @brief Saves the current design with a specified name.
+ *
+ * This function instructs Yosys to save the current design with the given name.
+ *
+ * @param designName The name to use when saving the design.
+ */
 void YosysMgr::saveDesign(const string& designName) {
     string command = "design -save " + designName;
     run_pass(command);
 }
 
+/**
+ * @brief Loads a design with a specified name.
+ *
+ * This function instructs Yosys to load a design with the given name.
+ *
+ * @param designName The name of the design to load.
+ */
 void YosysMgr::loadDesign(const string& designName) {
     string command = "design -load " + designName;
     run_pass(command);
 }
 
+/**
+ * @brief Creates a name mapping file for the design specified in a Verilog file.
+ *
+ * This function invokes Yosys to read the Verilog file, perform preprocessing steps,
+ * and create a name mapping file for the design.
+ *
+ * @param fileName The name of the Verilog file containing the design.
+ */
 void YosysMgr::createMapping(const string& fileName) {
     string yosys           = "yosys -qp ";
     string readVerilog     = "read_verilog " + fileName + "; ";
@@ -45,6 +85,14 @@ void YosysMgr::createMapping(const string& fileName) {
     system(command.c_str());
 }
 
+/**
+ * @brief Reads a BLIF file and processes it.
+ *
+ * This function sets the current design type to BLIF, reads the specified BLIF file,
+ * and then saves the design.
+ *
+ * @param fileName The name of the BLIF file to read.
+ */
 void YosysMgr::readBlif(const string& fileName) {
     _fileType               = BLIF;
     const string designName = fileTypeStr[BLIF];
@@ -53,6 +101,14 @@ void YosysMgr::readBlif(const string& fileName) {
     saveDesign(designName);
 }
 
+/**
+ * @brief Reads a Verilog file and processes it.
+ *
+ * This function sets the current design type to Verilog, reads the specified Verilog file,
+ * and then saves the design.
+ *
+ * @param fileName The name of the Verilog file to read.
+ */
 void YosysMgr::readVerilog(const string& fileName) {
     _fileType               = VERILOG;
     const string designName = fileTypeStr[VERILOG];
@@ -61,60 +117,68 @@ void YosysMgr::readVerilog(const string& fileName) {
     saveDesign(designName);
 }
 
+/**
+ * @brief Reads an AIGER file and sets the current design type accordingly.
+ *
+ * This function reads an AIGER file and sets the current design type to AIGER.
+ *
+ * @param fileName The name of the AIGER file to read.
+ */
 void YosysMgr::readAiger(const string& fileName) {
     // string command = "read_aiger " + fileName;
     // run_pass(command);
     _fileType = AIGER;
 }
 
+/**
+ * @brief Writes the current design to a BLIF file.
+ *
+ * This function loads the current design from a Verilog file, processes it using a series
+ * of Yosys passes, and then writes the resulting design to a BLIF file.
+ *
+ * @param fileName The name of the BLIF file to write the design to.
+ */
 void YosysMgr::writeBlif(const string& fileName) {
     loadDesign(fileTypeStr[VERILOG]);
-    string command;
-    run_pass(command);
-    command = "hierarchy -auto-top ";
-    run_pass(command);
-    command = "hierarchy -check";
-    run_pass(command);
-    command = "proc";
-    run_pass(command);
-    command = "opt";
-    run_pass(command);
-    command = "opt_expr -mux_undef";
-    run_pass(command);
-    command = "opt";
-    run_pass(command);
-    command = "rename -hide";
-    run_pass(command);
-    command = "opt";
-    run_pass(command);
-    command = "memory_collect";
-    run_pass(command);
-    command = "flatten";
-    run_pass(command);
-    command = "memory_unpack";
-    run_pass(command);
-    command = "splitnets -driver";
-    run_pass(command);
-    command = "setundef -zero -undriven";
-    run_pass(command);
-    command = "dffunmap";
-    run_pass(command);
-    command = "opt -fast -noff";
-    run_pass(command);
-    command = "write_blif ";
-    command += fileName;
+    string command = "hierarchy -auto-top; hierarchy -check; ";
+    command += "proc; opt; ";
+    command += "opt_expr -mux_undef; opt; ";
+    command += "rename -hide; opt; ";
+    command += "memory_collect; flatten; memory_unpack; ";
+    command += "splitnets -driver; ";
+    command += "setundef -zero -undriven; ";
+    command += "dffunmap; ";
+    command += "opt -fast -noff; ";
+    command += "write_blif " + fileName;
     run_pass(command);
 }
 
+/**
+ * @brief Writes the current design to an AIGER file.
+ *
+ * This function loads the current design from a Verilog file, processes it using a series
+ * of Yosys passes, and then writes the resulting design to an AIGER file.
+ *
+ * @param fileName The name of the AIGER file to write the design to.
+ */
 void YosysMgr::writeAiger(const string& fileName) {
     loadDesign(fileTypeStr[VERILOG]);
-    string topModule       = "hierarchy -auto-top; ";
-    string preProcess      = "flatten; proc; techmap; setundef -zero; aigmap; ";
-    string writeAigMapping = "write_aiger " + fileName;
-    string command         = topModule + preProcess + writeAigMapping;
+    string command = "hierarchy -auto-top; ";
+    command += "flatten; proc; techmap; setundef -zero; aigmap; ";
+    command += "write_aiger " + fileName;
     run_pass(command);
 }
 
+/**
+ * @brief Prints information about the current design.
+ *
+ * This function prints various information about the current design,
+ * such as the number of modules, wires, cells, and different types of cells.
+ *
+ * @param verbose Flag indicating whether to print detailed information about cell types.
+ *                If set to true, detailed information about each cell type will be printed.
+ *                If set to false, only the counts of primary inputs (PIs) and primary outputs (POs) will be printed.
+ */
 void YosysMgr::printDesignInfo(const bool& verbose) {
     int numFF = 0, numPI = 0, numPO = 0, numPIO = 0, numConst = 0, numNet = 0;
     int numMux = 0, numAnd = 0, numAdd = 0, numSub = 0, numMul = 0, numEq = 0,
@@ -172,6 +236,13 @@ void YosysMgr::printDesignInfo(const bool& verbose) {
              << ", #PIO = " << numPIO << "\n";
 }
 
+/**
+ * @brief Displays the schematic of the top module in the Yosys design.
+ *
+ * This function runs a series of Yosys passes to generate and display
+ * the schematic of the top module in the current Yosys design.
+ *
+ */
 void YosysMgr::showSchematic() {
     if (yosys_design->top_module() == nullptr) return;
     run_pass("hierarchy -auto-top");

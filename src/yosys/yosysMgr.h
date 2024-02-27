@@ -21,7 +21,6 @@ public:
     void setLogging(const bool& = false);
     void saveDesign(const string&);
     void loadDesign(const string&);
-    void createMapping(const string&);
 
     void readBlif(const string&);
     void readVerilog(const string&);
@@ -31,6 +30,7 @@ public:
 
     void showSchematic();
     void printDesignInfo(const bool&);
+    void createMapping(const string&);
 
 private:
     FileType _fileType;
