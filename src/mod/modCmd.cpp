@@ -1,27 +1,23 @@
 #ifndef GV_MOD_CMD_C
 #define GV_MOD_CMD_C
 
-#include "gvModCmd.h"
+#include "modCmd.h"
 
-#include <fstream>
 #include <iomanip>
 #include <string>
 #include <vector>
 
-#include "abcMgr.h"
 #include "cirMgr.h"
-#include "gvModMgr.h"
-#include "gvMsg.h"
-#include "kernel/yosys.h"
+#include "modMgr.h"
 #include "util.h"
 
 bool initModCmd() {
-    if (gvModMgr) delete gvModMgr;
-    gvModMgr = new GVModMgr;
-    return (gvCmdMgr->regCmd("SEt SYStem", 2, 3, new GVSetSystemCmd));
+    if (modeMgr) delete modeMgr;
+    modeMgr = new ModMgr;
+    return (gvCmdMgr->regCmd("SEt SYStem", 2, 3, new ModSetSystemCmd));
 }
 
-GVCmdExecStatus GVSetSystemCmd::exec(const string& option) {
+GVCmdExecStatus ModSetSystemCmd::exec(const string& option) {
     if (cirMgr == 0) {
         cout << "[ERROR]: Please use command \"READ DESIGN\" to read the input file first !!\n";
         return GV_CMD_EXEC_NOP;
@@ -47,17 +43,17 @@ GVCmdExecStatus GVSetSystemCmd::exec(const string& option) {
         } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
 
-    if (setup) gvModMgr->setGVMode(GV_MOD_TYPE_SETUP);
-    else if (vrf) gvModMgr->setGVMode(GV_MOD_TYPE_VERIFY);
+    if (setup) modeMgr->setGVMode(MOD_TYPE_SETUP);
+    else if (vrf) modeMgr->setGVMode(MOD_TYPE_VERIFY);
 
     return GV_CMD_EXEC_DONE;
 }
 
-void GVSetSystemCmd::usage(const bool& verbose) const {
+void ModSetSystemCmd::usage(const bool& verbose) const {
     cout << "Usage: SEt SYStem <setup | vrf>" << endl;
 }
 
-void GVSetSystemCmd::help() const {
+void ModSetSystemCmd::help() const {
     cout << setw(20) << left << "SEt System: "
          << "Switch to setup/vrf mode." << endl;
 }
@@ -92,10 +88,10 @@ void GVSetSystemCmd::help() const {
 //     }
 
 //     myUsage.reset();
-//     gvModMgr->reset();
+//     modeMgr->reset();
 
-//     // if (gvModMgr) delete gvModMgr;
-//     // gvModMgr = new GVModMgr;
+//     // if (modeMgr) delete modeMgr;
+//     // modeMgr = new modeMgr;
 // }
 
 // void GVResetCmd ::usage(const bool& verbose) const {

@@ -7,7 +7,6 @@
 #include <string>
 
 #include "cirMgr.h"
-#include "gvModMgr.h"
 #include "gvMsg.h"
 #include "util.h"
 #include "yosysMgr.h"

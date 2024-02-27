@@ -1,5 +1,5 @@
 PKGFLAG	  = $(DEBUG_FLAG)
-EXTHDRS	  = gvModMgr.h gvModCmd.h
+EXTHDRS	  = modMgr.h modCmd.h
 
 include ../Makefile.in
 include ../Makefile.lib
