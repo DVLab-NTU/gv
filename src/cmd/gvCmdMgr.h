@@ -24,37 +24,48 @@ const string GVCmdTypeString[] = {"Revealed", "Common", "Verify", "Simulate", "N
 enum GVCmdType {
     // Revealed command
     GV_CMD_TYPE_REVEALED = 0,
-    GV_CMD_TYPE_COMMON = 1,
-    GV_CMD_TYPE_VERIFY = 2,
+    GV_CMD_TYPE_COMMON   = 1,
+    GV_CMD_TYPE_VERIFY   = 2,
     GV_CMD_TYPE_SIMULATE = 3,
-    GV_CMD_TYPE_NETWORK = 4,
-    GV_CMD_TYPE_ABC = 5,
-    GV_CMD_TYPE_YOSYS = 6,
-    GV_CMD_TYPE_MOD = 7,
-    GV_CMD_TYPE_BDD = 8,
-    GV_CMD_TYPE_PROVE = 9,
-    GV_CMD_TYPE_ITP = 10,
+    GV_CMD_TYPE_NETWORK  = 4,
+    GV_CMD_TYPE_ABC      = 5,
+    GV_CMD_TYPE_YOSYS    = 6,
+    GV_CMD_TYPE_MOD      = 7,
+    GV_CMD_TYPE_BDD      = 8,
+    GV_CMD_TYPE_PROVE    = 9,
+    GV_CMD_TYPE_ITP      = 10,
 };
 
 enum GVCmdExecStatus {
-    GV_CMD_EXEC_DONE = 0,
+    GV_CMD_EXEC_DONE  = 0,
     GV_CMD_EXEC_ERROR = 1,
-    GV_CMD_EXEC_QUIT = 2,
-    GV_CMD_EXEC_NOP = 3,
+    GV_CMD_EXEC_QUIT  = 2,
+    GV_CMD_EXEC_NOP   = 3,
 };
 
 enum GVCmdOptionError {
-    GV_CMD_OPT_MISSING = 0,
-    GV_CMD_OPT_EXTRA = 1,
-    GV_CMD_OPT_ILLEGAL = 2,
+    GV_CMD_OPT_MISSING    = 0,
+    GV_CMD_OPT_EXTRA      = 1,
+    GV_CMD_OPT_ILLEGAL    = 2,
     GV_CMD_OPT_FOPEN_FAIL = 3,
 };
 
-const unordered_set<GVCmdType> _setupMode{GV_CMD_TYPE_REVEALED, GV_CMD_TYPE_COMMON, GV_CMD_TYPE_NETWORK,
-                                          GV_CMD_TYPE_ABC, GV_CMD_TYPE_MOD, GV_CMD_TYPE_BDD};
+const unordered_set<GVCmdType> _setupMode{
+    GV_CMD_TYPE_REVEALED,
+    GV_CMD_TYPE_COMMON,
+    GV_CMD_TYPE_NETWORK,
+    GV_CMD_TYPE_ABC,
+    GV_CMD_TYPE_MOD,
+    GV_CMD_TYPE_BDD,
+    GV_CMD_TYPE_YOSYS};
 
-const unordered_set<GVCmdType> _vrfMode{GV_CMD_TYPE_VERIFY, GV_CMD_TYPE_SIMULATE, GV_CMD_TYPE_COMMON,
-                                        GV_CMD_TYPE_MOD, GV_CMD_TYPE_PROVE, GV_CMD_TYPE_ITP};
+const unordered_set<GVCmdType> _vrfMode{
+    GV_CMD_TYPE_VERIFY,
+    GV_CMD_TYPE_SIMULATE,
+    GV_CMD_TYPE_COMMON,
+    GV_CMD_TYPE_MOD,
+    GV_CMD_TYPE_PROVE,
+    GV_CMD_TYPE_ITP};
 
 #define GV_COMMAND(cmd, type)                  \
     class cmd : public GVCmdExec {             \
@@ -70,9 +81,9 @@ class GVCmdExec {
 public:
     GVCmdExec(GVCmdType t) : _cmdType(t) {}
     virtual ~GVCmdExec() {}
-    virtual GVCmdExecStatus exec(const string&) = 0;
+    virtual GVCmdExecStatus exec(const string&)   = 0;
     virtual void usage(const bool& = false) const = 0;
-    virtual void help() const = 0;
+    virtual void help() const                     = 0;
 
     inline GVCmdType getGVCmdType() const { return _cmdType; };
     inline void setCmdLen(unsigned n) { _cmdLen = n; }

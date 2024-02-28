@@ -1,16 +1,20 @@
-SRCPKGS  = util cmd abc mod yosys bdd itp sim cir vrf ext prove gvsat cad
-LIBPKGS  = util cmd abc mod yosys bdd itp sim vrf cir prove gvsat cad
+# SRCPKGS  = util cmd abc mod yosys bdd itp sim cir vrf ext prove gvsat 
+# LIBPKGS  = util cmd abc mod yosys bdd itp sim cir vrf prove gvsat
+SRCPKGS  = util cmd cir abc yosys bdd mod sat itp sim vrf ext prove 
+LIBPKGS  = util cmd abc bdd cir yosys mod itp sim vrf prove sat
 
 MAIN     = main
 
 EXTLIBS	 = -lm -lz -lreadline -ltermcap -ldl -lstdc++ -ltcl -lffi -lgmp
 SRCLIBS  = $(addprefix -l, $(LIBPKGS)) $(addprefix -l, $(ENGPKGS))
 
+TOPPATH    = $(abspath $(firstword $(MAKEFILE_LIST)))
+SIMSO_PATH = $(patsubst %Makefile, %src/ext/,$(TOPPATH))
 
 #ENGPKGS	 += quteRTL
-ENGPKGS	 += boolector
-ENGPKGS	 += lgl
-ENGPKGS	 += btor2parser
+# ENGPKGS	 += boolector
+# ENGPKGS	 += lgl
+# ENGPKGS	 += btor2parser
 #ENGPKGS	 += minisat
 ENGPKGS	 += abcc
 ENGPKGS	 += yosyss
@@ -26,19 +30,20 @@ debug : EXEC     = gv.debug
 all:  DEBUG_FLAG =
 debug:DEBUG_FLAG = -DGV_DEBUG
 
+
 LIB	     = libgv.a
 
 
 all debug:	srcLib
 	@echo "Checking $(MAIN)..."
-	@cd src/$(MAIN); make --no-print-directory EXTLIB="$(SRCLIBS) $(EXTLIBS)" EXEC=$(EXEC); cd ../.. ;
+	@cd src/$(MAIN); make --no-print-directory EXTLIB="$(SRCLIBS) $(EXTLIBS)" SIM_FLAG="$(SIMSO_PATH)" EXEC=$(EXEC); cd ../.. ;
 
 srcLib:	engLib 
 	@cd include; ln -fs ../src/*/*.h ./;
 	@for pkg in $(SRCPKGS); \
 	do \
 		echo "Checking $$pkg..."; \
-		cd src/$$pkg; make --no-print-directory DEBUG_FLAG=$(DEBUG_FLAG) PKGNAME=$$pkg || exit;  \
+		cd src/$$pkg; make --no-print-directory DEBUG_FLAG=$(DEBUG_FLAG)  SIM_FLAG="$(SIMSO_PATH)" PKGNAME=$$pkg || exit;  \
 		cd ../.. ; \
 	done
 

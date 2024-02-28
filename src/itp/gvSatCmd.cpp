@@ -3,7 +3,7 @@
   PackageName  [ sat ]
   Synopsis     [ Define basic sat prove package commands ]
   Author       [ ]
-  Copyright    [ Copyleft(c) 2010 LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
  ****************************************************************************/
 
 #include "gvSatCmd.h"

@@ -3,7 +3,7 @@
 //   PackageName  [ util ]
 //   Synopsis     [ Define Hash and Cache ADT ]
 //   Author       [ Chung-Yang (Ric) Huang ]
-//   Copyright    [ Copyleft(c) 2009-present LaDs(III), GIEE, NTU, Taiwan ]
+//   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 // ****************************************************************************/
 
 // #ifndef MY_HASH_H
@@ -23,11 +23,11 @@
 // // {
 // // public:
 // //    BddHashKey() {}
-// // 
+// //
 // //    size_t operator() () const { return 0; }
-// // 
+// //
 // //    bool operator == (const HashKey& k) { return true; }
-// // 
+// //
 // // private:
 // // };
 // //
@@ -115,7 +115,7 @@
 //    // Pass the end
 //    iterator end() const {
 //       return iterator(const_cast<Hash<HashKey, HashData>*>(this),
-//              _numBuckets, 0); 
+//              _numBuckets, 0);
 //    }
 //    // return true if no valid data
 //    bool empty() const {
@@ -192,7 +192,6 @@
 
 // };
 
-
 // //---------------------
 // // Define Cache classes
 // //---------------------
@@ -203,14 +202,14 @@
 // // {
 // // public:
 // //    CacheKey() {}
-// //    
+// //
 // //    size_t operator() () const { return 0; }
-// //   
+// //
 // //    bool operator == (const CacheKey&) const { return true; }
-// //       
+// //
 // // private:
-// // }; 
-// // 
+// // };
+// //
 // template <class CacheKey, class CacheData>
 // class Cache
 // {

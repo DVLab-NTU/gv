@@ -3,7 +3,7 @@
   PackageName  [ sat ]
   Synopsis     [ Define miniSat solver interface functions ]
   Author       [ Chung-Yang (Ric) Huang, Cheng-Yin Wu ]
-  Copyright    [ Copyleft(c) 2010-2014 LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef SAT_C
@@ -18,7 +18,7 @@
 #include "cirMgr.h"
 
 GVSatSolver::GVSatSolver(CirMgr* cirMgr) : _cirMgr(cirMgr) {
-    _solver = new SolverV();
+    _solver        = new SolverV();
     _solver->proof = new Proof();
     _assump.clear();
     _curVar = 0;
@@ -37,7 +37,7 @@ GVSatSolver::~GVSatSolver() {
 
 void GVSatSolver::reset() {
     delete _solver;
-    _solver = new SolverV();
+    _solver        = new SolverV();
     _solver->proof = new Proof();
     _assump.clear();
     _curVar = 0;
@@ -115,8 +115,8 @@ GVSatSolver::getDataValue(const size_t& var) const {
 
 // const size_t
 // GVSatSolver::getFormula(const GVNetId& id, const uint32_t& depth) {
-    // Var var = getVerifyData(id, depth);
-    // return (id.fanin0Cp ? getNegVar(var) : getPosVar(var));
+// Var var = getVerifyData(id, depth);
+// return (id.fanin0Cp ? getNegVar(var) : getPosVar(var));
 // }
 
 void GVSatSolver::resizeNtkData(const uint32_t& num) {
@@ -157,7 +157,7 @@ void GVSatSolver::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
     const uint32_t index = gate->getGid();
     if (depth) {
         // Build FF I/O Relation
-        CirGateV in0 = gate->getIn0();
+        CirGateV in0   = gate->getIn0();
         const Var var1 = getVerifyData(in0.gate(), depth - 1);
 
         if (in0.isInv()) {
@@ -191,8 +191,8 @@ void GVSatSolver::add_AND_Formula(const CirGate* gate, const uint32_t& depth) {
     // Build AND I/O Relation
     const CirGateV in0 = gate->getIn0();
     const CirGateV in1 = gate->getIn1();
-    const Var var0 = getVerifyData(in0.gate(), depth);
-    const Var var1 = getVerifyData(in1.gate(), depth);
+    const Var var0     = getVerifyData(in0.gate(), depth);
+    const Var var1     = getVerifyData(in1.gate(), depth);
 
     Lit y = mkLit(var);
     Lit a = mkLit(var0, in0.isInv());

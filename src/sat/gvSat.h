@@ -3,7 +3,7 @@
   PackageName  [ sat ]
   Synopsis     [ Define miniSat solver interface functions ]
   Author       [ Chung-Yang (Ric) Huang, Cheng-Yin Wu ]
-  Copyright    [ Copyleft(c) 2010-2014 LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef GV_SAT_H
@@ -72,7 +72,7 @@ private:
     SolverV* _solver;       // Pointer to a Minisat solver
     Var _curVar;            // Variable currently
     vec<Lit> _assump;       // Assumption List for assumption solve
-    const CirMgr* _cirMgr;        // Network Under Verification
+    const CirMgr* _cirMgr;  // Network Under Verification
     vector<Var>* _ntkData;  // Mapping between GVNetId and Solver Data
     // GVNtkMgr*    _ntk;     // Network Under Verification
 };

@@ -3,7 +3,7 @@
   PackageName  [ cir ]
   Synopsis     [ Define basic gate data structures ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2008-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef CIR_GATE_H
@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "cirDef.h"
-#include "gvSat.h"
 
 using namespace std;
 
@@ -99,8 +98,10 @@ private:
 
 class CirGate {
 public:
+    // CirGate(unsigned g, unsigned l) : _gid(g), _lineNo(l), _fecId(UINT_MAX),
+    //                                   _ref(0), _pValue(0), _eqGate(0), _satVar(0) {}
     CirGate(unsigned g, unsigned l) : _gid(g), _lineNo(l), _fecId(UINT_MAX),
-                                      _ref(0), _pValue(0), _eqGate(0), _satVar(0) {}
+                                      _ref(0), _pValue(0), _eqGate(0) {}
     virtual ~CirGate() {}
 
     // Basic access methods
@@ -129,10 +130,10 @@ public:
     virtual void genDfsList(vector<CirGate*>&) { setToGlobalRef(); }
 
     // Methods about circuit optimization
-    virtual CirGateV optimize(bool phase, GateList&) {
-        setToGlobalRef();
-        return size_t(this) + (phase ? 1 : 0);
-    }
+    // virtual CirGateV optimize(bool phase, GateList&) {
+    //     setToGlobalRef();
+    //     return size_t(this) + (phase ? 1 : 0);
+    // }
     void merge(const string&, CirGate*, bool);
     // void replace(CirGate*, bool);
     void removeFanout(CirGate*) const;
@@ -157,8 +158,8 @@ public:
     }
     void resetEqGate() { _eqGate = 0; }
     const CirGateV& getEqGate() const { return _eqGate; }
-    void setSatVar(Var v) { _satVar = v; }
-    Var getSatVar() const { return _satVar; }
+    // void setSatVar(Var v) { _satVar = v; }
+    // Var getSatVar() const { return _satVar; }
 
     // Printing functions
     virtual void printGate() const = 0;
@@ -192,7 +193,7 @@ protected:
     mutable unsigned _ref;
     CirPValue _pValue;
     CirGateV _eqGate;
-    Var _satVar;
+    // Var _satVar;
 
     static unsigned _globalRef_s;
 
@@ -259,7 +260,7 @@ public:
     }
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Printing functions
     void printGate() const;
@@ -352,7 +353,7 @@ public:
     }
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Printing functions
     void printGate() const;
@@ -371,8 +372,10 @@ private:
 
 class CirAigGate : public CirGate {
 public:
-    CirAigGate(unsigned g, unsigned l): CirGate(g, l) , _name(0) {}
-   ~CirAigGate() { if (_name) delete[]_name; }
+    CirAigGate(unsigned g, unsigned l) : CirGate(g, l), _name(0) {}
+    ~CirAigGate() {
+        if (_name) delete[] _name;
+    }
     CirGateV getIn0() const { return _in0; }
     CirGateV getIn1() const { return _in1; }
     CirGate* getIn0Gate() const { return _in0.gate(); }
@@ -382,9 +385,8 @@ public:
     void setIn1(size_t i) { _in1 = i; }
     void setIn0(CirGate* faninGate, bool inv = false);
     void setIn1(CirGate* faninGate, bool inv = false);
-    void setName(char *s) { _name = s; }
-   char* getName() const { return _name; }
-
+    void setName(char* s) { _name = s; }
+    char* getName() const { return _name; }
 
     // Basic access methods
     GateType getType() const { return AIG_GATE; }
@@ -396,7 +398,7 @@ public:
     void genDfsList(vector<CirGate*>&);
 
     // Methods about circuit optimization
-    CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateList&);
 
     // Methods about circuit simulation
     void pSim() {
@@ -412,7 +414,7 @@ public:
 private:
     CirGateV _in0;
     CirGateV _in1;
-    char    *_name;
+    char* _name;
 
     // Private methods about circuit optimization
     void replaceFanin(CirGate* o, CirGate* n, bool inv) {

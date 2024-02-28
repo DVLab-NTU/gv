@@ -3,7 +3,7 @@
   PackageName  [ main ]
   Synopsis     [ Define main() ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef GV_MAIN_CC
@@ -12,7 +12,6 @@
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
 #include "gvUsage.h"
-#include "kernel/yosys.h"
 #include "util.h"
 using namespace std;
 
@@ -70,7 +69,7 @@ int main(int argc, char** argv) {
         myexit();
     }
 
-    cout << "GV v0.3.0 - Copyright © 2022-2023, DVLab NTUEE.\n";
+    // cout << "GV v0.3.0 - Copyright © 2023-present, DVLab NTUEE.\n";
     if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() &&
           initModCmd() && initBddCmd() && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd()))
         return 1;

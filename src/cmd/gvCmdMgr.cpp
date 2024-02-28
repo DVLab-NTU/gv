@@ -245,7 +245,9 @@ GVCmdMgr::execOneCmd() {
     if (_dofile.is_open()) {
         getline(_dofile, str);
         strcpy(execCmd, str.c_str());
-        cout << getPrompt() << execCmd << endl;
+        // Detect dofile comment(#) and blank command
+        if (execCmd[0] != '#' && str.size() > 0)
+            cout << getPrompt() << execCmd << endl;
         if (_dofile.eof()) closeDofile();
     } else
         execCmd = readline(getPrompt().c_str());
@@ -277,6 +279,8 @@ GVCmdMgr::execOneCmd() {
         if (e) return e->exec(option);
     }
     delete[] execCmd;
+    // cout << endl;
+
     return GV_CMD_EXEC_NOP;
 }
 
