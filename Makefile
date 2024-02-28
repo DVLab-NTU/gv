@@ -12,9 +12,9 @@ TOPPATH    = $(abspath $(firstword $(MAKEFILE_LIST)))
 SIMSO_PATH = $(patsubst %Makefile, %src/ext/,$(TOPPATH))
 
 #ENGPKGS	 += quteRTL
-ENGPKGS	 += boolector
-ENGPKGS	 += lgl
-ENGPKGS	 += btor2parser
+# ENGPKGS	 += boolector
+# ENGPKGS	 += lgl
+# ENGPKGS	 += btor2parser
 #ENGPKGS	 += minisat
 ENGPKGS	 += abcc
 ENGPKGS	 += yosyss
