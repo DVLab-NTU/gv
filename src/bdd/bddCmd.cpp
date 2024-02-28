@@ -18,7 +18,6 @@
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "gvMsg.h"
-// #include "gvNtk.h"
 #include "util.h"
 
 using namespace std;
