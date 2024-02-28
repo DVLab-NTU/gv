@@ -12,7 +12,7 @@ extern YosysMgr* yosysMgr;
 
 class YosysMgr {
 public:
-    YosysMgr() : _fileType(VERILOG), _property(-1) { init(); }
+    YosysMgr() : _property(-1) { init(); }
     ~YosysMgr() {}
 
     void init();
@@ -39,7 +39,6 @@ public:
     string getTopModuleName() const;
 
 private:
-    FileType _fileType;
     unsigned _property;
 };
 

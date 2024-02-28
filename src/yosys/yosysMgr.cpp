@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "fileType.h"
+#include "yosysExt.h"
 
 YosysMgr* yosysMgr;
 
@@ -94,7 +95,6 @@ void YosysMgr::createMapping(const string& fileName) {
  * @param fileName The name of the BLIF file to read.
  */
 void YosysMgr::readBlif(const string& fileName) {
-    _fileType               = BLIF;
     const string designName = fileTypeStr[BLIF];
     string command          = "read_blif " + fileName;
     run_pass(command);
@@ -110,7 +110,6 @@ void YosysMgr::readBlif(const string& fileName) {
  * @param fileName The name of the Verilog file to read.
  */
 void YosysMgr::readVerilog(const string& fileName) {
-    _fileType               = VERILOG;
     const string designName = fileTypeStr[VERILOG];
     const string command    = "read_verilog -sv " + fileName;
     run_pass(command);
@@ -127,7 +126,6 @@ void YosysMgr::readVerilog(const string& fileName) {
 void YosysMgr::readAiger(const string& fileName) {
     // string command = "read_aiger " + fileName;
     // run_pass(command);
-    _fileType = AIGER;
 }
 
 /**
@@ -184,13 +182,14 @@ void YosysMgr::printDesignInfo(const bool& verbose) {
     int numMux = 0, numAnd = 0, numAdd = 0, numSub = 0, numMul = 0, numEq = 0,
         numNot = 0, numLe = 0, numGe = 0;
     // Check design
-    if (_fileType == AIGER) {
+    FileType fileType = getFileType();
+    if (fileType == AIGER) {
         cout << "[ERROR]: Please read the word-level design first !!\n";
         cout << "[ERROR]: Use \"cirprint\" to print the aig info.\n";
         return;
     }
 
-    loadDesign(fileTypeStr[_fileType]);
+    loadDesign(fileTypeStr[fileType]);
     RTLIL::Module* topModule = yosys_design->top_module();
     // print info
     cout << "Modules in current design: ";
