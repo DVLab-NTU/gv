@@ -6,31 +6,12 @@
 #include <string>
 
 #include "abcExt.h"
-#include "base/abc/abc.h"
-#include "base/main/main.h"
-#include "base/main/mainInt.h"
 #include "cirDef.h"
-#include "util.h"
 
 using namespace std;
 
 class AbcMgr;
 extern AbcMgr* abcMgr;
-typedef struct Abc_Frame_t_ Abc_Frame_t;
-typedef struct Abc_Ntk_t_ Abc_Ntk_t;
-typedef struct Abc_Obj_t_ Abc_Obj_t;
-typedef struct Pdr_Par_t_ Pdr_Par_t;
-
-extern "C"
-{
-    void Abc_Start();
-    void Abc_Stop();
-    int Cmd_CommandExecute(Abc_Frame_t* pAbc, const char* sCommand);
-    Abc_Frame_t* Abc_FrameGetGlobalFrame();
-    Abc_Ntk_t* Abc_FrameReadNtk(Abc_Frame_t* p);
-    Gia_Man_t* Wln_BlastSystemVerilog(char* pFileName, char* pTopModule, char* pDefines, int fSkipStrash, int fInvert, int fTechMap, int fLibInDir, int fVerbose);
-    int Abc_NtkDarPdr(Abc_Ntk_t* pNtk, Pdr_Par_t* pPars);
-}
 
 struct ABCParam {
     ABCParam() : fInvert(0), fTechMap(0), fSkipStrash(0), fVerbose(0), fGiaSimple(0),

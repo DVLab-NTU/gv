@@ -8,12 +8,9 @@
 
 #include "abcExt.h"
 #include "base/abc/abc.h"
-#include "bdd/cudd/cudd.h"
 #include "cirDef.h"
-#include "cirGate.h"
 #include "cirMgr.h"
 #include "proof/pdr/pdr.h"
-#include "sat/cnf/cnf.h"
 #include "util.h"
 
 AbcMgr *abcMgr;

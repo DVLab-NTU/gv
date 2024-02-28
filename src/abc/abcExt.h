@@ -3,13 +3,39 @@
 
 #include <string>
 
+#include "base/abc/abc.h"
+#include "base/main/mainInt.h"
 #include "fileType.h"
 
-extern void initCirMgr(const int& piNum, const int& poNum, const int& regNum, const int& totNum);
+/**
+ * @brief ABC structure type.
+ *
+ */
+typedef struct Abc_Frame_t_ Abc_Frame_t;
+typedef struct Abc_Ntk_t_ Abc_Ntk_t;
+typedef struct Abc_Obj_t_ Abc_Obj_t;
+typedef struct Pdr_Par_t_ Pdr_Par_t;
 
 /**
  * @brief Extern functions under the circuit manager
+ *
  */
+extern "C"
+{
+    void Abc_Start();
+    void Abc_Stop();
+    int Cmd_CommandExecute(Abc_Frame_t* pAbc, const char* sCommand);
+    Abc_Frame_t* Abc_FrameGetGlobalFrame();
+    Abc_Ntk_t* Abc_FrameReadNtk(Abc_Frame_t* p);
+    Gia_Man_t* Wln_BlastSystemVerilog(char* pFileName, char* pTopModule, char* pDefines, int fSkipStrash, int fInvert, int fTechMap, int fLibInDir, int fVerbose);
+    int Abc_NtkDarPdr(Abc_Ntk_t* pNtk, Pdr_Par_t* pPars);
+}
+
+/**
+ * @brief Extern functions under the circuit manager
+ *
+ */
+extern void initCirMgr(const int& piNum, const int& poNum, const int& regNum, const int& totNum);
 extern bool inputIsPi(const int& gateId);
 extern void parseInput(const int& idx, const int& gateId);
 extern void parseOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, std::string poName);
