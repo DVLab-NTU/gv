@@ -35,7 +35,7 @@ cd ../../
 
 # create the yosys-config and yosys-abc symbolink
 ln -fs engine/yosys/yosys-config ./yosys-config
-ln -fs engine/yosys/yosys-abc ./yosys-abc
+#ln -fs engine/yosys/yosys-abc ./yosys-abc
 
 # go to src/eng and create symbol link
 echo "Creating softlink from engine/yosys/gv_src to src/eng/yosyss ...";
