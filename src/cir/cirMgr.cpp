@@ -18,10 +18,8 @@
 #include <iomanip>
 #include <iostream>
 
-#include "abcMgr.h"
 #include "cirDef.h"
 #include "cirGate.h"
-#include "fileType.h"
 #include "util.h"
 #include "yosysMgr.h"
 

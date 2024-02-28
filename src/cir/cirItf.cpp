@@ -7,13 +7,10 @@
 #include "fileType.h"
 
 /**
- * @brief Decide whether the input is PI or RO
- */
-bool inputIsPi(const int& gateId) { return gateId <= cirMgr->getNumPIs(); }
-
-void initCirMgr(const int& piNum, const int& poNum, const int& regNum, const int& totNum) { cirMgr->initCir(piNum, poNum, regNum, totNum); }
-/**
  * @brief Parse the Gia from the ABC into the circuit of GV
+ *
+ * Define the interface functions for GV to parse the Gia of ABC into the Cir of GV.
+ *
  */
 void parseInput(const int& idx, const int& gateId) { cirMgr->createInput(idx, gateId); }
 void parseOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, string poName) { cirMgr->createOutput(idx, gateId, in0Id, inv, poName); }
@@ -23,7 +20,8 @@ void parseRiRo(const int& riGid, const int& roGid) { cirMgr->createRiRo(riGid, r
 void parseAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv) { cirMgr->createAig(gateId, in0Id, in0Inv, in1Id, in1Inv); }
 void parseConst0() { cirMgr->createConst0(); }
 void parseConst1() { cirMgr->createConst1(); }
-
+bool inputIsPi(const int& gateId) { return gateId <= cirMgr->getNumPIs(); }
+void initCirMgr(const int& piNum, const int& poNum, const int& regNum, const int& totNum) { cirMgr->initCir(piNum, poNum, regNum, totNum); }
 unsigned getNumPIs() { return cirMgr->getNumPIs(); }
 unsigned getNumPOs() { return cirMgr->getNumPOs(); }
 unsigned getNumLATCHs() { return cirMgr->getNumLATCHs(); }
@@ -36,6 +34,7 @@ int getAigIn0Cp(const unsigned& idx) { return cirMgr->getAig(idx)->getIn0().isIn
 int getAigIn1Cp(const unsigned& idx) { return cirMgr->getAig(idx)->getIn1().isInv(); }
 int getPoIn0Cp(const unsigned& idx) { return cirMgr->getPo(idx)->getIn0().isInv(); }
 int getRiIn0Cp(const unsigned& idx) { return cirMgr->getRi(idx)->getIn0().isInv(); }
+FileType getFileType() { return cirMgr->getFileType(); }
 
 void CirMgr::createInput(const int& idx, const int& gateId) {
     CirPiGate* gate      = new CirPiGate(gateId, 0);

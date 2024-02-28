@@ -9,16 +9,14 @@
 #include "cirCmd.h"
 
 #include <cassert>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <streambuf>
 
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "fileType.h"
 #include "gvCmdMgr.h"
-#include "gvModMgr.h"
-#include "gvMsg.h"
 #include "util.h"
 #include "yosysMgr.h"
 
@@ -41,6 +39,7 @@ bool initCirCmd() {
             // gvCmdMgr->regCmd("CIREFFort", 6, new CirEffortCmd));
             gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd) &&
             gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd));
+    // gvCmdMgr->regCmd("CIRBlast", 4, new CirBlastCmd));
 }
 
 enum CirCmdState {
@@ -84,6 +83,10 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
             if (fileName.size())
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
             fileName = options[i];
+            ifstream infile;
+            infile.open(options[i].c_str(), ios::out);
+            if (!infile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
         }
     }
     if (fileType == VERILOG) {
@@ -110,6 +113,8 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         }
     }
     cirMgr = new CirMgr;
+    cirMgr->setFileName(fileName);
+    cirMgr->setFileType(fileType);
     if (fileType == BLIF) {
         cirMgr->readBlif(fileName);
     } else {
@@ -119,7 +124,10 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         }
         // Save the word-level information
         if (fileType == VERILOG) yosysMgr->readVerilog(fileName);
-        else yosysMgr->readAiger(fileName);
+        else if (fileType == AIGER) {
+            // cirMgr->readCirFromAbc(fileName, fileType);
+            yosysMgr->readAiger(fileName);
+        }
     }
     curCmd = CIRREAD;
     return GV_CMD_EXEC_DONE;
@@ -311,7 +319,7 @@ CirWriteCmd::exec(const string& option) {
 
     if (!hasFile) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "-Output");
 
-    cout << outFileName << "\n";
+    // cout << outFileName << "\n";
     if (fileType == BLIF) yosysMgr->writeBlif(outFileName);
     else if (fileType == AIGER) yosysMgr->writeAiger(outFileName);
     else {
@@ -500,6 +508,32 @@ void CirSimCmd::help() const {
          << "Perform Boolean logic simulation on the circuit\n";
 }
 
+// ----------------------------------------------------------------------
+// CIRBlast
+// ----------------------------------------------------------------------
+// GVCmdExecStatus
+// CirBlastCmd::exec(const string& option) {
+//     // check option
+//     vector<string> options;
+//     GVCmdExec::lexOptions(option, options);
+//     string fileName   = cirMgr->getFileName();
+//     FileType fileType = cirMgr->getFileType();
+//     if (!cirMgr->readCirFromAbc(fileName, fileType)) {
+//         delete cirMgr;
+//         cirMgr = 0;
+//     }
+
+//     return GV_CMD_EXEC_DONE;
+// }
+
+// void CirBlastCmd::usage(const bool& verbose) const {
+//     cout << "Usage: CIRBlast" << endl;
+// }
+
+// void CirBlastCmd::help() const {
+//     cout << setw(20) << left << "CIRBlast:"
+//          << "Convert network to AIG." << endl;
+// }
 // //----------------------------------------------------------------------
 // //    CIRFraig
 // //----------------------------------------------------------------------

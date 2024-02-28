@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "cirDef.h"
-// #include "gvSat.h"
 
 using namespace std;
 

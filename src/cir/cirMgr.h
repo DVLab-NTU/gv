@@ -18,7 +18,6 @@ using namespace std;
 
 // TODO: Feel free to define your own classes, variables, or functions.
 
-#include "base/abc/abc.h"
 #include "cirCut.h"
 #include "cirDef.h"
 #include "fileType.h"
@@ -39,9 +38,6 @@ public:
     CirMgr() : _flag(0), _piList(0), _poList(0), _totGateList(0), _fanoutInfo(0), _simLog(0) {}
     ~CirMgr() { deleteCircuit(); }
 
-    // Abc Interface
-    friend class AbcMgr;
-
     // Access functions
     CirGate* operator[](unsigned gid) const { return _totGateList[gid]; }
     // return '0' if "gid" corresponds to an undefined gate.
@@ -57,7 +53,8 @@ public:
     void setFlag(CirMgrFlag f) const { _flag |= f; }
     void unsetFlag(CirMgrFlag f) const { _flag &= ~f; }
     void resetFlag() const { _flag = 0; }
-    void setFileName(const string& f) { fileName = f; }
+    void setFileName(const string& f) { _fileName = f; }
+    void setFileType(const FileType& t) { _fileType = t; }
 
     unsigned getNumPIs() const { return _piList.size(); }
     unsigned getNumPOs() const { return _poList.size(); }
@@ -72,7 +69,8 @@ public:
     CirAigGate* getAig(unsigned i) const { return _aigList[i]; }
     GateList& getFanouts(unsigned i) const { return _fanoutInfo[i]; }
 
-    string getFileName() const { return fileName; }
+    string getFileName() const { return _fileName; }
+    FileType getFileType() const { return _fileType; }
 
     // Member functions about circuit construction
     // bool readCircuit(const string&);
@@ -121,7 +119,6 @@ public:
     bool createMiter(CirMgr*, CirMgr*);
     static CirGate* _const0;
     // MODIFICATION FOR SOCV HOMEWORK
-    void initCir(Gia_Man_t* pGia, const FileType& type);
     void initCir(const int&, const int&, const int&, const int&);
     void buildBdd(CirGate*);
     void buildNtkBdd();
@@ -146,7 +143,7 @@ public:
     void createConst0();
     void createConst1();
 
-    // Reorder the gate id
+    // Reorder the gate id for the ABC pAig
     void reorderGateId(IDMap& aigIdMap);
 
 private:
@@ -169,7 +166,8 @@ private:
     vector<IdList*> _fecGrps;  // store litId; FECHash<GatePValue, IdList*>
     SimVector _fecVector;
     ofstream* _simLog;
-    string fileName;
+    string _fileName;
+    FileType _fileType;
 
     // private member functions for circuit parsing
     bool parseHeader(ifstream&);
