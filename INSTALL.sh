@@ -8,7 +8,7 @@ cd engine/
 # install "yosys"
 ./yosys.script
 # install "boolector"
-./boolector.script
+# ./boolector.script
 
 # back to gv0/
 cd ../
