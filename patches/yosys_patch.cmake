@@ -12,7 +12,7 @@ execute_process(COMMAND ${YOSYS_PATCH_CHECK}
 
 # Patch has not been applied
 if(STATUS EQUAL "0")
-    # Apply the patch to the Yosys repo
+    # Apply the patch to the Yosys Makefile
     message(WARNING "Applying the yosys patch !!")
     execute_process(COMMAND ${YOSYS_PATCH})
 # Patch has been applied
