@@ -18,7 +18,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 include(FetchContent)
 include(ExternalProject)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
-set(EP_UPDATES_DISCONNECTED TRUE)
 
 project(
     gv 
@@ -30,9 +29,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(MACOSX TRUE)
 endif()
 
+set(LIBABC_NAME libabc.a)
 # Git clone the ABC repo at build time
 # Run the BUILD_COMMAND "make libabc.a" for creating the ABC static lib
-ExternalProject_Add(engine_abc 
+ExternalProject_Add(engine-abc 
     GIT_REPOSITORY https://github.com/berkeley-abc/abc.git
     GIT_TAG 6ca7eab
     GIT_PROGRESS TRUE
@@ -41,12 +41,13 @@ ExternalProject_Add(engine_abc
     CONFIGURE_COMMAND ""
     INSTALL_COMMAND ""
     UPDATE_COMMAND ""
-    BUILD_COMMAND $(MAKE) libabc.a
+    UPDATE_DISCONNECTED TRUE
+    BUILD_COMMAND $(MAKE) ${LIBABC_NAME}
     LOG_CONFIGURE ON
     LOG_INSTALL ON
     # LOG_BUILD ON
 )
-ExternalProject_Get_property(engine_abc SOURCE_DIR)
+ExternalProject_Get_property(engine-abc SOURCE_DIR)
 set(ABC_DIR ${SOURCE_DIR})
 set(LIBABC_PATH ${ABC_DIR}/libabc.a)
 add_library(libabc STATIC IMPORTED)
@@ -57,23 +58,24 @@ set_target_properties(libabc PROPERTIES IMPORTED_LOCATION ${LIBABC_PATH})
 # Run the BUILD_COMMAND "make libyosys.so" for creating the Yosys shared lib
 set(PATCH_DIR ${CMAKE_SOURCE_DIR}/patches)
 set(YOSYS_PATCH_CMAKE yosys_patch.cmake)
-ExternalProject_Add(engine_yosys
+set(LIBYOSYS_NAME libyosys.so)
+ExternalProject_Add(engine-yosys
     GIT_REPOSITORY https://github.com/YosysHQ/yosys.git
     GIT_TAG yosys-0.35
     GIT_PROGRESS TRUE
     PREFIX engines
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    UPDATE_COMMAND ""
     INSTALL_COMMAND ""
-    PATCH_COMMAND ${CMAKE_COMMAND} -P ${PATCH_DIR}/${YOSYS_PATCH_CMAKE}
-    BUILD_COMMAND $(MAKE) libyosys.so
+    UPDATE_COMMAND ""
     UPDATE_DISCONNECTED TRUE
+    PATCH_COMMAND ${CMAKE_COMMAND} -P ${PATCH_DIR}/${YOSYS_PATCH_CMAKE}
+    BUILD_COMMAND $(MAKE) ${LIBYOSYS_NAME}
     LOG_CONFIGURE ON
     LOG_INSTALL ON
     # LOG_BUILD ON
 )
-ExternalProject_Get_property(engine_yosys SOURCE_DIR)
+ExternalProject_Get_property(engine-yosys SOURCE_DIR)
 set(YOSYS_DIR ${SOURCE_DIR})
 set(LIBYOSYS_PATH ${YOSYS_DIR}/libyosys.so)
 add_library(libyosys SHARED IMPORTED)
@@ -96,7 +98,6 @@ add_compile_definitions(ABC_USE_STDINT_H)
 add_compile_definitions(_YOSYS_)
 add_compile_definitions(GV_SIMSO_PATH="src/ext/")
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
-# target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -w)
 # target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
 
@@ -129,9 +130,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 )
 
 # Allow GV to be built only after all steps in the External project are completed
-add_dependencies(${CMAKE_PROJECT_NAME} engine_yosys)
-add_dependencies(${CMAKE_PROJECT_NAME} engine_abc)
+add_dependencies(${CMAKE_PROJECT_NAME} engine-yosys)
+add_dependencies(${CMAKE_PROJECT_NAME} engine-abc)
 
 # Exclude from "all"
-set_target_properties(engine_yosys PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(engine_abc PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(engine-yosys PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(engine-abc PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+# Installation rule
+install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION)
