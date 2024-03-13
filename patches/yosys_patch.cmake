@@ -1,7 +1,7 @@
 # Path to the yosys patch
 set(YOSYS_PATCH_FILE yosys.patch)
 # Command for checking the patch is applied or not
-set(YOSYS_PATCH_CHECK git apply --check ${CMAKE_CURRENT_LIST_DIR}/${YOSYS_PATCH_FILE})
+set(YOSYS_PATCH_CHECK git apply --check -q ${CMAKE_CURRENT_LIST_DIR}/${YOSYS_PATCH_FILE})
 # Command for applying the patch
 set(YOSYS_PATCH git apply ${CMAKE_CURRENT_LIST_DIR}/${YOSYS_PATCH_FILE})
 
@@ -17,5 +17,5 @@ if(STATUS EQUAL "0")
     execute_process(COMMAND ${YOSYS_PATCH})
 # Patch has been applied
 else()
-    message(WARNING "Skip the patch step !!\n Patch has been applied !!")
+    message(WARNING "Skip the patch step !!\nPatch has been applied !!")
 endif()

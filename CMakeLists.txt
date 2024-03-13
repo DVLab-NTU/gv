@@ -97,7 +97,8 @@ add_compile_definitions(_YOSYS_)
 add_compile_definitions(GV_SIMSO_PATH="src/ext/")
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
 # target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -w)
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
+# target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
 
 # g++ is being too paranoid about missing field initializers
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
