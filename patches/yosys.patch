@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 0de05b622..d7d68da60 100644
+index 0de05b622..3b061c5a2 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -10,7 +10,7 @@ CONFIG := clang
@@ -25,7 +25,7 @@ index 0de05b622..d7d68da60 100644
  libyosys.so: $(filter-out kernel/driver.o,$(OBJS))
  ifeq ($(OS), Darwin)
 -	$(P) $(LD) -o libyosys.so -shared -Wl,-install_name,$(LIBDIR)/libyosys.so $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)
-+	$(P) $(LD) -o libyosys.so -shared -Wl,-install_name,@rpath/libyosyss.so $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)
++	$(P) $(LD) -o libyosys.so -shared -Wl,-install_name,@rpath/libyosys.so $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)
  else
 -	$(P) $(LD) -o libyosys.so -shared -Wl,-soname,$(LIBDIR)/libyosys.so $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)
 +	$(P) $(LD) -o libyosys.so -shared  $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)

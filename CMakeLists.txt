@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 
-# DEBUG CONFIG
-set(CMAKE_VERBOSE_MAKEFILE on) 
+# Debug config
+# set(CMAKE_VERBOSE_MAKEFILE on) 
 # set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -12,25 +12,31 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-g")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 include(FetchContent)
 include(ExternalProject)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+set(EP_UPDATES_DISCONNECTED TRUE)
 
 project(
     gv 
     LANGUAGES CXX
     VERSION 0.3.0)
 
+# Detect if current system is Darwin
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(MACOSX TRUE)
+endif()
+
 # Git clone the ABC repo at build time
+# Run the BUILD_COMMAND "make libabc.a" for creating the ABC static lib
 ExternalProject_Add(engine_abc 
     GIT_REPOSITORY https://github.com/berkeley-abc/abc.git
     GIT_TAG 6ca7eab
     GIT_PROGRESS TRUE
-    PREFIX engine
+    PREFIX engines
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
     INSTALL_COMMAND ""
@@ -39,57 +45,46 @@ ExternalProject_Add(engine_abc
     LOG_CONFIGURE ON
     LOG_INSTALL ON
     # LOG_BUILD ON
-    LOG_OUTPUT_ON_FAILURE ON
 )
 ExternalProject_Get_property(engine_abc SOURCE_DIR)
-# Include all the header files under the engine ABC
-include_directories(${SOURCE_DIR}/src)
+set(ABC_DIR ${SOURCE_DIR})
+set(LIBABC_PATH ${ABC_DIR}/libabc.a)
+add_library(libabc STATIC IMPORTED)
+set_target_properties(libabc PROPERTIES IMPORTED_LOCATION ${LIBABC_PATH})
 
-# Apply the patch to the Yosys repo
-# set(yosys_patch git apply ${CMAKE_CURRENT_SOURCE_DIR}/patches/yosys.patch || git apply ${CMAKE_CURRENT_SOURCE_DIR}/patches/yosys.patch -R --check && echo already applied)
-# Git clone the repo at build time 
-# Log the exit value of git apply patch
-# set(yosys_patch_check cd ${SOURCE_DIR} && git apply -q ${CMAKE_CURRENT_SOURCE_DIR}/patches/yosys.patch)
-# set(yosys_patch "")
-# execute_process(COMMAND ${yosys_patch_check} RESULT_VARIABLE ret)
-# if(ret EQUAL "0")
-#     message(FATAL_ERROR "PATCH has not been applied !!")
-#     set(yosys_patch git apply ${CMAKE_CURRENT_SOURCE_DIR}/patches/yosys.patch)
-# else()
-#     message(FATAL_ERROR "PATCH has been applied !!")
-#     set(yosys_patch "")
-# endif()
-set(yosys_patch git apply ${CMAKE_CURRENT_SOURCE_DIR}/patches/yosys.patch)
+# Git clone the Yosys repo at build time
+# Run the PATCH_COMMAND for applying the modification for yosys (patches/yosys.patch) 
+# Run the BUILD_COMMAND "make libyosys.so" for creating the Yosys shared lib
+set(PATCH_DIR ${CMAKE_SOURCE_DIR}/patches)
+set(YOSYS_PATCH_CMAKE yosys_patch.cmake)
 ExternalProject_Add(engine_yosys
     GIT_REPOSITORY https://github.com/YosysHQ/yosys.git
     GIT_TAG yosys-0.35
     GIT_PROGRESS TRUE
-    PREFIX engine
+    PREFIX engines
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    # CONFIGURE_COMMAND $(MAKE) config-gcc
     UPDATE_COMMAND ""
     INSTALL_COMMAND ""
-    PATCH_COMMAND ${CMAKE_COMMAND} -DBUILD_STEP=patch -P ${CMAKE_SOURCE_DIR}/yosys_patch.cmake
-    BUILD_COMMAND $(MAKE) libyosys.so -j 16
+    PATCH_COMMAND ${CMAKE_COMMAND} -P ${PATCH_DIR}/${YOSYS_PATCH_CMAKE}
+    BUILD_COMMAND $(MAKE) libyosys.so
     UPDATE_DISCONNECTED TRUE
     LOG_CONFIGURE ON
     LOG_INSTALL ON
     # LOG_BUILD ON
 )
 ExternalProject_Get_property(engine_yosys SOURCE_DIR)
-include_directories(${SOURCE_DIR})
+set(YOSYS_DIR ${SOURCE_DIR})
+set(LIBYOSYS_PATH ${YOSYS_DIR}/libyosys.so)
+add_library(libyosys SHARED IMPORTED)
+set_target_properties(libyosys PROPERTIES IMPORTED_LOCATION ${LIBYOSYS_PATH})
 
-
-# Include all header files under the src/**/
-FILE(GLOB src_dir RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src/*)
-FOREACH(dir ${src_dir})
-    IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/${dir})
-        include_directories(${CMAKE_SOURCE_DIR}/${dir})
-    ENDIF()
-ENDFOREACH()
-# Link_directories(${CMAKE_SOURCE_DIR}/lib)
-include_directories(/usr/include/readline)
+# Link the library installed by brew
+if(${MACOSX})
+    link_directories(/opt/homebrew/lib)
+endif()
+# Link the Yosys shared libray path
+link_directories(${YOSYS_DIR})
 
 file(
     GLOB_RECURSE SOURCES
@@ -102,8 +97,7 @@ add_compile_definitions(_YOSYS_)
 add_compile_definitions(GV_SIMSO_PATH="src/ext/")
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
 # target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -w)
-# target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
 
 # g++ is being too paranoid about missing field initializers
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
@@ -111,22 +105,32 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
         PRIVATE -Wno-missing-field-initializers)
 endif()
 
-# Link the libabc.a to GV
-ExternalProject_Get_Property(engine_abc SOURCE_DIR)
-target_link_libraries(${CMAKE_PROJECT_NAME} ${SOURCE_DIR}/libabc.a)
-# message(${SOURCE_DIR}/libabc.a)
-# Link the libyosys.so to GV
-ExternalProject_Get_Property(engine_yosys SOURCE_DIR)
-target_link_libraries(${CMAKE_PROJECT_NAME} ${SOURCE_DIR}/libyosys.so)
-# message(${SOURCE_DIR}/libyosys.so)
-# Link the system library to GV
-target_link_libraries(${CMAKE_PROJECT_NAME} readline)
-target_link_libraries(${CMAKE_PROJECT_NAME} gmp)
 
-# Allow GV to be built only after all steps in the External project are completed.
+# Include all header files under the src/**/
+FILE(GLOB SRC_DIR RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src/*)
+foreach(DIR ${SRC_DIR})
+    if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/${DIR})
+        target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/${DIR})
+    endif()
+endforeach()
+# Include all the header files under the engine Yosys
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${YOSYS_DIR})
+# Include all the header files under the engine ABC
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
+# Include the readline header files
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/include/readline)
+
+target_link_libraries(${CMAKE_PROJECT_NAME} 
+    libabc
+    libyosys
+    readline
+    gmp
+)
+
+# Allow GV to be built only after all steps in the External project are completed
 add_dependencies(${CMAKE_PROJECT_NAME} engine_yosys)
 add_dependencies(${CMAKE_PROJECT_NAME} engine_abc)
 
-# Exclude from all
+# Exclude from "all"
 set_target_properties(engine_yosys PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(engine_abc PROPERTIES EXCLUDE_FROM_ALL TRUE)
