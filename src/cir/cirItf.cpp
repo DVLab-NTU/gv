@@ -12,9 +12,9 @@
  * Define the interface functions for GV to parse the Gia of ABC into the Cir of GV.
  *
  */
+int parseRo(const int& idx, const int& gateId, const FileType& fileType) { return cirMgr->createRo(idx, gateId, fileType); }
 void parseInput(const int& idx, const int& gateId) { cirMgr->createInput(idx, gateId); }
 void parseOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, string poName) { cirMgr->createOutput(idx, gateId, in0Id, inv, poName); }
-void parseRo(const int& idx, const int& gateId, const FileType& fileType) { cirMgr->createRo(idx, gateId, fileType); }
 void parseRi(const int& idx, const int& gateId, const int& in0Id, const int& inv) { cirMgr->createRi(idx, gateId, in0Id, inv); }
 void parseRiRo(const int& riGid, const int& roGid) { cirMgr->createRiRo(riGid, roGid); }
 void parseAig(const int& gateId, const int& in0Id, const int& in0Inv, const int& in1Id, const int& in1Inv) { cirMgr->createAig(gateId, in0Id, in0Inv, in1Id, in1Inv); }
@@ -54,6 +54,7 @@ void CirMgr::createOutput(const int& idx, const int& gateId, const int& in0Id, c
 
 int CirMgr::createRo(const int& idx, const int& gateId, const FileType& fileType) {
     if (fileType == VERILOG) {
+        cout << "SHOULD BE 3: " << _roList[idx]->getGid() << endl;
         return _roList[idx]->getGid();
     } else if (fileType == AIGER) {
         CirRoGate* gate      = new CirRoGate(gateId, 0);
