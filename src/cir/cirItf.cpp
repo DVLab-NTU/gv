@@ -54,7 +54,6 @@ void CirMgr::createOutput(const int& idx, const int& gateId, const int& in0Id, c
 
 int CirMgr::createRo(const int& idx, const int& gateId, const FileType& fileType) {
     if (fileType == VERILOG) {
-        cout << "SHOULD BE 3: " << _roList[idx]->getGid() << endl;
         return _roList[idx]->getGid();
     } else if (fileType == AIGER) {
         CirRoGate* gate      = new CirRoGate(gateId, 0);
