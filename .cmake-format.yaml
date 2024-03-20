@@ -1,19 +1,8 @@
 # Specify line width for formatting
 line_width: 100
+
 # Indentation settings
 indent_width: 8
 continuation_indent_width: 8
 tab_size: 4
 use_tab: false
-
-# # Space before function call parentheses
-# space_before_function_parentheses: false
-
-# Whether to break after function call open parentheses
-# break_after_functioncall_open_paren: true
-
-# # Whether to break after argument lists
-# break_after_functiondef_open_paren: true
-
-# # Whether to remove trailing whitespace
-# remove_trailing_whitespace: true
