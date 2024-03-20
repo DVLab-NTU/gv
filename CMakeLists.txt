@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.19)
 
-# Debug config set(CMAKE_VERBOSE_MAKEFILE on) set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE
-# 1)
+# * Debug config
+# * set(CMAKE_VERBOSE_MAKEFILE on)
+# * set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -114,11 +115,12 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-missing-field-initializers)
 endif()
 
-# Include all header files under the src/**/
 file(
     GLOB SRC_DIR
     RELATIVE ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src/*)
+
+# Include all header files under the src/**/
 foreach(DIR ${SRC_DIR})
     if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/${DIR})
         target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/${DIR})
@@ -131,16 +133,20 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
 # Include the readline header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/include/readline)
 
-# Add the Yosys extension CMake file
-add_subdirectory(src/ext/)
+# target_link_libraries(${CMAKE_PROJECT_NAME} libabc libyosys readline gmp)
+target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp)
+target_link_libraries(${CMAKE_PROJECT_NAME} ${LIBYOSYS_PATH})
 
-target_link_libraries(${CMAKE_PROJECT_NAME} libabc libyosys readline gmp)
+# Add the Yosys extension CMake file
+set(YOSYS_PLUGIN_PATH src/ext/)
+add_subdirectory(${YOSYS_PLUGIN_PATH})
 
 # Allow GV to be built only after all steps in the External project are completed
 add_dependencies(${CMAKE_PROJECT_NAME} engine-yosys)
 add_dependencies(${CMAKE_PROJECT_NAME} engine-abc)
+# add_dependencies(${YOSYS_PLUGIN_PATH} engine-yosys)
 
-# Exclude from "all" * set_target_properties(engine-yosys PROPERTIES EXCLUDE_FROM_ALL TRUE) *
+# Exclude from "all" * set_target_properties(engine-yosys PROPERTIES EXCLUDE_FROM_ALL TRUE) * *
 # set_target_properties(engine-abc PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION)

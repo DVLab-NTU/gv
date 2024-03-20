@@ -1,4 +1,4 @@
-project(YOSYS_EXTENSION)
+# project(YOSYS_EXTENSION)
 
 # Collect all source files
 file(GLOB MY_SOURCES "./*.cc")
@@ -13,9 +13,12 @@ foreach(source_file ${MY_SOURCES})
     # Compile each .cc file into a .so file
     add_library(${name} SHARED ${source_file})
     set_property(TARGET ${name} PROPERTY POSITION_INDEPENDENT_CODE ON)
-    # set_target_properties(OUTPUT_NAME ${name} SUFFIX ".so")
     target_include_directories(${name} PRIVATE ${YOSYS_DIR})
-    target_link_options(${name} PRIVATE "-dynamic" "-undefined" "dynamic_lookup")
+    if(${MACOSX})
+        target_link_options(${name} PRIVATE "-dynamic" "-undefined" "dynamic_lookup")
+    else()
+        target_link_options(${name} PRIVATE "-rdynamic")
+    endif()
     target_compile_definitions(${name} PRIVATE _YOSYS_)
-    # message(FATAL_ERROR ${name})
+    add_dependencies(${name} engine-yosys)
 endforeach()
