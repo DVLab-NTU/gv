@@ -23,11 +23,6 @@ project(
     LANGUAGES CXX
     VERSION 0.3.0)
 
-# Detect if current system is Darwin
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(MACOSX TRUE)
-endif()
-
 # * Git clone the ABC repo at build time
 # * Run the BUILD_COMMAND "make libabc.a" for creating the ABC static library
 set(LIBABC_NAME libabc.a)
@@ -83,7 +78,7 @@ add_library(libyosys SHARED IMPORTED)
 set_target_properties(libyosys PROPERTIES IMPORTED_LOCATION ${LIBYOSYS_PATH})
 
 # Link the library installed by brew
-if(${MACOSX})
+if(APPLE)
     link_directories(/opt/homebrew/lib)
 endif()
 # Link the Yosys shared libray path
@@ -144,10 +139,6 @@ add_subdirectory(${YOSYS_PLUGIN_PATH})
 # Allow GV to be built only after all steps in the External project are completed
 add_dependencies(${CMAKE_PROJECT_NAME} engine-yosys)
 add_dependencies(${CMAKE_PROJECT_NAME} engine-abc)
-# add_dependencies(${YOSYS_PLUGIN_PATH} engine-yosys)
-
-# Exclude from "all" * set_target_properties(engine-yosys PROPERTIES EXCLUDE_FROM_ALL TRUE) * *
-# set_target_properties(engine-abc PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION)
 
