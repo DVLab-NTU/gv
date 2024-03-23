@@ -37,40 +37,46 @@ int getRiIn0Cp(const unsigned& idx) { return cirMgr->getRi(idx)->getIn0().isInv(
 FileType getFileType() { return cirMgr->getFileType(); }
 
 void CirMgr::createInput(const int& idx, const int& gateId) {
-    CirPiGate* gate      = new CirPiGate(gateId, 0);
-    _piList[idx]         = gate;
+    assert(idx < _piList.size());
+    CirPiGate* gate = new CirPiGate(gateId, 0);
+    _piList[idx] = gate;
     _totGateList[gateId] = gate;
 }
 
 void CirMgr::createOutput(const int& idx, const int& gateId, const int& in0Id, const int& inv, string poName) {
+    assert(idx < _poList.size());
     CirPoGate* gate = new CirPoGate(gateId, 0, in0Id);
-    char* n         = new char[poName.size() + 1];
+    char* n = new char[poName.size() + 1];
     strcpy(n, poName.c_str());
     gate->setName(n);
     gate->setIn0(getGate(in0Id), inv);
-    _poList[idx]         = gate;
+    _poList[idx] = gate;
     _totGateList[gateId] = gate;
 }
 
 int CirMgr::createRo(const int& idx, const int& gateId, const FileType& fileType) {
+    assert(idx < _roList.size());
     if (fileType == VERILOG) {
         return _roList[idx]->getGid();
     } else if (fileType == AIGER) {
-        CirRoGate* gate      = new CirRoGate(gateId, 0);
-        _roList[idx]         = gate;
+        CirRoGate* gate = new CirRoGate(gateId, 0);
+        _roList[idx] = gate;
         _totGateList[gateId] = gate;
     }
     return 0;
 }
 
 void CirMgr::createRi(const int& idx, const int& gateId, const int& in0Id, const int& inv) {
+    // Redundant RI from abc (const1)
+    if (idx >= _riList.size()) return;
+    assert(idx < _riList.size());
     CirRiGate* gate = new CirRiGate(gateId, 0, in0Id);
-    string str      = to_string(gateId) + "_ns";
-    char* n         = new char[str.size() + 1];
+    string str = to_string(gateId) + "_ns";
+    char* n = new char[str.size() + 1];
     strcpy(n, str.c_str());
     gate->setName(n);
     gate->setIn0(getGate(in0Id), inv);
-    _riList[idx]         = gate;
+    _riList[idx] = gate;
     _totGateList[gateId] = gate;
 }
 
@@ -83,7 +89,7 @@ void CirMgr::createAig(const int& gateId, const int& in0Id, const int& in0Inv, c
 }
 
 void CirMgr::createRiRo(const int& riGid, const int& roGid) {
-    CirGate* riGate   = getGate(riGid);
+    CirGate* riGate = getGate(riGid);
     CirRoGate* roGate = static_cast<CirRoGate*>(getGate(roGid));
     roGate->setIn0(riGate, false);
 }
