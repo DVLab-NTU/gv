@@ -15,31 +15,23 @@
 
 AbcMgr *abcMgr;
 
-AbcMgr::AbcMgr() : pGia(NULL) {
-    init();
-}
+AbcMgr::AbcMgr() : pGia(NULL) { init(); }
 
-AbcMgr::~AbcMgr() {
-    reset();
-}
+AbcMgr::~AbcMgr() { reset(); }
 
 void AbcMgr::init() {
     Abc_Start();
     pAbc = Abc_FrameGetGlobalFrame();
 }
 
-void AbcMgr::reset() {
-    delete pAbc;
-}
+void AbcMgr::reset() { delete pAbc; }
 
 void AbcMgr::execCmd(char *cmd) {
     // calling abc's command
     Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), cmd);
 }
 
-static string gateName(const string &name, const int &bit) {
-    return name + "[" + to_string(bit) + "]";
-}
+static string gateName(const string &name, const int &bit) { return name + "[" + to_string(bit) + "]"; }
 
 void AbcMgr::readVerilog(const ABCParam &opt) {
     char *pFileName  = opt.pFileName;
@@ -141,7 +133,6 @@ void AbcMgr::travAllObj(const FileType &fileType, map<unsigned, string> id2Name)
             assert(true);
         }
     }
-
     Gia_ManForEachRiRo(pGia, pObjRi, pObjRo, i) {
         if (i == iRo) break;
         int riGid = Gia_ObjId(pGia, pObjRi), roGid = 0;
@@ -245,7 +236,8 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
         uLit0 = getPoIn0Gid(i);
         c0    = getPoIn0Cp(i);
         if (aigIdMap.count(uLit0)) uLit0 = aigIdMap[uLit0];
-        pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0), c0);  //^ (uLit0 < 2) );
+        pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0),
+                                c0);  //^ (uLit0 < 2) );
         Abc_ObjAddFanin(pObj, pNode0);
     }
 

@@ -64,7 +64,7 @@ void BddMgrV::buildPTransRelation() {
 
 BddNodeV BddMgrV::restrict(const BddNodeV& f, const BddNodeV& g) {
     if (g == BddNodeV::_zero) {
-        cerr << "Error in restrict!!" << endl;
+        cout << "Error in restrict!!" << endl;
     }
     if (g == BddNodeV::_one) {
         return f;
@@ -197,7 +197,7 @@ void BddMgrV::runPCheckProperty(const string& name, BddNodeV monitor) {
                     ns = ns.getRightCofactor(cirMgr->getPi(j)->getGid());
                     timeframe.push_back(0);
                 } else {
-                    cerr << "error in monitor" << endl;
+                    cout << "error in monitor" << endl;
                 }
             }
             counter_ex.push_back(timeframe);
