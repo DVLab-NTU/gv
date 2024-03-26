@@ -2,7 +2,7 @@ BasedOnStyle: Google
 
 IndentWidth: 4
 # no column limit
-ColumnLimit: 0
+ColumnLimit: 200
 
 AlignTrailingComments: true
 AlignAfterOpenBracket: true
@@ -18,3 +18,6 @@ AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 
 # Align consecutive assignments.
 AlignConsecutiveAssignments: Consecutive
+
+# Enum Style
+AllowShortEnumsOnASingleLine: true
