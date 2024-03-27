@@ -1,0 +1,11 @@
+bsetvar 1 a
+bsetvar 2 b
+bsetvar 3 c
+bsetvar 4 d
+bor o1 a b
+bor o2 c d
+bor o3 o1 o2
+brep o1
+brep o2
+brep o3
+q -f

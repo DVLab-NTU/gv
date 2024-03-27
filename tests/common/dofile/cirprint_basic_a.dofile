@@ -1,3 +1,0 @@
-cirread -v ./designs/SoCV/basic/a.v
-cirprint -net
-q -f

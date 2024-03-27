@@ -1,0 +1,24 @@
+bsetvar 1 a
+bsetvar 2 b
+bsetvar 3 c
+bsetvar 4 d
+band o1 a b
+band o2 c d
+band o3 o1 o2
+bsim o3 0000
+bsim o3 0001
+bsim o3 0010
+bsim o3 0011
+bsim o3 0100
+bsim o3 0101
+bsim o3 0110
+bsim o3 0111
+bsim o3 1000
+bsim o3 1001
+bsim o3 1010
+bsim o3 1011
+bsim o3 1100
+bsim o3 1101
+bsim o3 1110
+bsim o3 1111
+q -f

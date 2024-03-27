@@ -1,0 +1,64 @@
+setup> bsetvar 1 a
+
+setup> bsetvar 2 b
+
+setup> bsetvar 3 c
+
+setup> bsetvar 4 d
+
+setup> band o1 a b
+
+setup> band o2 c d
+
+setup> band o3 o1 o2
+
+setup> bsim o3 0000
+BDD Simulate: 0000 = 0
+
+setup> bsim o3 0001
+BDD Simulate: 0001 = 0
+
+setup> bsim o3 0010
+BDD Simulate: 0010 = 0
+
+setup> bsim o3 0011
+BDD Simulate: 0011 = 0
+
+setup> bsim o3 0100
+BDD Simulate: 0100 = 0
+
+setup> bsim o3 0101
+BDD Simulate: 0101 = 0
+
+setup> bsim o3 0110
+BDD Simulate: 0110 = 0
+
+setup> bsim o3 0111
+BDD Simulate: 0111 = 0
+
+setup> bsim o3 1000
+BDD Simulate: 1000 = 0
+
+setup> bsim o3 1001
+BDD Simulate: 1001 = 0
+
+setup> bsim o3 1010
+BDD Simulate: 1010 = 0
+
+setup> bsim o3 1011
+BDD Simulate: 1011 = 0
+
+setup> bsim o3 1100
+BDD Simulate: 1100 = 0
+
+setup> bsim o3 1101
+BDD Simulate: 1101 = 0
+
+setup> bsim o3 1110
+BDD Simulate: 1110 = 0
+
+setup> bsim o3 1111
+BDD Simulate: 1111 = 1
+
+setup> q -f
+

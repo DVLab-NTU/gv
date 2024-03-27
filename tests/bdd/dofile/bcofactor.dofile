@@ -1,0 +1,10 @@
+bsetvar 1 a
+bsetvar 2 b
+bsetvar 3 c
+bsetvar 4 d
+band o1 a b
+band o2 c d
+band o3 o1 o2
+bcof -positive cof o3
+brep cof
+q -f

@@ -1,0 +1,25 @@
+setup> bsetvar 1 a
+
+setup> bsetvar 2 b
+
+setup> bsetvar 3 c
+
+setup> bsetvar 4 d
+
+setup> band o1 a b
+
+setup> band o2 c d
+
+setup> bcomp o1 o2
+"o1" and "o2" are not equivalent.
+
+setup> bcomp a b
+"a" and "b" are not equivalent.
+
+setup> bsetvar 1 a_same
+
+setup> bcomp a a_same
+"a" and "a_same" are equivalent.
+
+setup> q -f
+

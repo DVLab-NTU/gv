@@ -1,0 +1,50 @@
+setup> bsetvar 1 a
+
+setup> bsetvar 2 b
+
+setup> bsetvar 3 c
+
+setup> bsetvar 4 d
+
+setup> bnor o1 a b
+
+setup> bnor o2 c d
+
+setup> bnor o3 o1 o2
+
+setup> brep o1
+[2](-) 
+  [0](+) 
+  [1](+) 
+    [0](+)  (*)
+    [0](-)  (*)
+
+==> Total #BddNodeVs : 3
+
+
+setup> brep o2
+[4](-) 
+  [0](+) 
+  [3](+) 
+    [0](+)  (*)
+    [0](-)  (*)
+
+==> Total #BddNodeVs : 3
+
+
+setup> brep o3
+[4](+) 
+  [2](+) 
+    [0](+) 
+    [1](+) 
+      [0](+)  (*)
+      [0](-)  (*)
+  [3](+) 
+    [2](+)  (*)
+    [0](-)  (*)
+
+==> Total #BddNodeVs : 5
+
+
+setup> q -f
+

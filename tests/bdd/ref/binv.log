@@ -1,0 +1,40 @@
+setup> bsetvar 1 a
+
+setup> bsetvar 2 b
+
+setup> bsetvar 3 c
+
+setup> bsetvar 4 d
+
+setup> binv o1 a 
+
+setup> binv o2 b
+
+setup> binv o3 c 
+
+setup> brep o1
+[1](-) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep o2
+[2](-) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep o3
+[3](-) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> q -f
+
