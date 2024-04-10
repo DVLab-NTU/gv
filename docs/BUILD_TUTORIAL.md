@@ -7,7 +7,7 @@ This document serves as a guide to understand the building process of GV, focusi
 This document outlines the steps involved in building GV using CMakeLists.
 
 <p align="center">
-<img src="./img/build_flow.png" alt="image" width="350"/>
+<img src="./img/build_flow.png" alt="image" width="500"/>
 </p>
 
 ## Get the Engines source
