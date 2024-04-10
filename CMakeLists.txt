@@ -80,6 +80,7 @@ set_target_properties(libyosys PROPERTIES IMPORTED_LOCATION ${LIBYOSYS_PATH})
 # Link the library installed by brew
 if(APPLE)
     link_directories(/opt/homebrew/lib)
+    link_directories(/usr/local/opt/gmp/lib)
 endif()
 # Link the Yosys shared libray path
 link_directories(${YOSYS_DIR})
@@ -102,8 +103,8 @@ add_compile_definitions(_YOSYS_)
 # Add the definitions for Yosys Extension
 add_compile_definitions(GV_SIMSO_PATH="src/ext/")
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
-# target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
+# target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
 
 # g++ is being too paranoid about missing field initializers
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")

@@ -37,6 +37,10 @@ jobs:
                   brew reinstall gmp
                   echo 'export LDFLAGS="-L/usr/local/opt/gmp/lib"' >> /Users/runner/.bash_profile
 
+            - name: Dependencies Path
+              run: |
+                  echo 'export LDFLAGS="-L/usr/local/opt/gmp/lib"' >> /Users/runner/.bash_profile
+
             - name: Install GV
               run: |
                   source /Users/runner/.bash_profile
