@@ -37,7 +37,6 @@ jobs:
 
             - name: Install GV
               run: |
-                  source /Users/runner/.bash_profile
                   make build
 
             # - name: Run tests
