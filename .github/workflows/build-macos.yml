@@ -33,7 +33,7 @@ jobs:
             - name: Install Dependencies
               shell: bash
               run: |
-                  brew install bison flex gawk libffi pkg-config bash
+                  brew install bison flex gawk libffi pkg-config bash gmp
 
             - name: Install GV
               run: make build
