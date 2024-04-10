@@ -33,10 +33,14 @@ jobs:
             - name: Install Dependencies
               shell: bash
               run: |
-                  brew install bison flex gawk libffi pkg-config bash gmp
+                  brew install bison flex gawk libffi pkg-config bash
+                  brew reinstall gmp
+                  echo 'export LDFLAGS="-L/usr/local/opt/gmp/lib"' >> /Users/runner/.bash_profile
 
             - name: Install GV
-              run: make build
+              run: |
+                  source /Users/runner/.bash_profile
+                  make build
 
             # - name: Run tests
             #   run: make test
