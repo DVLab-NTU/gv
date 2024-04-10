@@ -34,14 +34,6 @@ jobs:
               shell: bash
               run: |
                   brew install bison flex gawk libffi pkg-config bash
-                  brew reinstall gmp
-
-            - name: Dependencies Path
-              run: |
-                  echo 'export LDFLAGS="-L/usr/local/opt/gmp/lib"' >> /Users/runner/.bash_profile
-                  echo 'export LDFLAGS="$(brew --prefix gmp)/lib"' >> /Users/runner/.bash_profile
-                  echo $(brew --prefix gmp)/lib
-                  ls $(brew --prefix gmp)/lib
 
             - name: Install GV
               run: |
