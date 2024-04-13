@@ -39,5 +39,16 @@ jobs:
                   mkdir -p build
                   make build
 
+            - name: Install Yosys
+              working-directory: ${{github.workspace}}/build/engines/src/engine-yosys
+              run: |
+                  echo "Start to install the Yosys"
+                  sudo make install
+
             - name: Run tests
+              shell: bash
               run: make test
+
+            - name: Debug cirread
+              shell: bash
+              run: ./gv -f ./tests/debug/dofile/debug.dofile
