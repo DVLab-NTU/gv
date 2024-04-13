@@ -167,8 +167,10 @@ dofile-result-same-with-ref() {
     local GV=$4
     local DIFF=$5
     local REF=$(ref-path $TEST)
+    echo "this is dofile-result... test: $TEST $(pwd)"
 
-    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
+    # DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
+    DIFF_OUTPUT=$($GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
 
     # if [ $? -eq 0 ]; then
     if [ -z "$DIFF_OUTPUT" ]; then
@@ -230,10 +232,14 @@ export -f update-dofile-ref
 # diff dofiles and report result
 if [[ "$ACTION" == 'diff' ]]; then
     echo "> Testing dofiles..."
+    echo "> Current Path: $(pwd)"
 
     # run in parallel and count failures
     # parallel -j"$(nproc)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $GV $DIFF" ::: "${TESTS[@]}"
-    parallel -j"1" "dofile-result-same-with-ref {} $VERBOSE $SILENT $GV $DIFF" ::: "${TESTS[@]}"
+    # parallel -j"1" "dofile-result-same-with-ref {} $VERBOSE $SILENT $GV $DIFF" ::: "${TESTS[@]}"
+    for test in "${TESTS[@]}"; do
+        dofile-result-same-with-ref $test $VERBOSE $SILENT $GV $DIFF
+    done
 
     FAIL_COUNT=$?
 
