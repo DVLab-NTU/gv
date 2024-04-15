@@ -1,0 +1,4 @@
+cirread -aiger ./designs/SoCV/hwmcc/pj2018.aig
+set sys vrf
+satv itp -o 0
+quit -f

@@ -1,0 +1,10 @@
+setup> cirread -aiger ./designs/SoCV/hwmcc/6s380b129.aig
+
+setup> set sys vrf
+
+vrf> satv itp -o 0
+
+Monitor "43668" is safe.
+
+vrf> quit -f
+

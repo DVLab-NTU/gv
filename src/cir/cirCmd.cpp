@@ -68,7 +68,7 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
     bool doReplace = false, fileError = false;
-    string fileName, fileExt;
+    string fileName = "", fileExt = "";
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         if (myStrNCmp("-Replace", options[i], 2) == 0) {
             if (doReplace) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
@@ -89,26 +89,29 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
                 return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
         }
     }
-    if (fileType == VERILOG) {
-        fileExt   = fileName.substr(fileName.size() - 2);
-        fileError = (fileExt != ".v");
-    } else if (fileType == AIGER) {
-        fileExt   = fileName.substr(fileName.size() - 4);
-        fileError = (fileExt != ".aig");
-    } else if (fileType == BLIF) {
-        fileExt   = fileName.substr(fileName.size() - 5);
-        fileError = (fileExt != ".blif");
-    }
+    if (!fileName.empty()) {
+        if (fileType == VERILOG) {
+            fileExt   = fileName.substr(fileName.size() - 2);
+            fileError = (fileExt != ".v");
+        } else if (fileType == AIGER) {
+            fileExt   = fileName.substr(fileName.size() - 4);
+            fileError = (fileExt != ".aig");
+        } else if (fileType == BLIF) {
+            fileExt   = fileName.substr(fileName.size() - 5);
+            fileError = (fileExt != ".blif");
+        }
+    } else fileError = true;
+
     if (fileError) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, fileName);
     if (cirMgr != 0) {
         if (doReplace) {
-            cerr << "Note: original circuit is replaced..." << endl;
+            cout << "Note: original circuit is replaced..." << endl;
             curCmd = CIRINIT;
             delete cirMgr;
             cirMgr = 0;
             yosysMgr->reset();
         } else {
-            cerr << "Error: circuit already exists!!" << endl;
+            cout << "Error: circuit already exists!!" << endl;
             return GV_CMD_EXEC_ERROR;
         }
     }
@@ -152,7 +155,7 @@ CirPrintCmd::exec(const string& option) {
     GVCmdExec::lexSingleOption(option, token);
 
     if (!cirMgr) {
-        cerr << "Error: circuit is not yet constructed!!" << endl;
+        cout << "Error: circuit is not yet constructed!!" << endl;
         return GV_CMD_EXEC_ERROR;
     }
     if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
@@ -188,7 +191,7 @@ void CirPrintCmd::help() const {
 GVCmdExecStatus
 CirGateCmd::exec(const string& option) {
     if (!cirMgr) {
-        cerr << "Error: circuit has not been read!!" << endl;
+        cout << "Error: circuit has not been read!!" << endl;
         return GV_CMD_EXEC_ERROR;
     }
 
@@ -219,7 +222,7 @@ CirGateCmd::exec(const string& option) {
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
             thisGate = cirMgr->getGate(gateId);
             if (!thisGate) {
-                cerr << "Error: Gate(" << gateId << ") not found!!" << endl;
+                cout << "Error: Gate(" << gateId << ") not found!!" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
             }
         } else if (thisGate)
@@ -236,7 +239,7 @@ CirGateCmd::exec(const string& option) {
     }
 
     if (!thisGate) {
-        cerr << "Error: Gate id is not specified!!" << endl;
+        cout << "Error: Gate id is not specified!!" << endl;
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options.back());
     }
 
@@ -265,7 +268,7 @@ void CirGateCmd::help() const {
 GVCmdExecStatus
 CirWriteCmd::exec(const string& option) {
     if (!cirMgr) {
-        cerr << "Error: circuit is not yet constructed!!" << endl;
+        cout << "Error: circuit is not yet constructed!!" << endl;
         return GV_CMD_EXEC_ERROR;
     }
     // check option
@@ -307,11 +310,11 @@ CirWriteCmd::exec(const string& option) {
                 return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
             thisGate = cirMgr->getGate(gateId);
             if (!thisGate) {
-                cerr << "Error: Gate(" << gateId << ") not found!!" << endl;
+                cout << "Error: Gate(" << gateId << ") not found!!" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
             }
             if (!thisGate->isAig()) {
-                cerr << "Error: Gate(" << gateId << ") is NOT an AIG!!" << endl;
+                cout << "Error: Gate(" << gateId << ") is NOT an AIG!!" << endl;
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
             }
         } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
@@ -355,7 +358,7 @@ void CirWriteCmd::help() const {
 // CirOptCmd::exec(const string& option)
 // {
 //    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
+//       cout << "Error: circuit is not yet constructed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    // check option
@@ -367,7 +370,7 @@ void CirWriteCmd::help() const {
 
 //    assert(curCmd != CIRINIT);
 //    if (curCmd == CIRSIMULATE) {
-//       cerr << "Error: circuit has been simulated!! Do \"CIRFraig\" first!!"
+//       cout << "Error: circuit has been simulated!! Do \"CIRFraig\" first!!"
 //            << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
@@ -397,7 +400,7 @@ void CirWriteCmd::help() const {
 // CirStrashCmd::exec(const string& option)
 // {
 //    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
+//       cout << "Error: circuit is not yet constructed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    // check option
@@ -409,11 +412,11 @@ void CirWriteCmd::help() const {
 
 //    assert(curCmd != CIRINIT);
 //    if (curCmd == CIRSTRASH) {
-//       cerr << "Error: circuit has been strashed!!" << endl;
+//       cout << "Error: circuit has been strashed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    else if (curCmd == CIRSIMULATE) {
-//       cerr << "Error: circuit has been simulated!! Do \"CIRFraig\" first!!"
+//       cout << "Error: circuit has been simulated!! Do \"CIRFraig\" first!!"
 //            << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
@@ -443,7 +446,7 @@ void CirWriteCmd::help() const {
 GVCmdExecStatus
 CirSimCmd::exec(const string& option) {
     if (!cirMgr) {
-        cerr << "Error: circuit is not yet constructed!!" << endl;
+        cout << "Error: circuit is not yet constructed!!" << endl;
         return GV_CMD_EXEC_ERROR;
     }
     // check option
@@ -541,7 +544,7 @@ void CirSimCmd::help() const {
 // CirFraigCmd::exec(const string& option)
 // {
 //    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
+//       cout << "Error: circuit is not yet constructed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    // check option
@@ -552,7 +555,7 @@ void CirSimCmd::help() const {
 //       return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[0]);
 
 //    if (curCmd != CIRSIMULATE) {
-//       cerr << "Error: circuit is not yet simulated!!" << endl;
+//       cout << "Error: circuit is not yet simulated!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    cirMgr->fraig();
@@ -581,7 +584,7 @@ void CirSimCmd::help() const {
 // CirWriteCmd::exec(const string& option)
 // {
 //    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
+//       cout << "Error: circuit is not yet constructed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    // check option
@@ -612,11 +615,11 @@ void CirSimCmd::help() const {
 //             return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
 //          thisGate = cirMgr->getGate(gateId);
 //          if (!thisGate) {
-//             cerr << "Error: Gate(" << gateId << ") not found!!" << endl;
+//             cout << "Error: Gate(" << gateId << ") not found!!" << endl;
 //             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
 //          }
 //          if (!thisGate->isAig()) {
-//              cerr << "Error: Gate(" << gateId << ") is NOT an AIG!!" << endl;
+//              cout << "Error: Gate(" << gateId << ") is NOT an AIG!!" << endl;
 //             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
 //          }
 //       }
@@ -657,7 +660,7 @@ void CirSimCmd::help() const {
 //    GVCmdExec::lexOptions(option, options);
 
 //    if (cirMgr != 0) {
-//       cerr << "Note: original circuit is replaced..." << endl;
+//       cout << "Note: original circuit is replaced..." << endl;
 //       curCmd = CIRINIT;
 //       delete cirMgr; cirMgr = 0;
 //    }
@@ -674,12 +677,12 @@ void CirSimCmd::help() const {
 //    }
 
 //    if (cm[0]->getNumPIs() != cm[1]->getNumPIs()) {
-//       cerr << "Error: numbers of PIs are different!!" << endl;
+//       cout << "Error: numbers of PIs are different!!" << endl;
 //       delete cm[0]; delete cm[1]; cirMgr = 0;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    if (cm[0]->getNumPOs() != cm[1]->getNumPOs()) {
-//       cerr << "Error: numbers of POs are different!!" << endl;
+//       cout << "Error: numbers of POs are different!!" << endl;
 //       delete cm[0]; delete cm[1]; cirMgr = 0;
 //       return GV_CMD_EXEC_ERROR;
 //    }

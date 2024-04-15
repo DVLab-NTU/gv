@@ -462,7 +462,7 @@ public:
 
     // Printing functions
     void printGate() const {
-        cerr << "CirUndefGate::printGate() is called!!" << endl;
+        cout << "CirUndefGate::printGate() is called!!" << endl;
         exit(-1);
     }
 

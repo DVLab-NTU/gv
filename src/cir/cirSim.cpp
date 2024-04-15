@@ -272,7 +272,7 @@ unsigned CirMgr::gatherPatterns(ifstream &patternFile, SimPattern const patterns
         patternFile >> str;
         if (patternFile.eof()) return nPatterns;
         if (nin != str.size()) {
-            cerr << "\nError: Pattern(" << str << ") length(" << str.size()
+            cout << "\nError: Pattern(" << str << ") length(" << str.size()
                  << ") does not match the number of inputs(" << nin
                  << ") in a circuit!!" << endl;
             return 0;
@@ -281,7 +281,7 @@ unsigned CirMgr::gatherPatterns(ifstream &patternFile, SimPattern const patterns
             if (str[i] == '1')
                 patterns[i] += (size_t(1) << nPatterns);
             else if (str[i] != '0') {
-                cerr << "\nError: Pattern(" << str << ") contains a non-0/1 "
+                cout << "\nError: Pattern(" << str << ") contains a non-0/1 "
                      << "character(\'" << str[i] << "\')." << endl;
                 return 0;
             }

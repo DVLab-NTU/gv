@@ -30,7 +30,7 @@ const bool CirMgr::readCirFromAbc(string fileName, FileType fileType) {
     map<unsigned, string> id2Name;
     ifstream cirin(fileName);
     if (!cirin) {
-        cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
+        cout << "Cannot open design \"" << fileName << "\"!!" << endl;
         return false;
     }
     strcpy(param.pFileName, fileName.c_str());

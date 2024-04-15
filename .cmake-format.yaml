@@ -1,0 +1,8 @@
+# Specify line width for formatting
+line_width: 100
+
+# Indentation settings
+indent_width: 8
+continuation_indent_width: 8
+tab_size: 4
+use_tab: false

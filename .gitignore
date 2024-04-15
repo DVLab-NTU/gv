@@ -5,8 +5,11 @@ lib/
 # headers files
 include/
 
+
 # makefile files
 src/*/*.mak
+# cmake files
+build/
 # object files
 src/*/*.o
 # yosys extension files

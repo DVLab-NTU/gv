@@ -1,0 +1,14 @@
+cirread -v ./designs/SoCV/basic/a.v
+breset 2000 8009 30011
+bsetorder -file
+bcons -all
+set system vrf
+pinit init
+ptrans tri tr
+pimage -n 100
+pcheckp -o 0
+pcheckp -o 1
+pcheckp -o 2
+pcheckp -o 3
+pcheckp -o 4
+q -f

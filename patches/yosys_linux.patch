@@ -1,0 +1,54 @@
+diff --git a/Makefile b/Makefile
+index 0de05b622..4f682768c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ 
+-CONFIG := clang
+-# CONFIG := gcc
++# CONFIG := clang
++CONFIG := gcc
+ # CONFIG := afl-gcc
+ # CONFIG := emcc
+ # CONFIG := wasi
+@@ -9,8 +9,8 @@ CONFIG := clang
+ # CONFIG := msys2-64
+ 
+ # features (the more the better)
+-ENABLE_TCL := 1
+-ENABLE_ABC := 1
++ENABLE_ABC := 0
++ENABLE_TCL:= 0
+ ENABLE_GLOB := 1
+ ENABLE_PLUGINS := 1
+ ENABLE_READLINE := 1
+@@ -22,7 +22,7 @@ ENABLE_VERIFIC_LIBERTY := 0
+ DISABLE_VERIFIC_EXTENSIONS := 0
+ DISABLE_VERIFIC_VHDL := 0
+ ENABLE_COVER := 1
+-ENABLE_LIBYOSYS := 0
++ENABLE_LIBYOSYS := 1
+ ENABLE_ZLIB := 1
+ 
+ # python wrappers
+@@ -752,9 +752,9 @@ $(PROGRAM_PREFIX)yosys$(EXE): $(OBJS)
+ 
+ libyosys.so: $(filter-out kernel/driver.o,$(OBJS))
+ ifeq ($(OS), Darwin)
+-	$(P) $(LD) -o libyosys.so -shared -Wl,-install_name,$(LIBDIR)/libyosys.so $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)
++	$(P) $(LD) -o libyosys.so -shared -Wl,-install_name,@rpath/libyosyss.so $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)
+ else
+-	$(P) $(LD) -o libyosys.so -shared -Wl,-soname,$(LIBDIR)/libyosys.so $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)
++	$(P) $(LD) -o libyosys.so -shared  $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_VERIFIC)
+ endif
+ 
+ %.o: %.cc
+@@ -1048,7 +1048,7 @@ config-clean: clean
+ 	rm -f Makefile.conf
+ 
+ config-clang: clean
+-	echo 'CONFIG := clang' > Makefile.conf
++	echo '# CONFIG := clang' > Makefile.conf
+ 
+ config-gcc: clean
+ 	echo 'CONFIG := gcc' > Makefile.conf

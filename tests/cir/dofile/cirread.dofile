@@ -1,0 +1,9 @@
+# cirread error handle
+cirread -v 
+cirread -v ./null.v
+cirread -v ""
+cirread -v ./designs/SoCV/basic/a.v
+cirread -v -r ./designs/SoCV/basic/b.v
+cirread -v -r ./designs/SoCV/basic/c.v
+cirread -v -r ./designs/SoCV/basic/a.v
+q -f

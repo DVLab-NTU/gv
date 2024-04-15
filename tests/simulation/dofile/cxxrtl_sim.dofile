@@ -1,0 +1,4 @@
+cirread -v -r ./designs/SoCV/vending/vending-origin.v
+se sys vrf
+random sim -v -file ./designs/SoCV/vending/input-Cex.pattern -sim_cycle 30 -rst_n reset
+q -f

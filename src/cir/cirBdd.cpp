@@ -18,7 +18,7 @@ extern BddMgrV* bddMgrV;  // MODIFICATION FOR SoCV BDD
 const bool
 CirMgr::setBddOrder(const bool& file) {
     unsigned supportSize = getNumPIs() + 2 * getNumLATCHs();
-    unsigned bddspsize = bddMgrV->getNumSupports();
+    unsigned bddspsize   = bddMgrV->getNumSupports();
     if (supportSize >= bddMgrV->getNumSupports()) {
         gvMsg(GV_MSG_ERR) << "BDD Support Size is Smaller Than Current Design Required !!" << endl;
         return false;
@@ -85,8 +85,8 @@ void CirMgr::buildBdd(CirGate* gate) {
     for (unsigned i = 0; i < orderedGates.size(); ++i) {
         if (orderedGates[i]->getType() == AIG_GATE) {
             // build fanin
-            left = orderedGates[i]->getIn0();
-            right = orderedGates[i]->getIn1();
+            left             = orderedGates[i]->getIn0();
+            right            = orderedGates[i]->getIn1();
             BddNodeV newNode = ((left.isInv()) ? ~bddMgrV->getBddNodeV(left.gateId())
                                                : bddMgrV->getBddNodeV(left.gateId())) &
                                ((right.isInv()) ? ~bddMgrV->getBddNodeV(right.gateId())
@@ -95,10 +95,9 @@ void CirMgr::buildBdd(CirGate* gate) {
         }
         // PO, RI
         else if ((orderedGates[i]->getType() == RI_GATE) || (orderedGates[i]->getType() == PO_GATE)) {
-            CirGateV in0 = orderedGates[i]->getIn0();
+            CirGateV in0     = orderedGates[i]->getIn0();
             BddNodeV newNode = (in0.isInv()) ? ~bddMgrV->getBddNodeV(in0.gateId()) : bddMgrV->getBddNodeV(in0.gateId());
             bddMgrV->addBddNodeV(orderedGates[i]->getGid(), newNode());
         }
     }
 }
-

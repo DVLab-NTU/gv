@@ -302,7 +302,7 @@ int BddMgrV::evalCube(const BddNodeV& node, const string& pattern) const {
     size_t v = node.getLevel();
     size_t n = pattern.size();
     if (n < v) {
-        cerr << "Error: " << pattern << " too short!!" << endl;
+        cout << "Error: " << pattern << " too short!!" << endl;
         return -1;
     }
 
@@ -314,7 +314,7 @@ int BddMgrV::evalCube(const BddNodeV& node, const string& pattern) const {
         else if (c == '0')
             next = next.getRightCofactor(i + 1);
         else {
-            cerr << "Illegal pattern: " << c << "(" << i << ")" << endl;
+            cout << "Illegal pattern: " << c << "(" << i << ")" << endl;
             return -1;
         }
     }
@@ -324,13 +324,13 @@ int BddMgrV::evalCube(const BddNodeV& node, const string& pattern) const {
 bool BddMgrV::drawBdd(const string& name, const string& fileName) const {
     BddNodeV node = ::getBddNodeV(name);
     if (node() == 0) {
-        cerr << "Error: \"" << name << "\" is not a legal BDD node!!" << endl;
+        cout << "Error: \"" << name << "\" is not a legal BDD node!!" << endl;
         return false;
     }
 
     ofstream ofile(fileName.c_str());
     if (!ofile) {
-        cerr << "Error: cannot open file \"" << fileName << "\"!!" << endl;
+        cout << "Error: cannot open file \"" << fileName << "\"!!" << endl;
         return false;
     }
 

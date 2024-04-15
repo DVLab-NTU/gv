@@ -1,0 +1,7 @@
+cirread -v ./designs/SoCV/basic/c.v
+se sys vrf
+satv bmc -o 0
+satv bmc -o 1
+satv bmc -o 2
+satv bmc -o 3
+q -f
