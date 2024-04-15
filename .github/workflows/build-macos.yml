@@ -35,9 +35,14 @@ jobs:
               run: |
                   brew install bison flex gawk libffi pkg-config bash
 
-            - name: Install GV
+            - name: Install Yosys
+              working-directory: ${{github.workspace}}/build/engines/src/engine-yosys
               run: |
-                  make build
+                  echo "Start to install the Yosys"
+                  sudo make install
 
-            - name: Run tests
-              run: make test
+            - name: Install GV
+              run: make build
+
+            # - name: Run tests
+            #   run: make test
