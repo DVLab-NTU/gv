@@ -26,7 +26,7 @@ void AbcMgr::init() {
 
 void AbcMgr::reset() { delete pAbc; }
 
-void AbcMgr::execCmd(char *cmd) {
+void AbcMgr::execCmd(const char *cmd) {
     // calling abc's command
     Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), cmd);
 }

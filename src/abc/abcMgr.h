@@ -45,7 +45,7 @@ public:
     void initCir(const FileType&);
     void cirToGia();
     void cirToAig(IDMap&);
-    void execCmd(char*);
+    void execCmd(const char*);
 
     // Verification command
     void runPDR(const bool&);
