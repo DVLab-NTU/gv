@@ -1,7 +1,7 @@
 #ifndef GV_YOSYS_MGR
 #define GV_YOSYS_MGR
 
-#include "fileType.h"
+#include "gvType.h"
 #include "kernel/yosys.h"
 
 using namespace std;

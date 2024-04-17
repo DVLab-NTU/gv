@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "fileType.h"
+#include "gvType.h"
 #include "myUsage.h"
 #include "rnGen.h"
 

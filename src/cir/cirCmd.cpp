@@ -15,8 +15,8 @@
 
 #include "cirGate.h"
 #include "cirMgr.h"
-#include "fileType.h"
 #include "gvCmdMgr.h"
+#include "gvType.h"
 #include "util.h"
 #include "yosysMgr.h"
 

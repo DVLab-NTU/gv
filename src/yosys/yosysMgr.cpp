@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <iomanip>
 
-#include "fileType.h"
+#include "gvType.h"
 #include "yosysExt.h"
 
 YosysMgr* yosysMgr;

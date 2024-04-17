@@ -20,7 +20,7 @@ using namespace std;
 
 #include "cirCut.h"
 #include "cirDef.h"
-#include "fileType.h"
+#include "gvType.h"
 
 extern CirMgr* cirMgr;
 
