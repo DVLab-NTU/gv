@@ -6,6 +6,7 @@
 
 ModMgr* modeMgr;
 
+ModType getMode() { return modeMgr->getCurrMode(); };
 /**
  * @brief Constructs a ModMgr object with default values.
  *

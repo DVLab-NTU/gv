@@ -3,17 +3,14 @@
 
 #include <string>
 
+#include "gvType.h"
+
 using namespace std;
 
 class ModMgr;
 
-const string ModTypeString[] = {"gv", "setup", "vrf"};
+const string ModTypeString[] = {"gv", "setup", "vrf", "app"};
 
-enum ModType {
-    MOD_TYPE_NONE   = 0,
-    MOD_TYPE_SETUP  = 1,
-    MOD_TYPE_VERIFY = 2
-};
 extern ModMgr* modeMgr;
 
 class ModMgr {
@@ -28,6 +25,7 @@ public:
         setModPromt();  // update mode prompt
         return _modPrompt;
     };
+    inline ModType getCurrMode() { return _gvMode; };
 
     // set functions
     void setGVMode(const ModType& = ModType::MOD_TYPE_SETUP);
