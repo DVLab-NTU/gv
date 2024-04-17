@@ -9,13 +9,16 @@
 #include <iostream>
 
 #include "gvMsg.h"
+#include "gvType.h"
 #include "util.h"
 
-extern "C"
-{
+extern "C" {
 #include <readline/history.h>
 #include <readline/readline.h>
 }
+
+extern GVCmdExecStatus appCmdHandlerItf();
+extern ModType getMode();
 
 /* -------------------------------------------------- *\
  * Class GVCmdMgr Implementations
@@ -239,6 +242,12 @@ bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2, GVCmdEx
 
 GVCmdExecStatus
 GVCmdMgr::execOneCmd() {
+    // Ridirect Commands to Application Command Handler
+    if (getMode() == MOD_TYPE_APP) {
+        appCmdHandlerItf();
+        return GV_CMD_EXEC_DONE;
+    }
+
     // Read User Command Input
     string str    = "";
     char* execCmd = new char[1024];
@@ -275,11 +284,9 @@ GVCmdMgr::execOneCmd() {
                 }
             }
         }
-
         if (e) return e->exec(option);
     }
     delete[] execCmd;
-    // cout << endl;
 
     return GV_CMD_EXEC_NOP;
 }

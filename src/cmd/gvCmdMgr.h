@@ -34,6 +34,7 @@ enum GVCmdType {
     GV_CMD_TYPE_BDD      = 8,
     GV_CMD_TYPE_PROVE    = 9,
     GV_CMD_TYPE_ITP      = 10,
+    GV_CMD_TYPE_APP      = 11,
 };
 
 enum GVCmdExecStatus {
@@ -123,13 +124,17 @@ class GVCmdMgr {
 
 public:
     GVCmdMgr(const string&);
-    ~GVCmdMgr();
+    virtual ~GVCmdMgr();
     GVCmdExec* getCmd(const string&) const;
     GVCmdExecSubSet getCmdListFromPart(const string&) const;
     bool regCmd(const string&, unsigned, GVCmdExec*);
     bool regCmd(const string&, unsigned, unsigned, GVCmdExec*);
 
     GVCmdExecStatus execOneCmd();
+
+    // Command Helper Functions
+    bool addHistory(char*);
+    GVCmdExec* parseCmd(string&);
 
     void printHelps(bool = false) const;
     void printHistory(int = -1) const;
@@ -143,14 +148,12 @@ public:
         _dofile.clear();
     }
 
+    inline ifstream& getDofile() { return _dofile; }
     inline const string& getPrompt() const { return _prompt; }
     inline void updateModPrompt(const string newPromt) { _modPrompt = newPromt; }
     inline void setPrompt() { _prompt = _modPrompt + "> "; }
 
 private:
-    // Command Helper Functions
-    bool addHistory(char*);
-    GVCmdExec* parseCmd(string&);
     // Command Data members
     const string _defaultPrompt;  // Default Command Prompt
     string _modPrompt;            // Current Command Prompt
