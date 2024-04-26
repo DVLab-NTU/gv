@@ -128,6 +128,13 @@ if [ ${#POSITIONAL[@]} -eq 0 ]; then
     POSITIONAL=(tests)
 fi
 
+SYSTEM="linux"
+# detect the OS type
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    SYSTEM="macos"
+fi
+echo "This is the OS: $SYSTEM" 
+
 TESTS=()
 # for each positional argument, if it is a file, run the test on that file
 # if it is a directory, run the test on all files in that directory
@@ -152,10 +159,9 @@ for arg in "${POSITIONAL[@]}"; do
 done
 
 # run dofile with gv and diff the output with the expected output
-
 ref-path() {
     local TEST=$1
-    echo $(realpath --relative-to $(pwd) "$(dirname ${TEST})/../ref/$(basename ${TEST%.*}).log")
+    echo $(realpath --relative-to $(pwd) "$(dirname ${TEST})/../ref_${SYSTEM}/$(basename ${TEST%.*}).log")
 }
 export -f ref-path
 
@@ -167,7 +173,7 @@ dofile-result-same-with-ref() {
     local GV=$4
     local DIFF=$5
     local REF=$(ref-path $TEST)
-    echo "this is dofile-result... test: $TEST $(pwd)"
+    echo "This is the ref-path: $REF"
 
     # DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
     DIFF_OUTPUT=$($GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
@@ -207,7 +213,8 @@ update-dofile-ref() {
         touch $REF
     fi
 
-    DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $GV -file $TEST 2>&1 | diff $REF -)
+    # DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $GV -file $TEST 2>&1 | diff $REF -)
+    DIFF_OUTPUT=$($GV -file $TEST 2>&1 | diff $REF -)
 
     # update reference file if the output of gv is different from the reference
     # if [[ $? -eq 0 ]]; then
@@ -237,12 +244,13 @@ if [[ "$ACTION" == 'diff' ]]; then
     # run in parallel and count failures
     # parallel -j"$(nproc)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $GV $DIFF" ::: "${TESTS[@]}"
     # parallel -j"1" "dofile-result-same-with-ref {} $VERBOSE $SILENT $GV $DIFF" ::: "${TESTS[@]}"
+    FAIL_COUNT=0
     for test in "${TESTS[@]}"; do
         dofile-result-same-with-ref $test $VERBOSE $SILENT $GV $DIFF
+        FAIL_COUNT=$((FAIL_COUNT+$?))
     done
 
-    FAIL_COUNT=$?
-
+    # FAIL_COUNT=$?
     TESTS_COUNT=${#TESTS[@]}
     if [ $FAIL_COUNT -eq 0 ]; then
         echo "$(pass-style "Passed all $TESTS_COUNT tests.")"
@@ -253,11 +261,14 @@ elif [[ "$ACTION" == 'update' ]]; then
     echo "> Updating reference files..."
 
     # run in parallel and count updates
-    parallel -j"1" "update-dofile-ref {} $VERBOSE $SILENT $GV" ::: "${TESTS[@]}"
+    # parallel -j"1" "update-dofile-ref {} $VERBOSE $SILENT $GV" ::: "${TESTS[@]}"
+    for test in "${TESTS[@]}"; do
+        update-dofile-ref $test $VERBOSE $SILENT $GV
+        UPDATE_COUNT=$((UPDATE_COUNT+$?))
+    done
 
-    UPDATE_COUNT=$?
+    # UPDATE_COUNT=$?
 
     TESTS_COUNT=${#TESTS[@]}
-
     echo "$(pass-style "Updated $UPDATE_COUNT out of $TESTS_COUNT reference files.")"
 fi
