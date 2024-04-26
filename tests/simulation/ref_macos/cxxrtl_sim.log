@@ -1,0 +1,339 @@
+setup> cirread -v -r ./designs/SoCV/vending/vending-origin.v
+Converted 0 1-valued FFs and 86 DC-valued FFs.
+
+setup> se sys vrf
+
+vrf> random sim -v -file ./designs/SoCV/vending/input-Cex.pattern -sim_cycle 30 -rst_n reset
+==========================================
+= cycle 1
+==========================================
+serviceTypeOut= 1
+itemNumberOut= 0
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 0
+coinOutA= 0
+
+==========================================
+= cycle 2
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 0
+coinOutA= 0
+
+==========================================
+= cycle 3
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 0
+coinOutA= 0
+
+==========================================
+= cycle 4
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 0
+coinOutA= 0
+
+==========================================
+= cycle 5
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 1
+coinOutA= 0
+
+==========================================
+= cycle 6
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 2
+coinOutA= 0
+
+==========================================
+= cycle 7
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 8
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 9
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 10
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 11
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 12
+==========================================
+serviceTypeOut= 0
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 13
+==========================================
+serviceTypeOut= 1
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 14
+==========================================
+serviceTypeOut= 1
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 15
+==========================================
+serviceTypeOut= 1
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 16
+==========================================
+serviceTypeOut= 1
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 0
+coinOutB= 4
+coinOutA= 0
+
+==========================================
+= cycle 17
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 0
+coinOutA= 0
+
+==========================================
+= cycle 18
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 0
+coinOutA= 0
+
+==========================================
+= cycle 19
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 0
+coinOutA= 0
+
+==========================================
+= cycle 20
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 1
+coinOutA= 0
+
+==========================================
+= cycle 21
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 2
+coinOutA= 0
+
+==========================================
+= cycle 22
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 23
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 0
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 24
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 1
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 25
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 0
+coinOutC= 1
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 26
+==========================================
+serviceTypeOut= 2
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 1
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 27
+==========================================
+serviceTypeOut= 0
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 1
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 28
+==========================================
+serviceTypeOut= 1
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 1
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 29
+==========================================
+serviceTypeOut= 1
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 1
+coinOutB= 3
+coinOutA= 0
+
+==========================================
+= cycle 30
+==========================================
+serviceTypeOut= 1
+itemNumberOut= 1
+itemTypeOut= 0
+coinOutD= 1
+coinOutC= 1
+coinOutB= 3
+coinOutA= 0
+
+
+vrf> q -f
+

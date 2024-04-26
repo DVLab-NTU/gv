@@ -1,0 +1,4 @@
+
+setup> cirread -v 
+terminate called after throwing an instance of 'std::out_of_range'
+  what():  basic_string::substr: __pos (which is 18446744073709551614) > this->size() (which is 0)
