@@ -101,7 +101,8 @@ add_compile_definitions(ABC_USE_STDINT_H)
 # Add the definitions for Yosys
 add_compile_definitions(_YOSYS_)
 # Add the definitions for Yosys Extension
-add_compile_definitions(GV_SIMSO_PATH="src/ext/")
+# add_compile_definitions(GV_SIMSO_PATH="src/ext/")
+add_compile_definitions(GV_SIMSO_PATH="build/src/ext/")
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
 # target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)

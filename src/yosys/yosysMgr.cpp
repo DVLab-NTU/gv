@@ -276,8 +276,11 @@ string YosysMgr::getTopModuleName() const {
  * @note The simulation plugin file path is assumed to be defined in the GV_SIMSO_PATH macro.
  */
 void YosysMgr::loadSimPlugin() {
-    string command = "plugin -i ";
-    run_pass(command + GV_SIMSO_PATH + "sim.so");
+    string command    = "plugin -i ";
+    string libsimPath = GV_SIMSO_PATH;
+    string libsimName = "libsim.so";
+    command           = command + libsimPath + libsimName;
+    runPass(command);
 }
 
 /**
@@ -288,5 +291,6 @@ void YosysMgr::loadSimPlugin() {
  * @param command The command string specifying the Yosys pass to run.
  */
 void YosysMgr::runPass(const string& command) {
+    // TODO: Check if the run_pass is executed succefully
     run_pass(command);
 }
