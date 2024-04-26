@@ -134,7 +134,7 @@ public:
 
     // Command Helper Functions
     bool addHistory(char*);
-    GVCmdExec* parseCmd(string&);
+    virtual GVCmdExec* parseCmd(string&);
 
     void printHelps(bool = false) const;
     void printHistory(int = -1) const;
@@ -149,6 +149,7 @@ public:
     }
 
     inline ifstream& getDofile() { return _dofile; }
+    inline vector<string>& getHistory() { return _history; }
     inline const string& getPrompt() const { return _prompt; }
     inline void updateModPrompt(const string newPromt) { _modPrompt = newPromt; }
     inline void setPrompt() { _prompt = _modPrompt + "> "; }

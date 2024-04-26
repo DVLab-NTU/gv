@@ -263,7 +263,7 @@ GVCmdMgr::execOneCmd() {
     assert(execCmd);
 
     // Detect dofile comment(#) for debugging
-    if (execCmd[0] == '#') return GV_CMD_EXEC_NOP;
+    // if (execCmd[0] == '#') return GV_CMD_EXEC_NOP;
 
     if (addHistory(execCmd)) {
         add_history(_history.back().c_str());
