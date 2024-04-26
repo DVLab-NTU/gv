@@ -1,3 +1,4 @@
+setup> // cirread error handle
 
 setup> cirread -v 
 [ERROR]: Illegal option "" !!
