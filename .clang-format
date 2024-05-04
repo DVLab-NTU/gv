@@ -21,3 +21,6 @@ AlignConsecutiveAssignments: Consecutive
 
 # Enum Style
 AllowShortEnumsOnASingleLine: true
+
+# Indent extern "C" block
+IndentExternBlock: Indent
