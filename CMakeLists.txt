@@ -1,5 +1,24 @@
 cmake_minimum_required(VERSION 3.19)
 
+# * Macro to exclude the directory from source
+function(EXCLUDE_FROM_LIST REMOVE_LIST TARGET_LIST)
+    message(STATUS "Exclude the directory - ${${REMOVE_LIST}}")
+    foreach(REMOVE_DIR ${${REMOVE_LIST}})
+        foreach(TMP_PATH ${${TARGET_LIST}})
+            string(FIND ${TMP_PATH} ${REMOVE_DIR} EXCLUDE_DIR_FOUND)
+            if(NOT ${EXCLUDE_DIR_FOUND} EQUAL -1)
+                message("Removing ${TMP_PATH}")
+                # list(REMOVE_ITEM TARGET_LIST ${TMP_PATH})
+                list(REMOVE_ITEM ${TARGET_LIST} ${TMP_PATH})
+            endif()
+        endforeach(TMP_PATH)
+    endforeach(REMOVE_DIR)
+    # message(STATUS ${${TARGET_LIST}})
+    set(${TARGET_LIST}
+        ${${TARGET_LIST}}
+        PARENT_SCOPE)
+endfunction()
+
 # * Debug config
 # * set(CMAKE_VERBOSE_MAKEFILE on)
 # * set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
@@ -94,18 +113,21 @@ file(
     GLOB_RECURSE SOURCES
     RELATIVE ${CMAKE_SOURCE_DIR}
     "src/**/*.cpp" "src/**/*.h")
+# Exlcude the src/verilator/** from SOURCES
+list(APPEND EXCLUDE_DIR "verilator")
+exclude_from_list(EXCLUDE_DIR SOURCES)
+# message(FATAL_ERROR ${SOURCES})
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 # Add the definitions for ABC
 add_compile_definitions(ABC_USE_STDINT_H)
 # Add the definitions for Yosys
 add_compile_definitions(_YOSYS_)
-# Add the definitions for Yosys Extension
-# add_compile_definitions(GV_SIMSO_PATH="src/ext/")
+# Add the definitions for Yosys Extension add_compile_definitions(GV_SIMSO_PATH="src/ext/")
 add_compile_definitions(GV_SIMSO_PATH="build/src/ext/")
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
-# target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
+# target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
 
 # g++ is being too paranoid about missing field initializers
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
@@ -145,12 +167,12 @@ add_dependencies(${CMAKE_PROJECT_NAME} engine-abc)
 install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION)
 
 # default to ON
-option(SYMBLINK_EXECUTABLE " Symbolic link executable to project root " ON)
+option(SYMBLINK_EXECUTABLE " Symbolic link executable to project root" ON)
 if(SYMBLINK_EXECUTABLE)
     add_custom_command(
         TARGET ${CMAKE_PROJECT_NAME}
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
                 ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
-        COMMENT " Symbolic link executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME} ")
+        COMMENT " Symbolic link executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}")
 endif()
