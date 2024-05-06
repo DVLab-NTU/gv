@@ -133,7 +133,7 @@ SYSTEM="linux"
 if [[ "$OSTYPE" == "darwin"* ]]; then
     SYSTEM="macos"
 fi
-echo "This is the OS: $SYSTEM" 
+echo "Your system: $SYSTEM" 
 
 TESTS=()
 # for each positional argument, if it is a file, run the test on that file
@@ -173,7 +173,6 @@ dofile-result-same-with-ref() {
     local GV=$4
     local DIFF=$5
     local REF=$(ref-path $TEST)
-    echo "This is the ref-path: $REF"
 
     # DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
     DIFF_OUTPUT=$($GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
