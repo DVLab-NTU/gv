@@ -1,12 +1,26 @@
 #include "yosysMgr.h"
 
+#include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <iomanip>
+#include <string>
 
+#include "SolverTypesV.h"
 #include "gvType.h"
+#include "kernel/yosys.h"
 #include "yosysExt.h"
 
 YosysMgr* yosysMgr;
+
+/**
+ * @brief Construct a new Yosys Mgr:: Yosys Mgr object
+ *
+ */
+YosysMgr::YosysMgr() : _property(-1) {
+    init();
+    _designInfo = DesignInfo("clk", "rst");
+}
 
 /**
  * @brief Initializes the Yosys framework.
@@ -114,6 +128,7 @@ void YosysMgr::readVerilog(const string& fileName) {
     const string command    = "read_verilog -sv " + fileName;
     run_pass(command);
     saveDesign(designName);
+    assignSignals();
 }
 
 /**
@@ -251,24 +266,6 @@ void YosysMgr::showSchematic() {
 }
 
 /**
- * @brief Retrieves the name of the top module.
- *
- * This function retrieves the name of the top module in the current Yosys design.
- *
- * @return A string containing the name of the top module.
- *         If the design has not been loaded, an empty string is returned.
- */
-string YosysMgr::getTopModuleName() const {
-    if (!yosys_design) {
-        cout << "[ERROR]: Please read the word-level design first !!\n";
-        return "";
-    }
-    RTLIL::Module* top   = yosys_design->top_module();
-    string topModuleName = top->name.substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
-    return topModuleName;
-}
-
-/**
  * @brief Loads the simulation plugin.
  *
  * This function loads the simulation plugin by running a Yosys command.
@@ -293,4 +290,67 @@ void YosysMgr::loadSimPlugin() {
 void YosysMgr::runPass(const string& command) {
     // TODO: Check if the run_pass is executed succefully
     run_pass(command);
+}
+
+/**
+ * @brief Retrieves the name of the top module.
+ *
+ * This function retrieves the name of the top module in the current Yosys design.
+ *
+ * @return A string containing the name of the top module.
+ *         If the design has not been loaded, an empty string is returned.
+ */
+string YosysMgr::getTopModuleName() const {
+    if (!yosys_design) {
+        cout << "[ERROR]: Please read the word-level design first !!\n";
+        return "";
+    }
+    RTLIL::Module* top   = yosys_design->top_module();
+    string topModuleName = top->name.substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
+    return topModuleName;
+}
+
+static bool checkSignalClk(const string& name, const string& clkName) {
+    return (name.find(clkName) != string::npos);
+}
+/**
+ * @brief
+ *
+ */
+void YosysMgr::assignSignals() {
+    _topModule = yosys_design->top_module();
+    for (auto wire : _topModule->wires()) {
+        YosysSignal* newSig = new YosysSignal(wire);
+        bool isClk          = checkSignalClk(newSig->getName(), _designInfo.clkName);
+        bool isReset        = checkSignalClk(newSig->getName(), _designInfo.rstName);
+        if (wire->port_input) {
+            if (isClk) _clkList.push_back(newSig);
+            else if (isReset) _rstList.push_back(newSig);
+            else _piList.push_back(newSig);
+        } else if (wire->port_output) _poList.push_back(newSig);
+    }
+}
+
+/**
+ * @brief
+ *
+ */
+void YosysMgr::printPo() {
+    for (int i = 0; i < _poList.size(); ++i) {
+        cout << " PO: " << left << setw(10) << _poList[i]->getName()
+             << "ID: " << setw(10) << left << _poList[i]->getId()
+             << "Width: " << setw(10) << _poList[i]->getWidth() << endl;
+    }
+}
+
+/**
+ * @brief
+ *
+ */
+void YosysMgr::printPi() {
+    for (int i = 0; i < _piList.size(); ++i) {
+        cout << " PI: " << left << setw(10) << _piList[i]->getName()
+             << "ID: " << setw(10) << left << _piList[i]->getId()
+             << "Width: " << setw(10) << _piList[i]->getWidth() << endl;
+    }
 }
