@@ -10,7 +10,9 @@ extern VRLTMgr* vrltMgr;
 class VRLTMgr {
 public:
     VRLTMgr();
+    bool preVrltSim();
     bool genVrltItf();
+    bool genVrltMakefile();
 
 private:
     std::string _itfFileName;

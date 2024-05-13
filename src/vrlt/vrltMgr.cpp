@@ -32,8 +32,16 @@ VRLTMgr::VRLTMgr() {
 /**
  * @brief
  *
- * @return true
- * @return false
+ */
+bool VRLTMgr::preVrltSim() {
+    if (!genVrltItf()) return false;
+    if (!genVrltMakefile()) return false;
+    return true;
+}
+
+/**
+ * @brief
+ *
  */
 bool VRLTMgr::genVrltItf() {
     string outFileName = _dirPath + _itfFileName;
@@ -63,4 +71,13 @@ bool VRLTMgr::genVrltItf() {
     }
     infile.close();
     outfile.close();
+    return true;
+}
+
+bool VRLTMgr::genVrltMakefile() {
+    // TODO: Compile the design with Verilator command
+    string command = "cd " + string(GV_VERILATOR_PATH) + "; make";
+    string execute = "cd " + string(GV_VERILATOR_PATH) + "; ./build/obj_dir/Vdesign_under_test";
+    system(command.c_str());
+    system(execute.c_str());
 }
