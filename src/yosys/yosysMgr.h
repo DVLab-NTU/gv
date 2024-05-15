@@ -14,10 +14,13 @@ struct YosysSignal;
 typedef vector<YosysSignal*> SignalVec;
 
 struct DesignInfo {
-    DesignInfo(string clk, string rst) : clkName(clk), rstName(rst) {}
-    DesignInfo() : clkName(""), rstName("") {}
-    string clkName;
-    string rstName;
+    DesignInfo(string clk, string rst) {
+        clkName = {"clk", "clock"};
+        rstName = {"rst", "reset"};
+    }
+    DesignInfo(){};
+    vector<string> clkName;
+    vector<string> rstName;
     bool reset;
 };
 
@@ -29,16 +32,23 @@ struct YosysSignal {
     };
     inline int getId() { return _id; }
     inline int getWidth() { return _width; }
-    inline const string& getName() { return _name; }
+    const string& getName() { return _name; }
 
     RTLIL::Wire* _wire;
     string _name;
-    int _id;
     int _width;
+    int _id;
 };
 
 class YosysMgr {
 public:
+    enum YosysSigType {
+        PI,
+        PO,
+        CLK,
+        RST,
+        REG
+    };
     YosysMgr();
     ~YosysMgr() {}
 
@@ -46,6 +56,7 @@ public:
     void reset();
 
     void saveDesign(const string&);
+    void saveTopModuleName();
     void loadDesign(const string&);
     void loadSimPlugin();
 
@@ -62,22 +73,24 @@ public:
 
     void setLogging(const bool& = false);
     void setSafeProperty(const unsigned& p = 0) { _property = p; };
+    void setTopModuleName(const string n) { _topModuleName = n; };
 
     unsigned getSafeProperty() const { return _property; };
-    string getTopModuleName() const;
     string getPoName(const unsigned&) const;
     inline YosysSignal* getPi(const unsigned& idx) const { return _piList[idx]; }
     inline YosysSignal* getPo(const unsigned& idx) const { return _poList[idx]; }
     inline YosysSignal* getClk(const unsigned& idx) const { return _clkList[idx]; }
     inline YosysSignal* getRst(const unsigned& idx) const { return _rstList[idx]; }
-    inline unsigned getPiNum() { return _piList.size(); }
-    inline unsigned getPoNum() { return _poList.size(); }
-    inline unsigned getClkNum() { return _clkList.size(); }
-    inline unsigned getRstNum() { return _rstList.size(); }
+    inline YosysSignal* getReg(const unsigned& idx) const { return _regList[idx]; }
+    inline unsigned getNumPIs() { return _piList.size(); }
+    inline unsigned getNumPOs() { return _poList.size(); }
+    inline unsigned getNumCLKs() { return _clkList.size(); }
+    inline unsigned getNumRSTs() { return _rstList.size(); }
+    inline unsigned getNumREGs() { return _regList.size(); }
+    inline string getTopModuleName() { return _topModuleName; };
 
-    void assignSignals();
-    void printPo();
-    void printPi();
+    void assignSignal();
+    void printSignal(const YosysSigType&);
 
 private:
     unsigned _property;
@@ -86,7 +99,10 @@ private:
     SignalVec _poList;
     SignalVec _clkList;
     SignalVec _rstList;
+    SignalVec _regList;
     DesignInfo _designInfo;
+    vector<string> _yosysSigTypeStr;
+    string _topModuleName;
 };
 
 #endif

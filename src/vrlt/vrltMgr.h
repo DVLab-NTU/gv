@@ -10,14 +10,19 @@ extern VRLTMgr* vrltMgr;
 class VRLTMgr {
 public:
     VRLTMgr();
-    bool preVrltSim();
-    bool genVrltItf();
-    bool genVrltMakefile();
+    bool preVrltSim(const bool& verbose);
+    bool runVrltSim(const bool& verbose);
 
 private:
-    std::string _itfFileName;
-    std::string _itfPath;
-    std::string _dirPath;
+    std::string _itfPath;      // interface.hpp path
+    std::string _dirPath;      // verilator directory path
+    std::string _designPath;   // input design path
+    std::string _itfFileName;  // save the name of interface.hpp file
+
+    // private member functions for simluation on Verilator
+    bool genVrltBuild(const bool& verbose);
+    bool genVrltItf(const bool& verbose);
+    bool genVrltMakefile(const bool& verbose);
 };
 
 #endif

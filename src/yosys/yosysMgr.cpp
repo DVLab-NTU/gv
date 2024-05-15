@@ -4,14 +4,16 @@
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
+#include <ios>
 #include <string>
 
-#include "SolverTypesV.h"
 #include "gvType.h"
 #include "kernel/yosys.h"
 #include "yosysExt.h"
 
 YosysMgr* yosysMgr;
+
+#define LEFT_WIDTH_10 std::setw(10) << std::left
 
 /**
  * @brief Construct a new Yosys Mgr:: Yosys Mgr object
@@ -19,7 +21,8 @@ YosysMgr* yosysMgr;
  */
 YosysMgr::YosysMgr() : _property(-1) {
     init();
-    _designInfo = DesignInfo("clk", "rst");
+    _designInfo      = DesignInfo("clk", "rst");
+    _yosysSigTypeStr = {"PI", "PO", "CLK", "RST", "REG"};
 }
 
 /**
@@ -68,6 +71,7 @@ void YosysMgr::setLogging(const bool& enable) {
 void YosysMgr::saveDesign(const string& designName) {
     string command = "design -save " + designName;
     run_pass(command);
+    saveTopModuleName();
 }
 
 /**
@@ -128,7 +132,7 @@ void YosysMgr::readVerilog(const string& fileName) {
     const string command    = "read_verilog -sv " + fileName;
     run_pass(command);
     saveDesign(designName);
-    assignSignals();
+    assignSignal();
 }
 
 /**
@@ -297,60 +301,74 @@ void YosysMgr::runPass(const string& command) {
  *
  * This function retrieves the name of the top module in the current Yosys design.
  *
- * @return A string containing the name of the top module.
- *         If the design has not been loaded, an empty string is returned.
+ * @return
  */
-string YosysMgr::getTopModuleName() const {
+void YosysMgr::saveTopModuleName() {
     if (!yosys_design) {
         cout << "[ERROR]: Please read the word-level design first !!\n";
-        return "";
+        return;
     }
-    RTLIL::Module* top   = yosys_design->top_module();
-    string topModuleName = top->name.substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
-    return topModuleName;
+    RTLIL::Module* top = yosys_design->top_module();
+    string topModule   = top->name.substr(1, strlen(yosys_design->top_module()->name.c_str()) - 1);
+    setTopModuleName(topModule);
 }
 
-static bool checkSignalClk(const string& name, const string& clkName) {
-    return (name.find(clkName) != string::npos);
+/**
+ * @brief
+ *
+ * @param currSignal
+ * @param signalVec
+ * @return true
+ * @return false
+ */
+static bool findSignal(const string& currSignal, const vector<string>& signalVec) {
+    for (int i = 0; i < signalVec.size(); ++i)
+        if (currSignal.find(signalVec[i]) != string::npos) return true;
+    return false;
 }
+
 /**
  * @brief
  *
  */
-void YosysMgr::assignSignals() {
+void YosysMgr::assignSignal() {
     _topModule = yosys_design->top_module();
     for (auto wire : _topModule->wires()) {
         YosysSignal* newSig = new YosysSignal(wire);
-        bool isClk          = checkSignalClk(newSig->getName(), _designInfo.clkName);
-        bool isReset        = checkSignalClk(newSig->getName(), _designInfo.rstName);
-        if (wire->port_input) {
-            if (isClk) _clkList.push_back(newSig);
-            else if (isReset) _rstList.push_back(newSig);
-            else _piList.push_back(newSig);
-        } else if (wire->port_output) _poList.push_back(newSig);
+        bool isDesignSig    = (wire->name.str()[0] == '\\') ? true : false;
+        bool isClk          = findSignal(newSig->getName(), _designInfo.clkName);
+        bool isReset        = findSignal(newSig->getName(), _designInfo.rstName);
+        if (isDesignSig) {
+            if (wire->port_input) {
+                if (isClk) _clkList.push_back(newSig);
+                else if (isReset) _rstList.push_back(newSig);
+                else _piList.push_back(newSig);
+            } else if (wire->port_output) _poList.push_back(newSig);
+            else _regList.push_back(newSig);
+        }
     }
+    printSignal(PI);
+    printSignal(PO);
+    printSignal(CLK);
+    printSignal(RST);
+    printSignal(REG);
 }
 
 /**
  * @brief
  *
  */
-void YosysMgr::printPo() {
-    for (int i = 0; i < _poList.size(); ++i) {
-        cout << " PO: " << left << setw(10) << _poList[i]->getName()
-             << "ID: " << setw(10) << left << _poList[i]->getId()
-             << "Width: " << setw(10) << _poList[i]->getWidth() << endl;
-    }
-}
+void YosysMgr::printSignal(const YosysSigType& sigType) {
+    SignalVec tmpVec = _piList;
+    if (sigType == YosysSigType::PO) tmpVec = _poList;
+    else if (sigType == YosysSigType::CLK) tmpVec = _clkList;
+    else if (sigType == YosysSigType::RST) tmpVec = _rstList;
+    else if (sigType == YosysSigType::REG) tmpVec = _regList;
 
-/**
- * @brief
- *
- */
-void YosysMgr::printPi() {
-    for (int i = 0; i < _piList.size(); ++i) {
-        cout << " PI: " << left << setw(10) << _piList[i]->getName()
-             << "ID: " << setw(10) << left << _piList[i]->getId()
-             << "Width: " << setw(10) << _piList[i]->getWidth() << endl;
+    cout << " /////////////" << _yosysSigTypeStr[sigType] << "/////////////\n";
+    for (int i = 0; i < tmpVec.size(); ++i) {
+        cout << LEFT_WIDTH_10 << " " + _yosysSigTypeStr[sigType] << ": " << LEFT_WIDTH_10 << tmpVec[i]->getName()
+             << LEFT_WIDTH_10 << "ID: " << LEFT_WIDTH_10 << tmpVec[i]->getId()
+             << LEFT_WIDTH_10 << "Width: " << LEFT_WIDTH_10 << tmpVec[i]->getWidth() << endl;
     }
 }

@@ -9,9 +9,12 @@
 #include "cirMgr.h"
 #include "gvMsg.h"
 #include "util.h"
+#include "vrltMgr.h"
 #include "yosysMgr.h"
 
 bool initSimCmd() {
+    if (vrltMgr) delete vrltMgr;
+    vrltMgr = new VRLTMgr();
     return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) &&
             gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe));
 }
@@ -24,7 +27,8 @@ GVRandomSimCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
     size_t n   = options.size();
-    string rst = "reset", rst_n = "reset", clk = "clk", command = "random_sim ", vcd_file_name = ".waves.vcd";
+    string rst = "reset", rst_n = "reset", clk = "clk";
+    string command = "random_sim ", vcd_file_name = ".waves.vcd", simulator = "verilator";
     string opt, in_file_name, out_file_name, stimulus_file_name, cycles;
     bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
     bool out_file_name_set = false, file_name_set = false;
@@ -100,13 +104,23 @@ GVRandomSimCmd ::exec(const string& option) {
             command += " -vcd " + vcd_file_name;
             continue;
         }
+        if (myStrNCmp("-cxxrtl", token, 3)) {
+            simulator = "cxxrtl";
+            continue;
+        }
     }
-    if (!file_name_set) command += " -input " + cirMgr->getFileName();
-    if (yosysMgr->getSafeProperty() != -1) command += " -safe " + to_string((yosysMgr->getSafeProperty()));
-    // load the random_sim plugin in yosys
-    yosysMgr->loadSimPlugin();
-    // execute "random_sim" command
-    yosysMgr->runPass(command);
+
+    if (simulator == "verilator") {
+        vrltMgr->preVrltSim(false);
+        vrltMgr->runVrltSim(true);
+    } else if (simulator == "cxxrtl") {
+        if (!file_name_set) command += " -input " + cirMgr->getFileName();
+        if (yosysMgr->getSafeProperty() != -1) command += " -safe " + to_string((yosysMgr->getSafeProperty()));
+        // load the random_sim plugin in yosys
+        yosysMgr->loadSimPlugin();
+        // execute "random_sim" command
+        yosysMgr->runPass(command);
+    }
 
     return GV_CMD_EXEC_DONE;
 }
