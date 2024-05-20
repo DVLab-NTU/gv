@@ -27,7 +27,18 @@ yosys-config
 .cache/
 compile_commands.json
 
+# simulation files
+.sim_main.cpp
+.sim.cpp
+.tb
+
 # design and log files
 *.aig
 *.v
 *.txt
+
+# gv 
+gv
+
+# debugging files
+debug.dofile
