@@ -7,18 +7,20 @@ SRC_DIR := $(VRLT_PATH)
 
 VFLAGS += --cc --public --trace --assert -O3
 VFLAGS += -CFLAGS -O3
+VFLAGS += -CFLAGS -DCYCLE=0
 VFLAGS += -CFLAGS -I$(VRLT_PATH)include
-VFLAGS += -CFLAGS -DPRIMARY_MODEL_HEADER=V$(DESIGN_NAME).h
+# VFLAGS += -CFLAGS -DCYCLE=0
 VFLAGS += -y build
 VFLAGS += --Mdir build/obj_dir 
 VFLAGS += -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC  -Wno-LATCH
-VFLAGS += --exe $(SRC_DIR)vrltMain.cpp
+VFLAGS += --exe $(SRC_DIR)testbench.cpp
 # VFLAGS += --cc --public --trace --assert 
 # VFLAGS += -CFLAGS -g
 
 VERILATE=$(VERILATOR) $(VFLAGS)
 SUBMAKE := $(MAKE) --no-print-directory --directory=build/obj_dir -f
 VRLT_MK := Vdesign_under_test.mk
+
 all: symbolic_link_design run_vrlt_sim
 
 run_vrlt_sim: compile_vrlt_mk
