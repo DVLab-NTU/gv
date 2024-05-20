@@ -1,22 +1,27 @@
 #ifndef GV_SIM_CMD_C
 #define GV_SIM_CMD_C
 
-#include "gvSimCmd.h"
+#include "simCmd.h"
 
 #include <fstream>
 #include <string>
 
 #include "cirMgr.h"
+#include "gvCmdMgr.h"
 #include "gvMsg.h"
+#include "simMgr.h"
 #include "util.h"
 #include "vrltMgr.h"
 #include "yosysMgr.h"
 
 bool initSimCmd() {
     if (vrltMgr) delete vrltMgr;
-    vrltMgr = new VRLTMgr();
+    if (simMgr) delete simMgr;
+    // vrltMgr = new VRLTMgr();
+    // simMgr  = new SimMgr();
     return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) &&
-            gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe));
+            gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
+            gvCmdMgr->regCmd("VSIMulate", 4, new VSimulate));
 }
 
 //----------------------------------------------------------------------
@@ -110,17 +115,19 @@ GVRandomSimCmd ::exec(const string& option) {
         }
     }
 
-    if (simulator == "verilator") {
-        vrltMgr->preVrltSim(false);
-        vrltMgr->runVrltSim(true);
-    } else if (simulator == "cxxrtl") {
-        if (!file_name_set) command += " -input " + cirMgr->getFileName();
-        if (yosysMgr->getSafeProperty() != -1) command += " -safe " + to_string((yosysMgr->getSafeProperty()));
-        // load the random_sim plugin in yosys
-        yosysMgr->loadSimPlugin();
-        // execute "random_sim" command
-        yosysMgr->runPass(command);
-    }
+    // if (simulator == "verilator") {
+    //     vrltMgr->preVrltSim(true);
+    //     vrltMgr->runVrltSim(true);
+    // }
+    // } else
+    // if (true) {
+    if (!file_name_set) command += " -input " + cirMgr->getFileName();
+    if (yosysMgr->getSafeProperty() != -1) command += " -safe " + to_string((yosysMgr->getSafeProperty()));
+    // load the random_sim plugin in yosys
+    yosysMgr->loadSimPlugin();
+    // execute "random_sim" command
+    yosysMgr->runPass(command);
+    // }
 
     return GV_CMD_EXEC_DONE;
 }
@@ -145,8 +152,6 @@ void GVRandomSimCmd ::help() const {
 
 GVCmdExecStatus
 GVRandomSetSafe::exec(const string& option) {
-    gvMsg(GV_MSG_IFO) << "I am GVRandomSetSafe " << endl;
-
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
@@ -168,4 +173,45 @@ void GVRandomSetSafe::help() const {
                       << "Set safe property for random sim." << endl;
 }
 
+//----------------------------------------------------------------------
+// VSIMulate [-Cycle <int(cycleNum)>]
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+VSimulate::exec(const string& option) {
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n     = options.size();
+    bool verbose = false;
+    int cycle    = 0;
+
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        if (myStrNCmp("-Cycle", token, 1) == 0) {
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            if (!myStr2Int(options[i], cycle))
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+        }
+        if (myStrNCmp("-Verbose", token, 1) == 0) {
+            verbose = true;
+        }
+    }
+    if (simMgr == nullptr) {
+        simMgr = new VRLTMgr();
+    }
+    simMgr->setSimCylce(cycle);
+    simMgr->fileSim(verbose);
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void VSimulate::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: VSIMulate [-Cycle<int(cycleNum)>]" << endl;
+}
+
+void VSimulate::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "VSIMulate: "
+                      << "Simulate the verilog design with CXXRTL or Verilator." << endl;
+}
 #endif
