@@ -1,9 +1,11 @@
 #include "vrltMgr.h"
 
 #include <experimental/filesystem>
+#include <string>
 
 #include "cirMgr.h"
 #include "fstream"
+#include "simMgr.h"
 #include "yosysMgr.h"
 
 #define GREEN_TEXT "\033[32m"  // ANSI escape code for green color
@@ -28,14 +30,25 @@ static string genItfCode(const string type, YosysSignal* signal) {
     return line;
 }
 
+static string genMacro(string macroName, int val) {
+    return " " + macroName + "=" + to_string(val);
+}
+
+static string genMacro(string macroName, string val) {
+    return " " + macroName + "=" + val;
+}
+
 /**
  * @brief Construct a new VRLTMgr::VRLTMgr object
  *
  */
-VRLTMgr::VRLTMgr() {
+VRLTMgr::VRLTMgr() : SimMgr(0) {
     _itfFileName = "interface.hpp";
     _itfPath     = string(GV_TEMPLATE_PATH) + _itfFileName;
     _dirPath     = string(GV_VERILATOR_PATH);
+    _make        = "make";
+    _macro       = genMacro("DESIGN", cirMgr->getFileName()) + genMacro("GV_PATH", GV_PATH);
+    _verboseCmd  = " > /dev/null 2>&1";
 };
 
 /**
@@ -43,6 +56,10 @@ VRLTMgr::VRLTMgr() {
  *
  */
 bool VRLTMgr::preVrltSim(const bool& verbose) {
+    if (!preDesignInfo(verbose)) {
+        cout << "ERROR: Cannot prepare design info for Verilator !!\n";
+        return false;
+    }
     if (!genVrltBuild(verbose)) {
         cout << "ERROR: Cannot generate the verilator/build/ directory !!\n";
         return false;
@@ -58,11 +75,30 @@ bool VRLTMgr::preVrltSim(const bool& verbose) {
     return true;
 }
 
+/**
+ * @brief
+ *
+ * @return true
+ * @return false
+ */
+bool VRLTMgr::preDesignInfo(const bool&) {
+    _macro += genMacro("CYCLE", getSimCycle());
+    return true;
+}
+
+/**
+ * @brief
+ *
+ * @param verbose
+ * @return true
+ * @return false
+ */
 bool VRLTMgr::genVrltBuild(const bool& verbose) {
     namespace fs       = std::experimental::filesystem;
     fs::path currPath  = fs::current_path();
     fs::path buildPath = GV_VERILATOR_BUILD_PATH;
-    string rmCmd       = "make create_build_dir > /dev/null 2>&1";
+    string rmCmd       = "make create_build_dir";
+    if (!verbose) rmCmd += _verboseCmd;
 
     fs::current_path(GV_VERILATOR_PATH);
     cout << GREEN_TEXT << " >>> SYSTEM COMMAND: " << rmCmd << RESET_COLOR << endl;
@@ -80,7 +116,7 @@ bool VRLTMgr::genVrltBuild(const bool& verbose) {
  *
  */
 bool VRLTMgr::genVrltItf(const bool& verbose) {
-    string outFileName = _dirPath + _itfFileName;
+    string outFileName = _dirPath + _itfFileName, tmpLine;
     ifstream infile(_itfPath, ios::in);
     ofstream outfile(outFileName, ios::out);
     if (!infile) {
@@ -88,7 +124,6 @@ bool VRLTMgr::genVrltItf(const bool& verbose) {
         return false;
     }
     while (infile) {
-        string tmpLine;
         getline(infile, tmpLine);
         outfile << tmpLine << endl;
         if (tmpLine.find("CLK") != string::npos) {
@@ -124,15 +159,14 @@ bool VRLTMgr::genVrltItf(const bool& verbose) {
 bool VRLTMgr::genVrltMakefile(const bool& verbose) {
     namespace fs      = std::experimental::filesystem;
     fs::path currPath = fs::current_path();
-    string macro      = "DESIGN=" + cirMgr->getFileName() + " GV_PATH=" + GV_PATH;
-    string compileCmd = "make " + macro + " > /dev/null 2>&1";
-    string verboseCmd = " > /dev/null 2>&1";
+    string execCmd    = _make + " " + _macro;
 
-    if (!verbose) compileCmd += verboseCmd;
+    if (!verbose)
+        execCmd += _verboseCmd;
 
-    cout << GREEN_TEXT << " >>> SYSTEM COMMAND: " << compileCmd << RESET_COLOR << endl;
+    cout << GREEN_TEXT << " >>> SYSTEM COMMAND: " << execCmd << RESET_COLOR << endl;
     fs::current_path(GV_VERILATOR_PATH);
-    if (system(compileCmd.c_str()) != 0) {
+    if (system(execCmd.c_str()) != 0) {
         cout << "ERROR: Cannot execute the system command !!\n";
         return false;
     }
@@ -150,18 +184,47 @@ bool VRLTMgr::genVrltMakefile(const bool& verbose) {
 bool VRLTMgr::runVrltSim(const bool& verbose) {
     namespace fs      = std::experimental::filesystem;
     fs::path currPath = fs::current_path();
-    string runCmd     = "make run";
-    string verboseCmd = " > /dev/null 2>&1";
+    string runCmd     = " run";
+    string execCmd    = _make + runCmd;
 
-    if (!verbose) runCmd += verboseCmd;
+    if (!verbose)
+        execCmd += _verboseCmd;
 
-    cout << GREEN_TEXT << " >>> SYSTEM COMMAND: " << runCmd << RESET_COLOR << endl;
+    cout << GREEN_TEXT << " >>> SYSTEM COMMAND: " << execCmd << RESET_COLOR << endl;
     fs::current_path(GV_VERILATOR_PATH);
-    if (system(runCmd.c_str()) != 0) {
+    if (system(execCmd.c_str()) != 0) {
         cout << "ERROR: Cannot execute the system command !!\n";
         return false;
     }
     fs::current_path(currPath);
 
     return true;
+}
+
+void VRLTMgr::enableRandomSim() {
+    _macro += genMacro("MODE", 0);
+}
+
+void VRLTMgr::enableFileSim() {
+    _macro += genMacro("MODE", 1);
+}
+
+/**
+ * @brief
+ *
+ */
+void VRLTMgr::fileSim(const bool& verbose) {
+    enableFileSim();
+    preVrltSim(verbose);
+    runVrltSim(verbose);
+}
+
+/**
+ * @brief
+ *
+ */
+void VRLTMgr::randomSim(const bool& verbose) {
+    enableRandomSim();
+    preVrltSim(verbose);
+    runVrltSim(verbose);
 }
