@@ -20,16 +20,12 @@ using namespace std;
 
 int main(int argc, char **argv, char **env) {
     // TODO: Assertion Handler
-    // TODO: ...
-    cout << "CYCLE Macro: " << CYCLE << endl;
+
     timer.start();
     Simulator *simulator = new Simulator();
-    double random_time   = timer.getTime();
+    simulator->setCycle(CYCLE);
+    double random_time = timer.getTime();
     if (PURE_RANDOM) {
-        cout << "******************************" << endl;
-        cout << "*" << setw(21) << "Pure Random" << setw(8) << "*" << endl;
-        cout << "******************************" << endl;
-
         if (simulator->getRstNum() > 0)
             simulator->resetNegDUV();
 
@@ -38,22 +34,9 @@ int main(int argc, char **argv, char **env) {
             std::vector<unsigned> piPatternR = simulator->genPiRandomPattern();
             simulator->setPiPattern(piPatternR);
             simulator->evalOneClock();
-            cout << GREEN_TEXT << " ########### " << i << " ###########\n"
-                 << RESET_COLOR;
-            for (int j = 0; j < simulator->getPiNum(); ++j)
-                simulator->printPI(j);
-            for (int j = 0; j < simulator->getPoNum(); ++j)
-                simulator->printPO(j);
-            for (int j = 0; j < simulator->getRegNum(); ++j)
-                simulator->printREG(j);
-            cout << endl;
         }
         return 0;
     } else if (STIMULUS) {
-        cout << "******************************" << endl;
-        cout << "*" << setw(20) << "Stimulus " << setw(9) << "*" << endl;
-        cout << "******************************" << endl;
-
         simulator->loadInputPattern();
         simulator->startSim(true);
     }

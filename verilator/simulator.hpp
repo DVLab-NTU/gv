@@ -14,8 +14,11 @@
 #include "interface.hpp"
 #include "utility.hpp"
 
-typedef std::vector<std::vector<unsigned>> Pattern;  // Input pattern
+#define GREEN_TEXT "\033[32m"  // ANSI escape code for green color
+#define RESET_COLOR "\033[0m"  // ANSI escape code to reset color
+
 class Simulator {
+    typedef std::vector<std::vector<unsigned>> Pattern;  // Input pattern
 public:
     Simulator()
         : contextp(std::make_unique<VerilatedContext>()),
@@ -159,7 +162,9 @@ public:
                 piPattern.push_back(*(SData *)(signalMap->pi[i]->value));
         }
     };
-
+    void setCycle(unsigned newValue) {
+        cycle = newValue;
+    }
     void setCLK(unsigned newValue) {
         *(CData *)(signalMap->clk[0]->value) = newValue;
     };
@@ -223,8 +228,10 @@ public:
         }
     };
 
-    void printInfo() {
-        std::cout << " ========== \n";
+    void printInfo(unsigned cycle = 0) {
+        if (cycle != 0)
+            std::cout << GREEN_TEXT << " ########### Cycle " << cycle << " ###########\n"
+                      << RESET_COLOR;
         for (int i = 0; i < getPiNum(); ++i)
             printPI(i);
         for (int i = 0; i < getPoNum(); ++i)
@@ -323,6 +330,13 @@ public:
         return true;
     }
 
+    bool loadRandomPattern() {
+        for (int i = 0; i < cycle; ++i) {
+            std::vector<unsigned> onePattern = genPiRandomPattern();
+            patternVec.push_back(onePattern);
+        }
+    }
+
     void startSim(const bool &verbose) {
         if (getRstNum() > 0)
             resetNegDUV();
@@ -331,7 +345,7 @@ public:
                 setPiPattern(patternVec[i]);
                 evalOneClock();
             }
-            if (verbose) printInfo();
+            if (verbose) printInfo(i + 1);
         }
     }
 };
