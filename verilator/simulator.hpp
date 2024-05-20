@@ -7,18 +7,23 @@
 #ifndef simulator_h
 #define simulator_h
 
+#include <streambuf>
+
 #include "crpg.hpp"
+#include "fstream"
 #include "interface.hpp"
 #include "utility.hpp"
 
+typedef std::vector<std::vector<unsigned>> Pattern;  // Input pattern
 class Simulator {
 public:
     Simulator()
         : contextp(std::make_unique<VerilatedContext>()),
-          duv(std::make_unique<Vdesign_under_test>()), count(0) {
+          duv(std::make_unique<Vdesign_under_test>()), count(0), cycle(0) {
         contextp->debug(0);
         contextp->randReset(2);
-        signalMap = new Interface(duv->rootp);
+        signalMap   = new Interface(duv->rootp);
+        patternFile = "input.pattern";
     }
 
     ~Simulator() { duv->final(); }
@@ -26,6 +31,9 @@ public:
     std::unique_ptr<VerilatedContext> contextp;
     std::unique_ptr<Vdesign_under_test> duv;
     Interface *signalMap;
+    std::string patternFile;
+    Pattern patternVec;
+    unsigned cycle;
     long long unsigned count;
 
     void resetDUV() {
@@ -68,6 +76,7 @@ public:
     unsigned getPoNum(void) { return signalMap->po.size(); }
     unsigned getRegNum(void) { return signalMap->reg.size(); }
     unsigned getRstNum(void) { return signalMap->rst.size(); }
+    unsigned getPiWidth(int index) { return signalMap->pi[index]->width; }
 
     Signal *getPiSignal(unsigned index) { return signalMap->pi[index]; }
     Signal *getPoSignal(unsigned index) { return signalMap->po[index]; }
@@ -214,6 +223,16 @@ public:
         }
     };
 
+    void printInfo() {
+        std::cout << " ========== \n";
+        for (int i = 0; i < getPiNum(); ++i)
+            printPI(i);
+        for (int i = 0; i < getPoNum(); ++i)
+            printPO(i);
+        for (int i = 0; i < getRegNum(); ++i)
+            printREG(i);
+    }
+
     void printPI(unsigned i) {
         unsigned value;
         if (signalMap->pi[i]->getType() == 'C')
@@ -225,7 +244,7 @@ public:
         else
             value = *(SData *)(signalMap->pi[i]->value);
 
-        std::cout << signalMap->pi[i]->name << " " << signalMap->pi[i]->width << " "
+        std::cout << " " << signalMap->pi[i]->name << " " << signalMap->pi[i]->width << " "
                   << value << std::endl;
     }
     void printPO(unsigned i) {
@@ -238,7 +257,7 @@ public:
             value = *(QData *)(signalMap->po[i]->value);
         else
             value = *(SData *)(signalMap->po[i]->value);
-        std::cout << signalMap->po[i]->name << " " << signalMap->po[i]->width << " "
+        std::cout << " " << signalMap->po[i]->name << " " << signalMap->po[i]->width << " "
                   << value << std::endl;
     }
     void printREG(unsigned i) {
@@ -251,7 +270,7 @@ public:
             value = *(QData *)(signalMap->reg[i]->value);
         else
             value = *(SData *)(signalMap->reg[i]->value);
-        std::cout << signalMap->reg[i]->name << " " << signalMap->reg[i]->width
+        std::cout << " " << signalMap->reg[i]->name << " " << signalMap->reg[i]->width
                   << " " << value << std::endl;
     }
 
@@ -277,6 +296,43 @@ public:
         setCLK(0);
         duv->eval();
         count += 2;
+    }
+
+    bool loadInputPattern() {
+        // 0011 0101 -> 3, 5
+        std::ifstream infile("input.pattern");
+        std::string buffer;
+        unsigned width = 0, inputVal = 0;
+        while (infile >> buffer) {
+            std::vector<unsigned> onePattern;
+            for (int i = 0, n = getPiNum(); i < n; ++i) {
+                width = getPiWidth(i);
+                if (buffer.substr(0, width).size() < width) {
+                    std::cout << "ERROR: Illegal input pattern file !!\n";
+                    return false;
+                }
+
+                inputVal = stoi(buffer.substr(0, width), nullptr, 2);
+                onePattern.push_back(inputVal);
+                buffer = buffer.substr(width);
+                std::cout << " Input Value: " << inputVal << " Width: " << width << std::endl;
+            }
+            patternVec.push_back(onePattern);
+            std::cout << "\n";
+        }
+        return true;
+    }
+
+    void startSim(const bool &verbose) {
+        if (getRstNum() > 0)
+            resetNegDUV();
+        for (int i = 0; i < patternVec.size(); ++i) {
+            for (int j = 0; j < patternVec[i].size(); ++j) {
+                setPiPattern(patternVec[i]);
+                evalOneClock();
+            }
+            if (verbose) printInfo();
+        }
     }
 };
 
