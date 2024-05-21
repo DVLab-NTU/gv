@@ -347,11 +347,11 @@ void YosysMgr::assignSignal() {
             else _regList.push_back(newSig);
         }
     }
-    printSignal(PI);
-    printSignal(PO);
-    printSignal(CLK);
-    printSignal(RST);
-    printSignal(REG);
+    //     printSignal(PI);
+    //     printSignal(PO);
+    //     printSignal(CLK);
+    //     printSignal(RST);
+    //     printSignal(REG);
 }
 
 /**
