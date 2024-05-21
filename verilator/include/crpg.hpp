@@ -27,7 +27,7 @@
 #include "verilated_vcd_c.h"
 // #include "Vdesign_under_test__Dpi.h"
 
-#include "NumCpp.hpp"
+// #include "NumCpp.hpp"
 
 // Time Factor
 #define UCB_C 0.0001
