@@ -1,19 +1,17 @@
 #ifndef SIM_MGR_H
 #define SIM_MGR_H
 
-#include <vector>
-
-#include "json.hpp"
+#include <string>
 
 class SimMgr;
 extern SimMgr* simMgr;
 
-enum class SimMode {
-    RANDOM = 0,
-    FILE
-};
-
 class SimMgr {
+    enum class SimMode {
+        RANDOM = 0,
+        FILE
+    };
+
 public:
     SimMgr();
     SimMgr(int);
@@ -21,12 +19,19 @@ public:
     virtual void fileSim(const bool& verbose)   = 0;
     virtual void randomSim(const bool& verbose) = 0;
 
-    void setSimCylce(int c) { cycle = c; }
+    inline void setSimCylce(int c) { _cycle = c; }
+    inline void setVcdFileName(const std::string& vcdFile) { _vcdFileName = vcdFile; }
+    inline void setPatternFileName(const std::string& patternFile) { _patternFileName = patternFile; }
 
-    int getSimCycle() { return cycle; }
+    inline int getSimCycle() { return _cycle; }
+
+    inline std::string getVcdFileName() { return _vcdFileName; }
+    inline std::string getPatternFileName() { return _patternFileName; }
 
 private:
-    int cycle;
+    int _cycle;
+    std::string _vcdFileName;
+    std::string _patternFileName;
 };
 
 #endif

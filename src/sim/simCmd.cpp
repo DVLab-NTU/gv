@@ -149,7 +149,6 @@ void GVRandomSimCmd ::help() const {
 //----------------------------------------------------------------------
 // SEt SAfe <#PO>
 //----------------------------------------------------------------------
-
 GVCmdExecStatus
 GVRandomSetSafe::exec(const string& option) {
     vector<string> options;
@@ -174,16 +173,16 @@ void GVRandomSetSafe::help() const {
 }
 
 //----------------------------------------------------------------------
-// VSIMulate [-Cycle <int(cycleNum)>]
+// VSIMulate <-File <string(patternFile)>| -Random> [-Cycle <int(cycleNum)>][-Output <string(fileName)>][-Verbose]
 //----------------------------------------------------------------------
-
 GVCmdExecStatus
 VSimulate::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n     = options.size();
-    bool verbose = false;
-    int cycle    = 0;
+    size_t n       = options.size();
+    string vcdFile = "", patternFile = "";
+    bool random = false, verbose = false;
+    int cycle = 0;
 
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
@@ -193,6 +192,21 @@ VSimulate::exec(const string& option) {
             if (!myStr2Int(options[i], cycle))
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
         }
+        if (myStrNCmp("-File", token, 1) == 0) {
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            patternFile = options[i];
+        }
+        if (myStrNCmp("-Output", token, 1) == 0) {
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            vcdFile = options[i];
+        }
+        if (myStrNCmp("-Random", token, 1) == 0) {
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            random = true;
+        }
         if (myStrNCmp("-Verbose", token, 1) == 0) {
             verbose = true;
         }
@@ -201,13 +215,17 @@ VSimulate::exec(const string& option) {
         simMgr = new VRLTMgr();
     }
     simMgr->setSimCylce(cycle);
-    simMgr->fileSim(verbose);
+    simMgr->setVcdFileName(vcdFile);
+    simMgr->setPatternFileName(patternFile);
+
+    if (random) simMgr->randomSim(verbose);
+    else simMgr->fileSim(verbose);
 
     return GV_CMD_EXEC_DONE;
 }
 
 void VSimulate::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: VSIMulate [-Cycle<int(cycleNum)>]" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: VSIMulate [-Cycle<int(cycleNum)>] [-Verbose]" << endl;
 }
 
 void VSimulate::help() const {
