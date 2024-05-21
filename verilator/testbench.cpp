@@ -4,41 +4,37 @@
 //  dhgir.abien@gmail.com
 //
 
+#include <string>
+
 #include "fstream"
 #include "simulator.hpp"
 #include "string"
 #include "utility.hpp"
 
-#define PURE_RANDOM false
-#define STIMULUS true
+#define PURE_RANDOM 0
+#define STIMULUS 1
 // #define CYCLE 10
 
 using namespace std;
 
-#define GREEN_TEXT "\033[32m"  // ANSI escape code for green color
-#define RESET_COLOR "\033[0m"  // ANSI escape code to reset color
-
 int main(int argc, char **argv, char **env) {
     // TODO: Assertion Handler
-
     timer.start();
     Simulator *simulator = new Simulator();
     simulator->setCycle(CYCLE);
-    double random_time = timer.getTime();
-    if (PURE_RANDOM) {
-        if (simulator->getRstNum() > 0)
-            simulator->resetNegDUV();
+    simulator->openVcdFile();
+    simulator->contextp->commandArgs(argc, argv);
 
-        unsigned i;
-        for (i = 0; i < CYCLE; i++) {
-            std::vector<unsigned> piPatternR = simulator->genPiRandomPattern();
-            simulator->setPiPattern(piPatternR);
-            simulator->evalOneClock();
-        }
+    // double random_time = timer.getTime();
+    if (MODE == PURE_RANDOM) {
+        simulator->loadRandomPattern();
+        simulator->startSim(true);
         return 0;
-    } else if (STIMULUS) {
+    } else if (MODE == STIMULUS) {
         simulator->loadInputPattern();
         simulator->startSim(true);
     }
+    // simulator->closeVcdFile();
+
     return 0;
 }
