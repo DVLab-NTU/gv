@@ -44,6 +44,5 @@ jobs:
                   echo "Start to install the Yosys"
                   sudo make install
 
-
             # - name: Run tests
             #   run: make test

@@ -226,8 +226,7 @@ void SATMgr::itpUbmc(const CirGate *monitor, SatProofRes &pRes) {
 
             gvSatSolver->addBoundedVerifyData(tmp5, 0);
             gvSatSolver->assumeRelease();
-            gvSatSolver->assumeProperty(tmp5, false,
-                                        0);  // assume R xor R_prime is true
+            gvSatSolver->assumeProperty(tmp5, false, 0);  // assume R xor R_prime is true
             gvSatSolver->simplify();
             if (!gvSatSolver->assump_solve())  // USAT
             {

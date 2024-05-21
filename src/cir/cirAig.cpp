@@ -42,7 +42,7 @@ const bool CirMgr::readCirFromAbc(string fileName, FileType fileType) {
         param.fVerbose = 0;
         abcMgr->readVerilog(param);
         yosysMgr->createMapping(fileName);
-        abcMgr->buildAigName(id2Name);
+        // abcMgr->buildAigName(id2Name);
     }
     // initialize the size of the containers
     abcMgr->initCir(fileType);

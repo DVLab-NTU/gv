@@ -42,7 +42,7 @@ project(
     LANGUAGES CXX
     VERSION 0.3.0)
 
-# * Git clone the ABC repo at build time
+# * Git clokne the ABC repo at build time
 # * Run the BUILD_COMMAND "make libabc.a" for creating the ABC static library
 set(LIBABC_NAME libabc.a)
 ExternalProject_Add(
@@ -113,10 +113,9 @@ file(
     GLOB_RECURSE SOURCES
     RELATIVE ${CMAKE_SOURCE_DIR}
     "src/**/*.cpp" "src/**/*.h")
-# Exlcude the src/verilator/** from SOURCES
-list(APPEND EXCLUDE_DIR "verilator")
-exclude_from_list(EXCLUDE_DIR SOURCES)
-# message(FATAL_ERROR ${SOURCES})
+# * Exlcude the src/verilator/** from SOURCES
+# * list(APPEND EXCLUDE_DIR "verilator")
+# * exclude_from_list(EXCLUDE_DIR SOURCES)
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 # Add the definitions for ABC
@@ -124,7 +123,11 @@ add_compile_definitions(ABC_USE_STDINT_H)
 # Add the definitions for Yosys
 add_compile_definitions(_YOSYS_)
 # Add the definitions for Yosys Extension add_compile_definitions(GV_SIMSO_PATH="src/ext/")
-add_compile_definitions(GV_SIMSO_PATH="build/src/ext/")
+add_compile_definitions(GV_PATH="${CMAKE_SOURCE_DIR}/")
+add_compile_definitions(GV_SIMSO_PATH="${CMAKE_SOURCE_DIR}/build/src/ext/")
+add_compile_definitions(GV_TEMPLATE_PATH="${CMAKE_SOURCE_DIR}/verilator/template/")
+add_compile_definitions(GV_VERILATOR_PATH="${CMAKE_SOURCE_DIR}/verilator/")
+add_compile_definitions(GV_VERILATOR_BUILD_PATH="${CMAKE_SOURCE_DIR}/verilator/build/")
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
 # target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
@@ -155,6 +158,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/include/readline)
 # target_link_libraries(${CMAKE_PROJECT_NAME} libabc libyosys readline gmp)
 target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp)
 target_link_libraries(${CMAKE_PROJECT_NAME} ${LIBYOSYS_PATH})
+# * Link the filesystem library
+target_link_libraries(${CMAKE_PROJECT_NAME} stdc++fs)
 
 # Add the Yosys extension CMake file
 set(YOSYS_PLUGIN_PATH src/ext/)

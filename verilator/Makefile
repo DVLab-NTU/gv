@@ -6,16 +6,18 @@ DESIGN_NAME :=$(notdir $(basename $(DESIGN_PATH)))
 SRC_DIR := $(VRLT_PATH)
 
 VFLAGS += --cc --public --trace --assert -O3
+
 VFLAGS += -CFLAGS -O3
-VFLAGS += -CFLAGS -DCYCLE=0
+VFLAGS += -CFLAGS -DCYCLE=$(CYCLE)
+VFLAGS += -CFLAGS -DVCD_FILE=$(GV_PATH)$(VCD_FILE)
+VFLAGS += -CFLAGS -DMODE=$(MODE)
+VFLAGS += -CFLAGS -DPATTERN_FILE=$(GV_PATH)$(PATTERN_FILE)
 VFLAGS += -CFLAGS -I$(VRLT_PATH)include
-# VFLAGS += -CFLAGS -DCYCLE=0
+
 VFLAGS += -y build
 VFLAGS += --Mdir build/obj_dir 
 VFLAGS += -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC  -Wno-LATCH
 VFLAGS += --exe $(SRC_DIR)testbench.cpp
-# VFLAGS += --cc --public --trace --assert 
-# VFLAGS += -CFLAGS -g
 
 VERILATE=$(VERILATOR) $(VFLAGS)
 SUBMAKE := $(MAKE) --no-print-directory --directory=build/obj_dir -f
