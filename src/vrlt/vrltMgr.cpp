@@ -83,6 +83,7 @@ bool VRLTMgr::preVrltSim(const bool& verbose) {
  */
 bool VRLTMgr::preDesignInfo(const bool&) {
     _macro += genMacro("CYCLE", getSimCycle());
+    _macro += genMacro("VCD_FILE", getVcdFileName());
     return true;
 }
 
@@ -207,6 +208,7 @@ void VRLTMgr::enableRandomSim() {
 
 void VRLTMgr::enableFileSim() {
     _macro += genMacro("MODE", 1);
+    _macro += genMacro("PATTERN_FILE", getPatternFileName());
 }
 
 /**
