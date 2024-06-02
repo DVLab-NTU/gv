@@ -140,7 +140,7 @@ set(CMAKE_INSTALL_RPATH "${YOSYS_DIR}")
 file(
     GLOB_RECURSE SOURCES
     RELATIVE ${CMAKE_SOURCE_DIR}
-    "src/**/*.cpp" "src/**/*.h")
+    "src/*/*.cpp" "src/*/*.h")
 # * Exlcude the src/verilator/** from SOURCES
 # * list(APPEND EXCLUDE_DIR "verilator")
 # * exclude_from_list(EXCLUDE_DIR SOURCES)
@@ -168,9 +168,9 @@ endif()
 file(
     GLOB SRC_DIR
     RELATIVE ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/src/*)
+    ${CMAKE_SOURCE_DIR}/src/* ${CMAKE_SOURCE_DIR}/src/*/*)
 
-# Include all header files under the src/**/
+# Include all header files under the src/*/ and src/*/*/
 foreach(DIR ${SRC_DIR})
     if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/${DIR})
         target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/${DIR})
