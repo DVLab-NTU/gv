@@ -31,7 +31,7 @@ int main(int argc, char **argv, char **env) {
         simulator->startSim(true);
         return 0;
     } else if (MODE == STIMULUS) {
-        simulator->loadInputPattern();
+        if (!simulator->loadInputPattern()) return 1;
         simulator->startSim(true);
     }
     // simulator->closeVcdFile();

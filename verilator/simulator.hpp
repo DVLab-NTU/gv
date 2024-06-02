@@ -7,6 +7,7 @@
 #ifndef simulator_h
 #define simulator_h
 
+#include <cstddef>
 #include <streambuf>
 
 #include "crpg.hpp"
@@ -28,7 +29,7 @@ public:
         contextp->randReset(2);
         contextp->traceEverOn(true);
 
-        signalMap   = new Interface(duv->rootp);
+        signalMap = new Interface(duv->rootp);
         patternFile = STR(PATTERN_FILE);
         vcdFileName = STR(VCD_FILE);
         printSimInfo();
@@ -243,14 +244,14 @@ public:
                 *(QData *)(signalMap->pi[i]->value) = piPattern[i];
             else
                 *(SData *)(signalMap->pi[i]->value) = piPattern[i];
-        }
-    };
+            // std::cout << " PI NAME: " << signalMap->pi[i]->name << " Value: " << piPattern[i] << "\n";
+        };
+    }
 
     void openVcdFile() {
         tfp = new VerilatedVcdC();
         duv->trace(tfp, 99);
         tfp->open(vcdFileName.c_str());
-        std::cout << "VCD File: " << vcdFileName.c_str() << "\n";
     }
 
     void closeVcdFile() {
@@ -263,9 +264,11 @@ public:
         tfp->flush();
     }
     void printSimInfo() {
-        std::cout << "Pattern File: " << patternFile << "\n";
-        std::cout << "VCD File: " << vcdFileName << "\n";
-        std::cout << "Cycle: " << cycle << "\n";
+        std::cout << GREEN_TEXT << " =====  SIMULATION INFO ===== \n"
+                  << RESET_COLOR;
+        std::cout << " Pattern File: " << patternFile << "\n";
+        std::cout << " VCD File: " << vcdFileName << "\n";
+        std::cout << " Cycle: " << cycle << "\n\n";
     }
 
     void printInfo(unsigned cycle = 0) {
@@ -332,25 +335,29 @@ public:
     }
 
     void eval(void) {
-        // contextp->timeInc(1);
+        contextp->timeInc(1);
         duv->eval();
         tfp->flush();
-        tfp->dump(int(count++));
-        // tfp->dump(contextp->time());
+        tfp->dump(contextp->time());
         tfp->flush();
         // count++;
     }
 
     void evalOneClock(void) {
-        // duv->eval();
-        // eval();
         setCLK(1);
         eval();
-        // duv->eval();
         setCLK(0);
         eval();
-        // duv->eval();
         // count += 2;
+    }
+    std::string replaceXValue(const std::string &pattern) {
+        std::string newPattern = pattern;
+        size_t xPos = newPattern.find('X');
+        while (xPos != std::string::npos) {
+            newPattern[xPos] = '0';
+            xPos = newPattern.find('X');
+        }
+        return newPattern;
     }
 
     bool loadInputPattern() {
@@ -364,8 +371,8 @@ public:
         while (infile >> buffer) {
             std::vector<unsigned> onePattern;
             for (int i = 0, n = getPiNum(); i < n; ++i) {
-                width    = getPiWidth(i);
-                inputStr = buffer.substr(0, width);
+                width = getPiWidth(i);
+                inputStr = replaceXValue(buffer.substr(0, width));
                 if (inputStr.size() < width) {
                     std::cout << "ERROR: Illegal input pattern file !!\n";
                     return false;
@@ -374,6 +381,11 @@ public:
                 onePattern.push_back(inputVal);
                 buffer = buffer.substr(width);
                 // std::cout << " Input Value: " << inputVal << " Width: " << width << std::endl;
+            }
+            std::cout << "Buffer Size: " << buffer.size() << std::endl;
+            if (buffer.size() != 0) {
+                std::cout << "ERROR: Illegal input pattern file !!\n";
+                return false;
             }
             patternVec.push_back(onePattern);
         }
