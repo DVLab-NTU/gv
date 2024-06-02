@@ -7,10 +7,8 @@
 #include <string>
 
 #include "abcExt.h"
-#include "base/abc/abc.h"
 #include "cirDef.h"
 #include "cirMgr.h"
-#include "proof/pdr/pdr.h"
 #include "util.h"
 
 AbcMgr *abcMgr;
@@ -34,22 +32,22 @@ void AbcMgr::execCmd(const char *cmd) {
 static string gateName(const string &name, const int &bit) { return name + "[" + to_string(bit) + "]"; }
 
 void AbcMgr::readVerilog(const ABCParam &opt) {
-    char *pFileName  = opt.pFileName;
+    char *pFileName = opt.pFileName;
     char *pTopModule = opt.pTopModule;
-    char *pDefines   = opt.pDefines;
-    int fInvert      = opt.fInvert;
-    int fTechMap     = opt.fTechMap;
-    int fSkipStrash  = opt.fSkipStrash;
-    int fLibInDir    = opt.fLibInDir;
-    int fVerbose     = opt.fVerbose;
-    pGia             = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fLibInDir, fVerbose);
+    char *pDefines = opt.pDefines;
+    int fInvert = opt.fInvert;
+    int fTechMap = opt.fTechMap;
+    int fSkipStrash = opt.fSkipStrash;
+    int fLibInDir = opt.fLibInDir;
+    int fVerbose = opt.fVerbose;
+    pGia = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fLibInDir, fVerbose);
 }
 
 void AbcMgr::readAig(const ABCParam &opt) {
     char *pFileName = opt.pFileName;
     int fSkipStrash = opt.fSkipStrash;
-    int fGiaSimple  = opt.fGiaSimple;
-    int fCheck      = opt.fCheck;
+    int fGiaSimple = opt.fGiaSimple;
+    int fCheck = opt.fCheck;
     // int fCheck = 1;
     pGia = Gia_AigerRead(pFileName, fGiaSimple, fSkipStrash, fCheck);
 }
@@ -76,7 +74,6 @@ void AbcMgr::buildAigName(map<unsigned, string> &id2Name) {
         else if (type == "latch") {
             Gia_Obj_t *ro = Gia_ObjRiToRo(pGia, Gia_ManRi(pGia, idx));
             Gia_Obj_t *ri = Gia_ManRi(pGia, idx);
-
             id2Name[Gia_ObjId(pGia, ro)] = gateName(name, bit);
             id2Name[Gia_ObjId(pGia, ri)] = gateName(name, bit) + "_ns";
         }
@@ -103,13 +100,13 @@ void AbcMgr::travAllObj(const FileType &fileType, map<unsigned, string> id2Name)
             if (inputIsPi(gateId)) parseInput(iPi++, gateId);
             else parseRo(iRo++, gateId, AIGER);
         } else if (Gia_ObjIsPo(pGia, pObj)) {
-            int in0Id     = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
-            int inv       = Gia_ObjFaninC0(pObj);
+            int in0Id = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
+            int inv = Gia_ObjFaninC0(pObj);
             string poName = (id2Name.count(gateId)) ? id2Name[gateId] : to_string(gateId);
             parseOutput(iPo++, gateId, in0Id, inv, poName);
         } else if (Gia_ObjIsAnd(pObj)) {
-            int in0Id  = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
-            int in1Id  = Gia_ObjId(pGia, Gia_ObjFanin1(pObj));
+            int in0Id = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
+            int in1Id = Gia_ObjId(pGia, Gia_ObjFanin1(pObj));
             int in0Inv = Gia_ObjFaninC0(pObj);
             int in1Inv = Gia_ObjFaninC1(pObj);
             if (PPI2RO.count(in0Id)) in0Id = PPI2RO[in0Id];
@@ -124,7 +121,7 @@ void AbcMgr::travAllObj(const FileType &fileType, map<unsigned, string> id2Name)
             }
         } else if (Gia_ObjIsRi(pGia, pObj)) {
             int in0Id = Gia_ObjId(pGia, Gia_ObjFanin0(pObj));
-            int inv   = Gia_ObjFaninC0(pObj);
+            int inv = Gia_ObjFaninC0(pObj);
             parseRi(iRi++, gateId, in0Id, inv);
         } else if (Gia_ObjIsConst0(pObj)) {
             parseConst0();
@@ -147,13 +144,13 @@ void AbcMgr::initCir(const FileType &fileType) {
     // Create lists
     int piNum = Gia_ManPiNum(pGia), regNum = Gia_ManRegNum(pGia), poNum = 0, totNum = 0;
     if (fileType == VERILOG) {
-        piNum  = (Gia_ManRegNum(pGia)) ? piNum - regNum + 1 : piNum;
+        piNum = (Gia_ManRegNum(pGia)) ? piNum - regNum + 1 : piNum;
         regNum = ((Gia_ManRegNum(pGia) - 1) < 0) ? 0 : Gia_ManRegNum(pGia) - 1;
     } else if (fileType == AIGER) {
-        piNum  = Gia_ManPiNum(pGia);
+        piNum = Gia_ManPiNum(pGia);
         regNum = (Gia_ManRegNum(pGia) < 0) ? 0 : Gia_ManRegNum(pGia);
     }
-    poNum  = Gia_ManPoNum(pGia);
+    poNum = Gia_ManPoNum(pGia);
     totNum = Gia_ManObjNum(pGia);
 
     initCirMgr(piNum, poNum, regNum, totNum);
@@ -170,11 +167,11 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
     unsigned uLit0, uLit1, uLit;
     int c0, c1;
 
-    nInputs  = getNumPIs();
+    nInputs = getNumPIs();
     nOutputs = getNumPOs();
     nLatches = getNumLATCHs();
-    nAnds    = getNumAIGs();
-    nTotal   = nInputs + nLatches + nAnds;
+    nAnds = getNumAIGs();
+    nTotal = nInputs + nLatches + nAnds;
 
     // check the parameters
     if (nTotal != nInputs + nLatches + nAnds) {
@@ -182,10 +179,10 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
     }
 
     // allocate the empty AIG
-    pNtkNew           = Abc_NtkAlloc(ABC_NTK_STRASH, ABC_FUNC_AIG, 1);
+    pNtkNew = Abc_NtkAlloc(ABC_NTK_STRASH, ABC_FUNC_AIG, 1);
     pNtkNew->nConstrs = nConstr;
     // prepare the array of nodes
-    vNodes          = Vec_PtrAlloc(1 + nInputs + nLatches + nAnds);
+    vNodes = Vec_PtrAlloc(1 + nInputs + nLatches + nAnds);
     Abc_Obj_t *zero = Abc_ObjNot(Abc_AigConst1(pNtkNew));
     Vec_PtrPush(vNodes, Abc_ObjNot(Abc_AigConst1(pNtkNew)));
 
@@ -213,8 +210,8 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
     for (i = 0; i < nAnds; i++) {
         uLit0 = getAigIn0Gid(i);
         uLit1 = getAigIn1Gid(i);
-        c0    = getAigIn0Cp(i);
-        c1    = getAigIn1Cp(i);
+        c0 = getAigIn0Cp(i);
+        c1 = getAigIn1Cp(i);
 
         if (aigIdMap.count(uLit0)) uLit0 = aigIdMap[uLit0];
         if (aigIdMap.count(uLit1)) uLit1 = aigIdMap[uLit1];
@@ -226,7 +223,7 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
     // create the LATCH inputs
     Abc_NtkForEachLatchInput(pNtkNew, pObj, i) {
         uLit0 = getRiIn0Gid(i);
-        c0    = getRiIn0Cp(i);
+        c0 = getRiIn0Cp(i);
         if (aigIdMap.count(uLit0)) uLit0 = aigIdMap[uLit0];
         pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0), (c0));
         Abc_ObjAddFanin(pObj, pNode0);
@@ -234,7 +231,7 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
     // read the PO driver literals
     Abc_NtkForEachPo(pNtkNew, pObj, i) {
         uLit0 = getPoIn0Gid(i);
-        c0    = getPoIn0Cp(i);
+        c0 = getPoIn0Cp(i);
         if (aigIdMap.count(uLit0)) uLit0 = aigIdMap[uLit0];
         pNode0 = Abc_ObjNotCond((Abc_Obj_t *)Vec_PtrEntry(vNodes, uLit0),
                                 c0);  //^ (uLit0 < 2) );
@@ -261,16 +258,7 @@ void AbcMgr::cirToAig(IDMap &aigIdMap) {
 
 void AbcMgr::writeBlif(const string &fileName) {
     Abc_Ntk_t *pNtkTemp = Abc_NtkToNetlist(pNtk);
-    char *pFileName     = new char[100];
+    char *pFileName = new char[100];
     strcpy(pFileName, fileName.c_str());
     Io_WriteBlif(pNtkTemp, pFileName, 1, 0, 1);
-}
-
-void AbcMgr::runPDR(const bool &verbose) {
-    // Start PDR
-    Pdr_Par_t *pPars = new Pdr_Par_t();
-    Pdr_ManSetDefaultParams(pPars);
-    if (verbose) pPars->fVerbose = 1;
-    pPars->fSolveAll = 1;
-    pAbc->Status     = Abc_NtkDarPdr(pNtk, pPars);
 }
