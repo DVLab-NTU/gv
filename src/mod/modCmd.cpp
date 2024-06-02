@@ -45,7 +45,7 @@ GVCmdExecStatus ModSetSystemCmd::exec(const string& option) {
     else if (app) mode = MOD_TYPE_APP;
 
     if (vrf && cirMgr == 0) {
-        cout << "[ERROR]: Please use command \"READ DESIGN\" to read the input file first !!\n";
+        cout << "[ERROR]: Please use command \"CIRREAD\" to read the input file first !!\n";
         return GV_CMD_EXEC_NOP;
     }
 
