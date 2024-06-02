@@ -2,6 +2,7 @@
 
 SimMgr* simMgr = nullptr;
 
+
 SimMgr::SimMgr() : _cycle(0) {
 }
 

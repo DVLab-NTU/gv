@@ -11,6 +11,7 @@
 #include "gvMsg.h"
 #include "simMgr.h"
 #include "util.h"
+#include "vcdMgr.h"
 #include "vrltMgr.h"
 #include "yosysMgr.h"
 
@@ -31,7 +32,7 @@ GVCmdExecStatus
 GVRandomSimCmd ::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n   = options.size();
+    size_t n = options.size();
     string rst = "reset", rst_n = "reset", clk = "clk";
     string command = "random_sim ", vcd_file_name = ".waves.vcd", simulator = "verilator";
     string opt, in_file_name, out_file_name, stimulus_file_name, cycles;
@@ -76,7 +77,7 @@ GVRandomSimCmd ::exec(const string& option) {
         }
         if (myStrNCmp("-input", token, 1) == 0) {
             ++i;
-            in_file_name  = options[i];
+            in_file_name = options[i];
             file_name_set = true;
             command += " -input " + in_file_name;
             continue;
@@ -173,25 +174,18 @@ void GVRandomSetSafe::help() const {
 }
 
 //----------------------------------------------------------------------
-// VSIMulate <-File <string(patternFile)>| -Random> [-Cycle <int(cycleNum)>][-Output <string(fileName)>][-Verbose]
+// VSIMulate <-File <string(patternFile)>| -Random <int(cycle)>> [-Output <string(fileName)>] [-Verbose]
 //----------------------------------------------------------------------
-GVCmdExecStatus
-VSimulate::exec(const string& option) {
+GVCmdExecStatus VSimulate::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n       = options.size();
+    size_t n = options.size();
     string vcdFile = "", patternFile = "";
     bool random = false, verbose = false;
     int cycle = 0;
 
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
-        if (myStrNCmp("-Cycle", token, 1) == 0) {
-            if (++i == n)
-                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
-            if (!myStr2Int(options[i], cycle))
-                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-        }
         if (myStrNCmp("-File", token, 1) == 0) {
             if (++i == n)
                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
@@ -205,6 +199,8 @@ VSimulate::exec(const string& option) {
         if (myStrNCmp("-Random", token, 1) == 0) {
             if (++i == n)
                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            if (!myStr2Int(options[i], cycle))
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
             random = true;
         }
         if (myStrNCmp("-Verbose", token, 1) == 0) {
@@ -214,22 +210,28 @@ VSimulate::exec(const string& option) {
     if (simMgr == nullptr) {
         simMgr = new VRLTMgr();
     }
-    simMgr->setSimCylce(cycle);
+    simMgr->setSimCycle(cycle);
     simMgr->setVcdFileName(vcdFile);
     simMgr->setPatternFileName(patternFile);
 
     if (random) simMgr->randomSim(verbose);
     else simMgr->fileSim(verbose);
 
+    VCDMgr* vcdMgr = new VCDMgr();
+    vcdMgr->readVCDFile();
+    vcdMgr->printVCDFile();
+
     return GV_CMD_EXEC_DONE;
 }
 
 void VSimulate::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: VSIMulate [-Cycle<int(cycleNum)>] [-Verbose]" << endl;
+    gvMsg(GV_MSG_IFO) << "Usage: VSIMulate <-File <string(patternFile)> | -Random <int(cycle)>>\n"
+                      << "                 [-Output <string(fileName)>]\n"
+                      << "                 [-Verbose]" << endl;
 }
 
 void VSimulate::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "VSIMulate: "
-                      << "Simulate the verilog design with CXXRTL or Verilator." << endl;
+                      << "Simulate the verilog design with the specified simulator." << endl;
 }
 #endif
