@@ -84,20 +84,21 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
             fileName = options[i];
             ifstream infile;
-            infile.open(options[i].c_str(), ios::out);
+            infile.open(options[i].c_str());
             if (!infile)
                 return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+            infile.close();
         }
     }
     if (!fileName.empty()) {
         if (fileType == VERILOG) {
-            fileExt   = fileName.substr(fileName.size() - 2);
+            fileExt = fileName.substr(fileName.size() - 2);
             fileError = (fileExt != ".v");
         } else if (fileType == AIGER) {
-            fileExt   = fileName.substr(fileName.size() - 4);
+            fileExt = fileName.substr(fileName.size() - 4);
             fileError = (fileExt != ".aig");
         } else if (fileType == BLIF) {
-            fileExt   = fileName.substr(fileName.size() - 5);
+            fileExt = fileName.substr(fileName.size() - 5);
             fileError = (fileExt != ".blif");
         }
     } else fileError = true;
@@ -210,12 +211,12 @@ CirGateCmd::exec(const string& option) {
         if (myStrNCmp("-FANIn", options[i], 5) == 0) {
             if (doFanin || doFanout)
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-            doFanin    = true;
+            doFanin = true;
             checkLevel = true;
         } else if (myStrNCmp("-FANOut", options[i], 5) == 0) {
             if (doFanin || doFanout)
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-            doFanout   = true;
+            doFanout = true;
             checkLevel = true;
         } else if (!thisGate) {
             if (!myStr2Int(options[i], gateId) || gateId < 0)
