@@ -1,3 +1,5 @@
+#include <cstddef>
+
 #include "vcdMgr.h"
 
 /**
@@ -5,7 +7,9 @@
  *
  */
 void VCDMgr::printAllSignalInfo(const size_t& num) {
-    size_t n = (num == 0) ? getNumSignals() : num;
+    size_t n = 0;
+    if (num == 0)
+        n = (getNumSignals() < getColLimit()) ? getNumSignals() : getColLimit();
     std::cout << "0: time" << std::endl;
     for (size_t i = 0; i < n; ++i) {
         VCDSignal* signal = getSignal(i);
@@ -18,8 +22,13 @@ void VCDMgr::printAllSignalInfo(const size_t& num) {
  *
  */
 void VCDMgr::printSignalInfo(VCDSignal* signal, const size_t& idx) {
+    if (idx > getColLimit()) {
+        std::cout << "ERROR: Column Index out of bound !!\n";
+        return;
+    }
     if (signal == nullptr) {
         std::cout << "ERROR: Signal is nullptr !!\n";
+        return;
     }
     std::cout << idx + 1 << ": " << signal->scope->name << "."
               << signal->reference << std::endl;
@@ -35,9 +44,9 @@ void VCDMgr::printVCDFile(std::string scope) {
     printAllSignalInfo();
 
     std::cout << std::endl;
-    for (size_t i = 0, n = getSignals()->size() + 1; i < n; ++i) std::cout << i << " ";
+    for (size_t i = 0, n = getSignals()->size() + 1; i < n && i < getColLimit(); ++i) std::cout << i << " ";
     std::cout << "\n";
-    for (size_t i = 0, n = getSignals()->size() + 1; i < n; ++i) std::cout << "==";
+    for (size_t i = 0, n = getSignals()->size() + 1; i < n && i < getColLimit(); ++i) std::cout << "==";
     std::cout << "\n";
 
     for (size_t i = 0; i < _times->size() && i < getRowLimit(); ++i) {
@@ -78,12 +87,12 @@ void VCDMgr::printSignal(std::vector<std::string> signalsStrVec) {
         printSignalInfo(signal, i);
     }
 
-    for (size_t i = 0, n = signalsStrVec.size() + 1; i < n; ++i) std::cout << i << " ";
+    for (size_t i = 0, n = signalsStrVec.size() + 1; i < n && i < getColLimit(); ++i) std::cout << i << " ";
     std::cout << "\n";
-    for (size_t i = 0, n = signalsStrVec.size() + 1; i < n; ++i) std::cout << "==";
+    for (size_t i = 0, n = signalsStrVec.size() + 1; i < n && i < getColLimit(); ++i) std::cout << "==";
     std::cout << "\n";
 
-    for (size_t t = 1; t < getNumTimeStamps() && t < getRowLimit(); ++t) {
+    for (size_t t = 0; t < getNumTimeStamps() && t < getRowLimit(); ++t) {
         std::cout << t << " ";
         for (size_t i = 0, n = signalsStrVec.size(); i < n; ++i) {
             VCDSignal* signal = getRefenceSignal(signalsStrVec[i]);

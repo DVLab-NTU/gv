@@ -291,8 +291,6 @@ GVCmdExecStatus VCDPrint::exec(const string& option) {
     else if (isSelected) vcdMgr->printSignal(selectedSignals);
     else vcdMgr->printVCDFile();
 
-    vcdMgr->test();
-
     return GV_CMD_EXEC_DONE;
 }
 
