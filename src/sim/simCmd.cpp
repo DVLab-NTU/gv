@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "cirMgr.h"
 #include "gvCmdMgr.h"
@@ -22,7 +23,8 @@ bool initSimCmd() {
     // simMgr  = new SimMgr();
     return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) &&
             gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
-            gvCmdMgr->regCmd("VSIMulate", 4, new VSimulate));
+            gvCmdMgr->regCmd("VSIMulate", 4, new VSimulate) &&
+            gvCmdMgr->regCmd("VCDPrint", 4, new VCDPrint));
 }
 
 //----------------------------------------------------------------------
@@ -186,24 +188,24 @@ GVCmdExecStatus VSimulate::exec(const string& option) {
 
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
-        if (myStrNCmp("-File", token, 1) == 0) {
+        if (myStrNCmp("-File", token, 2) == 0) {
             if (++i == n)
                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
             patternFile = options[i];
         }
-        if (myStrNCmp("-Output", token, 1) == 0) {
+        if (myStrNCmp("-Output", token, 2) == 0) {
             if (++i == n)
                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
             vcdFile = options[i];
         }
-        if (myStrNCmp("-Random", token, 1) == 0) {
+        if (myStrNCmp("-Random", token, 2) == 0) {
             if (++i == n)
                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
             if (!myStr2Int(options[i], cycle))
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
             random = true;
         }
-        if (myStrNCmp("-Verbose", token, 1) == 0) {
+        if (myStrNCmp("-Verbose", token, 2) == 0) {
             verbose = true;
         }
     }
@@ -217,10 +219,6 @@ GVCmdExecStatus VSimulate::exec(const string& option) {
     if (random) simMgr->randomSim(verbose);
     else simMgr->fileSim(verbose);
 
-    VCDMgr* vcdMgr = new VCDMgr();
-    vcdMgr->readVCDFile();
-    vcdMgr->printVCDFile();
-
     return GV_CMD_EXEC_DONE;
 }
 
@@ -233,5 +231,78 @@ void VSimulate::usage(const bool& verbose) const {
 void VSimulate::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "VSIMulate: "
                       << "Simulate the verilog design with the specified simulator." << endl;
+}
+
+//----------------------------------------------------------------------
+// VCDPrint <string<VCDFile>> [-Row <int(rowLimit)>] [-Column <int(columnLimit)>] [-List]
+//----------------------------------------------------------------------
+GVCmdExecStatus VCDPrint::exec(const string& option) {
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    string vcdFile = "";
+    std::vector<std::string> selectedSignals;
+    int rowLimit = 0, colLimit = 0;
+    bool verbose = false, isList = false, isSelected = false;
+
+    if (n < 1) {
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    }
+
+    VCDMgr* vcdMgr = new VCDMgr();
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        if (myStrNCmp("-COLumn", token, 4) == 0) {
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            if (!myStr2Int(options[i], colLimit))
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            vcdMgr->setColLimit(colLimit);
+        } else if (myStrNCmp("-ROW", token, 4) == 0) {
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            if (!myStr2Int(options[i], rowLimit))
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            vcdMgr->setRowLimit(rowLimit);
+        } else if (myStrNCmp("-List", token, 2) == 0) {
+            isList = true;
+        } else if (myStrNCmp("-Signal", token, 2) == 0) {
+            if (++i == n) {
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            }
+            selectedSignals.push_back(options[i]);
+            isSelected = true;
+        } else {
+            if (vcdFile.size())
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            vcdFile = options[i];
+            ifstream infile;
+            infile.open(options[i].c_str());
+            if (!infile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+            infile.close();
+        }
+    }
+    if (!vcdMgr->readVCDFile(vcdFile)) {
+        cout << "ERROR: Cannot open the VCD file " << vcdFile << " !!\n";
+        return GV_CMD_EXEC_NOP;
+    }
+    if (isList) vcdMgr->printAllSignalInfo();
+    else if (isSelected) vcdMgr->printSignal(selectedSignals);
+    else vcdMgr->printVCDFile();
+
+    vcdMgr->test();
+
+    return GV_CMD_EXEC_DONE;
+}
+
+void VCDPrint::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: VCDPrint "
+                      << "[<string(VCDFile)>]" << endl;
+}
+
+void VCDPrint::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "VCDPrint: "
+                      << "Print Verilog value change dump (VCD) files in tabular form." << endl;
 }
 #endif
