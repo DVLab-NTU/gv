@@ -19,8 +19,11 @@
 bool initSimCmd() {
     if (vrltMgr) delete vrltMgr;
     if (simMgr) delete simMgr;
+    if (vcdMgr) delete vcdMgr;
     // vrltMgr = new VRLTMgr();
     // simMgr  = new SimMgr();
+    vcdMgr = new VCDMgr();
+
     return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) &&
             gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
             gvCmdMgr->regCmd("VSIMulate", 4, new VSimulate) &&
@@ -249,7 +252,6 @@ GVCmdExecStatus VCDPrint::exec(const string& option) {
         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
     }
 
-    VCDMgr* vcdMgr = new VCDMgr();
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
         if (myStrNCmp("-COLumn", token, 4) == 0) {
@@ -289,7 +291,7 @@ GVCmdExecStatus VCDPrint::exec(const string& option) {
     }
     if (isList) vcdMgr->printAllSignalInfo();
     else if (isSelected) vcdMgr->printSignal(selectedSignals);
-    else vcdMgr->printVCDFile();
+    else vcdMgr->printAllSignals();
 
     return GV_CMD_EXEC_DONE;
 }
