@@ -8,6 +8,7 @@
 #define simulator_h
 
 #include <cstddef>
+#include <cstdint>
 #include <streambuf>
 
 #include "crpg.hpp"
@@ -263,6 +264,7 @@ public:
         tfp->dump(contextp->time());
         tfp->flush();
     }
+
     void printSimInfo() {
         std::cout << GREEN_TEXT << " =====  SIMULATION INFO ===== \n"
                   << RESET_COLOR;
@@ -335,12 +337,14 @@ public:
     }
 
     void eval(void) {
-        contextp->timeInc(1);
+        // contextp->timeInc(1);
         duv->eval();
         tfp->flush();
-        tfp->dump(contextp->time());
+        // tfp->dump(contextp->time());
+        tfp->dump(uint64_t(count));
+        contextp->timeInc(1);
         tfp->flush();
-        // count++;
+        count++;
     }
 
     void evalOneClock(void) {

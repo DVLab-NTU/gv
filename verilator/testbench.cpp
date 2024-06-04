@@ -34,7 +34,7 @@ int main(int argc, char **argv, char **env) {
         if (!simulator->loadInputPattern()) return 1;
         simulator->startSim(true);
     }
-    // simulator->closeVcdFile();
+    simulator->closeVcdFile();
 
     return 0;
 }
