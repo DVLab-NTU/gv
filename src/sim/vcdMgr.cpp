@@ -1,12 +1,15 @@
 
 #include "vcdMgr.h"
 
-#include <cmath>
+#include <fmt/core.h>
+
 #include <cstddef>
-#include <future>
 #include <string>
 
 #include "VCDValue.hpp"
+
+//! Global VCD Manager pointer
+VCDMgr* vcdMgr = nullptr;
 
 /**
  * @brief Convert a VCDBit to a single char
@@ -51,7 +54,7 @@ void VCDMgr::resetStatus() {
 bool VCDMgr::readVCDFile(const std::string& fileName) {
     _trace = _vcdParser.parse_file(fileName);
     if (_trace == nullptr) {
-        std::cout << "ERROR: VCD Parsing Error !!" << std::endl;
+        fmt::print("ERROR: _trace is nullptr !!");
         return false;
     }
     parseAllSignals();
@@ -75,7 +78,6 @@ void VCDMgr::parseAllSignals() {
         VCDSignal* signal = getSignal(i);
         VCDSignalReference ref = signal->reference;
         _refToSignal[ref].push_back(signal);
-        std::cout << "Hash: " << getSignal(i)->hash << " <---> Ref: " << getSignal(i)->reference << std::endl;
     }
 
     // Solve the signal->scope == nullptr issue
@@ -130,16 +132,31 @@ Decimal VCDMgr::getDecValue(VCDValue* const val) const {
 /**
  * @brief
  *
+ * @param signal
+ * @param time
+ * @return VCDValue*
  */
-void VCDMgr::test() {
-    VCDSignal* signal = getRefenceSignal("rst");
-    VCDSignalValues vals = *getSignalDeltaValue(signal->hash);
-    for (int i = 0; i < vals.size(); ++i) {
-        std::cout << "Time: " << vals[i]->time << " Value: " << getDecValue(vals[i]->value) << std::endl;
-        if (getDecValue(vals[i]->value) == 1) {
-            VCDSignal* clk = getRefenceSignal("clk");
-            VCDValue* cval = getSignalValueAt(clk, vals[i]->time);
-            std::cout << "clk :" << getDecValue(cval) << "\n";
-        }
-    }
+VCDValue* VCDMgr::getSignalValueAt(VCDSignal* signal, const VCDTime time) const {
+    return _trace->get_signal_value_at(signal->hash, time);
+}
+
+/**
+ * @brief
+ *
+ * @param hash
+ * @param time
+ * @return VCDValue*
+ */
+VCDValue* VCDMgr::getSignalValueAt(const VCDSignalHash& hash, const VCDTime time) const {
+    return _trace->get_signal_value_at(hash, time);
+}
+
+/**
+ * @brief
+ *
+ * @param hash
+ * @return VCDSignalValues*
+ */
+VCDSignalValues* VCDMgr::getSignalDeltaValue(const VCDSignalHash& hash) const {
+    return _trace->get_signal_values(hash);
 }
