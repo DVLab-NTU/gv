@@ -410,7 +410,7 @@ public:
         for (int i = 0; i < patternVec.size(); ++i) {
             setPiPattern(patternVec[i]);
             evalOneClock();
-            if (verbose) printInfo(i + 1);
+            // if (verbose) printInfo(i + 1);
         }
     }
 };
