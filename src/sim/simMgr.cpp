@@ -1,7 +1,7 @@
 #include "simMgr.h"
 
+//! Global Simulation Manager pointer
 SimMgr* simMgr = nullptr;
-
 
 SimMgr::SimMgr() : _cycle(0) {
 }
