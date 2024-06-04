@@ -6,6 +6,9 @@
 #include "VCDFileParser.hpp"
 #include "VCDValue.hpp"
 
+class VCDMgr;
+extern VCDMgr* vcdMgr;
+
 struct PrintStatus {
     int colLimit;
     int rowLimit;
@@ -24,10 +27,10 @@ public:
     bool readVCDFile(const std::string& fileName);
     void parseAllSignals();
 
-    void printVCDFile(std::string scope = "TOP");
     void printScope(VCDScope* scope, VCDTime time);
     void printTimedSignal(VCDSignal* const signal, const VCDTime& time);
     void printSignal(std::vector<std::string> signals);
+    void printAllSignals(std::string scope = "TOP");
     void printAllSignalInfo(const size_t& num = 0);
     void printSignalInfo(VCDSignal* signal, const size_t& idx);
 
@@ -46,18 +49,9 @@ public:
     std::vector<VCDTime>* getTimeStamps() const { return _times; }
     std::vector<VCDScope*>* getScopes() const { return _scopes; };
     std::vector<VCDSignal*>* getSignals() const { return _signals; };
-    VCDValue* getSignalValueAt(VCDSignal* signal, const VCDTime time) const {
-        return _trace->get_signal_value_at(signal->hash, time);
-    }
-    VCDValue* getSignalValueAt(const VCDSignalHash& hash, const VCDTime time) const {
-        return _trace->get_signal_value_at(hash, time);
-    }
-    VCDSignalValues* getSignalDeltaValue(const VCDSignalHash& hash) const {
-        return _trace->get_signal_values(hash);
-    }
-
-    // DEBUG FUNCTION
-    void test();
+    VCDValue* getSignalValueAt(VCDSignal* signal, const VCDTime time) const;
+    VCDValue* getSignalValueAt(const VCDSignalHash& hash, const VCDTime time) const;
+    VCDSignalValues* getSignalDeltaValue(const VCDSignalHash& hash) const;
 
 private:
     void resetStatus();
@@ -66,6 +60,7 @@ private:
     size_t getRowLimit() const { return _printStatus.rowLimit; };
     int getSigCount() const { return _printStatus.signalCount; };
     bool getisExceed() const { return _printStatus.isExceed; };
+    void printTableRowTitle(const size_t& colNum) const;
 
     VCDFile* _trace;
     VCDFileParser _vcdParser;
