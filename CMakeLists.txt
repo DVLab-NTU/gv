@@ -36,6 +36,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 include(ExternalProject)
+include(FetchContent)
 
 project(
     gv
@@ -96,10 +97,9 @@ set(LIBYOSYS_PATH ${YOSYS_DIR}/libyosys.so)
 add_library(libyosys SHARED IMPORTED)
 set_target_properties(libyosys PROPERTIES IMPORTED_LOCATION ${LIBYOSYS_PATH})
 
-# * Git clone the Yosys repo at build time
-# * Run the PATCH_COMMAND for applying the modification for yosys (patches/yosys.patch)
-# * Run the BUILD_COMMAND "make libyosys.so" for creating the Yosys shared lib
-set(LIBVCDPARSER_NAME libverilog-vcd-parser.a)
+# * Git clone the Verilog-VCD-Parser repo at build time
+set(LIB_VCD_PARSER_NAME libverilog-vcd-parser.a)
+set(VCD_PARSER_PATCH_CMAKE vcd_parser_patch.cmake)
 ExternalProject_Add(
     vcd-parser
     GIT_REPOSITORY https://github.com/ben-marshall/verilog-vcd-parser.git
@@ -111,16 +111,24 @@ ExternalProject_Add(
     INSTALL_COMMAND ""
     UPDATE_COMMAND ""
     UPDATE_DISCONNECTED TRUE
+    PATCH_COMMAND ${CMAKE_COMMAND} -P ${PATCH_DIR}/${VCD_PARSER_PATCH_CMAKE}
     BUILD_COMMAND $(MAKE) all
     LOG_CONFIGURE ON
     LOG_INSTALL ON
     # LOG_BUILD ON
 )
 ExternalProject_Get_Property(vcd-parser SOURCE_DIR)
-set(VCDPARSER_DIR ${SOURCE_DIR})
-set(LIBVCDPARSER_PATH ${VCDPARSER_DIR}/build/libverilog-vcd-parser.a)
+set(VCD_PARSER_DIR ${SOURCE_DIR})
+set(LIB_VCD_PARSER_PATH ${VCD_PARSER_DIR}/build/libverilog-vcd-parser.a)
 add_library(libvcd-parser STATIC IMPORTED)
-set_target_properties(libvcd-parser PROPERTIES IMPORTED_LOCATION ${LIBVCDPARSER_PATH})
+set_target_properties(libvcd-parser PROPERTIES IMPORTED_LOCATION ${LIB_VCD_PARSER_PATH})
+
+# * FMT Library
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 10.2.1)
+FetchContent_MakeAvailable(fmt)
 
 # Link the library installed by brew
 if(APPLE)
@@ -183,7 +191,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
 # Include the readline header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/include/readline)
 # Include the VCD parser header files
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VCDPARSER_DIR}/build)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VCD_PARSER_DIR}/build)
 
 # target_link_libraries(${CMAKE_PROJECT_NAME} libabc libyosys readline gmp)
 target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp)
@@ -192,6 +200,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} ${LIBYOSYS_PATH})
 target_link_libraries(${CMAKE_PROJECT_NAME} stdc++fs)
 # * Link the verilog-vcd-parser library
 target_link_libraries(${CMAKE_PROJECT_NAME} libvcd-parser)
+# * Link the fmt library
+target_link_libraries(${CMAKE_PROJECT_NAME} fmt::fmt)
 
 # Add the Yosys extension CMake file
 set(YOSYS_PLUGIN_PATH src/ext/)
