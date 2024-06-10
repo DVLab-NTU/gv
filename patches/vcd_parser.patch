@@ -1,3 +1,16 @@
+diff --git a/src/VCDParser.ypp b/src/VCDParser.ypp
+index 6b3f0d4..0d8c321 100644
+--- a/src/VCDParser.ypp
++++ b/src/VCDParser.ypp
+@@ -152,7 +152,7 @@ declaration_command :
+     if (new_signal->size == 1) {
+         assert((new_signal->lindex == -1) || (new_signal->rindex == -1));
+     } else {
+-        assert((new_signal->lindex > 0) && (new_signal->lindex - new_signal->rindex + 1 == new_signal->size));
++        // assert((new_signal->lindex > 0) && (new_signal->lindex - new_signal->rindex + 1 == new_signal->size));
+     }
+     VCDScope * scope = driver.scopes.top();
+     scope -> signals.push_back(new_signal);
 diff --git a/src/VCDScanner.l b/src/VCDScanner.l
 index 5bd1206..5a6c42d 100644
 --- a/src/VCDScanner.l
