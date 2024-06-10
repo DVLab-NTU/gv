@@ -121,19 +121,13 @@ GVRandomSimCmd ::exec(const string& option) {
         }
     }
 
-    // if (simulator == "verilator") {
-    //     vrltMgr->preVrltSim(true);
-    //     vrltMgr->runVrltSim(true);
-    // }
-    // } else
-    // if (true) {
-    if (!file_name_set) command += " -input " + cirMgr->getFileName();
+    // if (!file_name_set) command += " -input " + cirMgr->getFileName();
+    if (!file_name_set) command += " -input ./testbench/adder.v";
     if (yosysMgr->getSafeProperty() != -1) command += " -safe " + to_string((yosysMgr->getSafeProperty()));
     // load the random_sim plugin in yosys
     yosysMgr->loadSimPlugin();
     // execute "random_sim" command
     yosysMgr->runPass(command);
-    // }
 
     return GV_CMD_EXEC_DONE;
 }
@@ -298,7 +292,10 @@ GVCmdExecStatus VCDPrint::exec(const string& option) {
 
 void VCDPrint::usage(const bool& verbose) const {
     gvMsg(GV_MSG_IFO) << "Usage: VCDPrint "
-                      << "[<string(VCDFile)>]" << endl;
+                      << "<string(VCDFile)>\n"
+                      << "                [-COLumn<int(num)>]\n"
+                      << "                [-Row<int(num)>]\n"
+                      << "                [-Signal<string(signalName)>]" << endl;
 }
 
 void VCDPrint::help() const {

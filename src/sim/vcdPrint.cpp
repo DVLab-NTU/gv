@@ -37,13 +37,13 @@ void VCDMgr::printSignalInfo(VCDSignal* signal, const size_t& idx) {
         std::cout << "ERROR: Signal is nullptr !!\n";
         return;
     }
-    fmt::println("{0}: {1}.{2}", idx + 1, signal->scope->name, signal->reference);
+    fmt::println("{0}: {1}.{2}", idx + 1, signal->scope->name,
+                 signal->reference);
 }
 
 void VCDMgr::printTableRowTitle(const size_t& colNum) const {
     size_t n = (colNum > getColLimit()) ? getColLimit() + 1 : colNum + 1;
-    for (size_t i = 0; i < n; ++i)
-        fmt::print("{0:<5}", i);
+    for (size_t i = 0; i < n; ++i) fmt::print("{0:<5}", i);
     fmt::println("\n{0:=^{1}}", "", 5 * n);
 }
 
@@ -76,10 +76,11 @@ void VCDMgr::printAllSignals(std::string scope) {
  */
 void VCDMgr::printScope(VCDScope* scope, VCDTime time) {
     size_t numSignals = scope->signals.size();
-    for (size_t i = 0; i < numSignals && getSigCount() < getColLimit(); ++i, incSigCount()) {
+    for (size_t i = 0; i < numSignals && getSigCount() < getColLimit();
+         ++i, incSigCount()) {
         VCDSignal* signal = scope->signals[i];
         VCDValue* val = getSignalValueAt(signal, time);
-        fmt::print("{:<5}", getDecValue(val));
+        fmt::print("{:<5}", getHexValue(val));
     }
 }
 
@@ -115,5 +116,5 @@ void VCDMgr::printTimedSignal(VCDSignal* const signal, const VCDTime& time) {
     if (val == nullptr) {
         std::cout << "ERROR: Value is nullptr !!\n";
     }
-    fmt::print("{:<5}", getDecValue(val));
+    fmt::print("{:<5}", getHexValue(val));
 }

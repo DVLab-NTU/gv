@@ -38,7 +38,7 @@ extern bool initItpCmd();
 extern bool initCirCmd();
 extern bool initYosysCmd();
 extern bool initAppCmd();
-// extern bool initAppMgr();
+extern bool initExpCmd();
 
 static void usage() {
     cout << "Usage: ./gv [ -File < doFile > ]" << endl;
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
     // cout << "[EXPERIMENTAL VERSION FOR CMAKE v0.1]\n";
     // clang-format off
     if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() && initModCmd() && initBddCmd() 
-         && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd() && initAppCmd()))
+         && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd() && initAppCmd() && initExpCmd()))
         return 1;
     // clang-format on
 

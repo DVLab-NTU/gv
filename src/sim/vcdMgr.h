@@ -17,7 +17,8 @@ struct PrintStatus {
 };
 
 typedef std::unordered_map<std::string, std::vector<VCDSignal*>> RefHash;
-typedef unsigned long long Decimal;
+typedef std::unordered_map<std::string, char> BinToHexHash;
+typedef std::string Hexadecimal;
 
 class VCDMgr {
 public:
@@ -37,8 +38,10 @@ public:
     void setColLimit(const int& col) { _colLimit = col; };
     void setRowLimit(const int& row) { _rowLimit = row; };
 
-    Decimal getDecValue(VCDValue* const val) const;
-    size_t getSignalWidth(VCDSignal* const signal) const { return signal->size; }
+    Hexadecimal getHexValue(VCDValue* const val) const;
+    size_t getSignalWidth(VCDSignal* const signal) const {
+        return signal->size;
+    }
     size_t getNumTimeStamps() { return (*_times).size(); };
     size_t getNumSignals() { return (*_signals).size(); };
     size_t getNumScopes() { return (*_scopes).size(); };
@@ -50,7 +53,8 @@ public:
     std::vector<VCDScope*>* getScopes() const { return _scopes; };
     std::vector<VCDSignal*>* getSignals() const { return _signals; };
     VCDValue* getSignalValueAt(VCDSignal* signal, const VCDTime time) const;
-    VCDValue* getSignalValueAt(const VCDSignalHash& hash, const VCDTime time) const;
+    VCDValue* getSignalValueAt(const VCDSignalHash& hash,
+                               const VCDTime time) const;
     VCDSignalValues* getSignalDeltaValue(const VCDSignalHash& hash) const;
 
 private:
