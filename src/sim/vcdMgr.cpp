@@ -63,7 +63,7 @@ static std::string VCDVecToBinary(VCDBitVector* valBitVec) {
     for (VCDBitVector::iterator it = valBitVec->begin(); it != valBitVec->end();
          ++it) {
         char c = VCDBit2Char(*it);
-        if (c == 'X' || c == 'Z') return 0;
+        if (c == 'X' || c == 'Z') return "NA";
         binaryString += c;
     }
     return binaryString;
@@ -155,8 +155,10 @@ void VCDMgr::parseAllSignals() {
  * @return VCDSignal*
  */
 VCDSignal* VCDMgr::getRefenceSignal(const std::string& ref) {
-    if (_refToSignal.find(ref) != _refToSignal.end())
-        if (_refToSignal[ref].size() == 0) return nullptr;
+    if (_refToSignal.find(ref) == _refToSignal.end())
+        return nullptr;
+    if (_refToSignal[ref].size() == 0)
+        return nullptr;
     return _refToSignal[ref][0];
 }
 
