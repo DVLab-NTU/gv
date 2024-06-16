@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "cirMgr.h"
+#include "cxxMgr.h"
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
 #include "simMgr.h"
@@ -207,11 +208,12 @@ GVCmdExecStatus VSimulate::exec(const string& option) {
         }
     }
     if (simMgr == nullptr) {
-        simMgr = new VRLTMgr();
+        // simMgr = new VRLTMgr();
+        simMgr = new CXXMgr();
     }
-    simMgr->setSimCycle(cycle);
-    simMgr->setVcdFileName(vcdFile);
-    simMgr->setPatternFileName(patternFile);
+    // simMgr->setSimCycle(cycle);
+    // simMgr->setVcdFileName(vcdFile);
+    // simMgr->setPatternFileName(patternFile);
 
     if (random) simMgr->randomSim(verbose);
     else simMgr->fileSim(verbose);
