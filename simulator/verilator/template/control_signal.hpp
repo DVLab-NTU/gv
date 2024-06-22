@@ -1,9 +1,3 @@
-//
-//  control_signal.hpp
-//  Constrained-Random-Pattern-Generation
-//  dhgir.abien@gmail.com
-//
-
 #ifndef control_signal_hpp
 #define control_signal_hpp
 

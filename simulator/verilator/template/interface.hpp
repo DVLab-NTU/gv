@@ -1,9 +1,3 @@
-//
-//  interface.hpp
-//  Constrained-Random-Pattern-Generation
-//  dhgir.abien@gmail.com
-//
-
 #ifndef interface_hpp
 #define interface_hpp
 

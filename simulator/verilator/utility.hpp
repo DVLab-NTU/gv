@@ -1,11 +1,3 @@
-//
-//  utility.hpp
-//  crv_01
-//
-//  Created by Es1chUb on 2022/8/1.
-//  Copyright © 2022 dhgir.abien. All rights reserved.
-//
-
 #ifndef utility_h
 #define utility_h
 

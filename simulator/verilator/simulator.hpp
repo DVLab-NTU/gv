@@ -1,9 +1,3 @@
-//
-//  simulator.hpp
-//  crv_01
-//  dhgir.abien@gmail.com
-//
-
 #ifndef simulator_h
 #define simulator_h
 
@@ -33,7 +27,6 @@ public:
         signalMap = new Interface(duv->rootp);
         patternFile = STR(PATTERN_FILE);
         vcdFileName = STR(VCD_FILE);
-        printSimInfo();
     }
     ~Simulator() {
         duv->final();
@@ -265,14 +258,6 @@ public:
         tfp->flush();
     }
 
-    void printSimInfo() {
-        std::cout << GREEN_TEXT << " =====  SIMULATION INFO ===== \n"
-                  << RESET_COLOR;
-        std::cout << " Pattern File: " << patternFile << "\n";
-        std::cout << " VCD File: " << vcdFileName << "\n";
-        std::cout << " Cycle: " << cycle << "\n\n";
-    }
-
     void printInfo(unsigned cycle = 0) {
         if (cycle != 0)
             std::cout << GREEN_TEXT << " ########### Cycle " << cycle << " ###########\n"
@@ -382,9 +367,7 @@ public:
                 inputVal = stoi(inputStr, nullptr, 2);
                 onePattern.push_back(inputVal);
                 buffer = buffer.substr(width);
-                // std::cout << " Input Value: " << inputVal << " Width: " << width << std::endl;
             }
-            std::cout << "Buffer Size: " << buffer.size() << std::endl;
             if (buffer.size() != 0) {
                 std::cout << "ERROR: Illegal input pattern file !!\n";
                 return false;
@@ -404,7 +387,6 @@ public:
 
     void startSim(const bool &verbose) {
         int simCycle = patternVec.size();
-        std::cout << "LOAD RANDOM PATTERN: " << simCycle << "\n";
         if (getRstNum() > 0)
             resetNegDUV();
         for (int i = 0; i < simCycle; ++i) {
