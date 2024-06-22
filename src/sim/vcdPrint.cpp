@@ -5,7 +5,10 @@
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
+#include "VCDValue.hpp"
+#include "util.h"
 #include "vcdMgr.h"
 
 /**
@@ -19,7 +22,7 @@ void VCDMgr::printAllSignalInfo(const size_t& num) {
     fmt::println("0: time");
     for (size_t i = 0; i < n; ++i) {
         VCDSignal* signal = getSignal(i);
-        printSignalInfo(signal, i);
+        if (!printSignalInfo(signal, i)) return;
     }
     fmt::println("");
 }
@@ -28,17 +31,20 @@ void VCDMgr::printAllSignalInfo(const size_t& num) {
  * @brief
  *
  */
-void VCDMgr::printSignalInfo(VCDSignal* signal, const size_t& idx) {
+bool VCDMgr::printSignalInfo(const VCDSignal* const signal, const size_t& idx) {
     if (idx > getColLimit()) {
         std::cout << "ERROR: Column index out of bound !!\n";
-        return;
+        return false;
     }
     if (signal == nullptr) {
-        std::cout << "ERROR: Signal is nullptr !!\n";
-        return;
+        fmt::print(fmt::fg(fmt::color::red),
+                   "ERROR: Signal is nullptr !!\n");
+        return false;
     }
+
     fmt::println("{0}: {1}.{2}", idx + 1, signal->scope->name,
                  signal->reference);
+    return true;
 }
 
 void VCDMgr::printTableRowTitle(const size_t& colNum) const {
@@ -50,9 +56,9 @@ void VCDMgr::printTableRowTitle(const size_t& colNum) const {
 /**
  * @brief
  *
- * @param scope
+ * @param
  */
-void VCDMgr::printAllSignals(std::string scope) {
+void VCDMgr::printAllSignals() {
     resetStatus();
     printAllSignalInfo();
     printTableRowTitle(getNumSignals());
@@ -60,9 +66,14 @@ void VCDMgr::printAllSignals(std::string scope) {
     for (size_t i = 0; i < _times->size() && i < getRowLimit(); ++i) {
         VCDTime time = getTimeStamp(i);
         fmt::print(fg(fmt::color::light_green) | fmt::emphasis::bold, "{:<5}", time);
-        for (size_t j = 0; j < _scopes->size(); ++j) {
-            printScope(getScope(j), time);
+        for (size_t j = 0; j < getNumSignals() && getSigCount() < getColLimit(); ++j, incSigCount()) {
+            VCDSignal* signal = getSignal(j);
+            VCDValue* val = getSignalValueAt(signal, time);
+            fmt::print("{:<5}", getHexValue(val));
         }
+        // for (size_t j = 0; j < _scopes->size(); ++j) {
+        //     printScope(getScope(j), time);
+        // }
         _printStatus.signalCount = 0;
         fmt::println("");
     }
@@ -74,10 +85,9 @@ void VCDMgr::printAllSignals(std::string scope) {
  * @param scope
  * @param time
  */
-void VCDMgr::printScope(VCDScope* scope, VCDTime time) {
+void VCDMgr::printScope(const VCDScope* const scope, VCDTime time) {
     size_t numSignals = scope->signals.size();
-    for (size_t i = 0; i < numSignals && getSigCount() < getColLimit();
-         ++i, incSigCount()) {
+    for (size_t i = 0; i < numSignals && getSigCount() < getColLimit(); ++i, incSigCount()) {
         VCDSignal* signal = scope->signals[i];
         VCDValue* val = getSignalValueAt(signal, time);
         fmt::print("{:<5}", getHexValue(val));
@@ -89,19 +99,32 @@ void VCDMgr::printScope(VCDScope* scope, VCDTime time) {
  *
  */
 void VCDMgr::printSignal(std::vector<std::string> signalsStrVec) {
+    VCDSignal* signal;
+    std::vector<VCDSignal*> signalsVec;
+    int signalIdx = 0;
     resetStatus();
     fmt::println("0: time");
     for (size_t i = 0; i < signalsStrVec.size(); ++i) {
-        VCDSignal* signal = getRefenceSignal(signalsStrVec[i]);
-        printSignalInfo(signal, i);
+        if (myStr2Int(signalsStrVec[i], signalIdx))
+            signal = getSignal(signalIdx);
+        else
+            signal = getRefenceSignal(signalsStrVec[i]);
+
+        if (signal == nullptr) {
+            fmt::print(fmt::fg(fmt::color::red),
+                       "ERROR: Signal \"{0}\" does not exist !!\n", signalsStrVec[i]);
+            return;
+        }
+        if (!printSignalInfo(signal, i)) return;
+        signalsVec.emplace_back(signal);
     }
     fmt::println("");
     printTableRowTitle(signalsStrVec.size());
     for (size_t t = 0; t < getNumTimeStamps() && t < getRowLimit(); ++t) {
         fmt::print(fg(fmt::color::light_green) | fmt::emphasis::bold, "{:<5}", t);
-        for (size_t i = 0, n = signalsStrVec.size(); i < n; ++i) {
-            VCDSignal* signal = getRefenceSignal(signalsStrVec[i]);
-            printTimedSignal(signal, t);
+        for (size_t i = 0, n = signalsVec.size(); i < n; ++i) {
+            // VCDSignal* signal = getRefenceSignal(signalsStrVec[i]);
+            printTimedSignal(signalsVec[i], t);
         }
         std::cout << std::endl;
     }

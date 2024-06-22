@@ -3,12 +3,16 @@
 
 #include "simCmd.h"
 
+#include <cassert>
+#include <cstddef>
 #include <fstream>
 #include <string>
 #include <vector>
 
 #include "cirMgr.h"
 #include "cxxMgr.h"
+#include "fmt/color.h"
+#include "fmt/core.h"
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
 #include "simMgr.h"
@@ -21,12 +25,13 @@ bool initSimCmd() {
     if (vrltMgr) delete vrltMgr;
     if (simMgr) delete simMgr;
     if (vcdMgr) delete vcdMgr;
-    // vrltMgr = new VRLTMgr();
-    // simMgr  = new SimMgr();
     vcdMgr = new VCDMgr();
+    cxxMgr = new CXXMgr();
+    vrltMgr = new VRLTMgr();
 
     return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) &&
             gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
+            gvCmdMgr->regCmd("SEt VSIM", 2, 2, new SetVSim) &&
             gvCmdMgr->regCmd("VSIMulate", 4, new VSimulate) &&
             gvCmdMgr->regCmd("VCDPrint", 4, new VCDPrint));
 }
@@ -174,6 +179,52 @@ void GVRandomSetSafe::help() const {
 }
 
 //----------------------------------------------------------------------
+// SEt VSIM <CXXrtl | VERilator>
+//----------------------------------------------------------------------
+GVCmdExecStatus SetVSim::exec(const string& option) {
+    assert(cxxMgr != nullptr);
+    assert(vrltMgr != nullptr);
+
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    size_t n = options.size();
+    std::string simulator = "";
+    bool isCXX = false, isVRLT = false;
+
+    for (size_t i = 0; i < n; ++i) {
+        const string& token = options[i];
+        if (myStrNCmp("CXXrtl", token, 3) == 0) {
+            if (isVRLT) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            else isCXX = true;
+            continue;
+        }
+        if (myStrNCmp("VERilator", token, 3) == 0) {
+            if (isCXX) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            else isVRLT = true;
+            continue;
+        }
+    }
+
+    if (isCXX) {
+        simMgr = cxxMgr;
+        simulator = "CXXRTL";
+    } else {
+        simMgr = vrltMgr;
+        simulator = "VERILATOR";
+    }
+    fmt::print(fg(fmt::color::green), "Current simulator: {0}", simulator);
+    return GV_CMD_EXEC_DONE;
+}
+
+void SetVSim::usage(const bool& verbose) const {
+    gvMsg(GV_MSG_IFO) << "Usage: SEt VSIM <CXXrtl | VERilator>" << endl;
+}
+
+void SetVSim::help() const {
+    gvMsg(GV_MSG_IFO) << setw(20) << left << "SEt VSIM: "
+                      << "Set the specified simulator (CXXRTL/Verilator)." << endl;
+}
+//----------------------------------------------------------------------
 // VSIMulate <-File <string(patternFile)>| -Random <int(cycle)>> [-Output <string(fileName)>] [-Verbose]
 //----------------------------------------------------------------------
 GVCmdExecStatus VSimulate::exec(const string& option) {
@@ -208,12 +259,13 @@ GVCmdExecStatus VSimulate::exec(const string& option) {
         }
     }
     if (simMgr == nullptr) {
-        // simMgr = new VRLTMgr();
-        simMgr = new CXXMgr();
+        fmt::print(fg(fmt::color::yellow),
+                   "WARNING: Simulate using the default simulator (VERILATOR). ");
+        simMgr = new VRLTMgr();
     }
-    // simMgr->setSimCycle(cycle);
-    // simMgr->setVcdFileName(vcdFile);
-    // simMgr->setPatternFileName(patternFile);
+    simMgr->setSimCycle(cycle);
+    simMgr->setVcdFileName(vcdFile);
+    simMgr->setPatternFileName(patternFile);
 
     if (random) simMgr->randomSim(verbose);
     else simMgr->fileSim(verbose);

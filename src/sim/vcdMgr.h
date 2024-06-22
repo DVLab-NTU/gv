@@ -28,12 +28,12 @@ public:
     bool readVCDFile(const std::string& fileName);
     void parseAllSignals();
 
-    void printScope(VCDScope* scope, VCDTime time);
+    void printScope(const VCDScope* const scope, VCDTime time);
     void printTimedSignal(VCDSignal* const signal, const VCDTime& time);
     void printSignal(std::vector<std::string> signals);
-    void printAllSignals(std::string scope = "TOP");
+    void printAllSignals();
     void printAllSignalInfo(const size_t& num = 0);
-    void printSignalInfo(VCDSignal* signal, const size_t& idx);
+    bool printSignalInfo(const VCDSignal* const signal, const size_t& idx);
 
     void setColLimit(const int& col) { _colLimit = col; };
     void setRowLimit(const int& row) { _rowLimit = row; };
@@ -45,6 +45,7 @@ public:
     size_t getNumTimeStamps() { return (*_times).size(); };
     size_t getNumSignals() { return (*_signals).size(); };
     size_t getNumScopes() { return (*_scopes).size(); };
+    std::string getSignalName(const VCDSignal* const s) { return s->hash; }
     VCDTime getTimeStamp(const size_t& idx) const { return (*_times)[idx]; }
     VCDScope* getScope(const size_t& idx) const { return (*_scopes)[idx]; }
     VCDSignal* getSignal(const size_t& idx) const { return (*_signals)[idx]; }
