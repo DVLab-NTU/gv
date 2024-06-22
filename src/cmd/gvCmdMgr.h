@@ -43,6 +43,7 @@ enum GVCmdExecStatus {
     GV_CMD_EXEC_ERROR = 1,
     GV_CMD_EXEC_QUIT = 2,
     GV_CMD_EXEC_NOP = 3,
+    GV_CMD_EXEC_COMMENT = 4,
 };
 
 enum GVCmdOptionError {
