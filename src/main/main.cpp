@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     while (status != GV_CMD_EXEC_QUIT) {
         gvCmdMgr->setPrompt();
         status = gvCmdMgr->execOneCmd();
-        cout << endl;
+        if (status != GV_CMD_EXEC_COMMENT) cout << endl;
     }
     return 0;
 }
