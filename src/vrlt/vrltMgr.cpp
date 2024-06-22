@@ -1,5 +1,6 @@
 #include "vrltMgr.h"
 
+#include <cstddef>
 #include <experimental/filesystem>
 #include <string>
 
@@ -11,7 +12,7 @@
 #define GREEN_TEXT "\033[32m"  // ANSI escape code for green color
 #define RESET_COLOR "\033[0m"  // ANSI escape code to reset color
 
-VRLTMgr* vrltMgr;
+VRLTMgr* vrltMgr = nullptr;
 
 static std::string signalWidth2Type(const int& width) {
     if (width <= 8) return "C";
@@ -45,7 +46,7 @@ VRLTMgr::VRLTMgr() : SimMgr(0) {
     _itfPath = std::string(GV_TEMPLATE_PATH) + _itfFileName;
     _dirPath = std::string(GV_VERILATOR_PATH);
     _make = "make";
-    _macro = genMacro("DESIGN", cirMgr->getFileName()) + genMacro("GV_PATH", GV_PATH);
+    _macro = "";
     _verboseCmd = " > /dev/null 2>&1";
 };
 
@@ -80,6 +81,7 @@ bool VRLTMgr::preVrltSim(const bool& verbose) {
  * @return false
  */
 bool VRLTMgr::preDesignInfo(const bool&) {
+    _macro += genMacro("DESIGN", cirMgr->getFileName()) + genMacro("GV_PATH", GV_PATH);
     _macro += genMacro("CYCLE", getSimCycle());
     _macro += genMacro("VCD_FILE", getVcdFileName());
     return true;
