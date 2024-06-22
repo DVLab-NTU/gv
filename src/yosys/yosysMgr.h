@@ -5,7 +5,7 @@
 #include "kernel/yosys.h"
 
 using namespace std;
-USING_YOSYS_NAMESPACE
+// USING_YOSYS_NAMESPACE
 
 class YosysMgr;
 extern YosysMgr* yosysMgr;
@@ -25,16 +25,16 @@ struct DesignInfo {
 };
 
 struct YosysSignal {
-    YosysSignal(RTLIL::Wire* w) : _wire(w) {
-        _name  = _wire->name.str().substr(1);
-        _id    = _wire->port_id;
+    YosysSignal(Yosys::RTLIL::Wire* w) : _wire(w) {
+        _name = _wire->name.str().substr(1);
+        _id = _wire->port_id;
         _width = _wire->width;
     };
     inline int getId() { return _id; }
     inline int getWidth() { return _width; }
     const string& getName() { return _name; }
 
-    RTLIL::Wire* _wire;
+    Yosys::RTLIL::Wire* _wire;
     string _name;
     int _width;
     int _id;
@@ -94,7 +94,7 @@ public:
 
 private:
     unsigned _property;
-    RTLIL::Module* _topModule;
+    Yosys::RTLIL::Module* _topModule;
     SignalVec _piList;
     SignalVec _poList;
     SignalVec _clkList;
