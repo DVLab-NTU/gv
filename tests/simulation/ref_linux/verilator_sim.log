@@ -1,0 +1,43 @@
+setup> cirread -v ./designs/Simulation/adder.v
+Converted 0 1-valued FFs and 5 DC-valued FFs.
+
+setup> se sys vrf
+
+vrf> vsim -file ./designs/Simulation/adder_input.pattern -output vrlt_test.vcd
+[38;2;255;255;000mWARNING: Simulate using the default simulator (VERILATOR).[0m
+
+vrf> vcdprint vrlt_test.vcd
+0: time
+1: TOP.clk
+2: TOP.rst
+3: TOP.a
+4: TOP.b
+5: TOP.sum
+6: adder.clk
+7: adder.rst
+8: adder.a
+9: adder.b
+10: adder.sum
+
+0    1    2    3    4    5    6    7    8    9    10   
+=======================================================
+[1m[38;2;144;238;144m0    [0m0    0    0    0    00   0    0    0    0    00   
+[1m[38;2;144;238;144m1    [0m1    0    0    0    00   1    0    0    0    00   
+[1m[38;2;144;238;144m2    [0m0    0    0    0    00   0    0    0    0    00   
+[1m[38;2;144;238;144m3    [0m1    0    0    0    00   1    0    0    0    00   
+[1m[38;2;144;238;144m4    [0m0    1    0    0    00   0    1    0    0    00   
+[1m[38;2;144;238;144m5    [0m1    1    F    0    0F   1    1    F    0    0F   
+[1m[38;2;144;238;144m6    [0m0    1    F    0    0F   0    1    F    0    0F   
+[1m[38;2;144;238;144m7    [0m1    1    5    5    0A   1    1    5    5    0A   
+[1m[38;2;144;238;144m8    [0m0    1    5    5    0A   0    1    5    5    0A   
+[1m[38;2;144;238;144m9    [0m1    1    7    7    0E   1    1    7    7    0E   
+[1m[38;2;144;238;144m10   [0m0    1    7    7    0E   0    1    7    7    0E   
+[1m[38;2;144;238;144m11   [0m1    1    B    D    18   1    1    B    D    18   
+[1m[38;2;144;238;144m12   [0m0    1    B    D    18   0    1    B    D    18   
+[1m[38;2;144;238;144m13   [0m1    1    7    B    12   1    1    7    B    12   
+[1m[38;2;144;238;144m14   [0m0    1    7    B    12   0    1    7    B    12   
+[1m[38;2;144;238;144m15   [0m1    1    1    5    06   1    1    1    5    06   
+[1m[38;2;144;238;144m16   [0m0    1    1    5    06   0    1    1    5    06   
+
+vrf> q -f
+

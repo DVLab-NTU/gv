@@ -1,339 +1,46 @@
-setup> cirread -v -r ./designs/SoCV/vending/vending-origin.v
-Converted 0 1-valued FFs and 86 DC-valued FFs.
+setup> cirread -v ./designs/Simulation/adder.v
+Converted 0 1-valued FFs and 5 DC-valued FFs.
 
 setup> se sys vrf
 
-vrf> random sim -v -file ./designs/SoCV/vending/input-Cex.pattern -sim_cycle 30 -rst_n reset
-==========================================
-= cycle 1
-==========================================
-serviceTypeOut= 1
-itemNumberOut= 0
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 0
-coinOutA= 0
+vrf> set vsim cxxrtl
+[38;2;144;238;144mCurrent simulator: CXXRTL
+[0m
+vrf> vsim -file ./designs/Simulation/adder_input.pattern -output cxxrtl_test.vcd
 
-==========================================
-= cycle 2
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 0
-coinOutA= 0
+vrf> vcdprint cxxrtl_test.vcd
+0: time
+1: .a
+2: .b
+3: .clk
+4: .rst
+5: .sum
+6: .a
+7: .b
+8: .clk
+9: .rst
+10: .sum
 
-==========================================
-= cycle 3
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 0
-coinOutA= 0
-
-==========================================
-= cycle 4
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 0
-coinOutA= 0
-
-==========================================
-= cycle 5
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 1
-coinOutA= 0
-
-==========================================
-= cycle 6
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 2
-coinOutA= 0
-
-==========================================
-= cycle 7
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 8
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 9
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 10
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 11
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 12
-==========================================
-serviceTypeOut= 0
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 13
-==========================================
-serviceTypeOut= 1
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 14
-==========================================
-serviceTypeOut= 1
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 15
-==========================================
-serviceTypeOut= 1
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 16
-==========================================
-serviceTypeOut= 1
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 0
-coinOutB= 4
-coinOutA= 0
-
-==========================================
-= cycle 17
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 0
-coinOutA= 0
-
-==========================================
-= cycle 18
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 0
-coinOutA= 0
-
-==========================================
-= cycle 19
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 0
-coinOutA= 0
-
-==========================================
-= cycle 20
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 1
-coinOutA= 0
-
-==========================================
-= cycle 21
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 2
-coinOutA= 0
-
-==========================================
-= cycle 22
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 23
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 0
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 24
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 1
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 25
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 0
-coinOutC= 1
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 26
-==========================================
-serviceTypeOut= 2
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 1
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 27
-==========================================
-serviceTypeOut= 0
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 1
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 28
-==========================================
-serviceTypeOut= 1
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 1
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 29
-==========================================
-serviceTypeOut= 1
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 1
-coinOutB= 3
-coinOutA= 0
-
-==========================================
-= cycle 30
-==========================================
-serviceTypeOut= 1
-itemNumberOut= 1
-itemTypeOut= 0
-coinOutD= 1
-coinOutC= 1
-coinOutB= 3
-coinOutA= 0
-
+0    1    2    3    4    5    6    7    8    9    10   
+=======================================================
+[1m[38;2;144;238;144m0    [0m0    0    0    0    00   0    0    0    0    00   
+[1m[38;2;144;238;144m1    [0m0    0    0    0    00   0    0    0    0    00   
+[1m[38;2;144;238;144m2    [0m0    0    1    0    00   0    0    1    0    00   
+[1m[38;2;144;238;144m3    [0m0    0    0    0    00   0    0    0    0    00   
+[1m[38;2;144;238;144m4    [0m0    0    1    0    00   0    0    1    0    00   
+[1m[38;2;144;238;144m5    [0m0    0    0    1    00   0    0    0    1    00   
+[1m[38;2;144;238;144m6    [0mF    0    1    1    0F   F    0    1    1    0F   
+[1m[38;2;144;238;144m7    [0mF    0    0    1    0F   F    0    0    1    0F   
+[1m[38;2;144;238;144m8    [0m5    5    1    1    0A   5    5    1    1    0A   
+[1m[38;2;144;238;144m9    [0m5    5    0    1    0A   5    5    0    1    0A   
+[1m[38;2;144;238;144m10   [0m7    7    1    1    0E   7    7    1    1    0E   
+[1m[38;2;144;238;144m11   [0m7    7    0    1    0E   7    7    0    1    0E   
+[1m[38;2;144;238;144m12   [0mB    D    1    1    18   B    D    1    1    18   
+[1m[38;2;144;238;144m13   [0mB    D    0    1    18   B    D    0    1    18   
+[1m[38;2;144;238;144m14   [0m7    B    1    1    12   7    B    1    1    12   
+[1m[38;2;144;238;144m15   [0m7    B    0    1    12   7    B    0    1    12   
+[1m[38;2;144;238;144m16   [0m1    5    1    1    06   1    5    1    1    06   
+[1m[38;2;144;238;144m17   [0m1    5    0    1    06   1    5    0    1    06   
 
 vrf> q -f
 

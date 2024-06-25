@@ -1,0 +1,5 @@
+cirread -v ./designs/Simulation/adder.v
+se sys vrf
+vsim -file ./designs/Simulation/adder_input.pattern -output vrlt_test.vcd
+vcdprint vrlt_test.vcd
+q -f

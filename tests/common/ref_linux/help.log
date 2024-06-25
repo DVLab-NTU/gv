@@ -11,14 +11,15 @@ USAGE:              Report resource usage.
 PDR:                Model checking using property directed reachability in abc.
 
 ========== Simulate Commands : ==========
-RAndom Sim:         Conduct random simulation and print the results.
 SEt SAfe:           Set safe property for random sim.
+SEt VSIM:           Set the specified simulator (CXXRTL/Verilator).
+VCDPrint:           Print Verilog value change dump (VCD) files in tabular form.
+VSIMulate:          Simulate the verilog design with the specified simulator.
 
 ========== Network Commands : ==========
 CIRGate:            Report a gate
 CIRPrint:           Print circuit
 CIRRead:            Read in a circuit and construct the netlist
-CIRSIMulate:        Perform Boolean logic simulation on the circuit
 CIRWrite:           Write the netlist to an AIG/AAG/BLIF file
 
 ========== Abc Commands : ==========
@@ -60,6 +61,9 @@ PTRansrelation:     build the transition relationship in BDDs
 ========== Itp Commands : ==========
 SATVerify BMC:      check the monitor by bounded model checking
 SATVerify ITP:      check the monitor by interpolation-based technique
+
+========== EXP Commands : ==========
+EXPeriment:         Command for the testing of the experimental functions.
 
 
 setup> q -f
