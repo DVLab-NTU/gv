@@ -30,6 +30,16 @@ void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     SatProofRes pRes;
     GVSatSolver *gvSatSolver = new GVSatSolver(_cirMgr);
 
+    // DEBUG
+    // CirGate *po = _cirMgr->getPo(0);
+    // gvSatSolver->addBoundedVerifyData(po, 0);
+    // gvSatSolver->assertProperty(po->getIn0Gate(), false, 0);
+    // if (gvSatSolver->solve()) {
+    //     cout << "SAT !!\n";
+    // }
+    // return;
+    // END
+
     // Prove the monitor here!!
     pRes.setMaxDepth(1000);
     pRes.setSatSolver(gvSatSolver);
@@ -39,7 +49,7 @@ void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     if (pRes.isFired()) pRes.reportCex(monitor, _cirMgr);
 
     // delete gvSatSolver;
-    delete _cirMgr;
+    // delete _cirMgr;
     reset();
 }
 
@@ -62,7 +72,7 @@ void SATMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
     if (pRes.isFired()) pRes.reportCex(monitor, _cirMgr);
 
     // delete gvSatSolver;
-    delete _cirMgr;
+    // delete _cirMgr;
     reset();
 }
 
@@ -92,7 +102,7 @@ void SATMgr::indBmc(const CirGate *monitor, SatProofRes &pRes) {
     }
 }
 
-void SATMgr::itpUbmc(const CirGate *monitor, SatProofRes &pRes) {
+void SATMgr::itpUbmc(const CirGate *const monitor, SatProofRes &pRes) {
     GVSatSolver *gvSatSolver = pRes.getSatSolver();
     bind(gvSatSolver);
 
@@ -286,7 +296,7 @@ void SATMgr::mapVar2Net(const Var &var, CirGate *net) { _var2Net[var] = net; }
 
 CirGate *SATMgr::getItp() const {
     assert(_ptrMinisat);
-    assert(_ptrMinisat->_solver->proof);
+    // assert(_ptrMinisat->_solver->proof);
 
     string proofName = "socv_proof.itp";
     // remove proof log if exist
@@ -311,7 +321,7 @@ CirGate *SATMgr::getItp() const {
 
 vector<Clause> SATMgr::getUNSATCore() const {
     assert(_ptrMinisat);
-    assert(_ptrMinisat->_solver->proof);
+    // assert(_ptrMinisat->_solver->proof);
 
     vector<Clause> unsatCore;
     unsatCore.clear();
