@@ -130,6 +130,13 @@ FetchContent_Declare(
     GIT_TAG 10.2.1)
 FetchContent_MakeAvailable(fmt)
 
+# * Glucose
+FetchContent_Declare(
+    glucose 
+    GIT_REPOSITORY https://github.com/audemard/glucose.git
+    GIT_TAG 4.2.1)
+FetchContent_MakeAvailable(glucose)
+
 # Link the library installed by brew
 if(APPLE)
     link_directories(/opt/homebrew/lib)
@@ -161,10 +168,10 @@ add_compile_definitions(_YOSYS_)
 # Add the definitions for Yosys Extension add_compile_definitions(GV_SIMSO_PATH="src/ext/")
 add_compile_definitions(GV_PATH="${CMAKE_SOURCE_DIR}/")
 add_compile_definitions(GV_SIMSO_PATH="${CMAKE_SOURCE_DIR}/build/src/ext/")
-add_compile_definitions(GV_TEMPLATE_PATH="${CMAKE_SOURCE_DIR}/simulator/verilator/template/")
-add_compile_definitions(GV_VERILATOR_PATH="${CMAKE_SOURCE_DIR}/simulator/verilator/")
-add_compile_definitions(GV_CXXRTL_PATH="${CMAKE_SOURCE_DIR}/simulator/cxxrtl/")
-add_compile_definitions(GV_VERILATOR_BUILD_PATH="${CMAKE_SOURCE_DIR}/simulator/verilator/build/")
+add_compile_definitions(GV_TEMPLATE_PATH="${CMAKE_SOURCE_DIR}/simulators/verilator/template/")
+add_compile_definitions(GV_VERILATOR_PATH="${CMAKE_SOURCE_DIR}/simulators/verilator/")
+add_compile_definitions(GV_VERILATOR_BUILD_PATH="${CMAKE_SOURCE_DIR}/simulators/verilator/build/")
+add_compile_definitions(GV_CXXRTL_PATH="${CMAKE_SOURCE_DIR}/simulators/cxxrtl/")
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
 # target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
@@ -193,6 +200,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/include/readline)
 # Include the VCD parser header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VCD_PARSER_DIR}/build)
+# Include the Glucose header files
+# message(FATAL_ERROR ${glucose_SOURCE_DIR}/core)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${glucose_SOURCE_DIR})
 
 # target_link_libraries(${CMAKE_PROJECT_NAME} libabc libyosys readline gmp)
 target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp)
@@ -203,6 +213,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} stdc++fs)
 target_link_libraries(${CMAKE_PROJECT_NAME} libvcd-parser)
 # * Link the fmt library
 target_link_libraries(${CMAKE_PROJECT_NAME} fmt::fmt)
+# * Link the glucose library
+target_link_libraries(${CMAKE_PROJECT_NAME} glucose)
 
 # Add the Yosys extension CMake file
 set(YOSYS_PLUGIN_PATH src/ext/)
