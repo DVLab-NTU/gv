@@ -16,7 +16,6 @@
 #include "cirDef.h"
 #include "cirGate.h"
 #include "cirMgr.h"
-#include "yosysMgr.h"
 
 /**
  * @brief Reads a circuit from the ABC Gia.
@@ -26,31 +25,30 @@
  * @return           Returns true if the circuit is successfully read; otherwise, false.
  */
 const bool CirMgr::readCirFromAbc(string fileName, FileType fileType) {
-    ABCParam param;
-    map<unsigned, string> id2Name;
-    ifstream cirin(fileName);
-    if (!cirin) {
-        cout << "Cannot open design \"" << fileName << "\"!!" << endl;
-        return false;
-    }
-    strcpy(param.pFileName, fileName.c_str());
-    setFileName(fileName);
-    if (fileType == AIGER) {
-        abcMgr->readAig(param);
-    } else if (fileType == VERILOG) {
-        param.fTechMap = 1;
-        param.fVerbose = 0;
-        abcMgr->readVerilog(param);
-        yosysMgr->createMapping(fileName);
-        abcMgr->buildAigName(id2Name);
-    }
-    // initialize the size of the containers
-    abcMgr->initCir(fileType);
-    abcMgr->travPreprocess();
-    abcMgr->travAllObj(fileType, id2Name);
-    genDfsList();
-
-    return true;
+    // ABCParams param;
+    // map<unsigned, string> id2Name;
+    // ifstream cirin(fileName);
+    // if (!cirin) {
+    //     cout << "Cannot open design \"" << fileName << "\"!!" << endl;
+    //     return false;
+    // }
+    // strcpy(param.pFileName, fileName.c_str());
+    // setFileName(fileName);
+    // if (fileType == AIGER) {
+    //     _abcMgr->readAiger(param);
+    // } else if (fileType == VERILOG) {
+    //     param.fTechMap = 1;
+    //     param.fVerbose = 0;
+    //     _abcMgr->readVerilog(param);
+    //     _ysyMgr->createMapping(fileName);
+    //     _abcMgr->buildAigName(id2Name);
+    // }
+    // // initialize the size of the containers
+    // _abcMgr->initCir(fileType);
+    // _abcMgr->travPreprocess();
+    // _abcMgr->travAllObj(fileType, id2Name);
+    // genDfsList();
+    // return true;
 }
 
 /**

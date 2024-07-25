@@ -7,8 +7,10 @@
 #include <ios>
 #include <string>
 
+#include "fmt/core.h"
 #include "gvType.h"
 #include "kernel/yosys.h"
+#include "opt/dau/dau.h"
 #include "yosysExt.h"
 
 YosysMgr* yosysMgr;
@@ -21,8 +23,12 @@ YosysMgr* yosysMgr;
  */
 YosysMgr::YosysMgr() : _property(-1) {
     init();
-    _designInfo = DesignInfo("clk", "rst");
+    _designInfo      = DesignInfo("clk", "rst");
     _yosysSigTypeStr = {"PI", "PO", "CLK", "RST", "REG"};
+}
+
+YosysMgr::~YosysMgr() {
+    resetDesign();
 }
 
 /**
@@ -69,6 +75,7 @@ void YosysMgr::setLogging(const bool& enable) {
  * @param designName The name to use when saving the design.
  */
 void YosysMgr::saveDesign(const string& designName) {
+    _fileVec.emplace_back(designName);
     string command = "design -save " + designName;
     Yosys::run_pass(command);
     saveTopModuleName();
@@ -87,6 +94,29 @@ void YosysMgr::loadDesign(const string& designName) {
 }
 
 /**
+ * @brief Delete a design with a specified name.
+ *
+ * This function delete the specified design pointer in the Yosys
+ *
+ * @param designName The name of the design to delete.
+ */
+void YosysMgr::deleteDesign(const string& designName) {
+    string command = "design -delete " + designName;
+    Yosys::run_pass(command);
+}
+
+/**
+ * @brief Reset the Yosys design
+ *
+ * This function reset the design in the Yosys
+ *
+ */
+void YosysMgr::resetDesign() {
+    string command = "design -reset";
+    Yosys::run_pass(command);
+}
+
+/**
  * @brief Creates a name mapping file for the design specified in a Verilog file.
  *
  * This function invokes Yosys to read the Verilog file, perform preprocessing steps,
@@ -95,13 +125,15 @@ void YosysMgr::loadDesign(const string& designName) {
  * @param fileName The name of the Verilog file containing the design.
  */
 void YosysMgr::createMapping(const string& fileName) {
-    string yosys = "yosys -qp ";
-    string readVerilog = "read_verilog " + fileName + "; ";
-    string topModule = "hierarchy -auto-top; ";
-    string preProcess = "flatten; proc; techmap; setundef -zero; aigmap; ";
+    // loadDesign(fileName);
+    string yosys           = "yosys -qp ";
+    string readVerilog     = "read_verilog " + fileName + "; ";
+    string topModule       = "hierarchy -auto-top; ";
+    string preProcess      = "flatten; proc; techmap; setundef -zero; aigmap; ";
     string writeAigMapping = "write_aiger -map .map.txt ._temp_.aig";
-    string command = yosys + "\"" + readVerilog + topModule + preProcess + writeAigMapping + "\"";
+    string command         = yosys + "\"" + readVerilog + topModule + preProcess + writeAigMapping + "\"";
     system(command.c_str());
+    // runPass(command);
 }
 
 /**
@@ -114,7 +146,7 @@ void YosysMgr::createMapping(const string& fileName) {
  */
 void YosysMgr::readBlif(const string& fileName) {
     const string designName = fileTypeStr[BLIF];
-    string command = "read_blif " + fileName;
+    string command          = "read_blif " + fileName;
     Yosys::run_pass(command);
     saveDesign(designName);
 }
@@ -128,10 +160,12 @@ void YosysMgr::readBlif(const string& fileName) {
  * @param fileName The name of the Verilog file to read.
  */
 void YosysMgr::readVerilog(const string& fileName) {
-    const string designName = fileTypeStr[VERILOG];
-    const string command = "read_verilog -sv " + fileName;
+    // const string designName = fileName;
+    // const string command = "read_verilog -sv " + fileName;
+    const string command = fmt::format("read_verilog -sv {0}", fileName);
     Yosys::run_pass(command);
-    saveDesign(designName);
+    // saveDesign(designName);
+    saveDesign(fileName);
     assignSignal();
 }
 
@@ -143,8 +177,9 @@ void YosysMgr::readVerilog(const string& fileName) {
  * @param fileName The name of the AIGER file to read.
  */
 void YosysMgr::readAiger(const string& fileName) {
-    // string command = "read_aiger " + fileName;
-    // Yosys::run_pass(command);
+    string command = "read_aiger " + fileName;
+    Yosys::run_pass(command);
+    saveDesign(fileTypeStr[AIGER]);
 }
 
 /**
@@ -179,6 +214,7 @@ void YosysMgr::writeBlif(const string& fileName) {
  * @param fileName The name of the AIGER file to write the design to.
  */
 void YosysMgr::writeAiger(const string& fileName) {
+    // loadDesign(fileTypeStr[VERILOG]);
     loadDesign(fileTypeStr[VERILOG]);
     string command = "hierarchy -auto-top; ";
     command += "flatten; proc; techmap; setundef -zero; aigmap; ";
@@ -208,7 +244,8 @@ void YosysMgr::printDesignInfo(const bool& verbose) {
         return;
     }
 
-    loadDesign(fileTypeStr[fileType]);
+    // loadDesign(fileTypeStr[fileType]);
+    loadDesign(_fileVec.front());
     Yosys::RTLIL::Module* topModule = Yosys::yosys_design->top_module();
     // print info
     cout << "Modules in current design: ";
@@ -277,10 +314,10 @@ void YosysMgr::showSchematic() {
  * @note The simulation plugin file path is assumed to be defined in the GV_SIMSO_PATH macro.
  */
 void YosysMgr::loadSimPlugin() {
-    string command = "plugin -i ";
+    string command    = "plugin -i ";
     string libsimPath = GV_SIMSO_PATH;
     string libsimName = "libsim.so";
-    command = command + libsimPath + libsimName;
+    command           = command + libsimPath + libsimName;
     runPass(command);
 }
 
@@ -309,7 +346,7 @@ void YosysMgr::saveTopModuleName() {
         return;
     }
     Yosys::RTLIL::Module* top = Yosys::yosys_design->top_module();
-    string topModule = top->name.substr(1, strlen(Yosys::yosys_design->top_module()->name.c_str()) - 1);
+    string topModule          = top->name.substr(1, strlen(Yosys::yosys_design->top_module()->name.c_str()) - 1);
     setTopModuleName(topModule);
 }
 
@@ -335,9 +372,9 @@ void YosysMgr::assignSignal() {
     _topModule = Yosys::yosys_design->top_module();
     for (auto wire : _topModule->wires()) {
         YosysSignal* newSig = new YosysSignal(wire);
-        bool isDesignSig = (wire->name.str()[0] == '\\') ? true : false;
-        bool isClk = findSignal(newSig->getName(), _designInfo.clkName);
-        bool isReset = findSignal(newSig->getName(), _designInfo.rstName);
+        bool isDesignSig    = (wire->name.str()[0] == '\\') ? true : false;
+        bool isClk          = findSignal(newSig->getName(), _designInfo.clkName);
+        bool isReset        = findSignal(newSig->getName(), _designInfo.rstName);
         if (isDesignSig) {
             if (wire->port_input) {
                 if (isClk) _clkList.push_back(newSig);
@@ -366,4 +403,19 @@ void YosysMgr::printSignal(const YosysSigType& sigType) {
              << LEFT_WIDTH_10 << "ID: " << LEFT_WIDTH_10 << tmpVec[i]->getId()
              << LEFT_WIDTH_10 << "Width: " << LEFT_WIDTH_10 << tmpVec[i]->getWidth() << endl;
     }
+}
+
+void YosysMgr::extractFSM() {
+    runPass("hierarchy -top cle");
+    runPass("prep -top cle");
+    runPass("proc_clean");
+    runPass("proc_init");
+    runPass("proc_mux");
+    runPass("proc_dff");
+    runPass("proc_clean");
+    runPass("fsm_detect");
+    runPass("fsm_extract");
+    runPass("fsm_info");
+    runPass("proc");
+    runPass("write_json ./design_under_test.json");
 }

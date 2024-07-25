@@ -126,11 +126,10 @@ public:
     virtual bool isUndef() const { return false; }
 
     // Methods about circuit construction
-    virtual void genConnections() {}
     virtual void genDfsList(vector<CirGate*>&) { setToGlobalRef(); }
 
     // Methods about circuit optimization
-    // virtual CirGateV optimize(bool phase, GateList&) {
+    // virtual CirGateV optimize(bool phase, GateVec&) {
     //     setToGlobalRef();
     //     return size_t(this) + (phase ? 1 : 0);
     // }
@@ -250,7 +249,6 @@ public:
     void setIn0(CirGate* faninGate, bool inv = false);
 
     // Methods about circuit construction
-    void genConnections();
     void genDfsList(vector<CirGate*>&);
 
     // Methods about circuit simulation
@@ -260,7 +258,7 @@ public:
     }
 
     // Methods about circuit optimization
-    // CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateVec&);
 
     // Printing functions
     void printGate() const;
@@ -343,7 +341,6 @@ public:
     void setIn0(CirGate* faninGate, bool inv = false);
 
     // Methods about circuit construction
-    void genConnections();
     void genDfsList(vector<CirGate*>&);
 
     // Methods about circuit simulation
@@ -353,7 +350,7 @@ public:
     }
 
     // Methods about circuit optimization
-    // CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateVec&);
 
     // Printing functions
     void printGate() const;
@@ -394,11 +391,11 @@ public:
     bool isAig() const { return true; }
 
     // Methods about circuit construction
-    void genConnections();
+    // void genConnections();
     void genDfsList(vector<CirGate*>&);
 
     // Methods about circuit optimization
-    // CirGateV optimize(bool, GateList&);
+    // CirGateV optimize(bool, GateVec&);
 
     // Methods about circuit simulation
     void pSim() {

@@ -9,16 +9,17 @@
 #ifndef CIR_MGR_H
 #define CIR_MGR_H
 
-#include <fstream>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
-using namespace std;
+#include "abcMgr.h"
+#include "yosysMgr.h"
+
+// using namespace std;
 
 // TODO: Feel free to define your own classes, variables, or functions.
-
-#include "cirCut.h"
 #include "cirDef.h"
 #include "gvType.h"
 
@@ -26,6 +27,9 @@ extern CirMgr* cirMgr;
 
 class AbcMgr;
 class CirMgr {
+    friend class CirComb;
+    friend class CirSeq;
+
     enum CirMgrFlag { NO_FEC = 0x1 };
     enum ParsePorts { VARS = 0,
                       PI,
@@ -35,8 +39,10 @@ class CirMgr {
                       TOT_PARSE_PORTS };
 
 public:
-    CirMgr() : _flag(0), _piList(0), _poList(0), _totGateList(0), _fanoutInfo(0), _simLog(0) {}
-    ~CirMgr() { deleteCircuit(); }
+    CirMgr() : _piList(0), _poList(0), _totGateList(0), _fanoutInfo(0),
+               _abcMgr(new AbcMgr()), _ysyMgr(new YosysMgr()), _fileName("") {}
+
+    virtual ~CirMgr() { deleteCircuit(); }
 
     // Access functions
     CirGate* operator[](unsigned gid) const { return _totGateList[gid]; }
@@ -47,33 +53,31 @@ public:
         }
         return _totGateList[gid];
     }
-    CirGate* litId2Gate(unsigned litId) const { return getGate(litId / 2); }
-    CirGateV litId2GateV(unsigned litId) const;
-    bool isFlag(CirMgrFlag f) const { return _flag & f; }
-    void setFlag(CirMgrFlag f) const { _flag |= f; }
-    void unsetFlag(CirMgrFlag f) const { _flag &= ~f; }
-    void resetFlag() const { _flag = 0; }
+
     void setFileName(const string& f) { _fileName = f; }
     void setFileType(const FileType& t) { _fileType = t; }
 
+    unsigned getNumLATCHs() const { return _riList.size(); }
+    // virtual unsigned getNumLATCHs() const { return 0; }
     unsigned getNumPIs() const { return _piList.size(); }
     unsigned getNumPOs() const { return _poList.size(); }
-    unsigned getNumLATCHs() const { return _riList.size(); }
     unsigned getNumAIGs() const { return _aigList.size(); }
     unsigned getNumTots() const { return _totGateList.size(); }
 
-    CirPiGate* getPi(unsigned i) const { return _piList[i]; }
-    CirPoGate* getPo(unsigned i) const { return _poList[i]; }
     CirRiGate* getRi(unsigned i) const { return _riList[i]; }
     CirRoGate* getRo(unsigned i) const { return _roList[i]; }
+    // virtual CirRiGate* getRi(unsigned i) const { return 0; }
+    // virtual CirRoGate* getRo(unsigned i) const { return 0; }
+    CirPiGate* getPi(unsigned i) const { return _piList[i]; }
+    CirPoGate* getPo(unsigned i) const { return _poList[i]; }
     CirAigGate* getAig(unsigned i) const { return _aigList[i]; }
-    GateList& getFanouts(unsigned i) const { return _fanoutInfo[i]; }
-
+    GateVec& getFanouts(unsigned i) const { return _fanoutInfo[i]; }
     string getFileName() const { return _fileName; }
     FileType getFileType() const { return _fileType; }
 
     // Member functions about circuit construction
-    // bool readCircuit(const string&);
+    // virtual bool readCircuit(){};
+    virtual bool readCircuit() { return false; };
     void deleteCircuit();
     void genConnections();
     void genDfsList();
@@ -82,34 +86,11 @@ public:
     void checkUnusedList();
     size_t checkConnectedGate(size_t);
 
-    // Member functions about circuit optimization
-    void sweep();
-    void optimize();
-    bool checkAigOptimize(CirGate*, const CirGateV&, const CirGateV&, CirGateV&) const;
-    void deleteAigGate(CirGate*);
-    void deleteUndefGate(CirGate*);
-
-    // Member functions about simulation
-    void randomSim();
-    void fileSim(ifstream&);
-    void setSimLog(ofstream* logFile) { _simLog = logFile; }
-    void ReadSimVal();
-    void cutSim(CirGate* rootGate, CirCut* cut);
-
-    // Member functions about fraig
-    void strash();
-    IdList* getFECGrps(size_t i) const { return _fecGrps[i]; }
-    void printFEC() const;
-    void fraig();
-
-    // Member functions about circuit reporting
     // Member functins about circuit reporting
     void printSummary() const;
     void printNetlist() const;
     void printPIs() const;
     void printPOs() const;
-    void printFloatGates() const;
-    void printFECPairs() const;
     void writeAag(ostream&) const;
     void writeBlif(const string&) const;
     void writeGate(ostream&, CirGate*) const;
@@ -126,7 +107,7 @@ public:
     const bool readCirFromAbc(string, FileType);
     const bool readBlif(const string&) const;
     const bool setBddOrder(const bool&);
-    // CirGate* createGate(const GateType& type);
+
     CirGate* createNotGate(CirGate*);
     CirGate* createAndGate(CirGate*, CirGate*);
     CirGate* createOrGate(CirGate*, CirGate*);
@@ -146,64 +127,50 @@ public:
     // Reorder the gate id for the ABC pAig
     void reorderGateId(IDMap& aigIdMap);
 
+    // Engine Manager Pointer
+    YosysMgr* getYosysMgr() { return _ysyMgr; }
+    AbcMgr* getAbcMgr() { return _abcMgr; }
+
 private:
     // unsigned _numDecl[TOT_PARSE_PORTS];
     unsigned _numDecl[TOT_GATE];
-    mutable unsigned _flag;
-    PiArray _piList;
-    PoArray _poList;
-    RiArray _riList;
-    RoArray _roList;
-    AigArray _aigList;
-    // IDs in _undefList are NOT sorted!!
-    IdList _undefList;
-    // Make sure the IDs of the following lists are sorted!!
-    IdList _floatList;   // gates with fanin(s) undefined
-    IdList _unusedList;  // gates defined but not used
-    GateArray _totGateList;
-    GateList _dfsList;
-    GateList* _fanoutInfo;
-    vector<IdList*> _fecGrps;  // store litId; FECHash<GatePValue, IdList*>
-    SimVector _fecVector;
-    ofstream* _simLog;
+    PiVec _piList;
+    PoVec _poList;
+    RiVec _riList;
+    RoVec _roList;
+    AigVec _aigList;
+    GateVec _totGateList;
+    GateVec _dfsList;
+    GateVec* _fanoutInfo;
     string _fileName;
     FileType _fileType;
+    // Engine Managers
+    AbcMgr* _abcMgr;
+    YosysMgr* _ysyMgr;
+};
 
-    // private member functions for circuit parsing
-    bool parseHeader(ifstream&);
-    // bool parseInput(ifstream&);
-    bool parseLatch(ifstream&);
-    bool parseOutput(ifstream&);
-    bool parseAig(ifstream&);
-    bool parseSymbol(ifstream&);
-    bool parseComment(ifstream&);
-    bool checkId(unsigned&, const string&);
-    CirGate* checkGate(unsigned&, ParsePorts, const string&);
+class CirComb : public CirMgr {
+public:
+    CirComb() : CirMgr() {}
+    ~CirComb() override {}
+    CirType getCirType() { return CirType::COMB; }
+    bool readCircuit() override;
 
-    // private member functions for circuit optimization
-    CirGateV constSimplify(CirGate*, const CirGateV&, const CirGateV&) const;
+private:
+};
 
-    // private member functions about simulation
-    void setRandPPattern() const;
-    void setPPattern(SimPattern const patterns) const;
-    unsigned gatherPatterns(ifstream&, SimPattern, size_t);
-    void pSim1Pattern() const;
-    void outputSimLog(size_t nPatterns = 64);
+class CirSeq : public CirMgr {
+public:
+    CirSeq() : CirMgr() {}
+    ~CirSeq() override {}
+    CirType getCirType() { return CirType::SEQ; }
+    CirRiGate* getRi(unsigned i) const { return _riList[i]; }
+    CirRoGate* getRo(unsigned i) const { return _roList[i]; }
+    bool readCircuit() override;
 
-    // private member functions about FRAIG
-    bool simAndCheckFEC();
-    bool initFEC();
-    bool checkFEC();
-    bool checkFECRecur(const IdList&, vector<IdList*>&);
-    void finalizeFEC();
-    void simplifyFECGrps();
-    void clearFECGrps();
-    void initProofModel(SatSolver&, const GateList&);
-    bool satCheckConst(SatSolver&, CirGate*, bool, SimPattern);
-    bool satCheckFEC(SatSolver&, CirGate*, CirGate*, bool, SimPattern);
-    void getSatAssignment(SatSolver&, SimPattern) const;
-    void simplifyByEQ();
-    void updateFECbySatPattern(SimPattern);
+private:
+    std::vector<CirRiGate*> _riList;
+    std::vector<CirRoGate*> _roList;
 };
 
 #endif  // CIR_MGR_H

@@ -25,131 +25,14 @@ bool initSimCmd() {
     if (vrltMgr) delete vrltMgr;
     if (simMgr) delete simMgr;
     if (vcdMgr) delete vcdMgr;
-    vcdMgr = new VCDMgr();
-    cxxMgr = new CXXMgr();
+    vcdMgr  = new VCDMgr();
+    cxxMgr  = new CXXMgr();
     vrltMgr = new VRLTMgr();
 
-    return (gvCmdMgr->regCmd("RAndom Sim", 2, 1, new GVRandomSimCmd) &&
-            gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
+    return (gvCmdMgr->regCmd("SEt SAfe", 2, 2, new GVRandomSetSafe) &&
             gvCmdMgr->regCmd("SEt VSIM", 2, 2, new SetVSim) &&
             gvCmdMgr->regCmd("VSIMulate", 4, new VSimulate) &&
             gvCmdMgr->regCmd("VCDPrint", 4, new VCDPrint));
-}
-
-//----------------------------------------------------------------------
-// RAndom Sim
-//----------------------------------------------------------------------
-GVCmdExecStatus
-GVRandomSimCmd ::exec(const string& option) {
-    vector<string> options;
-    GVCmdExec::lexOptions(option, options);
-    size_t n = options.size();
-    string rst = "reset", rst_n = "reset", clk = "clk";
-    string command = "random_sim ", vcd_file_name = ".waves.vcd", simulator = "verilator";
-    string opt, in_file_name, out_file_name, stimulus_file_name, cycles;
-    bool verbose = false, rst_set = false, rst_n_set, clk_set = false;
-    bool out_file_name_set = false, file_name_set = false;
-
-    command += "-top " + yosysMgr->getTopModuleName();
-    for (size_t i = 0; i < n; ++i) {
-        const string& token = options[i];
-        if (myStrNCmp("-v", token, 1) == 0) {
-            verbose = true;
-            command += " -v ";
-            continue;
-        }
-        if (myStrNCmp("-rst", token, 3) == 0) {
-            rst_set = true;
-            ++i;
-            rst = options[i];
-            command += " -reset " + rst;
-            continue;
-        }
-        if (myStrNCmp("-rst_n", token, 4) == 0) {
-            rst_n_set = true;
-            ++i;
-            rst_n = options[i];
-            command += " -reset_n " + rst_n;
-            continue;
-        }
-        if (myStrNCmp("-clk", token, 1) == 0) {
-            clk_set = true;
-            ++i;
-            clk = options[i];
-            command += " -clk " + clk;
-            continue;
-        }
-        if (myStrNCmp("-sim_cycle", token, 1) == 0) {
-            rst_n_set = true;
-            ++i;
-            cycles = options[i];
-            command += " -sim_cycle " + cycles;
-            continue;
-        }
-        if (myStrNCmp("-input", token, 1) == 0) {
-            ++i;
-            in_file_name = options[i];
-            file_name_set = true;
-            command += " -input " + in_file_name;
-            continue;
-        }
-        if (myStrNCmp("-output", token, 1) == 0) {
-            ++i;
-            out_file_name = options[i];
-            command += " -output " + out_file_name;
-            ofstream outfile;
-            outfile.open(stimulus_file_name, ios::in);
-            if (!outfile)
-                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
-            outfile.close();
-            continue;
-        }
-        if (myStrNCmp("-file", token, 1) == 0) {
-            ++i;
-            stimulus_file_name = options[i];
-            command += " -file " + stimulus_file_name;
-            ifstream infile;
-            infile.open(stimulus_file_name, ios::in);
-            if (!infile)
-                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
-            infile.close();
-            continue;
-        }
-        if (myStrNCmp("-vcd", token, 4) == 0) {
-            ++i;
-            vcd_file_name = options[i];
-            command += " -vcd " + vcd_file_name;
-            continue;
-        }
-        if (myStrNCmp("-cxxrtl", token, 3)) {
-            simulator = "cxxrtl";
-            continue;
-        }
-    }
-
-    // if (!file_name_set) command += " -input " + cirMgr->getFileName();
-    if (!file_name_set) command += " -input ./testbench/adder.v";
-    if (yosysMgr->getSafeProperty() != -1) command += " -safe " + to_string((yosysMgr->getSafeProperty()));
-    // load the random_sim plugin in yosys
-    yosysMgr->loadSimPlugin();
-    // execute "random_sim" command
-    yosysMgr->runPass(command);
-
-    return GV_CMD_EXEC_DONE;
-}
-
-void GVRandomSimCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO)
-        << "Usage: RAndom Sim <-input file_name.v> [sim_cycle num_cycle_sim] "
-           "[-rst rst_name] [-rst_n rst_n_name] [-clk clk_name] "
-           "[-output out_file_name] [-v verbose print result] [-file stimulus]"
-        << endl;
-}
-
-void GVRandomSimCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "RAndom Sim: "
-                      << "Conduct random simulation and print the results."
-                      << endl;
 }
 
 //----------------------------------------------------------------------
@@ -164,7 +47,7 @@ GVRandomSetSafe::exec(const string& option) {
         gvMsg(GV_MSG_IFO) << "Please enter a valid value!" << endl;
         return GV_CMD_EXEC_DONE;
     }
-    yosysMgr->setSafeProperty(stoi(options[0]));
+    cirMgr->getYosysMgr()->setSafeProperty(stoi(options[0]));
 
     return GV_CMD_EXEC_DONE;
 }
@@ -187,7 +70,7 @@ GVCmdExecStatus SetVSim::exec(const string& option) {
 
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n = options.size();
+    size_t n              = options.size();
     std::string simulator = "";
     bool isCXX = false, isVRLT = false;
 
@@ -206,13 +89,14 @@ GVCmdExecStatus SetVSim::exec(const string& option) {
     }
 
     if (isCXX) {
-        simMgr = cxxMgr;
+        simMgr    = cxxMgr;
         simulator = "CXXRTL";
     } else {
-        simMgr = vrltMgr;
+        simMgr    = vrltMgr;
         simulator = "VERILATOR";
     }
-    fmt::print(fg(fmt::color::green), "Current simulator: {0}", simulator);
+
+    fmt::print(fg(fmt::color::light_green), "Current simulator: {0}\n", simulator);
     return GV_CMD_EXEC_DONE;
 }
 
@@ -230,10 +114,14 @@ void SetVSim::help() const {
 GVCmdExecStatus VSimulate::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n = options.size();
+    size_t n       = options.size();
     string vcdFile = "", patternFile = "";
     bool random = false, verbose = false;
     int cycle = 0;
+    if (cirMgr == nullptr) {
+        gvMsg(GV_MSG_IFO) << "Please read the design !!" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, "");
+    }
 
     for (size_t i = 0; i < n; ++i) {
         const string& token = options[i];
@@ -260,7 +148,8 @@ GVCmdExecStatus VSimulate::exec(const string& option) {
     }
     if (simMgr == nullptr) {
         fmt::print(fg(fmt::color::yellow),
-                   "WARNING: Simulate using the default simulator (VERILATOR). ");
+                   "WARNING: Simulate using the default simulator (VERILATOR).");
+        fmt::println("");
         simMgr = new VRLTMgr();
     }
     simMgr->setSimCycle(cycle);
@@ -290,7 +179,7 @@ void VSimulate::help() const {
 GVCmdExecStatus VCDPrint::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n = options.size();
+    size_t n       = options.size();
     string vcdFile = "";
     std::vector<std::string> selectedSignals;
     int rowLimit = 0, colLimit = 0;

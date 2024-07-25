@@ -7,38 +7,44 @@
 using namespace std;
 // USING_YOSYS_NAMESPACE
 
-class YosysMgr;
-extern YosysMgr* yosysMgr;
+// class YosysMgr;
+// extern YosysMgr* yosysMgr;
 
 struct YosysSignal;
-typedef vector<YosysSignal*> SignalVec;
+typedef std::vector<YosysSignal*> SignalVec;
 
 struct DesignInfo {
-    DesignInfo(string clk, string rst) {
+    DesignInfo(std::string clk, std::string rst) {
         clkName = {"clk", "clock"};
         rstName = {"rst", "reset"};
     }
     DesignInfo(){};
-    vector<string> clkName;
-    vector<string> rstName;
+    std::vector<std::string> clkName;
+    std::vector<std::string> rstName;
     bool reset;
 };
 
 struct YosysSignal {
     YosysSignal(Yosys::RTLIL::Wire* w) : _wire(w) {
-        _name = _wire->name.str().substr(1);
-        _id = _wire->port_id;
+        _name  = _wire->name.str().substr(1);
+        _id    = _wire->port_id;
         _width = _wire->width;
     };
     inline int getId() { return _id; }
     inline int getWidth() { return _width; }
-    const string& getName() { return _name; }
+    inline const std::string& getName() { return _name; }
 
     Yosys::RTLIL::Wire* _wire;
-    string _name;
+    std::string _name;
     int _width;
     int _id;
 };
+
+// struct YosysSignal {
+//     std::string _name;
+//     int _width;
+//     int _id;
+// };
 
 class YosysMgr {
 public:
@@ -50,7 +56,7 @@ public:
         REG
     };
     YosysMgr();
-    ~YosysMgr() {}
+    ~YosysMgr();
 
     void init();
     void reset();
@@ -59,6 +65,8 @@ public:
     void saveTopModuleName();
     void loadDesign(const string&);
     void loadSimPlugin();
+    void deleteDesign(const string&);
+    void resetDesign();
 
     void readBlif(const string&);
     void readVerilog(const string&);
@@ -67,6 +75,7 @@ public:
     void writeAiger(const string&);
 
     void showSchematic();
+    void extractFSM();
     void printDesignInfo(const bool& = false);
     void createMapping(const string&);
     void runPass(const string&);
@@ -95,6 +104,7 @@ public:
 private:
     unsigned _property;
     Yosys::RTLIL::Module* _topModule;
+    Yosys::Design* _design;
     SignalVec _piList;
     SignalVec _poList;
     SignalVec _clkList;
@@ -102,7 +112,8 @@ private:
     SignalVec _regList;
     DesignInfo _designInfo;
     vector<string> _yosysSigTypeStr;
-    string _topModuleName;
+    vector<std::string> _fileVec;
+    std::string _topModuleName;
 };
 
 #endif
