@@ -14,8 +14,8 @@ public:
     VRLTMgr();
     bool preVrltSim(const bool&);
     bool runVrltSim(const bool&);
-    void fileSim(const bool&);
-    void randomSim(const bool&);
+    void fileSim(const bool&) override;
+    void randomSim(const bool&) override;
 
 private:
     std::string _itfPath;      // interface.hpp path

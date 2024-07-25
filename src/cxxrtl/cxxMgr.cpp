@@ -8,10 +8,11 @@
 #include <unordered_set>
 #include <vector>
 
+#include "cirMgr.h"
 #include "fmt/color.h"
 #include "fmt/core.h"
 #include "simMgr.h"
-#include "yosysMgr.h"
+#include "util.h"
 
 CXXMgr* cxxMgr = nullptr;
 
@@ -36,31 +37,31 @@ static string genMacro(const string& macro, const size_t& value) {
 
 CXXMgr::CXXMgr() : SimMgr(0) {
     _cxxDir = PATH(std::string(GV_CXXRTL_PATH)).parent_path();
-    _itfTmpFile = _cxxDir / "template/interface.hpp";
-    _itfFile = _cxxDir / "interface.hpp";
-    _cxxSimFile = _cxxDir / ".sim.cpp";
+    _itfTmpFile = _cxxDir / "template" / "interface.hpp";
+    _itfFile = _cxxDir / "src" / "interface.hpp";
+    _cxxSimFile = _cxxDir / "src" / ".sim.cpp";
 }
 
 bool CXXMgr::preCXXSim(const bool& verbose) {
-    if (!genMakeMacro(true)) {
+    if (!genMakeMacro(verbose)) {
         fmt::print(fmt::fg(fmt::color::red),
                    "ERROR: Cannot generate the macro !!\n");
         return false;
     }
     // generate the driver file by calling the Yosys CXXRTL command
-    if (!genCXXDriver(true)) {
+    if (!genCXXDriver(verbose)) {
         fmt::print(fmt::fg(fmt::color::red),
                    "ERROR: Cannot generate the CXXRTL driver file !!\n");
         return false;
     }
     // generate the interface code
-    if (!genCXXItf(true)) {
+    if (!genCXXItf(verbose)) {
         fmt::print(fmt::fg(fmt::color::red),
                    "ERROR: Cannot generate the interface file !!\n");
         return false;
     }
     // generate the simulation execution file
-    if (!genCXXExe(true)) {
+    if (!genCXXExe(verbose)) {
         fmt::print(fmt::fg(fmt::color::red),
                    "ERROR: Cannot generate the CXXRTL driver file !!\n");
         return false;
@@ -83,6 +84,7 @@ bool CXXMgr::genCXXItf(const bool& verbose) {
     std::vector<std::string> condCode;
     std::string tmpLine;
     unordered_set<int> uniqBit;
+    YosysMgr* curYsyMgr = cirMgr->getYosysMgr();
 
     if (!infile) {
         fmt::print(fg(fmt::color::red) | fmt::emphasis::bold,
@@ -93,8 +95,8 @@ bool CXXMgr::genCXXItf(const bool& verbose) {
         getline(infile, tmpLine);
         outfile << tmpLine << std::endl;
         if (tmpLine.find("Set signal value functions") != std::string::npos) {
-            for (int i = 0; i < yosysMgr->getNumPIs(); ++i) {
-                unsigned bitWidth = yosysMgr->getPi(i)->getWidth();
+            for (int i = 0; i < curYsyMgr->getNumPIs(); ++i) {
+                unsigned bitWidth = curYsyMgr->getPi(i)->getWidth();
                 if (bitWidth != 1 && !uniqBit.count(bitWidth)) {
                     uniqBit.insert(bitWidth);
                     outfile << genItfFuncCode(bitWidth);
@@ -105,19 +107,19 @@ bool CXXMgr::genCXXItf(const bool& verbose) {
             for (int i = 0, n = condCode.size(); i < n; ++i)
                 outfile << condCode[i];
         } else if (tmpLine.find("Set top design object") != std::string::npos) {
-            outfile << genItfTopObjCode(yosysMgr->getTopModuleName());
+            outfile << genItfTopObjCode(curYsyMgr->getTopModuleName());
         } else if (tmpLine.find("CLK") != std::string::npos) {
-            for (int i = 0; i < yosysMgr->getNumCLKs(); ++i)
-                outfile << genItfSignalCode("clk", yosysMgr->getClk(i)->getName());
+            for (int i = 0; i < curYsyMgr->getNumCLKs(); ++i)
+                outfile << genItfSignalCode("clk", curYsyMgr->getClk(i)->getName());
         } else if (tmpLine.find("RST") != std::string::npos) {
-            for (int i = 0; i < yosysMgr->getNumRSTs(); ++i)
-                outfile << genItfSignalCode("rst", yosysMgr->getRst(i)->getName());
+            for (int i = 0; i < curYsyMgr->getNumRSTs(); ++i)
+                outfile << genItfSignalCode("rst", curYsyMgr->getRst(i)->getName());
         } else if (tmpLine.find("PI") != std::string::npos) {
-            for (int i = 0; i < yosysMgr->getNumPIs(); ++i)
-                outfile << genItfSignalCode("pi", yosysMgr->getPi(i)->getName());
+            for (int i = 0; i < curYsyMgr->getNumPIs(); ++i)
+                outfile << genItfSignalCode("pi", curYsyMgr->getPi(i)->getName());
         } else if (tmpLine.find("PO") != std::string::npos) {
-            for (int i = 0; i < yosysMgr->getNumPOs(); ++i)
-                outfile << genItfSignalCode("po", yosysMgr->getPo(i)->getName());
+            for (int i = 0; i < curYsyMgr->getNumPOs(); ++i)
+                outfile << genItfSignalCode("po", curYsyMgr->getPo(i)->getName());
         }
         // } else if (tmpLine.find("REG") != std::string::npos) {
         //     for (int i = 0; i < yosysMgr->getNumREGs(); ++i) {
@@ -133,15 +135,17 @@ bool CXXMgr::genCXXItf(const bool& verbose) {
 }
 
 bool CXXMgr::genCXXDriver(const bool& verbose) {
+    YosysMgr* curYsyMgr = cirMgr->getYosysMgr();
     // Call the Yosys command to write the driver.cpp for simulation
     string writeCXXCmd = "write_cxxrtl " + _cxxSimFile.string();
-    yosysMgr->runPass(writeCXXCmd);
+    curYsyMgr->runPass(writeCXXCmd);
     return true;
 }
 
 bool CXXMgr::genCXXExe(const bool& verbose) {
     string compileCmd = fmt::format("make -C {0} {1}", _cxxDir.string(), _macro);
-    if (system(compileCmd.c_str()) != 0) {
+    // if (system(compileCmd.c_str()) != 0) {
+    if (!systemCmd(compileCmd.c_str(), verbose)) {
         fmt::print(fmt::fg(fmt::color::red),
                    "ERROR: Cannot execute the system command \"{0}\" !!\n", compileCmd);
         return false;
@@ -151,7 +155,7 @@ bool CXXMgr::genCXXExe(const bool& verbose) {
 
 bool CXXMgr::runCXXSim(const bool& verbose) {
     string runCmd = fmt::format("make -C {0} run", _cxxDir.string());
-    if (system(runCmd.c_str()) != 0) {
+    if (!systemCmd(runCmd.c_str(), verbose)) {
         fmt::print(fmt::fg(fmt::color::red),
                    "ERROR: Cannot execute the system command \"{0}\" !!\n", runCmd);
         return false;
@@ -168,6 +172,14 @@ void CXXMgr::enableFileSim() {
     _macro += genMacro("PATTERN_FILE", getPatternFileName());
 }
 
+/**
+ * @brief Add the MODE=0
+ *
+ */
+void CXXMgr::enableRandomSim() {
+    _macro += genMacro("MODE", "0");
+}
+
 void CXXMgr::fileSim(const bool& verbose) {
     enableFileSim();
     if (preCXXSim(verbose))
@@ -175,6 +187,7 @@ void CXXMgr::fileSim(const bool& verbose) {
 }
 
 void CXXMgr::randomSim(const bool& verbose) {
+    enableRandomSim();
     if (preCXXSim(verbose))
         runCXXSim(verbose);
 }
