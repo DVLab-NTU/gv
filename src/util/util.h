@@ -36,6 +36,8 @@ extern char myGetChar();
 // In util.cpp
 extern int listDir(vector<string>&, const string&, const string&);
 extern size_t getHashSize(size_t s);
+extern bool systemCmd(const string&, const bool&);
+extern void printBanner();
 
 // Other utility template functions
 template <class T>
