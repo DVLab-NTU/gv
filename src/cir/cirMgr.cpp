@@ -36,6 +36,31 @@ using namespace std;
 CirMgr* cirMgr           = 0;
 CirGate* CirMgr::_const0 = new CirConstGate(0);
 
+bool CirMgr::readCircuitNew() {
+    map<unsigned, string> id2Name;
+    ABCParams params;
+    strcpy(params.pFileName, _fileName.c_str());
+    if (_fileType == AIGER) {
+        _ysyMgr->readAiger(_fileName);
+        _abcMgr->readAiger(params);
+    } else if (_fileType == BLIF) {
+        _ysyMgr->readBlif(_fileName);
+    } else if (_fileType == VERILOG) {
+        params.fTechMap = 1;
+        params.fVerbose = 0;
+        // _ysyMgr->setLogging(true);
+        _ysyMgr->readVerilog(_fileName);
+        _ysyMgr->createMapping(_fileName);
+        // _abcMgr->readSeqVerilog(params);
+        _abcMgr->readVerilogNew(params);
+        _abcMgr->buildAigName(id2Name);
+        _abcMgr->initCir(_fileType);
+        _abcMgr->travPreprocess();
+        _abcMgr->giaToCir(_fileType, id2Name);
+        genDfsList();
+    }
+    return true;
+}
 bool CirSeq::readCircuit() {
     map<unsigned, string> id2Name;
     ABCParams params;
@@ -51,7 +76,8 @@ bool CirSeq::readCircuit() {
         // _ysyMgr->setLogging(true);
         _ysyMgr->readVerilog(_fileName);
         _ysyMgr->createMapping(_fileName);
-        _abcMgr->readSeqVerilog(params);
+        // _abcMgr->readSeqVerilog(params);
+        _abcMgr->readVerilogNew(params);
         _abcMgr->buildAigName(id2Name);
         _abcMgr->initCir(_fileType);
         _abcMgr->travPreprocess();

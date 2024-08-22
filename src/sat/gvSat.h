@@ -39,6 +39,7 @@ public:
     const bool simplify();
     const bool solve();
     const bool assump_solve();
+    const bool setSolver();
     int getNumClauses() const { return _solver->nRootCla(); }
 
     // Network to Solver Functions

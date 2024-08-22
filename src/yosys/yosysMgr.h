@@ -11,7 +11,9 @@ using namespace std;
 // extern YosysMgr* yosysMgr;
 
 struct YosysSignal;
+struct YosysFSM;
 typedef std::vector<YosysSignal*> SignalVec;
+typedef std::vector<YosysFSM> FSMVec;
 
 struct DesignInfo {
     DesignInfo(std::string clk, std::string rst) {
@@ -38,6 +40,13 @@ struct YosysSignal {
     std::string _name;
     int _width;
     int _id;
+};
+
+struct YosysFSM {
+    int stateIn;
+    int stateOut;
+    std::string ctrlIn;
+    std::string ctrlOut;
 };
 
 // struct YosysSignal {
@@ -76,6 +85,8 @@ public:
 
     void showSchematic();
     void extractFSM();
+    void fetchAllFSMInfo();
+    void fetchFSMInfo(Yosys::RTLIL::Cell*);
     void printDesignInfo(const bool& = false);
     void createMapping(const string&);
     void runPass(const string&);
@@ -100,6 +111,7 @@ public:
 
     void assignSignal();
     void printSignal(const YosysSigType&);
+    void printFSM();
 
 private:
     unsigned _property;
@@ -110,6 +122,7 @@ private:
     SignalVec _clkList;
     SignalVec _rstList;
     SignalVec _regList;
+    FSMVec _fsmList;
     DesignInfo _designInfo;
     vector<string> _yosysSigTypeStr;
     vector<std::string> _fileVec;

@@ -15,9 +15,7 @@ extern AbcMgr* abcMgr;
 
 struct ABCParams {
     ABCParams() : fInvert(0), fTechMap(0), fSkipStrash(0), fVerbose(0), fGiaSimple(0),
-                  fCheck(0), fLibInDir(0), pTopModule(NULL), pDefines(NULL) {
-        pFileName = new char[100];
-    };
+                  fCheck(0), fLibInDir(0), pTopModule(nullptr), pDefines(nullptr), pFileName(new char[100]){};
     char* pFileName;
     char* pTopModule;
     char* pDefines;

@@ -117,12 +117,13 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         }
     }
 
-    cirMgr = new CirSeq();
+    cirMgr = new CirMgr();
+    /*cirMgr = new CirSeq();*/
     // cirMgr = new CirComb();
 
     cirMgr->setFileName(fileName);
     cirMgr->setFileType(fileType);
-    if (!cirMgr->readCircuit()) {
+    if (!cirMgr->readCircuitNew()) {
         delete cirMgr;
         cirMgr = 0;
         return GV_CMD_EXEC_NOP;

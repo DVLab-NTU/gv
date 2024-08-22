@@ -18,9 +18,9 @@ extern const std::string fileTypeStr[4];
  *
  */
 enum ModType {
-    MOD_TYPE_NONE   = 0,
-    MOD_TYPE_SETUP  = 1,
+    MOD_TYPE_NONE = 0,
+    MOD_TYPE_SETUP = 1,
     MOD_TYPE_VERIFY = 2,
-    MOD_TYPE_APP    = 3
+    MOD_TYPE_APP = 3
 };
 #endif

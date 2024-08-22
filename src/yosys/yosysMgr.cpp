@@ -1,21 +1,14 @@
 #include "yosysMgr.h"
 
-#include <cstdio>
 #include <cstdlib>
-#include <fstream>
-#include <iomanip>
-#include <ios>
 #include <string>
 
 #include "fmt/core.h"
 #include "gvType.h"
 #include "kernel/yosys.h"
-#include "opt/dau/dau.h"
-#include "yosysExt.h"
+#include "passes/fsm/fsmdata.h"
 
 YosysMgr* yosysMgr;
-
-#define LEFT_WIDTH_10 std::setw(10) << std::left
 
 /**
  * @brief Construct a new Yosys Mgr:: Yosys Mgr object
@@ -223,75 +216,6 @@ void YosysMgr::writeAiger(const string& fileName) {
 }
 
 /**
- * @brief Prints information about the current design.
- *
- * This function prints various information about the current design,
- * such as the number of modules, wires, cells, and different types of cells.
- *
- * @param verbose Flag indicating whether to print detailed information about cell types.
- *                If set to true, detailed information about each cell type will be printed.
- *                If set to false, only the counts of primary inputs (PIs) and primary outputs (POs) will be printed.
- */
-void YosysMgr::printDesignInfo(const bool& verbose) {
-    int numFF = 0, numPI = 0, numPO = 0, numPIO = 0, numConst = 0, numNet = 0;
-    int numMux = 0, numAnd = 0, numAdd = 0, numSub = 0, numMul = 0, numEq = 0,
-        numNot = 0, numLe = 0, numGe = 0;
-    // Check design
-    FileType fileType = getFileType();
-    if (fileType == AIGER) {
-        cout << "[ERROR]: Please read the word-level design first !!\n";
-        cout << "[ERROR]: Use \"cirprint\" to print the aig info.\n";
-        return;
-    }
-
-    // loadDesign(fileTypeStr[fileType]);
-    loadDesign(_fileVec.front());
-    Yosys::RTLIL::Module* topModule = Yosys::yosys_design->top_module();
-    // print info
-    cout << "Modules in current design: ";
-    string moduleName = topModule->name.str();
-    cout << moduleName << "(" << Yosys::GetSize(topModule->wires()) << " wires, "
-         << Yosys::GetSize(topModule->cells()) << " cells)\n";
-    for (auto wire : topModule->wires()) {
-        // string wire_name = log_id(wire->name);
-        if (wire->port_input) numPI++;
-        else if (wire->port_output) numPO++;
-    }
-    if (verbose) {
-        for (auto cell : topModule->cells()) {
-            if (cell->type.in(ID($mux))) numMux++;
-            else if (cell->type.in(ID($logic_and))) numAnd++;
-            else if (cell->type.in(ID($add))) numAdd++;
-            else if (cell->type.in(ID($sub))) numSub++;
-            else if (cell->type.in(ID($mul))) numMul++;
-            else if (cell->type.in(ID($eq))) numEq++;
-            else if (cell->type.in(ID($logic_not))) numNot++;
-            else if (cell->type.in(ID($lt))) numLe++;
-            else if (cell->type.in(ID($ge))) numGe++;
-        }
-        cout
-            << "==================================================\n";
-        cout << "   MUX" << setw(40) << numMux << "\n";
-        cout << "   AND" << setw(40) << numAnd << "\n";
-        cout << "   ADD" << setw(40) << numAdd << "\n";
-        cout << "   SUB" << setw(40) << numSub << "\n";
-        cout << "   MUL" << setw(40) << numMul << "\n";
-        cout << "   EQ" << setw(41) << numEq << "\n";
-        cout << "   NOT" << setw(40) << numNot << "\n";
-        cout << "   LT" << setw(41) << numLe << "\n";
-        cout << "   GE" << setw(41) << numGe << "\n";
-        cout
-            << "--------------------------------------------------\n";
-        cout << "   PI" << setw(41) << numPI << "\n";
-        cout << "   PO" << setw(41) << numPO << "\n";
-        cout
-            << "==================================================\n";
-    } else
-        cout << "#PI = " << numPI << ", #PO = " << numPO
-             << ", #PIO = " << numPIO << "\n";
-}
-
-/**
  * @brief Displays the schematic of the top module in the Yosys design.
  *
  * This function runs a series of Yosys passes to generate and display
@@ -369,6 +293,7 @@ static bool findSignal(const string& currSignal, const vector<string>& signalVec
  *
  */
 void YosysMgr::assignSignal() {
+    _design    = Yosys::yosys_design;
     _topModule = Yosys::yosys_design->top_module();
     for (auto wire : _topModule->wires()) {
         YosysSignal* newSig = new YosysSignal(wire);
@@ -386,25 +311,6 @@ void YosysMgr::assignSignal() {
     }
 }
 
-/**
- * @brief
- *
- */
-void YosysMgr::printSignal(const YosysSigType& sigType) {
-    SignalVec tmpVec = _piList;
-    if (sigType == YosysSigType::PO) tmpVec = _poList;
-    else if (sigType == YosysSigType::CLK) tmpVec = _clkList;
-    else if (sigType == YosysSigType::RST) tmpVec = _rstList;
-    else if (sigType == YosysSigType::REG) tmpVec = _regList;
-
-    cout << " /////////////" << _yosysSigTypeStr[sigType] << "/////////////\n";
-    for (int i = 0; i < tmpVec.size(); ++i) {
-        cout << LEFT_WIDTH_10 << " " + _yosysSigTypeStr[sigType] << ": " << LEFT_WIDTH_10 << tmpVec[i]->getName()
-             << LEFT_WIDTH_10 << "ID: " << LEFT_WIDTH_10 << tmpVec[i]->getId()
-             << LEFT_WIDTH_10 << "Width: " << LEFT_WIDTH_10 << tmpVec[i]->getWidth() << endl;
-    }
-}
-
 void YosysMgr::extractFSM() {
     runPass("hierarchy -top cle");
     runPass("prep -top cle");
@@ -415,7 +321,67 @@ void YosysMgr::extractFSM() {
     runPass("proc_clean");
     runPass("fsm_detect");
     runPass("fsm_extract");
-    runPass("fsm_info");
-    runPass("proc");
-    runPass("write_json ./design_under_test.json");
+    fetchAllFSMInfo();
+    printFSM();
 }
+
+void YosysMgr::fetchAllFSMInfo() {
+    for (auto mod : _design->selected_modules())
+        for (auto cell : mod->selected_cells())
+            if (cell->type == ID($fsm)) fetchFSMInfo(cell);
+}
+
+void YosysMgr::fetchFSMInfo(Yosys::RTLIL::Cell* cell) {
+    Yosys::FsmData fsm_data;
+    fsm_data.copy_from_cell(cell);
+    fsm_data.log_info(cell);
+    for (int i = 0; i < GetSize(fsm_data.transition_table); i++) {
+        Yosys::FsmData::transition_t& tr = fsm_data.transition_table[i];
+        // YosysFSM fsm                     = {tr.state_in, tr.state_out, Yosys::log_signal(tr.ctrl_in), Yosys::log_signal(tr.ctrl_out)};
+        _fsmList.push_back({tr.state_in, tr.state_out,
+                            Yosys::log_signal(tr.ctrl_in), Yosys::log_signal(tr.ctrl_out)});
+        // fmt::print("  {0}: {1} {2}   -> {3} {4}\n", i, tr.state_in, Yosys::log_signal(tr.ctrl_in), tr.state_out, Yosys::log_signal(tr.ctrl_out));
+        // fmt::print(" {0}: {1} {2}   -> {3} {4}\n", i, fsm.stateIn, fsm.ctrlIn, fsm.stateOut, fsm.ctrlOut);
+    }
+}
+
+/*
+        void log_info(RTLIL::Cell *cell)
+        {
+                log("-------------------------------------\n");
+                log("\n");
+                log("  Information on FSM %s (%s):\n", cell->name.c_str(), cell->parameters[ID::NAME].decode_string().c_str());
+                log("\n");
+                log("  Number of input signals:  %3d\n", num_inputs);
+                log("  Number of output signals: %3d\n", num_outputs);
+                log("  Number of state bits:     %3d\n", state_bits);
+
+                log("\n");
+                log("  Input signals:\n");
+                RTLIL::SigSpec sig_in = cell->getPort(ID::CTRL_IN);
+                for (int i = 0; i < GetSize(sig_in); i++)
+                        log("  %3d: %s\n", i, log_signal(sig_in[i]));
+
+                log("\n");
+                log("  Output signals:\n");
+                RTLIL::SigSpec sig_out = cell->getPort(ID::CTRL_OUT);
+                for (int i = 0; i < GetSize(sig_out); i++)
+                        log("  %3d: %s\n", i, log_signal(sig_out[i]));
+
+                log("\n");
+                log("  State encoding:\n");
+                for (int i = 0; i < GetSize(state_table); i++)
+                        log("  %3d: %10s%s\n", i, log_signal(state_table[i], false),
+                                        int(i) == reset_state ? "  <RESET STATE>" : "");
+
+                log("\n");
+                log("  Transition Table (state_in, ctrl_in, state_out, ctrl_out):\n");
+                for (int i = 0; i < GetSize(transition_table); i++) {
+                        transition_t &tr = transition_table[i];
+                        log("  %5d: %5d %s   -> %5d %s\n", i, tr.state_in, log_signal(tr.ctrl_in), tr.state_out, log_signal(tr.ctrl_out));
+                }
+
+                log("\n");
+                log("-------------------------------------\n");
+        }
+*/

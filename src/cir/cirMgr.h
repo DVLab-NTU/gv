@@ -78,6 +78,7 @@ public:
     // Member functions about circuit construction
     // virtual bool readCircuit(){};
     virtual bool readCircuit() { return false; };
+    bool readCircuitNew();
     void deleteCircuit();
     void genConnections();
     void genDfsList();

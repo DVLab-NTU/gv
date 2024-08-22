@@ -3,6 +3,9 @@
 
 #include "expCmd.h"
 
+#include <cstddef>
+
+#include "cirMgr.h"
 #include "gvMsg.h"
 #include "util.h"
 
@@ -12,13 +15,18 @@ bool initExpCmd() {
 
 //! Extern Declaration
 extern void testVCDMgr();
+extern void testGlucose();
 
 //----------------------------------------------------------------------
 // EXPeriment
 //----------------------------------------------------------------------
 GVCmdExecStatus ExpCmd::exec(const string& option) {
     //! place your experimental function here
-    testVCDMgr();
+    // testVCDMgr();
+    // testGlucose();
+    if (cirMgr != nullptr)
+        cirMgr->getYosysMgr()->extractFSM();
+
     return GV_CMD_EXEC_DONE;
 }
 
@@ -30,4 +38,5 @@ void ExpCmd::help() const {
     gvMsg(GV_MSG_IFO) << setw(20) << left << "EXPeriment: "
                       << "Command for the testing of the experimental functions." << endl;
 }
+
 #endif

@@ -55,9 +55,9 @@ void AbcMgr::readCombVerilog(const ABCParams &opt) {
 }
 
 void AbcMgr::readVerilogNew(const ABCParams &opt) {
-    Gia_Man_t *pGia = NULL;
+    // Gia_Man_t *pGia = NULL;
     char Command[1000];
-    char *pFileTemp = "_temp_.aig";
+    char *pFileTemp = "._temp_.aig";
     // int fRtlil = strstr(pFileName, ".rtl") != NULL;
     // int fSVlog = strstr(pFileName, ".sv")  != NULL;
     // sprintf( Command, "%s -qp \"%s %s%s %s%s; hierarchy %s%s; flatten; proc; %saigmap; write_aiger %s\"",
@@ -76,7 +76,6 @@ void AbcMgr::readVerilogNew(const ABCParams &opt) {
     pGia = Gia_AigerRead(pFileTemp, 0, opt.fSkipStrash, 0);
     if (pGia == NULL) {
         printf("Converting to AIG has failed.\n");
-        // return NULL;
         return;
     }
     ABC_FREE(pGia->pName);
