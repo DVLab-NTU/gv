@@ -194,6 +194,7 @@ foreach(DIR ${SRC_DIR})
 endforeach()
 # Include all the header files under the engine Yosys
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${YOSYS_DIR})
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${YOSYS_DIR})
 # Include all the header files under the engine ABC
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
 # Include the readline header files
