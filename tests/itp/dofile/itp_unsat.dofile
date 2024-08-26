@@ -1,0 +1,4 @@
+cirread -aig ./designs/SoCV/hwmcc/pdtpmsfpmult.aig
+se sys vrf
+satv itp -o 0
+q -f

@@ -1,0 +1,3 @@
+cirread -aig ./designs/SoCV/hwmcc/6s307rb06.aig
+cirprint -net
+q -f
