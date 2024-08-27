@@ -10,25 +10,24 @@
 #define GV_SAT_H
 
 #include <cassert>
-#include <iostream>
 #include <vector>
 
-#include "SolverV.h"
 #include "cirGate.h"
 #include "cirMgr.h"
-#include "gvBitVec.h"
-// #include "gvNtk.h"
+/*#include "core/Solver.h"*/
+#include "minisat/Solver.h"
+#include "minisat/gvBitVec.h"
 using namespace std;
 
 class SATMgr;
 
 /********** MiniSAT_Solver **********/
-class GVSatSolver {
+class SatSolverMgr {
     friend class SATMgr;
 
 public:
-    GVSatSolver(CirMgr*);
-    ~GVSatSolver();
+    SatSolverMgr(CirMgr*);
+    ~SatSolverMgr();
 
     void reset();
     void assumeRelease();
@@ -75,7 +74,6 @@ private:
     vec<Lit> _assump;       // Assumption List for assumption solve
     const CirMgr* _cirMgr;  // Network Under Verification
     vector<Var>* _ntkData;  // Mapping between GVNetId and Solver Data
-    // GVNtkMgr*    _ntk;     // Network Under Verification
 };
 
 #endif  // SAT_H
