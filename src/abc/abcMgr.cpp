@@ -58,28 +58,14 @@ void AbcMgr::readVerilogNew(const ABCParams &opt) {
     // Gia_Man_t *pGia = NULL;
     char Command[1000];
     char *pFileTemp = "._temp_.aig";
-    // int fRtlil = strstr(pFileName, ".rtl") != NULL;
-    // int fSVlog = strstr(pFileName, ".sv")  != NULL;
-    // sprintf( Command, "%s -qp \"%s %s%s %s%s; hierarchy %s%s; flatten; proc; %saigmap; write_aiger %s\"",
-    //     Wln_GetYosysName(),
-    //     fRtlil ? "read_rtlil"   : "read_verilog",
-    //     pDefines  ? "-D"        : "",
-    //     pDefines  ? pDefines    : "",
-    //     fSVlog    ? "-sv "      : "",
-    //     pFileName,
-    //     pTopModule ? "-top "    : "-auto-top",
-    //     pTopModule ? pTopModule : "",
-    //     fTechMap ? "techmap; setundef -zero; " : "", pFileTemp );
-    // if (opt.fVerbose)
-    // printf("%s\n", Command);
-    // if (!Wln_ConvertToRtl(Command, pFileTemp)) return;
-    pGia = Gia_AigerRead(pFileTemp, 0, opt.fSkipStrash, 0);
+    pGia            = Gia_AigerRead(pFileTemp, 0, opt.fSkipStrash, 0);
     if (pGia == NULL) {
         printf("Converting to AIG has failed.\n");
         return;
     }
     ABC_FREE(pGia->pName);
-    pGia->pName = opt.pTopModule ? Abc_UtilStrsav(opt.pTopModule) : Extra_FileNameGeneric(Extra_FileNameWithoutPath(opt.pFileName));
+    pGia->pName = opt.pTopModule ? Abc_UtilStrsav(opt.pTopModule)
+                                 : Extra_FileNameGeneric(Extra_FileNameWithoutPath(opt.pFileName));
     unlink(pFileTemp);
     // complement the outputs
     if (opt.fInvert) {
