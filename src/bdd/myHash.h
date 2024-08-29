@@ -6,8 +6,8 @@
 //   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 // ****************************************************************************/
 
-// #ifndef MY_HASH_H
-// #define MY_HASH_H
+// #pragma once
+// 
 
 // #include <vector>
 
@@ -340,4 +340,4 @@
 
 // };
 
-// #endif // MY_HASH_H
+// 

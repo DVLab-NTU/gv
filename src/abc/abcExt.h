@@ -1,5 +1,5 @@
-#ifndef ABC_EXT_H
-#define ABC_EXT_H
+#pragma once
+
 
 #include <string>
 
@@ -58,4 +58,4 @@ extern int getAigIn1Cp(const unsigned& idx);
 extern int getPoIn0Cp(const unsigned& idx);
 extern int getRiIn0Cp(const unsigned& idx);
 
-#endif
+

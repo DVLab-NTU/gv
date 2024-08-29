@@ -1,4 +1,4 @@
-#ifndef GV_MSG_H
+#pragma once
 #define GV_MSG_H
 
 #include <fstream>
@@ -116,4 +116,4 @@ static inline const int gvCallEmptyVirtual(const string& functionName) {
     return 0;
 }
 
-#endif
+

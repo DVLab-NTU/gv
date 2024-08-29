@@ -1,5 +1,5 @@
-#ifndef CIR_ECO_H
-#define CIR_ECO_H
+#pragma once
+
 
 #include "cirMgr.h"
 
@@ -13,4 +13,3 @@ private:
     CirMgr* _cir1;
 };
 
-#endif

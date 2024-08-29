@@ -1,4 +1,4 @@
-#ifndef GV_ABC_MGR
+#pragma once
 #define GV_ABC_MGR
 
 #include <cstddef>
@@ -60,4 +60,4 @@ private:
     Abc_Ntk_t* pNtk;
 };
 
-#endif
+

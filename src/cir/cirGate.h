@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef CIR_GATE_H
-#define CIR_GATE_H
+#pragma once
+
 
 #include <climits>
 #include <cstdlib>
@@ -475,4 +475,4 @@ public:
     }
 };
 
-#endif  // CIR_GATE_H
+

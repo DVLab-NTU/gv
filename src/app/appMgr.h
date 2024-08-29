@@ -1,5 +1,5 @@
-#ifndef APP_MGR_H
-#define APP_MGR_H
+#pragma once
+
 
 #include <string>
 
@@ -20,4 +20,3 @@ public:
 private:
 };
 
-#endif

@@ -1,4 +1,4 @@
-#ifndef MOD_MGR
+#pragma once
 #define MOD_MGR
 
 #include <string>
@@ -36,4 +36,4 @@ private:
     ModType _gvMode;
 };
 
-#endif
+

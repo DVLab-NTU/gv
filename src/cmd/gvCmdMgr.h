@@ -1,5 +1,4 @@
-#ifndef GV_CMD_MGR_H
-#define GV_CMD_MGR_H
+#pragma once
 
 #include <fstream>
 #include <iostream>
@@ -168,5 +167,3 @@ private:
     GVCmdExecSet _cmdLib;
     vector<string> _history;
 };
-
-#endif

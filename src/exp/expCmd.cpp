@@ -4,9 +4,12 @@
 #include "expCmd.h"
 
 #include <cstddef>
+#include <iomanip>
 
 #include "cirMgr.h"
+#include "glucoseMgr.h"
 #include "gvMsg.h"
+#include "iostream"
 #include "util.h"
 
 bool initExpCmd() {
@@ -21,11 +24,19 @@ extern void testGlucose();
 // EXPeriment
 //----------------------------------------------------------------------
 GVCmdExecStatus ExpCmd::exec(const string& option) {
-    //! place your experimental function here
-    // testVCDMgr();
-    // testGlucose();
-    if (cirMgr != nullptr)
-        cirMgr->getYosysMgr()->extractFSM();
+    //! Place your experimental functions and commands here
+
+    gv_sat::GlucoseMgr* glcMgr = new gv_sat::GlucoseMgr(cirMgr);
+
+    CirGate* realPo = cirMgr->getPo(0)->getIn0Gate();
+    bool invert     = cirMgr->getPo(0)->getIn0().isInv();
+    glcMgr->addBoundedVerifyData(cirMgr->getPo(0), 0);
+    /*glcMgr->assertProperty(realPo, 1, 0);*/
+    if (glcMgr->solve()) {
+        cout << "SAT !!";
+    } else {
+        cout << "UNSAT !!";
+    }
 
     return GV_CMD_EXEC_DONE;
 }
@@ -35,7 +46,7 @@ void ExpCmd::usage(const bool& verbose) const {
 }
 
 void ExpCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "EXPeriment: "
+    gvMsg(GV_MSG_IFO) << setw(20) << std::left << "EXPeriment: "
                       << "Command for the testing of the experimental functions." << endl;
 }
 

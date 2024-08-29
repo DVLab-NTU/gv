@@ -5,8 +5,7 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef CMD_CHAR_DEF_H
-#define CMD_CHAR_DEF_H
+#pragma once
 
 #include <climits>
 
@@ -42,7 +41,7 @@
 #define TA_BEEP_CHAR 7
 #define TA_BACK_SPACE_CHAR 8
 
-#ifndef TA_KB_SETTING
+#pragma once
 // For HW 3, this part is NOT used by default, so you don't need to modify it.
 // Change this part only if you want to customize it for your own keyboard
 // mapping. Remember to undefine "TA_KB_SETTING" in src/Makefile.in.
@@ -185,6 +184,4 @@ enum ParseChar {
     // dummy end
     PARSE_CHAR_END
 };
-#endif  // TA_KB_SETTING
-
-#endif  // CMD_CHAR_DEF_H
+  // TA_KB_SETTING

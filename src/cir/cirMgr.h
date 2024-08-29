@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef CIR_MGR_H
-#define CIR_MGR_H
+#pragma once
 
 #include <iostream>
 #include <memory>
@@ -174,4 +173,3 @@ private:
     std::vector<CirRoGate*> _roList;
 };
 
-#endif  // CIR_MGR_H

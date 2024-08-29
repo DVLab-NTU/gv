@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef CIR_DEF_H
-#define CIR_DEF_H
+#pragma once
+
 
 #include <unordered_map>
 #include <vector>
@@ -63,4 +63,4 @@ enum class CirType {
     ECO = 2,
 };
 
-#endif  // CIR_DEF_H
+

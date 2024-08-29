@@ -1,4 +1,4 @@
-#ifndef GV_SIM_CMD_H
+#pragma once
 #define GV_SIM_CMD_H
 
 #include "gvCmdMgr.h"
@@ -8,4 +8,4 @@ GV_COMMAND(SetVSim, GV_CMD_TYPE_SIMULATE);
 GV_COMMAND(VSimulate, GV_CMD_TYPE_SIMULATE);
 GV_COMMAND(VCDPrint, GV_CMD_TYPE_SIMULATE);
 
-#endif
+

@@ -1,8 +1,7 @@
-#ifndef GV_MOD_CMD_H
-#define GV_MOD_CMD_H
+#pragma once
+
 
 #include "gvCmdMgr.h"
 
 GV_COMMAND(ModSetSystemCmd, GV_CMD_TYPE_MOD);
 
-#endif

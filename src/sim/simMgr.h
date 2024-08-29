@@ -1,5 +1,5 @@
-#ifndef SIM_MGR_H
-#define SIM_MGR_H
+#pragma once
+
 
 #include <string>
 
@@ -33,4 +33,4 @@ private:
     std::string _patternFileName;
 };
 
-#endif
+

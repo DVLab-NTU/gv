@@ -1,6 +1,6 @@
 
-#ifndef VRLT_MGR_H
-#define VRLT_MGR_H
+#pragma once
+
 
 #include <string>
 
@@ -36,4 +36,3 @@ private:
     void enableRandomSim();
 };
 
-#endif

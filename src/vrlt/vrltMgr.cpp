@@ -199,6 +199,7 @@ bool VRLTMgr::runVrltSim(const bool& verbose) {
 
     fs::current_path(GV_VERILATOR_PATH);
     if (system(execCmd.c_str()) != 0) {
+        std::cout << "CMD: " << execCmd << "\n";
         std::cout << "ERROR: Cannot execute the system command !!\n";
         return false;
     }

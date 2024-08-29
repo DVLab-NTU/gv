@@ -1,6 +1,4 @@
-
-#ifndef CXX_MGR_H
-#define CXX_MGR_H
+#pragma once
 
 #include <experimental/filesystem>
 #include <string>
@@ -39,5 +37,3 @@ private:
     void enableFileSim();
     void enableRandomSim();
 };
-
-#endif

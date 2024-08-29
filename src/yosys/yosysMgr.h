@@ -1,5 +1,5 @@
-#ifndef GV_YOSYS_MGR
-#define GV_YOSYS_MGR
+#pragma once
+
 
 #include "gvType.h"
 #include "kernel/yosys.h"
@@ -129,4 +129,4 @@ private:
     std::string _topModuleName;
 };
 
-#endif
+

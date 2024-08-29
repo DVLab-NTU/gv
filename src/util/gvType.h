@@ -1,5 +1,5 @@
-#ifndef FILE_TYPE_H
-#define FILE_TYPE_H
+#pragma once
+
 #include <string>
 /**
  * @brief Define the circuit file type
@@ -23,4 +23,3 @@ enum ModType {
     MOD_TYPE_VERIFY = 2,
     MOD_TYPE_APP = 3
 };
-#endif

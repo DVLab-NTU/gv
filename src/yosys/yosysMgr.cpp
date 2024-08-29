@@ -120,9 +120,11 @@ void YosysMgr::resetDesign() {
 void YosysMgr::createMapping(const string& fileName) {
     // loadDesign(fileName);
     string yosys           = "yosys -qp ";
-    string readVerilog     = "read_verilog " + fileName + "; ";
+    string readVerilog     = "read_verilog -sv " + fileName + "; ";
     string topModule       = "hierarchy -auto-top; ";
-    string preProcess      = "flatten; proc; techmap; setundef -zero; aigmap; ";
+    /*string preProcess      = "flatten; proc; techmap; setundef -zero; aigmap; ";*/
+    // Try to solve the unsupported type issue
+    string preProcess      = "flatten; proc; techmap; async2sync; dffunmap; setundef -zero; aigmap; ";
     string writeAigMapping = "write_aiger -map .map.txt ._temp_.aig";
     string command         = yosys + "\"" + readVerilog + topModule + preProcess + writeAigMapping + "\"";
     system(command.c_str());

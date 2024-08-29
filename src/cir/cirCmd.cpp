@@ -118,9 +118,6 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
     }
 
     cirMgr = new CirMgr();
-    /*cirMgr = new CirSeq();*/
-    // cirMgr = new CirComb();
-
     cirMgr->setFileName(fileName);
     cirMgr->setFileType(fileType);
     if (!cirMgr->readCircuitNew()) {
@@ -320,8 +317,9 @@ CirWriteCmd::exec(const string& option) {
 
     // cout << outFileName << "\n";
     // TODO: Fix the CIRWRITE command with the new functions
-    // if (fileType == BLIF) yosysMgr->writeBlif(outFileName);
-    // else if (fileType == AIGER) yosysMgr->writeAiger(outFileName);
+    /*if (fileType == BLIF) yosysMgr->writeBlif(outFileName);*/
+    /*else if (fileType == AIGER) cirMgr->getYosysMgr()->writeAiger(outFileName);*/
+    if (fileType == AIGER) cirMgr->getYosysMgr()->writeAiger(outFileName);
     // else {
     //     if (!thisGate) {
     //         assert(hasFile);

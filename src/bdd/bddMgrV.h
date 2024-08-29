@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef BDD_MGRV_H
-#define BDD_MGRV_H
+#pragma once
+
 
 #include <map>
 
@@ -150,4 +150,4 @@ private:
     void standardize(BddNodeV& f, BddNodeV& g, BddNodeV& h, bool& isNegEdge);
 };
 
-#endif  // BDD_MGRV_H
+

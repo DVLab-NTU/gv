@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef MY_HASH_MAP_H
-#define MY_HASH_MAP_H
+#pragma once
+
 
 #include <vector>
 
@@ -290,4 +290,4 @@ private:
     CacheNode* _cache;
 };
 
-#endif  // MY_HASH_H
+

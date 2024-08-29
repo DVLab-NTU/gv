@@ -5,8 +5,8 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
+
 
 #include <cassert>
 #include <istream>
@@ -59,4 +59,4 @@ void removeData(T& l, const D& d) {
     l.resize(des);
 }
 
-#endif  // UTIL_H
+

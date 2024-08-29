@@ -43,6 +43,10 @@ bool CirMgr::readCircuitNew() {
     if (_fileType == AIGER) {
         _ysyMgr->readAiger(_fileName);
         _abcMgr->readAiger(params);
+        _abcMgr->initCir(_fileType);
+        _abcMgr->travPreprocess();
+        _abcMgr->giaToCir(_fileType, id2Name);
+        genDfsList();
     } else if (_fileType == BLIF) {
         _ysyMgr->readBlif(_fileName);
     } else if (_fileType == VERILOG) {
@@ -61,6 +65,7 @@ bool CirMgr::readCircuitNew() {
     }
     return true;
 }
+
 bool CirSeq::readCircuit() {
     map<unsigned, string> id2Name;
     ABCParams params;
