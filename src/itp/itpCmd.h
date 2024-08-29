@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef GV_SAT_CMD_H_
-#define GV_SAT_CMD_H_
+#pragma once
 
 #include "gvCmdMgr.h"
 
@@ -16,5 +15,3 @@
 // ============================================================================
 GV_COMMAND(SATVerifyItpCmd, GV_CMD_TYPE_ITP);
 GV_COMMAND(SATVerifyBmcCmd, GV_CMD_TYPE_ITP);
-
-#endif

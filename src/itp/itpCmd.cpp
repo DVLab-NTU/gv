@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
  ****************************************************************************/
 
-#include "gvSatCmd.h"
+#include "itpCmd.h"
 
 #include <cstring>
 #include <iomanip>
@@ -14,11 +14,11 @@
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "gvMsg.h"
-#include "gvSatMgr.h"
+#include "itpMgr.h"
 #include "util.h"
 using namespace std;
 
-static SATMgr* satMgr = new SATMgr();
+static gv::itp::SATMgr* satMgr = new gv::itp::SATMgr();
 
 bool initItpCmd() {
     return (gvCmdMgr->regCmd("SATVerify ITP", 4, 3, new SATVerifyItpCmd) &&

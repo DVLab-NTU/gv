@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
  ****************************************************************************/
 
-#include "gvSatMgr.h"
+#include "itpMgr.h"
 
 #include <cassert>
 #include <iostream>
@@ -16,9 +16,14 @@
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "gvMsg.h"
-#include "reader.h"
+#include "minisat/reader.h"
+#include "minisatMgr.h"
 
 using namespace std;
+using gv::sat::MinisatMgr;
+
+namespace gv {
+namespace itp {
 
 void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     // Initialize
@@ -28,17 +33,7 @@ void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     _cirMgr  = new CirMgr();
     *_cirMgr = *cirMgr;
     SatProofRes pRes;
-    GVSatSolver *gvSatSolver = new GVSatSolver(_cirMgr);
-
-    // DEBUG
-    // CirGate *po = _cirMgr->getPo(0);
-    // gvSatSolver->addBoundedVerifyData(po, 0);
-    // gvSatSolver->assertProperty(po->getIn0Gate(), false, 0);
-    // if (gvSatSolver->solve()) {
-    //     cout << "SAT !!\n";
-    // }
-    // return;
-    // END
+    MinisatMgr *gvSatSolver = new gv::sat::MinisatMgr(_cirMgr);
 
     // Prove the monitor here!!
     pRes.setMaxDepth(1000);
@@ -61,7 +56,8 @@ void SATMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
     _cirMgr  = new CirMgr();
     *_cirMgr = *cirMgr;
     SatProofRes pRes;
-    GVSatSolver *gvSatSolver = new GVSatSolver(_cirMgr);
+    /*GVSatSolver *gvSatSolver = new GVSatSolver(_cirMgr);*/
+    MinisatMgr *gvSatSolver = new gv::sat::MinisatMgr(_cirMgr);
 
     // Prove the monitor here!!
     pRes.setMaxDepth(1000);
@@ -77,7 +73,7 @@ void SATMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
 }
 
 void SATMgr::indBmc(const CirGate *monitor, SatProofRes &pRes) {
-    GVSatSolver *gvSatSolver = pRes.getSatSolver();
+    MinisatMgr *gvSatSolver = pRes.getSatSolver();
     bind(gvSatSolver);
 
     uint32_t i = 0;
@@ -103,7 +99,7 @@ void SATMgr::indBmc(const CirGate *monitor, SatProofRes &pRes) {
 }
 
 void SATMgr::itpUbmc(const CirGate *const monitor, SatProofRes &pRes) {
-    GVSatSolver *gvSatSolver = pRes.getSatSolver();
+    MinisatMgr *gvSatSolver = pRes.getSatSolver();
     bind(gvSatSolver);
 
     size_t num_clauses = getNumClauses();
@@ -256,7 +252,7 @@ void SATMgr::itpUbmc(const CirGate *const monitor, SatProofRes &pRes) {
     return;
 }
 
-void SATMgr::bind(GVSatSolver *ptrMinisat) {
+void SATMgr::bind(MinisatMgr *ptrMinisat) {
     _ptrMinisat = ptrMinisat;
     if (_ptrMinisat->_solver->proof == NULL) {
         gvMsg(GV_MSG_ERR) << "The Solver has no Proof!! Try Declaring the Solver "
@@ -690,3 +686,6 @@ void SatProofRes::reportCex(const CirGate *monitor, const CirMgr *const _cirMgr)
         assert(_satSolver->existVerifyData(monitor, i));
     }
 }
+
+}  // namespace itp
+}  // namespace gv
