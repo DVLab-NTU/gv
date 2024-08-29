@@ -155,7 +155,7 @@ set(CMAKE_INSTALL_RPATH "${YOSYS_DIR}")
 file(
     GLOB_RECURSE SOURCES
     RELATIVE ${CMAKE_SOURCE_DIR}
-    "src/*/*.cpp" "src/*/*.h")
+    "src/*/*.cpp" "src/*/*.h" "${CMAKE_SOURCE_DIR}/satsolvers/minisat/*")
 # * Exlcude the src/verilator/** from SOURCES
 # * list(APPEND EXCLUDE_DIR "verilator")
 # * exclude_from_list(EXCLUDE_DIR SOURCES)
@@ -204,6 +204,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VCD_PARSER_DIR}/build
 # Include the Glucose header files
 # message(FATAL_ERROR ${glucose_SOURCE_DIR}/core)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${glucose_SOURCE_DIR})
+# Include the satsolver directory
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/satsolvers)
 
 # target_link_libraries(${CMAKE_PROJECT_NAME} libabc libyosys readline gmp)
 target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp)
