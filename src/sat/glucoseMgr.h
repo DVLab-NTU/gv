@@ -1,5 +1,4 @@
-#ifndef GLUCOSE_MGR_H
-#define GLUCOSE_MGR_H
+#pragma once
 
 #include "cirGate.h"
 #include "cirMgr.h"
@@ -48,4 +47,3 @@ private:
 };
 
 }  // namespace gv_sat
-#endif
