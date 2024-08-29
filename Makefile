@@ -22,6 +22,9 @@ test:
 test-full:
 	./scripts/RUN_TEST -v -f
 
+test-update:
+	./scripts/RUN_TEST -u
+
 debug:
 	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug
 	$(MAKE) -C build -j 8
