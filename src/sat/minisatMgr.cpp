@@ -6,9 +6,6 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef SAT_C
-#define SAT_C
-
 #include "minisatMgr.h"
 
 #include <cmath>
@@ -16,8 +13,8 @@
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "satMgr.h"
-namespace gv {
-namespace sat {
+
+using gv::sat::MinisatMgr;
 
 MinisatMgr::MinisatMgr(CirMgr* cirMgr) : SatSolverMgr(cirMgr), _cirMgr(cirMgr) {
     _solver        = new SolverV();
@@ -28,6 +25,10 @@ MinisatMgr::MinisatMgr(CirMgr* cirMgr) : SatSolverMgr(cirMgr), _cirMgr(cirMgr) {
     ++_curVar;
     _ntkData = new vector<Var>[_cirMgr->getNumTots()];
     for (uint32_t i = 0; i < _cirMgr->getNumTots(); ++i) _ntkData[i].clear();
+    for (uint32_t i = 0; i < _cirMgr->getNumTots(); ++i) {
+        if ((*_cirMgr)[i] != nullptr)
+            (*_cirMgr)[i]->clearSatVar();
+    }
 }
 
 MinisatMgr::~MinisatMgr() {
@@ -47,6 +48,7 @@ void MinisatMgr::reset() {
     ++_curVar;
     _ntkData = new vector<Var>[_cirMgr->getNumTots()];
     for (uint32_t i = 0; i < _cirMgr->getNumTots(); ++i) _ntkData[i].clear();
+    for (uint32_t i = 0; i < _cirMgr->getNumTots(); ++i) _cirMgr->getGate(i)->clearSatVar();
 }
 
 void MinisatMgr::assumeRelease() {
@@ -131,21 +133,25 @@ const Var MinisatMgr::newVar() {
 }
 
 const Var MinisatMgr::getVerifyData(const CirGate* gate, const uint32_t& depth) const {
-    if (depth >= _ntkData[gate->getGid()].size())
-        return 0;
-    else
-        return _ntkData[gate->getGid()][depth];
+    /*if (depth >= _ntkData[gate->getGid()].size())*/
+    /*    return 0;*/
+    /*else*/
+    /*    return _ntkData[gate->getGid()][depth];*/
+    return gate->getSatVar(depth);
 }
 
 void MinisatMgr::add_FALSE_Formula(const CirGate* gate, const uint32_t& depth) {
-    const uint32_t index = gate->getGid();
-    _ntkData[index].push_back(newVar());
-    _solver->addUnit(mkLit(_ntkData[index].back(), true));
+    /*const uint32_t index = gate->getGid();*/
+    /*_ntkData[index].push_back(newVar());*/
+    /*_solver->addUnit(mkLit(_ntkData[index].back(), true));*/
+    gate->addSatVar(newVar());
+    _solver->addUnit(mkLit(gate->getSatVar(depth), true));
 }
 
 void MinisatMgr::add_PI_Formula(const CirGate* gate, const uint32_t& depth) {
-    const uint32_t index = gate->getGid();
-    _ntkData[index].push_back(newVar());
+    /*const uint32_t index = gate->getGid();*/
+    /*_ntkData[index].push_back(newVar());*/
+    gate->addSatVar(newVar());
 }
 
 void MinisatMgr::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
@@ -157,8 +163,10 @@ void MinisatMgr::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
 
         if (in0.isInv()) {
             // a <-> b
-            _ntkData[index].push_back(newVar());
-            Lit a = mkLit(_ntkData[index].back());
+            /*_ntkData[index].push_back(newVar());*/
+            gate->addSatVar(newVar());
+            /*Lit a = mkLit(_ntkData[index].back());*/
+            Lit a = mkLit(gate->getLastSatVar());
             Lit b = mkLit(var1, true);
             vec<Lit> lits;
             lits.clear();
@@ -170,19 +178,24 @@ void MinisatMgr::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
             lits.push(~b);
             _solver->addClause(lits);
             lits.clear();
-        } else
-            _ntkData[index].push_back(var1);
+        } else {
+            /*_ntkData[index].push_back(var1);*/
+            gate->addSatVar(var1);
+        }
     } else {  // Timeframe 0
-        _ntkData[index].push_back(newVar());
+        /*_ntkData[index].push_back(newVar());*/
+        gate->addSatVar(newVar());
     }
 }
 
 void MinisatMgr::add_AND_Formula(const CirGate* gate, const uint32_t& depth) {
     // const uint32_t index = getGVNetIndex(out);
     const uint32_t index = gate->getGid();
-    _ntkData[index].push_back(newVar());
+    /*_ntkData[index].push_back(newVar());*/
+    gate->addSatVar(newVar());
 
-    const Var& var = _ntkData[index].back();
+    /*const Var& var = _ntkData[index].back();*/
+    const Var& var = gate->getLastSatVar();
     // Build AND I/O Relation
     const CirGateV in0 = gate->getIn0();
     const CirGateV in1 = gate->getIn1();
@@ -245,7 +258,3 @@ void MinisatMgr::addBoundedVerifyDataRecursively(const CirGate* gate, const uint
 const bool MinisatMgr::existVerifyData(const CirGate* gate, const uint32_t& depth) {
     return getVerifyData(gate, depth);
 }
-
-}  // namespace sat
-}  // namespace gv
-#endif

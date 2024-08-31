@@ -21,7 +21,7 @@ using namespace std;
 
 namespace gv {
 namespace itp {
-class SATMgr;
+class ItpMgr;
 }  // namespace itp
 }  // namespace gv
 
@@ -30,7 +30,7 @@ namespace sat {
 
 /********** MiniSAT_Solver **********/
 class MinisatMgr : public SatSolverMgr {
-    friend class gv::itp::SATMgr;
+    friend class gv::itp::ItpMgr;
 
 public:
     MinisatMgr(CirMgr*);
@@ -67,9 +67,13 @@ public:
     const bool existVerifyData(const CirGate*, const uint32_t&);
     void resizeNtkData(const uint32_t& num);
 
+    Proof* getProof() { return _solver->proof; };
+    int nVars() { return _solver->nVars(); };
+    const Var getVerifyData(const CirGate*, const uint32_t&) const;
+
 private:
     const Var newVar();
-    const Var getVerifyData(const CirGate*, const uint32_t&) const;
+    /*const Var getVerifyData(const CirGate*, const uint32_t&) const;*/
     void addBoundedVerifyDataRecursively(const CirGate*, const uint32_t&);
 
     inline const Var getOriVar(const size_t& v) const { return (Var)(v >> 1ul); }
