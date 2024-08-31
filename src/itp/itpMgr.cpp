@@ -18,14 +18,15 @@
 #include "gvMsg.h"
 #include "minisat/reader.h"
 #include "minisatMgr.h"
+#include "satMgr.h"
 
-using namespace std;
 using gv::sat::MinisatMgr;
+using gv::sat::SatSolverMgr;
 
 namespace gv {
 namespace itp {
 
-void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
+void ItpMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     // Initialize
     // duplicate the network, so you can modified
     // the ntk for the proving property without
@@ -33,7 +34,8 @@ void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     _cirMgr  = new CirMgr();
     *_cirMgr = *cirMgr;
     SatProofRes pRes;
-    MinisatMgr *gvSatSolver = new gv::sat::MinisatMgr(_cirMgr);
+    /*MinisatMgr *gvSatSolver = new gv::sat::MinisatMgr(_cirMgr);*/
+    gv::sat::SatSolverMgr *gvSatSolver = new MinisatMgr(_cirMgr);
 
     // Prove the monitor here!!
     pRes.setMaxDepth(1000);
@@ -48,7 +50,7 @@ void SATMgr::verifyPropertyItp(const string &name, const CirGate *monitor) {
     reset();
 }
 
-void SATMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
+void ItpMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
     // Initialize
     // duplicate the network, so you can modified
     // the ntk for the proving property without
@@ -57,7 +59,7 @@ void SATMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
     *_cirMgr = *cirMgr;
     SatProofRes pRes;
     /*GVSatSolver *gvSatSolver = new GVSatSolver(_cirMgr);*/
-    MinisatMgr *gvSatSolver = new gv::sat::MinisatMgr(_cirMgr);
+    SatSolverMgr *gvSatSolver = new gv::sat::MinisatMgr(_cirMgr);
 
     // Prove the monitor here!!
     pRes.setMaxDepth(1000);
@@ -72,8 +74,8 @@ void SATMgr::verifyPropertyBmc(const string &name, const CirGate *monitor) {
     reset();
 }
 
-void SATMgr::indBmc(const CirGate *monitor, SatProofRes &pRes) {
-    MinisatMgr *gvSatSolver = pRes.getSatSolver();
+void ItpMgr::indBmc(const CirGate *monitor, SatProofRes &pRes) {
+    SatSolverMgr *gvSatSolver = pRes.getSatSolver();
     bind(gvSatSolver);
 
     uint32_t i = 0;
@@ -98,8 +100,8 @@ void SATMgr::indBmc(const CirGate *monitor, SatProofRes &pRes) {
     }
 }
 
-void SATMgr::itpUbmc(const CirGate *const monitor, SatProofRes &pRes) {
-    MinisatMgr *gvSatSolver = pRes.getSatSolver();
+void ItpMgr::itpUbmc(const CirGate *const monitor, SatProofRes &pRes) {
+    SatSolverMgr *gvSatSolver = pRes.getSatSolver();
     bind(gvSatSolver);
 
     size_t num_clauses = getNumClauses();
@@ -252,9 +254,10 @@ void SATMgr::itpUbmc(const CirGate *const monitor, SatProofRes &pRes) {
     return;
 }
 
-void SATMgr::bind(MinisatMgr *ptrMinisat) {
+void ItpMgr::bind(SatSolverMgr *ptrMinisat) {
     _ptrMinisat = ptrMinisat;
-    if (_ptrMinisat->_solver->proof == NULL) {
+    /*if (_ptrMinisat->getProof() == NULL) {*/
+    if (_ptrMinisat->getProof() == NULL) {
         gvMsg(GV_MSG_ERR) << "The Solver has no Proof!! Try Declaring the Solver "
                              "with proofLog be set!!"
                           << endl;
@@ -262,7 +265,7 @@ void SATMgr::bind(MinisatMgr *ptrMinisat) {
     }
 }
 
-void SATMgr::reset() {
+void ItpMgr::reset() {
     _ptrMinisat = NULL;
     _varGroup.clear();
     _var2Net.clear();
@@ -270,7 +273,7 @@ void SATMgr::reset() {
     _isClaOnDup.clear();
 }
 
-void SATMgr::markOnsetClause(const ClauseId &cid) {
+void ItpMgr::markOnsetClause(const ClauseId &cid) {
     unsigned cSize = getNumClauses();
     assert(cid < (int)cSize);
     if (_isClauseOn.size() < cSize) {
@@ -279,7 +282,7 @@ void SATMgr::markOnsetClause(const ClauseId &cid) {
     _isClauseOn[cid] = true;
 }
 
-void SATMgr::markOffsetClause(const ClauseId &cid) {
+void ItpMgr::markOffsetClause(const ClauseId &cid) {
     unsigned cSize = getNumClauses();
     assert(cid < (int)cSize);
     if (_isClauseOn.size() < cSize) {
@@ -288,11 +291,11 @@ void SATMgr::markOffsetClause(const ClauseId &cid) {
     _isClauseOn[cid] = false;
 }
 
-void SATMgr::mapVar2Net(const Var &var, CirGate *net) { _var2Net[var] = net; }
+void ItpMgr::mapVar2Net(const Var &var, CirGate *net) { _var2Net[var] = net; }
 
-CirGate *SATMgr::getItp() const {
+CirGate *ItpMgr::getItp() const {
     assert(_ptrMinisat);
-    // assert(_ptrMinisat->_solver->proof);
+    // assert(_ptrMinisat->getProof());
 
     string proofName = "socv_proof.itp";
     // remove proof log if exist
@@ -303,7 +306,8 @@ CirGate *SATMgr::getItp() const {
     }
 
     // save proof log
-    _ptrMinisat->_solver->proof->save(proofName.c_str());
+    /*_ptrMinisat->getProof()->save(proofName.c_str());*/
+    _ptrMinisat->getProof()->save(proofName.c_str());
 
     // bulding ITP
     // GVNetId netId = buildItp(proofName);
@@ -315,16 +319,16 @@ CirGate *SATMgr::getItp() const {
     return gateId;
 }
 
-vector<Clause> SATMgr::getUNSATCore() const {
+vector<Clause> ItpMgr::getUNSATCore() const {
     assert(_ptrMinisat);
-    // assert(_ptrMinisat->_solver->proof);
+    // assert(_ptrMinisat->getProof());
 
     vector<Clause> unsatCore;
     unsatCore.clear();
 
     // save proof log
     string proofName = "socv_proof.itp";
-    _ptrMinisat->_solver->proof->save(proofName.c_str());
+    _ptrMinisat->getProof()->save(proofName.c_str());
 
     // generate unsat core
     Reader rdr;
@@ -337,7 +341,7 @@ vector<Clause> SATMgr::getUNSATCore() const {
     return unsatCore;
 }
 
-void SATMgr::retrieveProof(Reader &rdr, vector<Clause> &unsatCore) const {
+void ItpMgr::retrieveProof(Reader &rdr, vector<Clause> &unsatCore) const {
     unsigned int tmp, cid, idx, tmp_cid;
 
     // Clear all
@@ -409,14 +413,15 @@ void SATMgr::retrieveProof(Reader &rdr, vector<Clause> &unsatCore) const {
     }
 }
 
-void SATMgr::retrieveProof(Reader &rdr, vector<unsigned int> &clausePos, vector<ClauseId> &usedClause) const {
+void ItpMgr::retrieveProof(Reader &rdr, vector<unsigned int> &clausePos, vector<ClauseId> &usedClause) const {
     unsigned int tmp, cid, idx, tmp_cid, root_cid;
 
     // Clear all
     clausePos.clear();
     usedClause.clear();
     _varGroup.clear();
-    _varGroup.resize(_ptrMinisat->_solver->nVars(), NONE);
+    /*_varGroup.resize(_ptrMinisat->_solver->nVars(), NONE);*/
+    _varGroup.resize(_ptrMinisat->nVars(), NONE);
     _isClaOnDup.clear();
     assert((int)_isClauseOn.size() == getNumClauses());
 
@@ -514,7 +519,7 @@ void SATMgr::retrieveProof(Reader &rdr, vector<unsigned int> &clausePos, vector<
     }
 }
 
-CirGate *SATMgr::buildInitState() const {
+CirGate *ItpMgr::buildInitState() const {
     // TODO: build initial state
     CirAigGate *I;
     CirAigGate *in1;
@@ -537,7 +542,7 @@ CirGate *SATMgr::buildInitState() const {
 }
 
 // build the McMillan Interpolant
-CirGate *SATMgr::buildItp(const string &proofName) const {
+CirGate *ItpMgr::buildItp(const string &proofName) const {
     Reader rdr;
     // records
     map<ClauseId, CirGate *> claItpLookup;

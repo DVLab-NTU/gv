@@ -18,6 +18,7 @@
 #include "cirMgr.h"
 #include "minisat/reader.h"
 #include "minisatMgr.h"
+#include "satMgr.h"
 
 class GVNetId;
 typedef int ClauseId;
@@ -34,7 +35,7 @@ namespace itp {
 
 class SatProofRes {
 public:
-    SatProofRes(gv::sat::MinisatMgr* s = 0) : _proved(UINT_MAX), _fired(UINT_MAX), _maxDepth(UINT_MAX), _satSolver(s) {}
+    SatProofRes(gv::sat::SatSolverMgr* s = 0) : _proved(UINT_MAX), _fired(UINT_MAX), _maxDepth(UINT_MAX), _satSolver(s) {}
 
     void setProved(size_t i) { _proved = i; }
     void setFired(size_t i) { _fired = i; }
@@ -45,8 +46,10 @@ public:
     void setMaxDepth(size_t d) { _maxDepth = d; }
     size_t getMaxDepth() const { return _maxDepth; }
 
-    void setSatSolver(gv::sat::MinisatMgr* s) { _satSolver = s; }
-    gv::sat::MinisatMgr* getSatSolver() const { return _satSolver; }
+    /*void setSatSolver(gv::sat::MinisatMgr* s) { _satSolver = s; }*/
+    void setSatSolver(gv::sat::SatSolverMgr* s) { _satSolver = s; }
+    /*gv::sat::MinisatMgr* getSatSolver() const { return _satSolver; }*/
+    gv::sat::SatSolverMgr* getSatSolver() const { return _satSolver; }
 
     void reportResult(const string&) const;
     void reportCex(const CirGate*, const CirMgr* const) const;
@@ -55,7 +58,8 @@ private:
     size_t _proved;
     size_t _fired;
     size_t _maxDepth;  // maximum proof depth
-    gv::sat::MinisatMgr* _satSolver;
+    /*gv::sat::MinisatMgr* _satSolver;*/
+    gv::sat::SatSolverMgr* _satSolver;
 };
 }  // namespace itp
 }  // namespace gv
@@ -63,10 +67,10 @@ private:
 namespace gv {
 namespace itp {
 
-class SATMgr {
+class ItpMgr {
 public:
-    SATMgr() : _ptrMinisat(NULL), _cirMgr(NULL) { reset(); }
-    ~SATMgr() { reset(); }
+    ItpMgr() : _ptrMinisat(NULL), _cirMgr(NULL) { reset(); }
+    ~ItpMgr() { reset(); }
 
     // entry point for SoCV SAT property checking
     void verifyPropertyItp(const string& name, const CirGate* monitor);
@@ -76,7 +80,7 @@ public:
     void itpUbmc(const CirGate*, SatProofRes&);
 
     // bind with a solver to get proof info.
-    void bind(gv::sat::MinisatMgr* ptrMinisat);
+    void bind(gv::sat::SatSolverMgr* ptrMinisat);
     // clear data members
     void reset();
     // mark onset/offset clause
@@ -93,8 +97,8 @@ public:
 
     // self define helper function
     void markSet(bool onORoff, ClauseId& currClause);
-    bool startSatSolver(gv::sat::MinisatMgr* GVSatSolver);
-    void buildMiter(gv::sat::MinisatMgr* GVSatSolver, GVNetId& R_, GVNetId& R, int& orgNtkSize);
+    bool startSatSolver(gv::sat::SatSolverMgr* GVSatSolver);
+    void buildMiter(gv::sat::SatSolverMgr* GVSatSolver, GVNetId& R_, GVNetId& R, int& orgNtkSize);
 
 private:
     // helper functions to get proof info.
@@ -106,7 +110,7 @@ private:
     void retrieveProof(Reader& rdr, vector<Clause>& unsatCore) const;
 
     // GV minisat interface for model checking
-    gv::sat::MinisatMgr* _ptrMinisat;
+    gv::sat::SatSolverMgr* _ptrMinisat;
     // The duplicated Cir
     CirMgr* _cirMgr;
 

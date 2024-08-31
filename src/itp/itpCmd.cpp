@@ -15,10 +15,11 @@
 #include "cirMgr.h"
 #include "gvMsg.h"
 #include "itpMgr.h"
+#include "minisatMgr.h"
 #include "util.h"
 using namespace std;
 
-static gv::itp::SATMgr* satMgr = new gv::itp::SATMgr();
+static gv::itp::ItpMgr* itpMgr = new gv::itp::ItpMgr();
 
 bool initItpCmd() {
     return (gvCmdMgr->regCmd("SATVerify ITP", 4, 3, new SATVerifyItpCmd) &&
@@ -68,7 +69,7 @@ SATVerifyItpCmd::exec(const string& option) {
     cirMgr->addTotGate(monitor);
     monitor->setIn0(gate->getIn0Gate(), gate->getIn0().isInv());
     monitor->setIn1(cirMgr->_const1, false);
-    satMgr->verifyPropertyItp(monitorName, monitor);
+    itpMgr->verifyPropertyItp(monitorName, monitor);
 
     return GV_CMD_EXEC_DONE;
 }
@@ -121,7 +122,7 @@ SATVerifyBmcCmd::exec(const string& option) {
         gate        = cirMgr->getPo(num)->getIn0Gate();
     }
     // get PO's input, since the PO is actually a redundant node and should be removed
-    satMgr->verifyPropertyBmc(monitorName, gate);
+    itpMgr->verifyPropertyBmc(monitorName, gate);
 
     return GV_CMD_EXEC_DONE;
 }
