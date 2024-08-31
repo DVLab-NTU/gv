@@ -8,7 +8,6 @@
 
 #pragma once
 
-
 #include <unordered_map>
 #include <vector>
 
@@ -40,6 +39,7 @@ typedef vector<CirRoGate*> RoVec;
 typedef vector<CirPiGate*> PiVec;
 typedef vector<CirPoGate*> PoVec;
 typedef vector<CirAigGate*> AigVec;
+typedef vector<int> VarVec;
 typedef HashMap<CirPValue, IdList*> FECHash;
 typedef unordered_map<unsigned, unsigned> IDMap;
 typedef size_t* SimPattern;
@@ -47,20 +47,18 @@ typedef vector<SimPattern> SimVector;
 
 enum GateType {
     UNDEF_GATE = 0,
-    PI_GATE = 1,
-    PO_GATE = 2,
-    AIG_GATE = 3,
+    PI_GATE    = 1,
+    PO_GATE    = 2,
+    AIG_GATE   = 3,
     CONST_GATE = 4,
-    RO_GATE = 5,
-    RI_GATE = 6,
+    RO_GATE    = 5,
+    RI_GATE    = 6,
 
     TOT_GATE
 };
 
 enum class CirType {
     COMB = 0,
-    SEQ = 1,
-    ECO = 2,
+    SEQ  = 1,
+    ECO  = 2,
 };
-
-

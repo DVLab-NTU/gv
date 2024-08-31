@@ -8,7 +8,7 @@
 
 #pragma once
 
-
+#include <cassert>
 #include <climits>
 #include <cstdlib>
 #include <iostream>
@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "cirDef.h"
-
 using namespace std;
 
 // TODO: Feel free to define your own classes, variables, or functions.
@@ -101,7 +100,7 @@ public:
     // CirGate(unsigned g, unsigned l) : _gid(g), _lineNo(l), _fecId(UINT_MAX),
     //                                   _ref(0), _pValue(0), _eqGate(0), _satVar(0) {}
     CirGate(unsigned g, unsigned l) : _gid(g), _lineNo(l), _fecId(UINT_MAX),
-                                      _ref(0), _pValue(0), _eqGate(0) {}
+                                      _ref(0), _pValue(0), _eqGate(0), _satVar({}) {}
     virtual ~CirGate() {}
 
     // Basic access methods
@@ -111,8 +110,8 @@ public:
     unsigned getLineNo() const { return _lineNo; }
     virtual GateType getType() const  = 0;
     virtual string getTypeStr() const = 0;
-    virtual void setIn0(CirGate*, bool inv){};
-    virtual void setIn1(CirGate*, bool inv){};
+    virtual void setIn0(CirGate*, bool inv) {};
+    virtual void setIn1(CirGate*, bool inv) {};
     virtual CirGateV getIn0() const { return 0; }
     virtual CirGateV getIn1() const { return 0; }
     virtual CirGate* getIn0Gate() const { return 0; }
@@ -157,8 +156,18 @@ public:
     }
     void resetEqGate() { _eqGate = 0; }
     const CirGateV& getEqGate() const { return _eqGate; }
-    // void setSatVar(Var v) { _satVar = v; }
-    // Var getSatVar() const { return _satVar; }
+    void addSatVar(int v) const { _satVar.emplace_back(v); }
+    int getSatVar(const int& depth) const {
+        /*assert(_satVar.size() > depth);*/
+        if (depth >= _satVar.size()) return 0;
+        return _satVar[depth];
+    }
+    int getLastSatVar() const {
+        return _satVar[_satVar.size() - 1];
+    }
+    void clearSatVar() const {
+        _satVar.clear();
+    }
 
     // Printing functions
     virtual void printGate() const = 0;
@@ -193,6 +202,7 @@ protected:
     CirPValue _pValue;
     CirGateV _eqGate;
     // Var _satVar;
+    mutable VarVec _satVar;
 
     static unsigned _globalRef_s;
 
@@ -474,5 +484,3 @@ public:
         return (v0.gateId() < v1.gateId());
     }
 };
-
-

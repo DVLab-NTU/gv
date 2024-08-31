@@ -172,4 +172,3 @@ private:
     std::vector<CirRiGate*> _riList;
     std::vector<CirRoGate*> _roList;
 };
-
