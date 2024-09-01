@@ -1,0 +1,102 @@
+setup> bsetvar 1 a
+
+setup> bsetvar 2 b
+
+setup> bsetvar 3 c
+
+setup> bsetvar 4 d
+
+setup> bsetvar 5 e
+
+setup> bsetvar 6 f
+
+setup> bsetvar 7 g
+
+setup> bsetvar 8 h
+
+setup> bsetvar 9 i
+
+setup> bsetvar 10 j
+
+setup> brep a
+[1](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep b
+[2](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep c
+[3](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep d
+[4](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep e
+[5](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep f
+[6](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep g
+[7](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep h
+[8](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep i
+[9](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> brep j
+[10](+) 
+  [0](+) 
+  [0](-)  (*)
+
+==> Total #BddNodeVs : 2
+
+
+setup> q -f
+

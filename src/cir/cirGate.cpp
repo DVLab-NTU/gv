@@ -157,8 +157,8 @@ void CirGate::reportFanoutRecur(int level, int repLevel, bool isInv) const {
         return;
     }
     assert(level > repLevel);
-    GateList& fanouts = cirMgr->getFanouts(_gid);
-    size_t nFanouts   = fanouts.size();
+    GateVec& fanouts = cirMgr->getFanouts(_gid);
+    size_t nFanouts = fanouts.size();
     if (isGlobalRef() && nFanouts != 0) {
         cout << " (*)" << endl;
         return;
@@ -167,7 +167,7 @@ void CirGate::reportFanoutRecur(int level, int repLevel, bool isInv) const {
     setToGlobalRef();
     for (size_t i = 0; i < nFanouts; ++i) {
         CirGate* fanout = fanouts[i];
-        CirGateV in0    = fanout->getIn0();
+        CirGateV in0 = fanout->getIn0();
         assert(in0.gate() != 0);
         bool fanoutInv = false;
         if (in0.gate() == this)

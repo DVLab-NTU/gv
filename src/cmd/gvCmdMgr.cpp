@@ -9,13 +9,16 @@
 #include <iostream>
 
 #include "gvMsg.h"
+#include "gvType.h"
 #include "util.h"
 
-extern "C"
-{
+extern "C" {
 #include <readline/history.h>
 #include <readline/readline.h>
 }
+
+extern GVCmdExecStatus appCmdHandlerItf();
+extern ModType getMode();
 
 /* -------------------------------------------------- *\
  * Class GVCmdMgr Implementations
@@ -90,7 +93,7 @@ GVCmdExec::errorOption(GVCmdOptionError err, const string& opt) const {
 
 bool GVCmdExec::checkCmd(const string& check) const {
     unsigned len = this->getCmdLen();
-    bool result  = false;
+    bool result = false;
     size_t space = 0, nxt_space;
 
     for (unsigned word = 1; word <= len; ++word) {
@@ -99,7 +102,7 @@ bool GVCmdExec::checkCmd(const string& check) const {
 
         for (unsigned i = space + 1; i <= nxt_space; ++i) {
             string checkMand = check.substr(space, i - space);
-            string checkOpt  = check.substr(i, nxt_space - space - i);
+            string checkOpt = check.substr(i, nxt_space - space - i);
 
             if (checkMandCmd(checkMand, word) &&
                 (checkOpt.empty() || checkOptCmd(checkOpt, word))) {
@@ -110,7 +113,7 @@ bool GVCmdExec::checkCmd(const string& check) const {
         if (result == false) return false;
 
         result = false;
-        space  = nxt_space + 1;
+        space = nxt_space + 1;
     }
 
     return true;
@@ -123,7 +126,7 @@ bool GVCmdExec::checkCmd(const string& check, size_t idx) const {
 
     for (unsigned i = 1, n = check.size(); i <= n; ++i) {
         string checkMand = check.substr(0, i);
-        string checkOpt  = check.substr(i, n + 1 - i);
+        string checkOpt = check.substr(i, n + 1 - i);
 
         if (checkMandCmd(checkMand, idx) &&
             (checkOpt.empty() || checkOptCmd(checkOpt, idx))) {
@@ -187,7 +190,7 @@ bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp, GVCmdExec* e) {
     e->setOptCmd(str.substr(nCmp));
 
     GVCmdExecSet::iterator it = _cmdLib.find(e->getGVCmdType());
-    GVCmdExecSubSet* cmdSet   = 0;
+    GVCmdExecSubSet* cmdSet = 0;
     if (it == _cmdLib.end()) {
         cmdSet = new GVCmdExecSubSet();
         _cmdLib.insert(make_pair(e->getGVCmdType(), cmdSet));
@@ -227,7 +230,7 @@ bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2, GVCmdEx
     e->setOptCmd(str2.substr(nCmp2));
 
     GVCmdExecSet::iterator it = _cmdLib.find(e->getGVCmdType());
-    GVCmdExecSubSet* cmdSet   = 0;
+    GVCmdExecSubSet* cmdSet = 0;
     if (it == _cmdLib.end()) {
         cmdSet = new GVCmdExecSubSet();
         _cmdLib.insert(make_pair(e->getGVCmdType(), cmdSet));
@@ -239,27 +242,35 @@ bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2, GVCmdEx
 
 GVCmdExecStatus
 GVCmdMgr::execOneCmd() {
+    // Ridirect Commands to Application Command Handler
+    if (getMode() == MOD_TYPE_APP) {
+        appCmdHandlerItf();
+        return GV_CMD_EXEC_DONE;
+    }
+
     // Read User Command Input
-    string str    = "";
+    string str = "";
     char* execCmd = new char[1024];
     if (_dofile.is_open()) {
         getline(_dofile, str);
         strcpy(execCmd, str.c_str());
         // Detect dofile comment(#) and blank command
-        if (execCmd[0] != '#' && str.size() > 0)
+        if (str.substr(0, 2) != "//" && str.size() > 0)
             cout << getPrompt() << execCmd << endl;
+        else
+            return GV_CMD_EXEC_COMMENT;
         if (_dofile.eof()) closeDofile();
     } else
         execCmd = readline(getPrompt().c_str());
     assert(execCmd);
 
     // Detect dofile comment(#) for debugging
-    if (execCmd[0] == '#') return GV_CMD_EXEC_NOP;
+    // if (str.substr(0, 2) == "//") return GV_CMD_EXEC_NOP;
 
     if (addHistory(execCmd)) {
         add_history(_history.back().c_str());
         string option = "";
-        GVCmdExec* e  = parseCmd(option);
+        GVCmdExec* e = parseCmd(option);
         // Check command types
         if (e) {
             GVCmdType cmdType = e->getGVCmdType();
@@ -275,11 +286,9 @@ GVCmdMgr::execOneCmd() {
                 }
             }
         }
-
         if (e) return e->exec(option);
     }
     delete[] execCmd;
-    // cout << endl;
 
     return GV_CMD_EXEC_NOP;
 }

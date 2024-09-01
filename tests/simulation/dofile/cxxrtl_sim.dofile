@@ -1,4 +1,6 @@
-cirread -v -r ./designs/SoCV/vending/vending-origin.v
+cirread -v ./designs/Simulation/adder.v
 se sys vrf
-random sim -v -file ./designs/SoCV/vending/input-Cex.pattern -sim_cycle 30 -rst_n reset
+set vsim cxxrtl
+vsim -file ./designs/Simulation/adder_input.pattern -output cxxrtl_test.vcd
+vcdprint cxxrtl_test.vcd
 q -f

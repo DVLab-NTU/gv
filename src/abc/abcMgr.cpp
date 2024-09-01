@@ -7,10 +7,10 @@
 #include <string>
 
 #include "abcExt.h"
-#include "base/abc/abc.h"
+#include "base/io/ioAbc.h"
+#include "base/main/abcapis.h"
 #include "cirDef.h"
 #include "cirMgr.h"
-#include "proof/pdr/pdr.h"
 #include "util.h"
 
 AbcMgr *abcMgr;
@@ -24,16 +24,20 @@ void AbcMgr::init() {
     pAbc = Abc_FrameGetGlobalFrame();
 }
 
-void AbcMgr::reset() { delete pAbc; }
+void AbcMgr::reset() {
+    // delete pAbc;
+    // delete pNtk;
+    Abc_Stop();
+}
 
-void AbcMgr::execCmd(char *cmd) {
+void AbcMgr::execCmd(const char *cmd) {
     // calling abc's command
     Cmd_CommandExecute(abcMgr->get_Abc_Frame_t(), cmd);
 }
 
 static string gateName(const string &name, const int &bit) { return name + "[" + to_string(bit) + "]"; }
 
-void AbcMgr::readVerilog(const ABCParam &opt) {
+void AbcMgr::readSeqVerilog(const ABCParams &opt) {
     char *pFileName  = opt.pFileName;
     char *pTopModule = opt.pTopModule;
     char *pDefines   = opt.pDefines;
@@ -45,7 +49,34 @@ void AbcMgr::readVerilog(const ABCParam &opt) {
     pGia             = Wln_BlastSystemVerilog(pFileName, pTopModule, pDefines, fSkipStrash, fInvert, fTechMap, fLibInDir, fVerbose);
 }
 
-void AbcMgr::readAig(const ABCParam &opt) {
+void AbcMgr::readCombVerilog(const ABCParams &opt) {
+    char *pFileName = opt.pFileName;
+    pNtk            = Io_Read(pFileName, IO_FILE_VERILOG, 1, 0);
+}
+
+void AbcMgr::readVerilogNew(const ABCParams &opt) {
+    // Gia_Man_t *pGia = NULL;
+    char Command[1000];
+    char *pFileTemp = "._temp_.aig";
+    pGia            = Gia_AigerRead(pFileTemp, 0, opt.fSkipStrash, 0);
+    if (pGia == NULL) {
+        printf("Converting to AIG has failed.\n");
+        return;
+    }
+    ABC_FREE(pGia->pName);
+    pGia->pName = opt.pTopModule ? Abc_UtilStrsav(opt.pTopModule)
+                                 : Extra_FileNameGeneric(Extra_FileNameWithoutPath(opt.pFileName));
+    unlink(pFileTemp);
+    // complement the outputs
+    if (opt.fInvert) {
+        Gia_Obj_t *pObj;
+        int i;
+        Gia_ManForEachPo(pGia, pObj, i)
+            Gia_ObjFlipFaninC0(pObj);
+    }
+}
+
+void AbcMgr::readAiger(const ABCParams &opt) {
     char *pFileName = opt.pFileName;
     int fSkipStrash = opt.fSkipStrash;
     int fGiaSimple  = opt.fGiaSimple;
@@ -86,17 +117,15 @@ void AbcMgr::buildAigName(map<unsigned, string> &id2Name) {
 void AbcMgr::travPreprocess() {
     // increment the global travel id for circuit traversing usage
     Gia_ManIncrementTravId(pGia);
-
     // since we don't want to traverse the constant node, set the TravId of the
     // constant node to be as the global one
     Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
 }
 
-void AbcMgr::travAllObj(const FileType &fileType, map<unsigned, string> id2Name) {
+void AbcMgr::giaToCir(const FileType &fileType, map<unsigned, string> id2Name) {
     Gia_Obj_t *pObj, *pObjRi, *pObjRo;  // the obj element of gia
     size_t i, iPi = 0, iPpi = 0, iPo = 0, iRi = 0, iRo = 0;
     map<int, int> PPI2RO;
-
     Gia_ManForEachObj(pGia, pObj, i) {
         int gateId = Gia_ObjId(pGia, pObj);
         if (Gia_ObjIsPi(pGia, pObj)) {
@@ -145,7 +174,8 @@ void AbcMgr::travAllObj(const FileType &fileType, map<unsigned, string> id2Name)
 
 void AbcMgr::initCir(const FileType &fileType) {
     // Create lists
-    int piNum = Gia_ManPiNum(pGia), regNum = Gia_ManRegNum(pGia), poNum = 0, totNum = 0;
+    int piNum = Gia_ManPiNum(pGia), regNum = Gia_ManRegNum(pGia);
+    int poNum = 0, totNum = 0;
     if (fileType == VERILOG) {
         piNum  = (Gia_ManRegNum(pGia)) ? piNum - regNum + 1 : piNum;
         regNum = ((Gia_ManRegNum(pGia) - 1) < 0) ? 0 : Gia_ManRegNum(pGia) - 1;
@@ -264,13 +294,4 @@ void AbcMgr::writeBlif(const string &fileName) {
     char *pFileName     = new char[100];
     strcpy(pFileName, fileName.c_str());
     Io_WriteBlif(pNtkTemp, pFileName, 1, 0, 1);
-}
-
-void AbcMgr::runPDR(const bool &verbose) {
-    // Start PDR
-    Pdr_Par_t *pPars = new Pdr_Par_t();
-    Pdr_ManSetDefaultParams(pPars);
-    if (verbose) pPars->fVerbose = 1;
-    pPars->fSolveAll = 1;
-    pAbc->Status     = Abc_NtkDarPdr(pNtk, pPars);
 }

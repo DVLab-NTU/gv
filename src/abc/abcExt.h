@@ -1,11 +1,11 @@
-#ifndef ABC_EXT_H
-#define ABC_EXT_H
+#pragma once
+
 
 #include <string>
 
 #include "base/abc/abc.h"
 #include "base/main/mainInt.h"
-#include "fileType.h"
+#include "gvType.h"
 
 /**
  * @brief ABC structure type.
@@ -20,12 +20,12 @@ typedef struct Pdr_Par_t_ Pdr_Par_t;
  * @brief Extern functions under the circuit manager
  *
  */
-extern "C"
-{
+extern "C" {
     void Abc_Start();
     void Abc_Stop();
     int Cmd_CommandExecute(Abc_Frame_t* pAbc, const char* sCommand);
     Abc_Frame_t* Abc_FrameGetGlobalFrame();
+    Abc_Ntk_t* Io_Read(char* pFileName, Io_FileType_t FileType, int fCheck, int fBarBufs);
     Abc_Ntk_t* Abc_FrameReadNtk(Abc_Frame_t* p);
     Gia_Man_t* Wln_BlastSystemVerilog(char* pFileName, char* pTopModule, char* pDefines, int fSkipStrash, int fInvert, int fTechMap, int fLibInDir, int fVerbose);
     int Abc_NtkDarPdr(Abc_Ntk_t* pNtk, Pdr_Par_t* pPars);
@@ -58,4 +58,4 @@ extern int getAigIn1Cp(const unsigned& idx);
 extern int getPoIn0Cp(const unsigned& idx);
 extern int getRiIn0Cp(const unsigned& idx);
 
-#endif
+

@@ -37,9 +37,7 @@ void BddMgrV::buildPInitialState() {
 
 void BddMgrV::buildPTransRelation() {
     // TODO : remember to set _tr, _tri
-
     BddNodeV delta, y;
-
     // build _tri
     for (unsigned i = 0; i < cirMgr->getNumLATCHs(); ++i) {
         // next state (y)'s name

@@ -1,4 +1,4 @@
-#ifndef GV_INT_TYPE_H
+#pragma once
 #define GV_INT_TYPE_H
 
 #include <float.h>
@@ -11,4 +11,3 @@
 const uint32_t GVIntMAX    = UINT_MAX;
 const double   GVDblMAX    = DBL_MAX;
 
-#endif

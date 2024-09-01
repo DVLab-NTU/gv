@@ -6,15 +6,13 @@
 #include <string>
 #include <vector>
 
+#include "cirMgr.h"
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
 #include "util.h"
 #include "yosysMgr.h"
 
 bool initYosysCmd() {
-    if (yosysMgr) delete yosysMgr;
-    yosysMgr = new YosysMgr;
-    yosysMgr->init();
     return (gvCmdMgr->regCmd("YSYSet", 4, new YosysSetCmd)) &&
            (gvCmdMgr->regCmd("PRint INfo", 2, 2, new YosysPrintInfoCmd)) &&
            (gvCmdMgr->regCmd("SHow", 2, new YosysShowCmd));
@@ -33,7 +31,7 @@ GVCmdExecStatus YosysSetCmd::exec(const string& option) {
 
     bool doLog = false, isValid = false;
     int enable = 0;
-    size_t n   = options.size();
+    size_t n = options.size();
     if (myStrNCmp("-LOG", options[0], 4) == 0)
         doLog = true;
     else
@@ -45,7 +43,7 @@ GVCmdExecStatus YosysSetCmd::exec(const string& option) {
         else
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[1]);
     }
-    if (isValid) yosysMgr->setLogging(enable);
+    if (isValid) cirMgr->getYosysMgr()->setLogging(enable);
 
     return GV_CMD_EXEC_DONE;
 }
@@ -76,7 +74,7 @@ YosysPrintInfoCmd::exec(const string& option) {
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
         }
     }
-    yosysMgr->printDesignInfo(verbose);
+    cirMgr->getYosysMgr()->printDesignInfo(verbose);
     return GV_CMD_EXEC_DONE;
 }
 
@@ -95,7 +93,7 @@ void YosysPrintInfoCmd ::help() const {
 //----------------------------------------------------------------------
 GVCmdExecStatus
 YosysShowCmd::exec(const string& option) {
-    yosysMgr->showSchematic();
+    cirMgr->getYosysMgr()->showSchematic();
     return GV_CMD_EXEC_DONE;
 }
 void YosysShowCmd::usage(const bool& verbose) const {

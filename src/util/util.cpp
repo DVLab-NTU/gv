@@ -10,13 +10,17 @@
 #include <sys/types.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
-#include "fileType.h"
+#include "fmt/core.h"
+#include "gvType.h"
 #include "myUsage.h"
 #include "rnGen.h"
 
@@ -56,6 +60,12 @@ int listDir(vector<string>& files, const string& prefix, const string& dir = "."
     return 0;
 }
 
+bool systemCmd(const string& cmd, const bool& verbose) {
+    std::string execCmd = (!verbose) ? fmt::format("{0} {1}", cmd, "> /dev/null 2>&1") : cmd;
+    if (system(execCmd.c_str()) != 0) return false;
+    return true;
+}
+
 size_t getHashSize(size_t s) {
     if (s < 8) return 7;
     if (s < 16) return 13;
@@ -81,3 +91,14 @@ const std::string fileTypeStr[4] = {
     "AIG",
     "AAG",
     "BLIF"};
+
+void printBanner() {
+    ifstream infile("banner.txt");
+    std::string line = "";
+    while (infile) {
+        // infile >> line;
+        getline(infile, line);
+        std::cout << line << "\n";
+    }
+    infile.close();
+}

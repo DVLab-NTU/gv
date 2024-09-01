@@ -1,0 +1,10 @@
+setup> cirread -aiger ./designs/SoCV/hwmcc/6s326rb02.aig
+
+setup> set sys vrf
+
+vrf> satv itp -o 0
+
+Monitor "25376" is safe.
+
+vrf> quit -f
+

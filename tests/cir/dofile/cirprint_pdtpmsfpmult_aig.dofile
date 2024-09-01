@@ -1,0 +1,3 @@
+cirread -aig ./designs/SoCV/hwmcc/pdtpmsfpmult.aig
+cirprint -net
+q -f

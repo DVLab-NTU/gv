@@ -5,8 +5,8 @@
 
 #include <string.h>
 
-#include <vector>
 #include <iomanip>
+#include <vector>
 
 #include "abcMgr.h"
 
@@ -24,8 +24,8 @@ GVCmdExecStatus
 GVABCOriginalCmd::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
-    size_t n = options.size();
-    string command;
+    size_t n       = options.size();
+    string command = "";
     for (size_t i = 0; i < n; ++i) {
         command += options[i];
         if (i < n - 1) {
@@ -33,10 +33,11 @@ GVABCOriginalCmd::exec(const string& option) {
         }
     }
     // calling abc's command
-    char Command[1024], abcCmd[128];
+    char cmd[1024], abcCmd[128];
     strcpy(abcCmd, command.c_str());
-    sprintf(Command, "%s", abcCmd);
-    abcMgr->execCmd(Command);
+    sprintf(cmd, "%s", abcCmd);
+    abcMgr->execCmd(cmd);
+    return GV_CMD_EXEC_DONE;
 }
 
 void GVABCOriginalCmd::usage(const bool& verbose) const {

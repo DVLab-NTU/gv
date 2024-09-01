@@ -1,4 +1,4 @@
-#ifndef GV_USAGE_H
+#pragma once
 #define GV_USAGE_H
 
 #include <stdio.h>
@@ -69,7 +69,7 @@ private:
                 return ((double)memSizeLong / 1024.0);
             }
         }
-#endif
+
         return 0.0;
     }
     const double checkTick() const {

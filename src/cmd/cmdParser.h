@@ -5,8 +5,7 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef CMD_PARSER_H
-#define CMD_PARSER_H
+#pragma once
 
 #include <fstream>
 #include <iostream>
@@ -147,7 +146,7 @@ private:
     void retrieveHistory();
 #ifdef TA_KB_SETTING
     void taTestOnly() {}
-#endif
+
 
     // Data members
     const string _prompt;           // command prompt
@@ -171,5 +170,3 @@ private:
     CmdMap _cmdMap;                 // map from string to command
     stack<ifstream*> _dofileStack;  // For recursive dofile calling
 };
-
-#endif  // CMD_PARSER_H

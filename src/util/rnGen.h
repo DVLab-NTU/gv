@@ -5,8 +5,8 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef RN_GEN_H
-#define RN_GEN_H
+#pragma once
+
 
 #include <limits.h>
 #include <stdlib.h>
@@ -39,4 +39,4 @@ public:
     }
 };
 
-#endif  // RN_GEN_H
+

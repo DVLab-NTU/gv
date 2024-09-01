@@ -5,7 +5,7 @@
 #include "cirDef.h"
 #include "cirGate.h"
 #include "cirMgr.h"
-#include "fileType.h"
+#include "gvType.h"
 
 /**
  * @brief Parse the Gia from the ABC into the circuit of GV

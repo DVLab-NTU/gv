@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef BDD_NODEV_H
-#define BDD_NODEV_H
+#pragma once
+
 
 #include <iostream>
 #include <map>
@@ -149,4 +149,4 @@ class BddNodeVInt {
     static BddNodeVInt* _terminal;
 };
 
-#endif  // BDD_NODEV_H
+

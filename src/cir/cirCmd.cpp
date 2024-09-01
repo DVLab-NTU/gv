@@ -13,10 +13,11 @@
 #include <iomanip>
 #include <iostream>
 
+#include "cirECO.h"
 #include "cirGate.h"
 #include "cirMgr.h"
-#include "fileType.h"
 #include "gvCmdMgr.h"
+#include "gvType.h"
 #include "util.h"
 #include "yosysMgr.h"
 
@@ -32,7 +33,7 @@ bool initCirCmd() {
             // gvCmdMgr->regCmd("CIRSWeep", 5, new CirSweepCmd) &&
             // gvCmdMgr->regCmd("CIROPTimize", 6, new CirOptCmd) &&
             // gvCmdMgr->regCmd("CIRSTRash", 6, new CirStrashCmd) &&
-            gvCmdMgr->regCmd("CIRSIMulate", 6, new CirSimCmd) &&
+            // gvCmdMgr->regCmd("CIRSIMulate", 6, new CirSimCmd) &&
             // gvCmdMgr->regCmd("CIRFraig", 4, new CirFraigCmd) &&
             // gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd) &&
             // gvCmdMgr->regCmd("CIRMiter", 4, new CirMiterCmd) &&
@@ -84,9 +85,10 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
             fileName = options[i];
             ifstream infile;
-            infile.open(options[i].c_str(), ios::out);
+            infile.open(options[i].c_str());
             if (!infile)
                 return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+            infile.close();
         }
     }
     if (!fileName.empty()) {
@@ -109,28 +111,19 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
             curCmd = CIRINIT;
             delete cirMgr;
             cirMgr = 0;
-            yosysMgr->reset();
         } else {
             cout << "Error: circuit already exists!!" << endl;
             return GV_CMD_EXEC_ERROR;
         }
     }
-    cirMgr = new CirMgr;
+
+    cirMgr = new CirMgr();
     cirMgr->setFileName(fileName);
     cirMgr->setFileType(fileType);
-    if (fileType == BLIF) {
-        cirMgr->readBlif(fileName);
-    } else {
-        if (!cirMgr->readCirFromAbc(fileName, fileType)) {
-            delete cirMgr;
-            cirMgr = 0;
-        }
-        // Save the word-level information
-        if (fileType == VERILOG) yosysMgr->readVerilog(fileName);
-        else if (fileType == AIGER) {
-            // cirMgr->readCirFromAbc(fileName, fileType);
-            yosysMgr->readAiger(fileName);
-        }
+    if (!cirMgr->readCircuitNew()) {
+        delete cirMgr;
+        cirMgr = 0;
+        return GV_CMD_EXEC_NOP;
     }
     curCmd = CIRREAD;
     return GV_CMD_EXEC_DONE;
@@ -146,7 +139,7 @@ void CirReadCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]
+//    CIRPrint [-Summary | -Netlist | -PI | -PO]
 //----------------------------------------------------------------------
 GVCmdExecStatus
 CirPrintCmd::exec(const string& option) {
@@ -166,10 +159,10 @@ CirPrintCmd::exec(const string& option) {
         cirMgr->printPIs();
     else if (myStrNCmp("-PO", token, 3) == 0)
         cirMgr->printPOs();
-    else if (myStrNCmp("-FLoating", token, 3) == 0)
-        cirMgr->printFloatGates();
-    else if (myStrNCmp("-FECpairs", token, 4) == 0)
-        cirMgr->printFECPairs();
+    // else if (myStrNCmp("-FLoating", token, 3) == 0)
+    //     cirMgr->printFloatGates();
+    // else if (myStrNCmp("-FECpairs", token, 4) == 0)
+    //     cirMgr->printFECPairs();
     else
         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
 
@@ -177,7 +170,7 @@ CirPrintCmd::exec(const string& option) {
 }
 
 void CirPrintCmd::usage(const bool& verbose) const {
-    cout << "Usage: CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]" << endl;
+    cout << "Usage: CIRPrint [-Summary | -Netlist | -PI | -PO]" << endl;
 }
 
 void CirPrintCmd::help() const {
@@ -323,15 +316,17 @@ CirWriteCmd::exec(const string& option) {
     if (!hasFile) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "-Output");
 
     // cout << outFileName << "\n";
-    if (fileType == BLIF) yosysMgr->writeBlif(outFileName);
-    else if (fileType == AIGER) yosysMgr->writeAiger(outFileName);
-    else {
-        if (!thisGate) {
-            assert(hasFile);
-            cirMgr->writeAag(outfile);
-        } else if (hasFile) cirMgr->writeGate(outfile, thisGate);
-        else cirMgr->writeGate(cout, thisGate);
-    }
+    // TODO: Fix the CIRWRITE command with the new functions
+    /*if (fileType == BLIF) yosysMgr->writeBlif(outFileName);*/
+    /*else if (fileType == AIGER) cirMgr->getYosysMgr()->writeAiger(outFileName);*/
+    if (fileType == AIGER) cirMgr->getYosysMgr()->writeAiger(outFileName);
+    // else {
+    //     if (!thisGate) {
+    //         assert(hasFile);
+    //         cirMgr->writeAag(outfile);
+    //     } else if (hasFile) cirMgr->writeGate(outfile, thisGate);
+    //     else cirMgr->writeGate(cout, thisGate);
+    // }
     return GV_CMD_EXEC_DONE;
 }
 
@@ -443,73 +438,73 @@ void CirWriteCmd::help() const {
 //    CIRSIMulate <-Random | -File <string patternFile>>
 //                [-Output (string logFile)]
 //----------------------------------------------------------------------
-GVCmdExecStatus
-CirSimCmd::exec(const string& option) {
-    if (!cirMgr) {
-        cout << "Error: circuit is not yet constructed!!" << endl;
-        return GV_CMD_EXEC_ERROR;
-    }
-    // check option
-    vector<string> options;
-    GVCmdExec::lexOptions(option, options);
+// GVCmdExecStatus
+// CirSimCmd::exec(const string& option) {
+//     if (!cirMgr) {
+//         cout << "Error: circuit is not yet constructed!!" << endl;
+//         return GV_CMD_EXEC_ERROR;
+//     }
+//     // check option
+//     vector<string> options;
+//     GVCmdExec::lexOptions(option, options);
 
-    ifstream patternFile;
-    ofstream logFile;
-    bool doRandom = false, doFile = false, doLog = false;
-    for (size_t i = 0, n = options.size(); i < n; ++i) {
-        if (myStrNCmp("-Random", options[i], 2) == 0) {
-            if (doRandom || doFile)
-                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-            doRandom = true;
-        } else if (myStrNCmp("-File", options[i], 2) == 0) {
-            if (doRandom || doFile)
-                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-            if (++i == n)
-                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
-            patternFile.open(options[i].c_str(), ios::in);
-            if (!patternFile)
-                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
-            doFile = true;
-        } else if (myStrNCmp("-Output", options[i], 2) == 0) {
-            if (doLog)
-                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-            if (++i == n)
-                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
-            logFile.open(options[i].c_str(), ios::out);
-            if (!logFile)
-                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
-            doLog = true;
-        } else
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-    }
+//     ifstream patternFile;
+//     ofstream logFile;
+//     bool doRandom = false, doFile = false, doLog = false;
+//     for (size_t i = 0, n = options.size(); i < n; ++i) {
+//         if (myStrNCmp("-Random", options[i], 2) == 0) {
+//             if (doRandom || doFile)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+//             doRandom = true;
+//         } else if (myStrNCmp("-File", options[i], 2) == 0) {
+//             if (doRandom || doFile)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+//             if (++i == n)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+//             patternFile.open(options[i].c_str(), ios::in);
+//             if (!patternFile)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+//             doFile = true;
+//         } else if (myStrNCmp("-Output", options[i], 2) == 0) {
+//             if (doLog)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+//             if (++i == n)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+//             logFile.open(options[i].c_str(), ios::out);
+//             if (!logFile)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+//             doLog = true;
+//         } else
+//             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+//     }
 
-    if (!doRandom && !doFile)
-        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+//     if (!doRandom && !doFile)
+//         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-    assert(curCmd != CIRINIT);
-    if (doLog)
-        cirMgr->setSimLog(&logFile);
-    else cirMgr->setSimLog(0);
+//     assert(curCmd != CIRINIT);
+//     if (doLog)
+//         cirMgr->setSimLog(&logFile);
+//     else cirMgr->setSimLog(0);
 
-    if (doRandom)
-        cirMgr->randomSim();
-    else
-        cirMgr->fileSim(patternFile);
-    cirMgr->setSimLog(0);
-    curCmd = CIRSIMULATE;
+//     if (doRandom)
+//         cirMgr->randomSim();
+//     else
+//         cirMgr->fileSim(patternFile);
+//     cirMgr->setSimLog(0);
+//     curCmd = CIRSIMULATE;
 
-    return GV_CMD_EXEC_DONE;
-}
+//     return GV_CMD_EXEC_DONE;
+// }
 
-void CirSimCmd::usage(const bool& verbose) const {
-    cout << "Usage: CIRSIMulate <-Random | -File <string patternFile>>\n"
-         << "                   [-Output (string logFile)]" << endl;
-}
+// void CirSimCmd::usage(const bool& verbose) const {
+//     cout << "Usage: CIRSIMulate <-Random | -File <string patternFile>>\n"
+//          << "                   [-Output (string logFile)]" << endl;
+// }
 
-void CirSimCmd::help() const {
-    cout << setw(20) << left << "CIRSIMulate: "
-         << "Perform Boolean logic simulation on the circuit\n";
-}
+// void CirSimCmd::help() const {
+//     cout << setw(20) << left << "CIRSIMulate: "
+//          << "Perform Boolean logic simulation on the circuit\n";
+// }
 
 // ----------------------------------------------------------------------
 // CIRBlast

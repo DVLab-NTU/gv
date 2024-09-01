@@ -68,12 +68,11 @@ void CirMgr::buildNtkBdd() {
         if (bddMgrV->getBddNodeV(left->getGid()) == (size_t)0) {
             buildBdd(left);
         }
-        BddNodeV ns = ((left->getIn0().isInv()) ? ~bddMgrV->getBddNodeV(left->getGid()) : bddMgrV->getBddNodeV(left->getGid()));
     }
 }
 
 void CirMgr::buildBdd(CirGate* gate) {
-    GateList orderedGates;
+    GateVec orderedGates;
     clearList(orderedGates);
     CirGate::setGlobalRef();
     gate->genDfsList(orderedGates);

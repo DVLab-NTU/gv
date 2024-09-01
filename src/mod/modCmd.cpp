@@ -18,12 +18,8 @@ bool initModCmd() {
 }
 
 GVCmdExecStatus ModSetSystemCmd::exec(const string& option) {
-    if (cirMgr == 0) {
-        cout << "[ERROR]: Please use command \"READ DESIGN\" to read the input file first !!\n";
-        return GV_CMD_EXEC_NOP;
-    }
-
-    bool setup = false, vrf = false;
+    bool setup = false, vrf = false, app = false;
+    ModType mode = MOD_TYPE_SETUP;
     vector<string> options;
 
     GVCmdExec::lexOptions(option, options);
@@ -36,15 +32,24 @@ GVCmdExecStatus ModSetSystemCmd::exec(const string& option) {
         if (myStrNCmp("setup", token, 3) == 0) {
             if (vrf) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
             else setup = true;
-
         } else if (myStrNCmp("vrf", token, 3) == 0) {
             if (setup) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
             else vrf = true;
+        } else if (myStrNCmp("app", token, 3) == 0) {
+            if (setup) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
+            else app = true;
         } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
     }
 
-    if (setup) modeMgr->setGVMode(MOD_TYPE_SETUP);
-    else if (vrf) modeMgr->setGVMode(MOD_TYPE_VERIFY);
+    if (vrf) mode = MOD_TYPE_VERIFY;
+    else if (app) mode = MOD_TYPE_APP;
+
+    if (vrf && cirMgr == 0) {
+        cout << "[ERROR]: Please use command \"CIRREAD\" to read the input file first !!\n";
+        return GV_CMD_EXEC_NOP;
+    }
+
+    modeMgr->setGVMode(mode);
 
     return GV_CMD_EXEC_DONE;
 }

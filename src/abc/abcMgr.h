@@ -1,4 +1,4 @@
-#ifndef GV_ABC_MGR
+#pragma once
 #define GV_ABC_MGR
 
 #include <cstddef>
@@ -13,11 +13,9 @@ using namespace std;
 class AbcMgr;
 extern AbcMgr* abcMgr;
 
-struct ABCParam {
-    ABCParam() : fInvert(0), fTechMap(0), fSkipStrash(0), fVerbose(0), fGiaSimple(0),
-                 fCheck(0), fLibInDir(0), pTopModule(NULL), pDefines(NULL) {
-        pFileName = new char[100];
-    };
+struct ABCParams {
+    ABCParams() : fInvert(0), fTechMap(0), fSkipStrash(0), fVerbose(0), fGiaSimple(0),
+                  fCheck(0), fLibInDir(0), pTopModule(nullptr), pDefines(nullptr), pFileName(new char[100]){};
     char* pFileName;
     char* pTopModule;
     char* pDefines;
@@ -37,15 +35,18 @@ public:
 
     void init();
     void reset();
-    void readAig(const ABCParam&);
-    void readVerilog(const ABCParam&);
+    void readAiger(const ABCParams&);
+    void readSeqVerilog(const ABCParams&);
+    void readCombVerilog(const ABCParams&);
+    void readVerilogNew(const ABCParams&);
     void buildAigName(map<unsigned, string>&);
     void travPreprocess();
     void travAllObj(const FileType&, map<unsigned, string>);
+    void giaToCir(const FileType&, map<unsigned, string>);
     void initCir(const FileType&);
     void cirToGia();
     void cirToAig(IDMap&);
-    void execCmd(char*);
+    void execCmd(const char*);
 
     // Verification command
     void runPDR(const bool&);
@@ -59,4 +60,4 @@ private:
     Abc_Ntk_t* pNtk;
 };
 
-#endif
+

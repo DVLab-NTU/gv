@@ -1,0 +1,49 @@
+// --- EXPERIMENT COMMAND ---
+cirread -v ./testbench/vending-origin.v
+cirprint -netlist
+// cirread -v ./testbench/cle.v
+// exp
+// se sys vrf 
+// satv itp -o 0
+// cirwrite -aig -output ./and.aig
+
+// --- READ THE DESIGN ---
+// cirread -v ./testbench/adder.v
+// cirread -v ./design_under_test.v
+// cirread -v ./testbench/arbiter2.v
+// cirread -v ./testbench/alu.v
+// cirread -v ./testbench/vending-origin.v
+// cirread -v ./testbench/vending-simple.v
+// cirread -v ./testbench/and.v
+
+
+// --- SET SYSTEM MODE ---
+// set system vrf
+// set vsim verilator 
+// set vsim cxxrtl 
+
+
+// --- SIMULATION ---
+// vsim -file ./testbench/alu_input.pattern -output vrlt_alu.vcd -verbose
+// vsim -file ./testbench/alu_input.pattern -output cxxrtl_alu.vcd -verbose
+// vsim -file ./testbench/alu_input.pattern -output cxxrtl_alu.vcd
+// vsim -file ./testbench/adder_input.pattern -output debug.vcd -verbose
+// vsim -random 5 -output debug.vcd -verbose
+// vsim -file ./testbench/alu_input.pattern -output debug.vcd -verbose
+// vsim -file ./testbench/vending_input.pattern -output debug.vcd -verbose
+
+
+// --- VCD COMMAND ---
+// vcdprint debug.vcd -s clk -s rst -s a -s b -s sum
+// vcdprint debug.vcd -s i_clk -s i_rst_n -s i_data_a -s i_data_b -s o_data
+// vcdprint duv_pass.vcd
+// vcdprint -list debug.vcd
+// vcdprint duv_fail.vcd -s gnt1 -s gnt2
+
+
+// --- RANDOM SIMULATION COMMAND
+// random sim -v -file ./design/SoCV/vending/input-Cex.pattern - sim_cycle 40 - clk clk - rst_n reset - output./ design / SoCV / vending / output - Cex.txt
+// random sim -v -sim_cycle 5 -clk clk -rst_n rst -vcd cxxrtl.vcd
+
+// --- QUIT ---
+quit -force

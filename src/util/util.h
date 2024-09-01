@@ -5,14 +5,14 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
+
 
 #include <cassert>
 #include <istream>
 #include <vector>
 
-#include "fileType.h"
+#include "gvType.h"
 #include "myUsage.h"
 #include "rnGen.h"
 
@@ -36,6 +36,8 @@ extern char myGetChar();
 // In util.cpp
 extern int listDir(vector<string>&, const string&, const string&);
 extern size_t getHashSize(size_t s);
+extern bool systemCmd(const string&, const bool&);
+extern void printBanner();
 
 // Other utility template functions
 template <class T>
@@ -57,4 +59,4 @@ void removeData(T& l, const D& d) {
     l.resize(des);
 }
 
-#endif  // UTIL_H
+

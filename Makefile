@@ -1,18 +1,18 @@
 all: build
 
 build:
-	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1
-	$(MAKE) -C build -j 8
+	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 
+	$(MAKE) -C build -j 8 --no-print-directory
 
 release:
 	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release
-	$(MAKE) -C build -j 8
+	$(MAKE) -C build -j 8 --no-print-directory
 
 # force macos to use the clang++ installed by brew instead of the default one
 # which is outdated
-build-clang++:
-	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 $(shell which clang++)
-	$(MAKE) -C build
+# build-clang++:
+# 	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 $(shell which clang++)
+# 	$(MAKE) -C build
 
 # run all tests with current gv binary at the root of the project
 # use ./scripts/RUN_TESTS to run tests with specific dofiles
@@ -21,9 +21,9 @@ test:
 
 test-full:
 	./scripts/RUN_TEST -v -f
-# run clang-format and clang-tidy on the source code
-# lint:
-# 	./scripts/LINT
+
+test-update:
+	./scripts/RUN_TEST -u
 
 debug:
 	cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug

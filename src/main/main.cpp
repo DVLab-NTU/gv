@@ -37,9 +37,10 @@ extern bool initProveCmd();
 extern bool initItpCmd();
 extern bool initCirCmd();
 extern bool initYosysCmd();
+extern bool initAppCmd();
+extern bool initExpCmd();
 
-static void
-usage() {
+static void usage() {
     cout << "Usage: ./gv [ -File < doFile > ]" << endl;
 }
 
@@ -69,16 +70,21 @@ int main(int argc, char** argv) {
         myexit();
     }
 
-    // cout << "GV v0.3.0 - Copyright © 2023-present, DVLab NTUEE.\n";
-    if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() &&
-          initModCmd() && initBddCmd() && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd()))
+    // cout << "[EXPERIMENTAL VERSION FOR CMAKE v0.1]\n";
+    // clang-format off
+    if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() && initModCmd() && initBddCmd() 
+         && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd() && initAppCmd() && initExpCmd()))
         return 1;
+    // clang-format on
+
+    // printBanner();
+    // cout << "GV v0.3.0 - Copyright © 2023-present, DVLab.\n";
 
     GVCmdExecStatus status = GV_CMD_EXEC_DONE;
     while (status != GV_CMD_EXEC_QUIT) {
         gvCmdMgr->setPrompt();
         status = gvCmdMgr->execOneCmd();
-        cout << endl;
+        if (status != GV_CMD_EXEC_COMMENT) cout << endl;
     }
     return 0;
 }

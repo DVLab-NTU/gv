@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef CIR_DEF_H
-#define CIR_DEF_H
+#pragma once
 
 #include <unordered_map>
 #include <vector>
@@ -31,21 +30,17 @@ class SatSolver;
 class CirCut;
 class CirCutMan;
 
-typedef vector<CirGate*> GateList;
-typedef vector<CirGateV> GateVList;
 typedef vector<unsigned> IdList;
-// typedef CirGate**                     GateArray;
-typedef vector<CirGate*> GateArray;
-// typedef CirPiGate**                   PiArray;
-// typedef CirPoGate**                   PoArray;
-// typedef CirRiGate**                   RiArray;
-// typedef CirRoGate**                   RoArray;
-typedef vector<CirRiGate*> RiArray;
-typedef vector<CirRoGate*> RoArray;
-typedef vector<CirPiGate*> PiArray;
-typedef vector<CirPoGate*> PoArray;
+typedef vector<CirGate*> GateVec;
+typedef vector<CirGateV> GateVVec;
+typedef vector<CirGate*> GateVec;
+typedef vector<CirRiGate*> RiVec;
+typedef vector<CirRoGate*> RoVec;
+typedef vector<CirPiGate*> PiVec;
+typedef vector<CirPoGate*> PoVec;
+typedef vector<CirAigGate*> AigVec;
+typedef vector<int> VarVec;
 typedef HashMap<CirPValue, IdList*> FECHash;
-typedef vector<CirAigGate*> AigArray;
 typedef unordered_map<unsigned, unsigned> IDMap;
 typedef size_t* SimPattern;
 typedef vector<SimPattern> SimVector;
@@ -62,4 +57,8 @@ enum GateType {
     TOT_GATE
 };
 
-#endif  // CIR_DEF_H
+enum class CirType {
+    COMB = 0,
+    SEQ  = 1,
+    ECO  = 2,
+};

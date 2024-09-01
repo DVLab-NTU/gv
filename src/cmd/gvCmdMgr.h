@@ -1,5 +1,4 @@
-#ifndef GV_CMD_MGR_H
-#define GV_CMD_MGR_H
+#pragma once
 
 #include <fstream>
 #include <iostream>
@@ -18,29 +17,32 @@ extern GVCmdMgr* gvCmdMgr;
 
 // Command Categories to String
 const string GVCmdTypeString[] = {"Revealed", "Common", "Verify", "Simulate", "Network",
-                                  "Abc", "Yosys", "Mode", "Bdd", "Prove", "Itp"};
+                                  "Abc", "Yosys", "Mode", "Bdd", "Prove", "Itp", "APP", "EXP"};
 
 // Command Categories Enum
 enum GVCmdType {
     // Revealed command
-    GV_CMD_TYPE_REVEALED = 0,
-    GV_CMD_TYPE_COMMON   = 1,
-    GV_CMD_TYPE_VERIFY   = 2,
-    GV_CMD_TYPE_SIMULATE = 3,
-    GV_CMD_TYPE_NETWORK  = 4,
-    GV_CMD_TYPE_ABC      = 5,
-    GV_CMD_TYPE_YOSYS    = 6,
-    GV_CMD_TYPE_MOD      = 7,
-    GV_CMD_TYPE_BDD      = 8,
-    GV_CMD_TYPE_PROVE    = 9,
-    GV_CMD_TYPE_ITP      = 10,
+    GV_CMD_TYPE_REVEALED   = 0,
+    GV_CMD_TYPE_COMMON     = 1,
+    GV_CMD_TYPE_VERIFY     = 2,
+    GV_CMD_TYPE_SIMULATE   = 3,
+    GV_CMD_TYPE_NETWORK    = 4,
+    GV_CMD_TYPE_ABC        = 5,
+    GV_CMD_TYPE_YOSYS      = 6,
+    GV_CMD_TYPE_MOD        = 7,
+    GV_CMD_TYPE_BDD        = 8,
+    GV_CMD_TYPE_PROVE      = 9,
+    GV_CMD_TYPE_ITP        = 10,
+    GV_CMD_TYPE_APP        = 11,
+    GV_CMD_TYPE_EXPERIMENT = 12,
 };
 
 enum GVCmdExecStatus {
-    GV_CMD_EXEC_DONE  = 0,
-    GV_CMD_EXEC_ERROR = 1,
-    GV_CMD_EXEC_QUIT  = 2,
-    GV_CMD_EXEC_NOP   = 3,
+    GV_CMD_EXEC_DONE    = 0,
+    GV_CMD_EXEC_ERROR   = 1,
+    GV_CMD_EXEC_QUIT    = 2,
+    GV_CMD_EXEC_NOP     = 3,
+    GV_CMD_EXEC_COMMENT = 4,
 };
 
 enum GVCmdOptionError {
@@ -57,7 +59,9 @@ const unordered_set<GVCmdType> _setupMode{
     GV_CMD_TYPE_ABC,
     GV_CMD_TYPE_MOD,
     GV_CMD_TYPE_BDD,
-    GV_CMD_TYPE_YOSYS};
+    GV_CMD_TYPE_YOSYS,
+    GV_CMD_TYPE_EXPERIMENT,
+    GV_CMD_TYPE_SIMULATE};
 
 const unordered_set<GVCmdType> _vrfMode{
     GV_CMD_TYPE_VERIFY,
@@ -65,7 +69,8 @@ const unordered_set<GVCmdType> _vrfMode{
     GV_CMD_TYPE_COMMON,
     GV_CMD_TYPE_MOD,
     GV_CMD_TYPE_PROVE,
-    GV_CMD_TYPE_ITP};
+    GV_CMD_TYPE_ITP,
+    GV_CMD_TYPE_EXPERIMENT};
 
 #define GV_COMMAND(cmd, type)                  \
     class cmd : public GVCmdExec {             \
@@ -123,13 +128,17 @@ class GVCmdMgr {
 
 public:
     GVCmdMgr(const string&);
-    ~GVCmdMgr();
+    virtual ~GVCmdMgr();
     GVCmdExec* getCmd(const string&) const;
     GVCmdExecSubSet getCmdListFromPart(const string&) const;
     bool regCmd(const string&, unsigned, GVCmdExec*);
     bool regCmd(const string&, unsigned, unsigned, GVCmdExec*);
 
     GVCmdExecStatus execOneCmd();
+
+    // Command Helper Functions
+    bool addHistory(char*);
+    virtual GVCmdExec* parseCmd(string&);
 
     void printHelps(bool = false) const;
     void printHistory(int = -1) const;
@@ -143,14 +152,13 @@ public:
         _dofile.clear();
     }
 
+    inline ifstream& getDofile() { return _dofile; }
+    inline vector<string>& getHistory() { return _history; }
     inline const string& getPrompt() const { return _prompt; }
     inline void updateModPrompt(const string newPromt) { _modPrompt = newPromt; }
     inline void setPrompt() { _prompt = _modPrompt + "> "; }
 
 private:
-    // Command Helper Functions
-    bool addHistory(char*);
-    GVCmdExec* parseCmd(string&);
     // Command Data members
     const string _defaultPrompt;  // Default Command Prompt
     string _modPrompt;            // Current Command Prompt
@@ -159,5 +167,3 @@ private:
     GVCmdExecSet _cmdLib;
     vector<string> _history;
 };
-
-#endif
