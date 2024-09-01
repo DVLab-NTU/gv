@@ -5,10 +5,12 @@
 #include "core/Solver.h"
 #include "core/SolverTypes.h"
 #include "mtl/Vec.h"
+#include "satMgr.h"
 
-namespace gv_sat {
+namespace gv {
+namespace sat {
 
-class GlucoseMgr {
+class GlucoseMgr : SatSolverMgr {
 public:
     GlucoseMgr(CirMgr*);
     ~GlucoseMgr();
@@ -28,7 +30,7 @@ public:
 
     void addBoundedVerifyData(const CirGate*, const uint32_t&);
     const bool existVerifyData(const CirGate*, const uint32_t&);
-    void resizeNtkData(const uint32_t& num);
+    /*void resizeNtkData(const uint32_t& num);*/
 
 private:
     const Glucose::Var newVar();
@@ -46,4 +48,5 @@ private:
     vector<Glucose::Var>* _ntkData;  // Mapping between GVNetId and Solver Data
 };
 
-}  // namespace gv_sat
+}  // namespace sat
+}  // namespace gv

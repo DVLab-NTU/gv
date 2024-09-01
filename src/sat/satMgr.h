@@ -45,10 +45,10 @@ public:
     virtual void add_AND_Formula(const CirGate*, const uint32_t&) = 0;
     virtual void addBoundedVerifyData(const CirGate*, const uint32_t&)  = 0;
     virtual const bool existVerifyData(const CirGate*, const uint32_t&) = 0;
-    virtual void resizeNtkData(const uint32_t& num) = 0;
     // clang-format on
 
     // minisat interface
+    virtual void resizeNtkData(const uint32_t& num) {};
     virtual Proof* getProof() { return nullptr; };
     virtual int nVars() { return 0; };
     virtual const GVBitVecX getDataValue(const CirGate* gate, const uint32_t& depth) const { return GVBitVecX(); };
@@ -56,7 +56,6 @@ public:
 
 private:
     CirMgr* _cirMgr;
-    /*Solver _solver;*/
 };
 
 }  // namespace sat

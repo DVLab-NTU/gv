@@ -230,7 +230,7 @@ void ItpMgr::itpUbmc(const CirGate *const monitor, SatProofRes &pRes) {
             unsigned gateSize = _cirMgr->getNumTots();
             R_prime           = _cirMgr->createOrGate(R, S);
             tmp5              = _cirMgr->createXorGate(R, R_prime);
-            gvSatSolver->resizeNtkData(_cirMgr->getNumTots() - gateSize);
+            /*gvSatSolver->resizeNtkData(_cirMgr->getNumTots() - gateSize);*/
 
             gvSatSolver->addBoundedVerifyData(tmp5, 0);
             gvSatSolver->assumeRelease();
@@ -537,7 +537,7 @@ CirGate *ItpMgr::buildInitState() const {
             I = in1;
         }
     }
-    _ptrMinisat->resizeNtkData(_cirMgr->getNumLATCHs());
+    /*_ptrMinisat->resizeNtkData(_cirMgr->getNumLATCHs());*/
     return I;
 }
 
@@ -655,7 +655,7 @@ CirGate *ItpMgr::buildItp(const string &proofName) const {
     cid = usedClause[usedClause.size() - 1];
     nId = claItpLookup[cid];
 
-    _ptrMinisat->resizeNtkData(_cirMgr->getNumTots() - netSize);  // resize Solver data to ntk size
+    /*_ptrMinisat->resizeNtkData(_cirMgr->getNumTots() - netSize);  // resize Solver data to ntk size*/
 
     return nId;
 }

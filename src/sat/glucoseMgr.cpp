@@ -2,11 +2,11 @@
 
 #include "core/Solver.h"
 #include "core/SolverTypes.h"
-#include "fmt/core.h"
+#include "satMgr.h"
 
-namespace gv_sat {
+using gv::sat::GlucoseMgr;
 
-GlucoseMgr::GlucoseMgr(CirMgr* c) : _solver(new Glucose::Solver()), _cirMgr(c) {
+GlucoseMgr::GlucoseMgr(CirMgr* c) : SatSolverMgr(c), _solver(new Glucose::Solver()), _cirMgr(c) {
     _assump.clear();
     _solver->newVar();
     _solver->verbosity = 1;
@@ -67,13 +67,11 @@ void GlucoseMgr::add_FALSE_Formula(const CirGate* gate, const uint32_t& depth) {
     const uint32_t index = gate->getGid();
     _ntkData[index].push_back(newVar());
     _solver->addClause(Glucose::mkLit(_ntkData[index].back(), true));
-    fmt::println("False Clause: {0}", _ntkData[index].back());
 }
 
 void GlucoseMgr::add_PI_Formula(const CirGate* gate, const uint32_t& depth) {
     const uint32_t index = gate->getGid();
     _ntkData[index].push_back(newVar());
-    fmt::println("PI Clause: {0}", _ntkData[index].back());
 }
 
 void GlucoseMgr::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
@@ -98,7 +96,6 @@ void GlucoseMgr::add_FF_Formula(const CirGate* gate, const uint32_t& depth) {
             lits.push(~b);
             _solver->addClause(lits);
             lits.clear();
-            fmt::println("FF Clause: {0}", _ntkData[index].back());
         } else
             _ntkData[index].push_back(var1);
     } else {  // Timeframe 0
@@ -138,9 +135,6 @@ void GlucoseMgr::add_AND_Formula(const CirGate* gate, const uint32_t& depth) {
     lits.push(y);
     _solver->addClause(lits);
     lits.clear();
-
-    // print the inserted clause for debugging
-    fmt::println("AND Clause: {0} {1} {2}", var0, var1, var);
 }
 
 void GlucoseMgr::addBoundedVerifyData(const CirGate* gate, const uint32_t& depth) {
@@ -178,5 +172,3 @@ void GlucoseMgr::addBoundedVerifyDataRecursively(const CirGate* gate, const uint
 const bool GlucoseMgr::existVerifyData(const CirGate* gate, const uint32_t& depth) {
     return getVerifyData(gate, depth);
 }
-
-}  // namespace gv_sat
