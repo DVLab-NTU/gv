@@ -46,6 +46,6 @@ jobs:
                   sudo make install
 
 
-            # - name: Run tests
-            #   shell: bash
-            #   run: make test
+            - name: Run tests
+              shell: bash
+              run: make test
