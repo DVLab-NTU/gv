@@ -52,7 +52,7 @@ public:
     gv::sat::SatSolverMgr* getSatSolver() const { return _satSolver; }
 
     void reportResult(const string&) const;
-    void reportCex(const CirGate*, const CirMgr* const) const;
+    void reportCex(const gv::cir::CirGate*, const gv::cir::CirMgr* const) const;
 
 private:
     size_t _proved;
@@ -73,11 +73,11 @@ public:
     ~ItpMgr() { reset(); }
 
     // entry point for SoCV SAT property checking
-    void verifyPropertyItp(const string& name, const CirGate* monitor);
-    void verifyPropertyBmc(const string& name, const CirGate* monitor);
+    void verifyPropertyItp(const string& name, const gv::cir::CirGate* monitor);
+    void verifyPropertyBmc(const string& name, const gv::cir::CirGate* monitor);
     // Various proof engines
-    void indBmc(const CirGate*, SatProofRes&);
-    void itpUbmc(const CirGate*, SatProofRes&);
+    void indBmc(const gv::cir::CirGate*, SatProofRes&);
+    void itpUbmc(const gv::cir::CirGate*, SatProofRes&);
 
     // bind with a solver to get proof info.
     void bind(gv::sat::SatSolverMgr* ptrMinisat);
@@ -87,10 +87,10 @@ public:
     void markOnsetClause(const ClauseId& cid);
     void markOffsetClause(const ClauseId& cid);
     // map var to V3Net (PPI)
-    void mapVar2Net(const Var& var, CirGate* net);
+    void mapVar2Net(const Var& var, gv::cir::CirGate* net);
     // please be sure that you call these function right after a UNSAT solving
     // GVNetId        getItp() const;
-    CirGate* getItp() const;
+    gv::cir::CirGate* getItp() const;
     vector<Clause> getUNSATCore() const;
     // get number of clauses (the latest clause id + 1)
     int getNumClauses() const { return _ptrMinisat->getNumClauses(); }
@@ -103,20 +103,20 @@ public:
 private:
     // helper functions to get proof info.
     // GVNetId buildInitState() const;
-    CirGate* buildInitState() const;
+    gv::cir::CirGate* buildInitState() const;
     // GVNetId buildItp(const string& proofName) const;
-    CirGate* buildItp(const string& proofName) const;
+    gv::cir::CirGate* buildItp(const string& proofName) const;
     void retrieveProof(Reader& rdr, vector<unsigned>& clausePos, vector<ClauseId>& usedClause) const;
     void retrieveProof(Reader& rdr, vector<Clause>& unsatCore) const;
 
     // GV minisat interface for model checking
     gv::sat::SatSolverMgr* _ptrMinisat;
     // The duplicated Cir
-    CirMgr* _cirMgr;
+    gv::cir::CirMgr* _cirMgr;
 
     // to handle interpolation
-    map<Var, CirGate*> _var2Net;  // mapping common variables to net
-    vector<bool> _isClauseOn;     // record onset clauses
+    map<Var, gv::cir::CirGate*> _var2Net;  // mapping common variables to net
+    vector<bool> _isClauseOn;              // record onset clauses
     // will be determined in retrieveProof, you don't need to take care about this!
     mutable vector<bool> _isClaOnDup;     // duplication & extension of _isClauseOn
     mutable vector<VAR_GROUP> _varGroup;  // mapping var to different groups

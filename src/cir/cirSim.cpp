@@ -21,6 +21,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace gv::cir;
 
 // TODO: Keep "CirMgr::randimSim()" and "CirMgr::fileSim()" for cir cmd.
 //       Feel free to define your own variables or functions
@@ -36,7 +37,7 @@ static bool debug_g = false;
 /**************************************/
 static inline void checkFecHash(FECHash &fecHash, CirGate *g) {
     IdList *ll = 0;
-    CirPValue pv = g->getPValue();
+    gv::cir::CirPValue pv = g->getPValue();
     //    if (fecHash.check(pv, ll)) {
     //       ll->push_back(g->getGid() * 2);
     //    }

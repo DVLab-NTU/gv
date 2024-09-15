@@ -19,6 +19,8 @@
 #include "util.h"
 using namespace std;
 
+using namespace gv::cir;
+
 static gv::itp::ItpMgr* itpMgr = new gv::itp::ItpMgr();
 
 bool initItpCmd() {

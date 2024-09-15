@@ -22,6 +22,7 @@
 #include "yosysMgr.h"
 
 using namespace std;
+using namespace gv::cir;
 
 extern CirMgr* cirMgr;
 extern int effLimit;

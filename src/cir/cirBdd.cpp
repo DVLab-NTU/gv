@@ -15,8 +15,10 @@
 
 extern BddMgrV* bddMgrV;  // MODIFICATION FOR SoCV BDD
 
-const bool
-CirMgr::setBddOrder(const bool& file) {
+namespace gv {
+namespace cir {
+
+const bool CirMgr::setBddOrder(const bool& file) {
     unsigned supportSize = getNumPIs() + 2 * getNumLATCHs();
     unsigned bddspsize   = bddMgrV->getNumSupports();
     if (supportSize >= bddMgrV->getNumSupports()) {
@@ -100,3 +102,6 @@ void CirMgr::buildBdd(CirGate* gate) {
         }
     }
 }
+
+}  // namespace cir
+}  // namespace gv

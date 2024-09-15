@@ -23,7 +23,11 @@ using namespace std;
 //       "CirGate::reportFanout()" for cir cmds. Feel free to define
 //       your own variables and functions.
 
-extern CirMgr* cirMgr;
+
+extern gv::cir::CirMgr* cirMgr;
+
+namespace gv {
+namespace cir {
 
 unsigned CirGate::_globalRef_s = 0;
 
@@ -158,7 +162,7 @@ void CirGate::reportFanoutRecur(int level, int repLevel, bool isInv) const {
     }
     assert(level > repLevel);
     GateVec& fanouts = cirMgr->getFanouts(_gid);
-    size_t nFanouts = fanouts.size();
+    size_t nFanouts  = fanouts.size();
     if (isGlobalRef() && nFanouts != 0) {
         cout << " (*)" << endl;
         return;
@@ -167,7 +171,7 @@ void CirGate::reportFanoutRecur(int level, int repLevel, bool isInv) const {
     setToGlobalRef();
     for (size_t i = 0; i < nFanouts; ++i) {
         CirGate* fanout = fanouts[i];
-        CirGateV in0 = fanout->getIn0();
+        CirGateV in0    = fanout->getIn0();
         assert(in0.gate() != 0);
         bool fanoutInv = false;
         if (in0.gate() == this)
@@ -212,3 +216,6 @@ void CirAigGate::setIn1(CirGate* faninGate, bool inv) {
     gateV.setInv(inv);
     setIn1(gateV());
 }
+
+}  // namespace cir
+}  // namespace gv

@@ -20,6 +20,7 @@
 #include "gvMsg.h"
 #include "util.h"
 
+using namespace gv::cir;
 using namespace std;
 
 bool initBddCmd() {

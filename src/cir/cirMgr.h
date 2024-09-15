@@ -1,15 +1,14 @@
 /****************************************************************************
-  FileName     [ cirMgr.h ]
-  PackageName  [ cir ]
-  Synopsis     [ Define circuit manager ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
+FileName     [ cirMgr.h ]
+PackageName  [ cir ]
+Synopsis     [ Define circuit manager ]
+Author       [ Chung-Yang (Ric) Huang ]
+Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #pragma once
 
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -22,9 +21,12 @@
 #include "cirDef.h"
 #include "gvType.h"
 
-extern CirMgr* cirMgr;
-
+extern gv::cir::CirMgr* cirMgr;
 class AbcMgr;
+
+namespace gv {
+namespace cir {
+
 class CirMgr {
     friend class CirComb;
     friend class CirSeq;
@@ -172,3 +174,6 @@ private:
     std::vector<CirRiGate*> _riList;
     std::vector<CirRoGate*> _roList;
 };
+
+};  // namespace cir
+};  // namespace gv

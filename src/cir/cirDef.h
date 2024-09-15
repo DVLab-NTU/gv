@@ -17,7 +17,9 @@ using namespace std;
 
 // TODO: define your own typedef or enum
 
-class CirPValue;
+namespace gv {
+namespace cir {
+class CirMgr;
 class CirGateV;
 class CirGate;
 class CirPiGate;
@@ -25,22 +27,24 @@ class CirPoGate;
 class CirRiGate;
 class CirRoGate;
 class CirAigGate;
-class CirMgr;
-class SatSolver;
 class CirCut;
 class CirCutMan;
+class CirPValue;
+}  // namespace cir
+}  // namespace gv
+class SatSolver;
 
 typedef vector<unsigned> IdList;
-typedef vector<CirGate*> GateVec;
-typedef vector<CirGateV> GateVVec;
-typedef vector<CirGate*> GateVec;
-typedef vector<CirRiGate*> RiVec;
-typedef vector<CirRoGate*> RoVec;
-typedef vector<CirPiGate*> PiVec;
-typedef vector<CirPoGate*> PoVec;
-typedef vector<CirAigGate*> AigVec;
+typedef vector<gv::cir::CirGate*> GateVec;
+typedef vector<gv::cir::CirGateV> GateVVec;
+typedef vector<gv::cir::CirGate*> GateVec;
+typedef vector<gv::cir::CirRiGate*> RiVec;
+typedef vector<gv::cir::CirRoGate*> RoVec;
+typedef vector<gv::cir::CirPiGate*> PiVec;
+typedef vector<gv::cir::CirPoGate*> PoVec;
+typedef vector<gv::cir::CirAigGate*> AigVec;
 typedef vector<int> VarVec;
-typedef HashMap<CirPValue, IdList*> FECHash;
+typedef HashMap<gv::cir::CirPValue, IdList*> FECHash;
 typedef unordered_map<unsigned, unsigned> IDMap;
 typedef size_t* SimPattern;
 typedef vector<SimPattern> SimVector;

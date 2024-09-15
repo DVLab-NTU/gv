@@ -14,6 +14,7 @@
 #include "cirMgr.h"
 #include "satMgr.h"
 
+using namespace gv::cir;
 using gv::sat::MinisatMgr;
 
 MinisatMgr::MinisatMgr(CirMgr* cirMgr) : SatSolverMgr(cirMgr), _cirMgr(cirMgr) {

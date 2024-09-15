@@ -15,7 +15,6 @@
 #include "cirGate.h"
 #include "cirMgr.h"
 #include "gvMsg.h"
-// #include "gvNtk.h"
 #include "util.h"
 
 using namespace std;
@@ -221,9 +220,8 @@ PCheckPropertyCmd::exec(const string& option) {
 }
 
 void PCheckPropertyCmd::usage(const bool& verbose) const {
-    cout
-        << "Usage: PCHECKProperty < -Netid <netId> | -Output <outputIndex> >"
-        << endl;
+    cout << "Usage: PCHECKProperty < -Netid <netId> | -Output <outputIndex> >"
+         << endl;
 }
 
 void PCheckPropertyCmd::help() const {

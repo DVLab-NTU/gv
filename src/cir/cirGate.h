@@ -20,7 +20,10 @@ using namespace std;
 
 // TODO: Feel free to define your own classes, variables, or functions.
 
-class CirGate;
+/*class CirGate;*/
+
+namespace gv {
+namespace cir {
 
 //------------------------------------------------------------------------
 //   Define classes
@@ -484,3 +487,6 @@ public:
         return (v0.gateId() < v1.gateId());
     }
 };
+
+}  // namespace cir
+}  // namespace gv

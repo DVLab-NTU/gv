@@ -20,8 +20,10 @@
 #include "minisatMgr.h"
 #include "satMgr.h"
 
+using gv::cir::CirMgr;
 using gv::sat::MinisatMgr;
 using gv::sat::SatSolverMgr;
+using namespace gv::cir;
 
 namespace gv {
 namespace itp {

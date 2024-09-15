@@ -4,6 +4,7 @@
 #include "core/SolverTypes.h"
 #include "satMgr.h"
 
+using namespace gv::cir;
 using gv::sat::GlucoseMgr;
 
 GlucoseMgr::GlucoseMgr(CirMgr* c) : SatSolverMgr(c), _solver(new Glucose::Solver()), _cirMgr(c) {
