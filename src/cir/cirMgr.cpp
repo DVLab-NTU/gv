@@ -21,14 +21,15 @@
 #include "yosysMgr.h"
 
 using namespace std;
+using namespace gv::cir;
 
 // TODO: Implement memeber functions for class CirMgr
 
 /*******************************/
 /*   Global variable and enum  */
 /*******************************/
-gv::cir::CirMgr* cirMgr                    = 0;
-gv::cir::CirGate* gv::cir::CirMgr::_const0 = new CirConstGate(0);
+CirMgr* cirMgr                    = 0;
+CirGate* CirMgr::_const0 = new CirConstGate(0);
 
 namespace gv {
 namespace cir {
