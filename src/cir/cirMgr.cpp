@@ -21,22 +21,26 @@
 #include "yosysMgr.h"
 
 using namespace std;
-using namespace gv::cir;
+/*using namespace gv::cir;*/
 
 // TODO: Implement memeber functions for class CirMgr
 
 /*******************************/
 /*   Global variable and enum  */
 /*******************************/
-CirMgr* cirMgr                    = 0;
-CirGate* CirMgr::_const0 = new CirConstGate(0);
+
+/*gv::cir::CirMgr* cirMgr                    = 0;*/
+/*gv::cir::CirGate* gv::cir::CirMgr::_const0 = new CirConstGate(0);*/
+
+gv::cir::CirMgr* cirMgr                    = 0;
+gv::cir::CirGate* gv::cir::CirMgr::_const0 = new CirConstGate(0);
 
 namespace gv {
 namespace cir {
 
 bool CirMgr::readCircuitNew() {
     map<unsigned, string> id2Name;
-    ABCParams params;
+    engine::ABCParams params;
     strcpy(params.pFileName, _fileName.c_str());
     if (_fileType == AIGER) {
         _ysyMgr->readAiger(_fileName);
@@ -67,7 +71,7 @@ bool CirMgr::readCircuitNew() {
 
 bool CirSeq::readCircuit() {
     map<unsigned, string> id2Name;
-    ABCParams params;
+    engine::ABCParams params;
     strcpy(params.pFileName, _fileName.c_str());
     if (_fileType == AIGER) {
         _ysyMgr->readAiger(_fileName);
