@@ -12,14 +12,13 @@
 
 bool initAbcCmd() {
     if (abcMgr) delete abcMgr;
-    abcMgr = new AbcMgr;
+    abcMgr = new gv::engine::AbcMgr;
     return (gvCmdMgr->regCmd("ABCCMD", 6, new GVABCOriginalCmd));
 }
 
 //----------------------------------------------------------------------
 // ABCCMD <command in ABC>
 //----------------------------------------------------------------------
-
 GVCmdExecStatus
 GVABCOriginalCmd::exec(const string& option) {
     vector<string> options;
