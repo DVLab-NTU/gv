@@ -12,9 +12,6 @@ bool initExpCmd() {
     return (gvCmdMgr->regCmd("EXPeriment", 3, new ExpCmd));
 }
 
-//! Extern Declaration
-extern void testVCDMgr();
-extern void testGlucose();
 
 //----------------------------------------------------------------------
 // EXPeriment
