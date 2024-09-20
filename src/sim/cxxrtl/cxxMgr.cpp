@@ -14,7 +14,7 @@
 #include "simMgr.h"
 #include "util.h"
 
-CXXMgr* cxxMgr = nullptr;
+gv::sim::CXXMgr* cxxMgr = nullptr;
 
 static string genItfFuncCode(const unsigned& bitWidth) {
     return fmt::format("{0:<4}SET_VALUE_FUNC({1},{2});\n", "", bitWidth, "unsigned");
@@ -35,10 +35,13 @@ static string genMacro(const string& macro, const size_t& value) {
     return fmt::format("{0}={1} ", macro, value);
 }
 
+namespace gv {
+namespace sim {
+
 CXXMgr::CXXMgr() : SimMgr(0) {
-    _cxxDir = PATH(std::string(GV_CXXRTL_PATH)).parent_path();
+    _cxxDir     = PATH(std::string(GV_CXXRTL_PATH)).parent_path();
     _itfTmpFile = _cxxDir / "template" / "interface.hpp";
-    _itfFile = _cxxDir / "src" / "interface.hpp";
+    _itfFile    = _cxxDir / "src" / "interface.hpp";
     _cxxSimFile = _cxxDir / "src" / ".sim.cpp";
 }
 
@@ -70,7 +73,7 @@ bool CXXMgr::preCXXSim(const bool& verbose) {
 }
 
 bool CXXMgr::genMakeMacro(const bool& verbose) {
-    namespace fs = std::experimental::filesystem;
+    namespace fs  = std::experimental::filesystem;
     PATH currPath = fs::current_path();
     _macro += genMacro("GV_PATH", currPath);
     _macro += genMacro("CYCLE", getSimCycle());
@@ -191,3 +194,6 @@ void CXXMgr::randomSim(const bool& verbose) {
     if (preCXXSim(verbose))
         runCXXSim(verbose);
 }
+
+}  // namespace sim
+}  // namespace gv

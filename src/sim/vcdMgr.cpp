@@ -10,7 +10,7 @@
 #include "VCDValue.hpp"
 
 //! Global VCD Manager pointer
-VCDMgr* vcdMgr = nullptr;
+gv::sim::VCDMgr* vcdMgr = nullptr;
 
 //! unordered map to convert 4-bit binary strings to hexadecimal characters
 BinToHexHash binToHexHash = {
@@ -80,7 +80,7 @@ static std::string binaryToHexString(const std::string& binary) {
 
     // Pad the binary string with leading zeros if its length is not a multiple
     // of 4
-    int padding = (4 - binary.size() % 4) % 4;
+    int padding              = (4 - binary.size() % 4) % 4;
     std::string paddedBinary = std::string(padding, '0') + binary;
 
     // Convert each 4-bit segment to its hexadecimal equivalent
@@ -92,6 +92,9 @@ static std::string binaryToHexString(const std::string& binary) {
     return hexString;
 }
 
+namespace gv {
+namespace sim {
+
 VCDMgr::VCDMgr() : _colLimit(15), _rowLimit(20) {}
 
 VCDMgr::~VCDMgr() {}
@@ -101,10 +104,10 @@ VCDMgr::~VCDMgr() {}
  *
  */
 void VCDMgr::resetStatus() {
-    _printStatus.colLimit = _colLimit;
-    _printStatus.rowLimit = _rowLimit;
+    _printStatus.colLimit    = _colLimit;
+    _printStatus.rowLimit    = _rowLimit;
     _printStatus.signalCount = 0;
-    _printStatus.isExceed = false;
+    _printStatus.isExceed    = false;
 }
 
 /**
@@ -127,15 +130,15 @@ bool VCDMgr::readVCDFile(const std::string& fileName) {
  */
 void VCDMgr::parseAllSignals() {
     // Create our container for the VCD Manager
-    _times = _trace->get_timestamps();
-    _scopes = _trace->get_scopes();
+    _times   = _trace->get_timestamps();
+    _scopes  = _trace->get_scopes();
     _signals = _trace->get_signals();
 
     // Create the Signal Reference to VCDSignal* hash map
     // Key : std::string
     // Val : std::vector<VCDSignal*>
     for (size_t i = 0, n = getSignals()->size(); i < n; ++i) {
-        VCDSignal* signal = getSignal(i);
+        VCDSignal* signal      = getSignal(i);
         VCDSignalReference ref = signal->reference;
         _refToSignal[ref].push_back(signal);
     }
@@ -175,7 +178,7 @@ Hexadecimal VCDMgr::getHexValue(VCDValue* const val) const {
     if (type == VCDValueType::VCD_SCALAR)
         return std::string(1, VCDBit2Char(val->get_value_bit()));
 
-    std::string strVal = "";
+    std::string strVal   = "";
     VCDBitVector* vecVal = val->get_value_vector();
     // Bitwidth is greater than 32 bits
     if (vecVal->size() > 32) return 0;
@@ -216,3 +219,6 @@ VCDValue* VCDMgr::getSignalValueAt(const VCDSignalHash& hash,
 VCDSignalValues* VCDMgr::getSignalDeltaValue(const VCDSignalHash& hash) const {
     return _trace->get_signal_values(hash);
 }
+
+}  // namespace sim
+}  // namespace gv

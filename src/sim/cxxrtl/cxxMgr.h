@@ -5,8 +5,16 @@
 
 #include "simMgr.h"
 
+namespace gv {
+namespace sim {
 class CXXMgr;
-extern CXXMgr* cxxMgr;
+}  // namespace sim
+}  // namespace gv
+
+extern gv::sim::CXXMgr* cxxMgr;
+
+namespace gv {
+namespace sim {
 
 class CXXMgr : public SimMgr {
     using PATH = std::experimental::filesystem::path;
@@ -37,3 +45,6 @@ private:
     void enableFileSim();
     void enableRandomSim();
 };
+
+}  // namespace sim
+}  // namespace gv

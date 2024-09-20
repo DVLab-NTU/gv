@@ -6,8 +6,13 @@
 #include "VCDFileParser.hpp"
 #include "VCDValue.hpp"
 
+namespace gv {
+namespace sim {
 class VCDMgr;
-extern VCDMgr* vcdMgr;
+}
+}  // namespace gv
+
+extern gv::sim::VCDMgr* vcdMgr;
 
 struct PrintStatus {
     int colLimit;
@@ -19,6 +24,9 @@ struct PrintStatus {
 typedef std::unordered_map<std::string, std::vector<VCDSignal*>> RefHash;
 typedef std::unordered_map<std::string, char> BinToHexHash;
 typedef std::string Hexadecimal;
+
+namespace gv {
+namespace sim {
 
 class VCDMgr {
 public:
@@ -77,3 +85,6 @@ private:
     int _colLimit;
     int _rowLimit;
 };
+
+}  // namespace sim
+}  // namespace gv

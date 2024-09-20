@@ -11,6 +11,8 @@
 #include "util.h"
 #include "vcdMgr.h"
 
+namespace gv {
+namespace sim {
 /**
  * @brief
  *
@@ -68,7 +70,7 @@ void VCDMgr::printAllSignals() {
         fmt::print(fg(fmt::color::light_green) | fmt::emphasis::bold, "{:<5}", time);
         for (size_t j = 0; j < getNumSignals() && getSigCount() < getColLimit(); ++j, incSigCount()) {
             VCDSignal* signal = getSignal(j);
-            VCDValue* val = getSignalValueAt(signal, time);
+            VCDValue* val     = getSignalValueAt(signal, time);
             fmt::print("{:<5}", getHexValue(val));
         }
         // for (size_t j = 0; j < _scopes->size(); ++j) {
@@ -89,7 +91,7 @@ void VCDMgr::printScope(const VCDScope* const scope, VCDTime time) {
     size_t numSignals = scope->signals.size();
     for (size_t i = 0; i < numSignals && getSigCount() < getColLimit(); ++i, incSigCount()) {
         VCDSignal* signal = scope->signals[i];
-        VCDValue* val = getSignalValueAt(signal, time);
+        VCDValue* val     = getSignalValueAt(signal, time);
         fmt::print("{:<5}", getHexValue(val));
     }
 }
@@ -141,3 +143,6 @@ void VCDMgr::printTimedSignal(VCDSignal* const signal, const VCDTime& time) {
     }
     fmt::print("{:<5}", getHexValue(val));
 }
+
+}  // namespace sim
+}  // namespace gv

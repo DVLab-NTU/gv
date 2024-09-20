@@ -9,7 +9,7 @@
 #include "fstream"
 #include "simMgr.h"
 
-VRLTMgr* vrltMgr = nullptr;
+gv::sim::VRLTMgr* vrltMgr = nullptr;
 
 static std::string signalWidth2Type(const int& width) {
     if (width <= 8) return "C";
@@ -33,6 +33,8 @@ static std::string genMacro(std::string macroName, std::string val) {
     return " " + macroName + "=" + val;
 }
 
+namespace gv {
+namespace sim {
 /**
  * @brief Construct a new VRLTMgr::VRLTMgr object
  *
@@ -246,3 +248,5 @@ void VRLTMgr::randomSim(const bool& verbose) {
     if (preVrltSim(verbose))
         runVrltSim(verbose);
 }
+}  // namespace sim
+}  // namespace gv

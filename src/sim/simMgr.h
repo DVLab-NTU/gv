@@ -1,10 +1,19 @@
 #pragma once
 
+#include <unistd.h>
 
 #include <string>
 
+namespace gv {
+namespace sim {
 class SimMgr;
-extern SimMgr* simMgr;
+}
+}  // namespace gv
+
+extern gv::sim::SimMgr* simMgr;
+
+namespace gv {
+namespace sim {
 
 class SimMgr {
     enum class SimMode {
@@ -16,7 +25,7 @@ public:
     SimMgr();
     SimMgr(int);
 
-    virtual void fileSim(const bool& verbose) = 0;
+    virtual void fileSim(const bool& verbose)   = 0;
     virtual void randomSim(const bool& verbose) = 0;
 
     void setSimCycle(int c) { _cycle = c; }
@@ -32,5 +41,5 @@ private:
     std::string _vcdFileName;
     std::string _patternFileName;
 };
-
-
+}  // namespace sim
+}  // namespace gv

@@ -21,6 +21,10 @@
 #include "vrltMgr.h"
 #include "yosysMgr.h"
 
+using gv::sim::CXXMgr;
+using gv::sim::VCDMgr;
+using gv::sim::VRLTMgr;
+
 bool initSimCmd() {
     if (vrltMgr) delete vrltMgr;
     if (simMgr) delete simMgr;

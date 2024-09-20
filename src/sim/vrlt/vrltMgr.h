@@ -1,13 +1,20 @@
 
 #pragma once
 
-
 #include <string>
 
 #include "simMgr.h"
 
+namespace gv {
+namespace sim {
 class VRLTMgr;
-extern VRLTMgr* vrltMgr;
+}
+}  // namespace gv
+
+extern gv::sim::VRLTMgr* vrltMgr;
+
+namespace gv {
+namespace sim {
 
 class VRLTMgr : public SimMgr {
 public:
@@ -36,3 +43,5 @@ private:
     void enableRandomSim();
 };
 
+}  // namespace sim
+}  // namespace gv
