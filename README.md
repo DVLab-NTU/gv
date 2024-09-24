@@ -3,16 +3,18 @@
 - **GV** serves as the bridge between multiple engines, meaning that developers who require several engines can implement their algorithms using only **"GV"**
 
 # GV Installation
-```json=
-git clone git@github.com:ric2k1/gv0.git
-cd gv0/
-./SETUP.sh
-./INSTALL.sh 
+```bash=
+git clone git@github.com:DVLab-NTU/gv.git
+cd gv/
+make
+```
+- ** Run unit tests
+```bash=
+make test
 ```
 
 - **For using GV tool interface, type after installation:**
-```json=
-cd GV/
+```bash=
 ./gv
 ```
 
