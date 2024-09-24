@@ -8,7 +8,7 @@ git clone git@github.com:DVLab-NTU/gv.git
 cd gv/
 make
 ```
-- ** Run unit tests
+- ** Run unit tests:**
 ```bash=
 make test
 ```
