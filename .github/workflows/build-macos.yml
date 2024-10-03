@@ -12,9 +12,28 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
+            - name: Cache CMake dependency source code
+              uses: actions/cache@v3
+              env:
+                  cache-name: cache-cmake-engine-sources
+              with:
+                  # CMake cache is at ${{github.workspace}}/build/_deps but we only will cache folders ending in '-src' to cache source code
+                  path: ${{github.workspace}}/build/engines/src/engine-*
+                  # Cache hash is dependent on CMakeLists files anywhere as these can change what's in the cache, as well as cmake modules files
+                  # key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('./CMakeLists.txt') }}
+                  key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('./CMakeLists.txt') }}
+                  # it's acceptable to reuse caches for different CMakeLists content if exact match is not available and unlike build caches, we
+                  # don't need to restrict these by OS or compiler as it's only source code that's being cached
+                  restore-keys: |
+                      ${{ runner.os }}-${{ env.cache-name }}-
+
             - name: Install Dependencies
               shell: bash
               run: brew tap Homebrew/bundle && brew bundle
+
+            - name: Export the brew path
+              shell: bash
+              run: export PATH="$(brew --prefix)/bin:$PATH"
 
             - name: Install GV
               run: make
@@ -22,17 +41,3 @@ jobs:
             - name: Run tests
               run: make test
 
-            # - name: Cache CMake dependency source code
-            #   uses: actions/cache@v3
-            #   env:
-            #       cache-name: cache-cmake-engine-sources
-            #   with:
-            #       # CMake cache is at ${{github.workspace}}/build/_deps but we only will cache folders ending in '-src' to cache source code
-            #       path: ${{github.workspace}}/build/engines/src/engine-*
-            #       # Cache hash is dependent on CMakeLists files anywhere as these can change what's in the cache, as well as cmake modules files
-            #       # key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('./CMakeLists.txt') }}
-            #       key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('./CMakeLists.txt') }}
-            #       # it's acceptable to reuse caches for different CMakeLists content if exact match is not available and unlike build caches, we
-            #       # don't need to restrict these by OS or compiler as it's only source code that's being cached
-            #       restore-keys: |
-            #           ${{ runner.os }}-${{ env.cache-name }}-
