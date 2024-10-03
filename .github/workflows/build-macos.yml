@@ -12,9 +12,15 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            # - name: Modify INSTALL.sh
-            #   run: |
-            #       sed -i -e "s/.\/gv;//g" ./INSTALL.sh
+            - name: Install Dependencies
+              shell: bash
+              run: brew tap Homebrew/bundle && brew bundle
+
+              - name: Install GV
+                run: make
+
+            - name: Run tests
+              run: make test
 
             # - name: Cache CMake dependency source code
             #   uses: actions/cache@v3
@@ -30,13 +36,3 @@ jobs:
             #       # don't need to restrict these by OS or compiler as it's only source code that's being cached
             #       restore-keys: |
             #           ${{ runner.os }}-${{ env.cache-name }}-
-
-            - name: Install Dependencies
-              shell: bash
-              run: brew tap Homebrew/bundle && brew bundle
-
-              - name: Install GV
-                run: make
-
-            - name: Run tests
-              run: make test
