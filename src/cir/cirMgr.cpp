@@ -8,16 +8,10 @@
 
 #include "cirMgr.h"
 
-#include <ctype.h>
-
-#include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iomanip>
-#include <iostream>
 
 #include "cirDef.h"
 #include "cirGate.h"
@@ -27,18 +21,26 @@
 #include "yosysMgr.h"
 
 using namespace std;
+/*using namespace gv::cir;*/
 
 // TODO: Implement memeber functions for class CirMgr
 
 /*******************************/
 /*   Global variable and enum  */
 /*******************************/
-CirMgr* cirMgr           = 0;
-CirGate* CirMgr::_const0 = new CirConstGate(0);
+
+/*gv::cir::CirMgr* cirMgr                    = 0;*/
+/*gv::cir::CirGate* gv::cir::CirMgr::_const0 = new CirConstGate(0);*/
+
+gv::cir::CirMgr* cirMgr                    = 0;
+gv::cir::CirGate* gv::cir::CirMgr::_const0 = new CirConstGate(0);
+
+namespace gv {
+namespace cir {
 
 bool CirMgr::readCircuitNew() {
     map<unsigned, string> id2Name;
-    ABCParams params;
+    engine::ABCParams params;
     strcpy(params.pFileName, _fileName.c_str());
     if (_fileType == AIGER) {
         _ysyMgr->readAiger(_fileName);
@@ -47,8 +49,6 @@ bool CirMgr::readCircuitNew() {
         _abcMgr->travPreprocess();
         _abcMgr->giaToCir(_fileType, id2Name);
         genDfsList();
-    } else if (_fileType == BLIF) {
-        _ysyMgr->readBlif(_fileName);
     } else if (_fileType == VERILOG) {
         params.fTechMap = 1;
         params.fVerbose = 0;
@@ -63,12 +63,15 @@ bool CirMgr::readCircuitNew() {
         _abcMgr->giaToCir(_fileType, id2Name);
         genDfsList();
     }
+    /* else if (_fileType == BLIF) {*/
+    /*    _ysyMgr->readBlif(_fileName);*/
+    /*}*/
     return true;
 }
 
 bool CirSeq::readCircuit() {
     map<unsigned, string> id2Name;
-    ABCParams params;
+    engine::ABCParams params;
     strcpy(params.pFileName, _fileName.c_str());
     if (_fileType == AIGER) {
         _ysyMgr->readAiger(_fileName);
@@ -175,7 +178,6 @@ void CirConstGate::genDfsList(GateVec& gateList) {
     setToGlobalRef();
     gateList.push_back(this);
 }
-
 /**********************************************************/
 /*   class CirMgr member functions for circuit printing   */
 /**********************************************************/
@@ -308,3 +310,5 @@ const bool CirMgr::readBlif(const string& fileName) const {
     _ysyMgr->init();
     _ysyMgr->readBlif(fileName);
 }
+}  // namespace cir
+}  // namespace gv

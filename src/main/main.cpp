@@ -6,12 +6,9 @@
   Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef GV_MAIN_CC
-#define GV_MAIN_CC
-
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
-#include "gvUsage.h"
+/*#include "gvUsage.h"*/
 #include "util.h"
 using namespace std;
 
@@ -19,7 +16,7 @@ string GVMsg::_allName = "";
 ofstream GVMsg::_allout;
 GVMsgMgr gvMsg;
 
-GVUsage gvUsage;
+/*GVUsage gvUsage;*/
 
 //----------------------------------------------------------------------
 //    Global cmd Manager
@@ -32,26 +29,25 @@ extern bool initVrfCmd();
 extern bool initAbcCmd();
 extern bool initModCmd();
 extern bool initBddCmd();
-extern bool initProveCmd();
-extern bool initProveCmd();
-extern bool initItpCmd();
+/*extern bool initProveCmd();*/
+/*extern bool initItpCmd();*/
 extern bool initCirCmd();
 extern bool initYosysCmd();
 extern bool initAppCmd();
 extern bool initExpCmd();
 
-static void usage() {
-    cout << "Usage: ./gv [ -File < doFile > ]" << endl;
-}
-
+/*static void usage() {*/
+/*    cout << "Usage: ./gv [ -File < doFile > ]" << endl;*/
+/*}*/
+/**/
 static void
 myexit() {
-    usage();
+    /*usage();*/
     exit(-1);
 }
 
 int main(int argc, char** argv) {
-    myUsage.reset();
+    /*myUsage.reset();*/
 
     ifstream dof;
 
@@ -72,8 +68,8 @@ int main(int argc, char** argv) {
 
     // cout << "[EXPERIMENTAL VERSION FOR CMAKE v0.1]\n";
     // clang-format off
-    if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() && initModCmd() && initBddCmd() 
-         && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd() && initAppCmd() && initExpCmd()))
+    if (!(initCommonCmd() && initVrfCmd() && initAbcCmd() && initModCmd() && initBddCmd() 
+           && initCirCmd() && initYosysCmd() && initAppCmd() && initExpCmd()))
         return 1;
     // clang-format on
 
@@ -88,5 +84,3 @@ int main(int argc, char** argv) {
     }
     return 0;
 }
-
-#endif

@@ -1,15 +1,14 @@
 /****************************************************************************
-  FileName     [ cirMgr.h ]
-  PackageName  [ cir ]
-  Synopsis     [ Define circuit manager ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
+FileName     [ cirMgr.h ]
+PackageName  [ cir ]
+Synopsis     [ Define circuit manager ]
+Author       [ Chung-Yang (Ric) Huang ]
+Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #pragma once
 
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -19,12 +18,19 @@
 // using namespace std;
 
 // TODO: Feel free to define your own classes, variables, or functions.
-#include "cirDef.h"
 #include "gvType.h"
 
-extern CirMgr* cirMgr;
+extern gv::cir::CirMgr* cirMgr;
 
+namespace gv {
+namespace abc {
 class AbcMgr;
+}  // namespace abc
+}  // namespace gv
+
+namespace gv {
+namespace cir {
+
 class CirMgr {
     friend class CirComb;
     friend class CirSeq;
@@ -39,7 +45,7 @@ class CirMgr {
 
 public:
     CirMgr() : _piList(0), _poList(0), _totGateList(0), _fanoutInfo(0),
-               _abcMgr(new AbcMgr()), _ysyMgr(new YosysMgr()), _fileName("") {}
+               _abcMgr(new gv::engine::AbcMgr()), _ysyMgr(new YosysMgr()), _fileName("") {}
 
     virtual ~CirMgr() { deleteCircuit(); }
 
@@ -129,7 +135,7 @@ public:
 
     // Engine Manager Pointer
     YosysMgr* getYosysMgr() { return _ysyMgr; }
-    AbcMgr* getAbcMgr() { return _abcMgr; }
+    gv::engine::AbcMgr* getAbcMgr() { return _abcMgr; }
 
 private:
     // unsigned _numDecl[TOT_PARSE_PORTS];
@@ -145,7 +151,7 @@ private:
     string _fileName;
     FileType _fileType;
     // Engine Managers
-    AbcMgr* _abcMgr;
+    gv::engine::AbcMgr* _abcMgr;
     YosysMgr* _ysyMgr;
 };
 
@@ -172,3 +178,6 @@ private:
     std::vector<CirRiGate*> _riList;
     std::vector<CirRoGate*> _roList;
 };
+
+};  // namespace cir
+};  // namespace gv

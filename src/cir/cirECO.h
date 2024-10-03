@@ -1,9 +1,8 @@
 #pragma once
 
-
 #include "cirMgr.h"
 
-class CirECO : public CirMgr {
+class CirECO : public gv::cir::CirMgr {
 public:
     CirECO() : CirMgr() {}
     ~CirECO() override {}

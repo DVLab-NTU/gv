@@ -16,6 +16,7 @@
 #include "cirECO.h"
 #include "cirGate.h"
 #include "cirMgr.h"
+#include "fmt/core.h"
 #include "gvCmdMgr.h"
 #include "gvType.h"
 #include "util.h"
@@ -23,7 +24,7 @@
 
 using namespace std;
 
-extern CirMgr* cirMgr;
+extern gv::cir::CirMgr* cirMgr;
 extern int effLimit;
 
 bool initCirCmd() {
@@ -117,7 +118,7 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         }
     }
 
-    cirMgr = new CirMgr();
+    cirMgr = new gv::cir::CirMgr();
     cirMgr->setFileName(fileName);
     cirMgr->setFileType(fileType);
     if (!cirMgr->readCircuitNew()) {
@@ -197,7 +198,7 @@ CirGateCmd::exec(const string& option) {
 
     int gateId = -1, level = 0;
     bool doFanin = false, doFanout = false;
-    CirGate* thisGate = 0;
+    gv::cir::CirGate* thisGate = 0;
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         bool checkLevel = false;
         if (myStrNCmp("-FANIn", options[i], 5) == 0) {
@@ -275,7 +276,7 @@ CirWriteCmd::exec(const string& option) {
     FileType fileType;
     bool hasFile = false;
     int gateId;
-    CirGate* thisGate = NULL;
+    gv::cir::CirGate* thisGate = NULL;
     string outFileName;
     ofstream outfile;
     for (size_t i = 0, n = options.size(); i < n; ++i) {

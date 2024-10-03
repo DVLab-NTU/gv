@@ -7,6 +7,8 @@
 #include "cirMgr.h"
 #include "gvType.h"
 
+using gv::cir::CirMgr;
+
 /**
  * @brief Parse the Gia from the ABC into the circuit of GV
  *

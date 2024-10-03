@@ -7,13 +7,12 @@
 #include <string>
 
 #include "abcExt.h"
-#include "base/io/ioAbc.h"
-#include "base/main/abcapis.h"
-#include "cirDef.h"
-#include "cirMgr.h"
 #include "util.h"
 
-AbcMgr *abcMgr;
+gv::engine::AbcMgr *abcMgr;
+
+namespace gv {
+namespace engine {
 
 AbcMgr::AbcMgr() : pGia(NULL) { init(); }
 
@@ -158,7 +157,7 @@ void AbcMgr::giaToCir(const FileType &fileType, map<unsigned, string> id2Name) {
         } else if (Gia_ObjIsConst0(pObj)) {
             parseConst0();
         } else {
-            cout << "not defined gate type" << endl;
+            std::cout << "not defined gate type" << endl;
             assert(true);
         }
     }
@@ -295,3 +294,6 @@ void AbcMgr::writeBlif(const string &fileName) {
     strcpy(pFileName, fileName.c_str());
     Io_WriteBlif(pNtkTemp, pFileName, 1, 0, 1);
 }
+
+}  // namespace engine
+}  // namespace gv

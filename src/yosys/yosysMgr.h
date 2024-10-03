@@ -128,5 +128,3 @@ private:
     vector<std::string> _fileVec;
     std::string _topModuleName;
 };
-
-

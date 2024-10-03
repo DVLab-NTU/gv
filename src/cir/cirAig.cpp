@@ -8,6 +8,7 @@
 
 #include <cirGate.h>
 #include <cirMgr.h>
+#include <unistd.h>
 
 #include <cassert>
 #include <map>
@@ -16,6 +17,8 @@
 #include "cirDef.h"
 #include "cirGate.h"
 #include "cirMgr.h"
+
+using namespace gv::cir;
 
 /**
  * @brief Reads a circuit from the ABC Gia.

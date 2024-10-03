@@ -5,20 +5,14 @@ DOfile:             Execute the commands in the dofile.
 HELp:               Print this help message.
 HIStory:            Print command history.
 Quit:               Quit the execution.
-USAGE:              Report resource usage.
 
 ========== Verify Commands : ==========
 PDR:                Model checking using property directed reachability in abc.
-
-========== Simulate Commands : ==========
-RAndom Sim:         Conduct random simulation and print the results.
-SEt SAfe:           Set safe property for random sim.
 
 ========== Network Commands : ==========
 CIRGate:            Report a gate
 CIRPrint:           Print circuit
 CIRRead:            Read in a circuit and construct the netlist
-CIRSIMulate:        Perform Boolean logic simulation on the circuit
 CIRWrite:           Write the netlist to an AIG/AAG/BLIF file
 
 ========== Abc Commands : ==========
@@ -51,15 +45,8 @@ BSIMulate:          BDD simulation
 BXNOR:              BDD Xnor
 BXOR:               BDD Xor
 
-========== Prove Commands : ==========
-PCHECKProperty:     check the monitor by BDDs
-PIMAGe:             build the next state images in BDDs
-PINITialstate:      Set initial state BDD
-PTRansrelation:     build the transition relationship in BDDs
-
-========== Itp Commands : ==========
-SATVerify BMC:      check the monitor by bounded model checking
-SATVerify ITP:      check the monitor by interpolation-based technique
+========== EXP Commands : ==========
+EXPeriment:         Command for the testing of the experimental functions.
 
 
 setup> q -f

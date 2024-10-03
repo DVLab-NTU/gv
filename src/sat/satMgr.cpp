@@ -5,7 +5,7 @@ namespace sat {
 
 /*SatSolverMgr::SatSolverMgr(CirMgr* c) : _cirMgr(c), _solver(Solver::MINISAT) {*/
 /*}*/
-SatSolverMgr::SatSolverMgr(CirMgr* c) : _cirMgr(c) {}
+SatSolverMgr::SatSolverMgr(gv::cir::CirMgr* c) : _cirMgr(c) {}
 
 SatSolverMgr::~SatSolverMgr() {}
 
