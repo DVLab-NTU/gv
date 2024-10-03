@@ -1,12 +1,9 @@
-#ifndef GV_CMD_COMM_C
-#define GV_CMD_COMM_C
 
 #include "gvCmdComm.h"
 
 #include <string>
 
 #include "gvMsg.h"
-#include "gvUsage.h"
 #include "util.h"
 
 
@@ -14,8 +11,8 @@ bool initCommonCmd() {
     return (gvCmdMgr->regCmd("DOfile", 2, new GVDofileCmd) &&
             gvCmdMgr->regCmd("HELp", 3, new GVHelpCmd) &&
             gvCmdMgr->regCmd("HIStory", 3, new GVHistoryCmd) &&
-            gvCmdMgr->regCmd("USAGE", 5, new GVUsageCmd) &&
             gvCmdMgr->regCmd("Quit", 1, new GVQuitCmd));
+            /*gvCmdMgr->regCmd("USAGE", 5, new GVUsageCmd) &&*/
 }
 
 //----------------------------------------------------------------------
@@ -201,48 +198,47 @@ void GVDofileCmd ::help() const {
 // USAGE [-Time-only | -Memory-only] [-RESET]
 //----------------------------------------------------------------------
 
-GVCmdExecStatus
-GVUsageCmd ::exec(const string& option) {
-    vector<string> options;
-    GVCmdExec::lexOptions(option, options);
+/*GVCmdExecStatus*/
+/*GVUsageCmd ::exec(const string& option) {*/
+/*    vector<string> options;*/
+/*    GVCmdExec::lexOptions(option, options);*/
+/**/
+/*    bool timeOnly = false, memoryOnly = false, reset = false;*/
+/**/
+/*    size_t n = options.size();*/
+/*    for (size_t i = 0; i < n; ++i) {*/
+/*        const string& token = options[i];*/
+/*        if (myStrNCmp("-Time-only", token, 2) == 0) {*/
+/*            if (timeOnly || memoryOnly)*/
+/*                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);*/
+/*            else timeOnly = true;*/
+/*        } else if (myStrNCmp("-Memory-only", token, 2) == 0) {*/
+/*            if (timeOnly || memoryOnly)*/
+/*                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);*/
+/*            else memoryOnly = true;*/
+/*        } else if (myStrNCmp("-RESET", token, 6) == 0) {*/
+/*            if (reset) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);*/
+/*            else reset = true;*/
+/*        } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);*/
+/*    }*/
+/**/
+/*    gvUsage.report(!memoryOnly, !timeOnly);*/
+/*    if (reset) gvUsage.reset();*/
+/*    return GV_CMD_EXEC_DONE;*/
+/*}*/
+/**/
+/*void GVUsageCmd ::usage(const bool& verbose) const {*/
+/*    cout << "Usage: USAGE [-Time-only | -Memory-only]" << endl;*/
+/*    if (verbose) {*/
+/*        cout*/
+/*            << "Param: -Time-only  : Disable memory usage reporting." << endl;*/
+/*        cout*/
+/*            << "       -Memory-only: Disable time usage reporting." << endl;*/
+/*    }*/
+/*}*/
+/**/
+/*void GVUsageCmd ::help() const {*/
+/*    cout << setw(20) << left << "USAGE: "*/
+/*         << "Report resource usage." << endl;*/
+/*}*/
 
-    bool timeOnly = false, memoryOnly = false, reset = false;
-
-    size_t n = options.size();
-    for (size_t i = 0; i < n; ++i) {
-        const string& token = options[i];
-        if (myStrNCmp("-Time-only", token, 2) == 0) {
-            if (timeOnly || memoryOnly)
-                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else timeOnly = true;
-        } else if (myStrNCmp("-Memory-only", token, 2) == 0) {
-            if (timeOnly || memoryOnly)
-                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else memoryOnly = true;
-        } else if (myStrNCmp("-RESET", token, 6) == 0) {
-            if (reset) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else reset = true;
-        } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-    }
-
-    gvUsage.report(!memoryOnly, !timeOnly);
-    if (reset) gvUsage.reset();
-    return GV_CMD_EXEC_DONE;
-}
-
-void GVUsageCmd ::usage(const bool& verbose) const {
-    cout << "Usage: USAGE [-Time-only | -Memory-only]" << endl;
-    if (verbose) {
-        cout
-            << "Param: -Time-only  : Disable memory usage reporting." << endl;
-        cout
-            << "       -Memory-only: Disable time usage reporting." << endl;
-    }
-}
-
-void GVUsageCmd ::help() const {
-    cout << setw(20) << left << "USAGE: "
-         << "Report resource usage." << endl;
-}
-
-#endif

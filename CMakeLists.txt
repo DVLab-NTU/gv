@@ -139,13 +139,11 @@ FetchContent_MakeAvailable(glucose)
 
 # Link the library installed by brew
 if(APPLE)
-    link_directories(/opt/homebrew/lib)
+    # link_directories(/opt/homebrew/lib)
     link_directories(/usr/local/opt/gmp/lib)
 endif()
 # Link the Yosys shared libray path
 link_directories(${YOSYS_DIR})
-# Link the VCD parser library path
-link_directories(./vcd/verilog-vcd-parser/build/)
 
 # Set the install rpath to the YOSYS_DIR
 set(CMAKE_MACOSX_RPATH TRUE)
@@ -199,6 +197,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${YOSYS_DIR})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
 # Include the readline header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/include/readline)
+# Include the gmp header files
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/local/include)
 # Include the VCD parser header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VCD_PARSER_DIR}/build)
 # Include the Glucose header files
@@ -211,7 +211,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/sat
 target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp)
 target_link_libraries(${CMAKE_PROJECT_NAME} ${LIBYOSYS_PATH})
 # * Link the filesystem library
-target_link_libraries(${CMAKE_PROJECT_NAME} stdc++fs)
+# target_link_libraries(${CMAKE_PROJECT_NAME} stdc++fs)
 # * Link the verilog-vcd-parser library
 target_link_libraries(${CMAKE_PROJECT_NAME} libvcd-parser)
 # * Link the fmt library
