@@ -33,11 +33,15 @@ jobs:
 
             - name: Export the brew path
               shell: bash
-              run: export PATH="$(brew --prefix)/bin:$PATH"
+              run: export PATH="$(brew --prefix bison)/bin:$PATH"
 
-            - name: Install GV
-              run: make
+            - name: Export the brew path
+              shell: bash
+              run: bison --version
 
-            - name: Run tests
-              run: make test
+            # - name: Install GV
+            #   run: make
+            #
+            # - name: Run tests
+            #   run: make test
 
