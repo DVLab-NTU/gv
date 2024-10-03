@@ -139,7 +139,7 @@ FetchContent_MakeAvailable(glucose)
 
 # Link the library installed by brew
 if(APPLE)
-    # link_directories(/opt/homebrew/lib)
+    link_directories(/opt/homebrew/lib)
     link_directories(/usr/local/opt/gmp/lib)
 endif()
 # Link the Yosys shared libray path
