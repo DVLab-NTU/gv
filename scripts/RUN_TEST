@@ -161,7 +161,11 @@ done
 # run dofile with gv and diff the output with the expected output
 ref-path() {
     local TEST=$1
-    echo $(realpath --relative-to $(pwd) "$(dirname ${TEST})/../ref_${SYSTEM}/$(basename ${TEST%.*}).log")
+    local DIR=$(dirname "${TEST}")
+    local BASE=$(basename "${TEST%.*}")
+    local REF_DIR="${DIR}/../ref_${SYSTEM}"
+    local REF_PATH="${REF_DIR}/${BASE}.log"
+    echo $(perl -MFile::Spec -e 'print File::Spec->abs2rel($ARGV[0], $ARGV[1])' "${REF_PATH}" "$(pwd)")
 }
 export -f ref-path
 

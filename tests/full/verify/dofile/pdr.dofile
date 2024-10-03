@@ -1,0 +1,26 @@
+cirread -v ./designs/SoCV/basic/a.v
+se sys vrf
+pdr -o 0
+pdr -o 1
+pdr -o 2
+pdr -o 3
+pdr -o 4
+
+se sys setup
+cirread -v -r ./designs/SoCV/basic/b.v
+se sys vrf
+pdr -o 0
+pdr -o 1
+pdr -o 2
+pdr -o 3
+pdr -o 4
+
+se sys setup
+cirread -v -r ./designs/SoCV/basic/c.v
+se sys vrf
+pdr -o 0
+pdr -o 1
+pdr -o 2
+pdr -o 3
+
+q -f

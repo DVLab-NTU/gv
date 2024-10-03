@@ -36,6 +36,8 @@ compile_commands.json
 *.aig
 *.v
 *.txt
+*.json
+*.history
 
 # gv 
 gv
