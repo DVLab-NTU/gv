@@ -3,7 +3,7 @@
 
 # GV Installation
 ```bash=
-git clone git@github.com:DVLab-NTU/gv.git
+git clone https://github.com/DVLab-NTU/gv.git
 cd ./gv
 ```
 

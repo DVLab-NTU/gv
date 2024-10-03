@@ -33,7 +33,8 @@ jobs:
 
             - name: Export the brew path
               shell: bash
-              run: export PATH="$(brew --prefix bison)/bin:$PATH"
+              run: |
+                export PATH="$(brew --prefix bison)/bin:$(brew --prefix)/bin:$PATH"
 
             - name: Export the brew path
               shell: bash
