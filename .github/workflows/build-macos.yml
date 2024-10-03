@@ -34,9 +34,10 @@ jobs:
             - name: Export the brew path
               shell: bash
               run: |
+                brew install bison
                 export PATH="$(brew --prefix bison)/bin:$(brew --prefix)/bin:$PATH"
 
-            - name: Export the brew path
+            - name: Verify the brew path
               shell: bash
               run: bison --version
 
