@@ -1,0 +1,37 @@
+setup> cirread -v ./designs/SoCV/basic/c.v
+Converted 0 1-valued FFs and 6 DC-valued FFs.
+
+setup> se sys vrf
+
+vrf> satv itp -o 0
+
+Monitor "z0[0]" is violated.
+0: x0
+
+vrf> satv itp -o 1
+
+Monitor "z1[0]" is violated.
+0: x0
+1: x1
+2: x0
+3: x1
+4: x0
+5: xx
+
+vrf> satv itp -o 2
+
+Monitor "z2[0]" is violated.
+0: x1
+1: x1
+2: x0
+3: x1
+4: x0
+5: x1
+6: xx
+
+vrf> satv itp -o 3
+
+Monitor "z3[0]" is safe.
+
+vrf> q -f
+

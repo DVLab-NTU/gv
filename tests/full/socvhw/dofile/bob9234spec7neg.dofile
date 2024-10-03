@@ -1,0 +1,4 @@
+cirread -aiger ./designs/SoCV/hwmcc/bob9234spec7neg.aig
+set sys vrf
+satv itp -o 0
+quit -f

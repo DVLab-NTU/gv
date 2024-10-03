@@ -1,0 +1,53 @@
+setup> help
+
+========== Common Commands : ==========
+DOfile:             Execute the commands in the dofile.
+HELp:               Print this help message.
+HIStory:            Print command history.
+Quit:               Quit the execution.
+
+========== Verify Commands : ==========
+PDR:                Model checking using property directed reachability in abc.
+
+========== Network Commands : ==========
+CIRGate:            Report a gate
+CIRPrint:           Print circuit
+CIRRead:            Read in a circuit and construct the netlist
+CIRWrite:           Write the netlist to an AIG/AAG/BLIF file
+
+========== Abc Commands : ==========
+ABCCMD:             Directly call ABC's command.
+
+========== Yosys Commands : ==========
+PRint Info:         Print circuit information extracted by our parser.
+SHow :              Show the schematic of the design.
+YSYSet:             Set the option of Yosys.
+
+========== Mode Commands : ==========
+SEt System:         Switch to setup/vrf mode.
+
+========== Bdd Commands : ==========
+BAND:               BDD And
+BCOFactor:          Retrieve BDD cofactor
+BCOMpare:           BDD comparison
+BConstruct:         Build BDD From Current Design.
+BDRAW:              BDD graphic draw
+BEXist:             Perform BDD existential quantification
+BINV:               BDD Inv
+BNAND:              BDD Nand
+BNOR:               BDD Nor
+BOR:                BDD Or
+BREPort:            BDD report node
+BRESET:             BDD reset
+BSETOrder:          Set BDD variable Order From Circuit.
+BSETVar:            BDD set a variable name for a support
+BSIMulate:          BDD simulation
+BXNOR:              BDD Xnor
+BXOR:               BDD Xor
+
+========== EXP Commands : ==========
+EXPeriment:         Command for the testing of the experimental functions.
+
+
+setup> q -f
+

@@ -1,0 +1,277 @@
+#!/bin/bash
+
+if [ ! -x "$(command -v parallel)" ]; then
+    echo "Error: GNU parallel is not installed!!"
+    exit 1
+fi
+
+# test if colordiff is installed; if not use diff
+if [ -x "$(command -v colordiff)" ]; then
+    DIFF="colordiff"
+else
+    DIFF="diff"
+fi
+
+# return text in green, bold
+pass-style() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: pass-style <text>"
+    else
+        echo -e "\033[1;32m$1\033[0m"
+    fi
+}
+export -f pass-style
+
+# return text in red, bold
+fail-style() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: fail-style <text>"
+    else
+        echo -e "\033[1;31m$1\033[0m"
+    fi
+}
+export -f fail-style
+
+# return text in cyan, bold
+unknown-style() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: unknown-style <text>"
+    else
+        echo -e "\033[1;36m$1\033[0m"
+    fi
+}
+export -f unknown-style
+
+# print usage message
+usage() {
+    echo "Usage: $0 [-d|--diff] [-u|--update] [-g|--gv <path to gv>]"
+    echo "  -d, --diff      diff the output of gv with the expected output"
+    echo "  -u, --update    update the expected output with the output of gv"
+    echo "  -g, --gv        path to gv executable"
+    echo "  -v, --verbose   also report tests that pass"
+    echo "  -s, --silent    do not report difference between execution result and reference"
+    echo "  -f, --full      execute the dofiles within the \"full\" folder (takes longer time)"
+}
+export -f usage
+
+# parse arguments
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+GV=./gv
+ACTION=""
+SILENT=0
+VERBOSE=0
+FULL=0
+POSITIONAL=()
+FULL_DIR=(full)
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+    -d | --diff)
+        if [ -n "$ACTION" ]; then
+            echo "Error: cannot specify multiple actions!!"
+            usage
+            exit 1
+        fi
+        ACTION="diff"
+        shift # argument
+        ;;
+    -u | --update)
+        if [ -n "$ACTION" ]; then
+            echo "Error: cannot specify multiple actions!!"
+            usage
+            exit 1
+        fi
+        ACTION="update"
+        shift # argument
+        ;;
+    -g | --gv)
+        GV=$2
+        shift # argument
+        shift # variable
+        ;;
+    -v | --verbose)
+        VERBOSE=1
+        shift # argument
+        ;;
+    -s | --silent)
+        SILENT=1
+        shift # argument
+        ;;
+    -h | --help)
+        usage
+        exit 0
+        ;;
+    -f | --full)
+        FULL=1
+        shift
+        ;;
+    -* | --*)
+        echo "Error: unknown option $1!!"
+        usage
+        exit 1
+        ;;
+    *)
+        POSITIONAL+=("$1")
+        shift # argument
+        ;;
+    esac
+done
+
+# the default action is to diff
+if [ ! -n "$ACTION" ]; then
+    ACTION="diff"
+fi
+
+# if no positional argument is given, run all tests from the tests directory
+if [ ${#POSITIONAL[@]} -eq 0 ]; then
+    POSITIONAL=(tests)
+fi
+
+SYSTEM="linux"
+# detect the OS type
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    SYSTEM="macos"
+fi
+echo "Your system: $SYSTEM" 
+
+TESTS=()
+# for each positional argument, if it is a file, run the test on that file
+# if it is a directory, run the test on all files in that directory
+for arg in "${POSITIONAL[@]}"; do
+    if [ -f "$arg" ]; then
+        TESTS+=("$arg")
+    elif [ -d "$arg" ]; then
+        if [[ $FULL -eq 0 ]]; then
+            EXCLUDE_COMMAND="-type d -name $FULL_DIR -prune -o"
+        fi
+
+        for file in $(find $arg ${EXCLUDE_COMMAND} -regex ".*\.dofile" -type f); do
+            if [ -f "$file" ]; then
+                TESTS+=("$file")
+            fi
+        done
+    else
+        echo "Error: $arg is not a file or directory!!"
+        usage
+        exit 1
+    fi
+done
+
+# run dofile with gv and diff the output with the expected output
+ref-path() {
+    local TEST=$1
+    local DIR=$(dirname "${TEST}")
+    local BASE=$(basename "${TEST%.*}")
+    local REF_DIR="${DIR}/../ref_${SYSTEM}"
+    local REF_PATH="${REF_DIR}/${BASE}.log"
+    echo $(perl -MFile::Spec -e 'print File::Spec->abs2rel($ARGV[0], $ARGV[1])' "${REF_PATH}" "$(pwd)")
+}
+export -f ref-path
+
+# diff the output of gv with the reference output
+dofile-result-same-with-ref() {
+    local TEST=$1
+    local VERBOSE=$2
+    local SILENT=$3
+    local GV=$4
+    local DIFF=$5
+    local REF=$(ref-path $TEST)
+
+    # DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
+    DIFF_OUTPUT=$($GV -file $TEST 2>&1 | $DIFF - $REF 2>&1)
+
+    # if [ $? -eq 0 ]; then
+    if [ -z "$DIFF_OUTPUT" ]; then
+        if [[ $VERBOSE -eq 1 ]]; then
+            echo "  $(pass-style '✓') $TEST"
+            return 0
+        fi
+    else
+        if [ ! -f $REF ]; then
+            echo "  $(unknown-style '?') $REF"
+        else
+            echo "  $(fail-style '✗') $TEST"
+        fi
+        if [[ $SILENT -eq 0 ]]; then
+            # indent diff output
+            DIFF_OUTPUT=$(echo "$DIFF_OUTPUT" | sed 's/^/    /')
+            echo "$DIFF_OUTPUT"
+        fi
+        return 1
+    fi
+}
+export -f dofile-result-same-with-ref
+
+update-dofile-ref() {
+    local TEST=$1
+    local VERBOSE=$2
+    local SILENT=$3
+    local GV=$4
+    local REF=$(ref-path $TEST)
+
+    # if the reference file does not exist, create it
+    if [[ ! -f $REF ]]; then
+        mkdir -p $(dirname $REF)
+        touch $REF
+    fi
+
+    # DIFF_OUTPUT=$(OMP_WAIT_POLICY=passive $GV -file $TEST 2>&1 | diff $REF -)
+    DIFF_OUTPUT=$($GV -file $TEST 2>&1 | diff $REF -)
+
+    # update reference file if the output of gv is different from the reference
+    # if [[ $? -eq 0 ]]; then
+    if [ -z "$DIFF_OUTPUT" ]; then
+        if [[ $VERBOSE -eq 1 ]]; then
+            echo "  - $TEST"
+            return 0
+        fi
+    else
+        printf "%s\n" "$DIFF_OUTPUT" | patch -f $REF
+        if [[ $? -eq 1 ]]; then
+            echo "  $(fail-style !) $TEST"
+            return 0
+        else
+            echo "  $(pass-style ↑) $TEST"
+            return 1
+        fi
+    fi
+}
+export -f update-dofile-ref
+
+# diff dofiles and report result
+if [[ "$ACTION" == 'diff' ]]; then
+    echo "> Testing dofiles..."
+    echo "> Current Path: $(pwd)"
+
+    # run in parallel and count failures
+    # parallel -j"$(nproc)" "dofile-result-same-with-ref {} $VERBOSE $SILENT $GV $DIFF" ::: "${TESTS[@]}"
+    # parallel -j"1" "dofile-result-same-with-ref {} $VERBOSE $SILENT $GV $DIFF" ::: "${TESTS[@]}"
+    FAIL_COUNT=0
+    for test in "${TESTS[@]}"; do
+        dofile-result-same-with-ref $test $VERBOSE $SILENT $GV $DIFF
+        FAIL_COUNT=$((FAIL_COUNT+$?))
+    done
+
+    # FAIL_COUNT=$?
+    TESTS_COUNT=${#TESTS[@]}
+    if [ $FAIL_COUNT -eq 0 ]; then
+        echo "$(pass-style "Passed all $TESTS_COUNT tests.")"
+    else
+        echo "$(fail-style "$FAIL_COUNT out of $TESTS_COUNT tests failed.")"
+    fi
+elif [[ "$ACTION" == 'update' ]]; then
+    echo "> Updating reference files..."
+
+    # run in parallel and count updates
+    # parallel -j"1" "update-dofile-ref {} $VERBOSE $SILENT $GV" ::: "${TESTS[@]}"
+    for test in "${TESTS[@]}"; do
+        update-dofile-ref $test $VERBOSE $SILENT $GV
+        UPDATE_COUNT=$((UPDATE_COUNT+$?))
+    done
+
+    # UPDATE_COUNT=$?
+
+    TESTS_COUNT=${#TESTS[@]}
+    echo "$(pass-style "Updated $UPDATE_COUNT out of $TESTS_COUNT reference files.")"
+fi

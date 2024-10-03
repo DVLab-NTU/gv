@@ -1,0 +1,10 @@
+setup> cirread -aiger ./designs/SoCV/hwmcc/pj2018.aig
+
+setup> set sys vrf
+
+vrf> satv itp -o 0
+
+Monitor "26898" is safe.
+
+vrf> quit -f
+

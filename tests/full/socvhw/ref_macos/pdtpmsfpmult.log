@@ -1,0 +1,10 @@
+setup> cirread -aiger ./designs/SoCV/hwmcc/pdtpmsfpmult.aig
+
+setup> set sys vrf
+
+vrf> satv itp -o 0
+
+Monitor "1348" is safe.
+
+vrf> quit -f
+

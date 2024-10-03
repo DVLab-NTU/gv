@@ -3,275 +3,342 @@
   PackageName  [ cir ]
   Synopsis     [ Define basic cir package commands ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2008-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>
-#include <iostream>
-#include <iomanip>
-#include "cirMgr.h"
-#include "cirGate.h"
 #include "cirCmd.h"
+
+#include <cassert>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+
+#include "cirECO.h"
+#include "cirGate.h"
+#include "cirMgr.h"
+#include "fmt/core.h"
+#include "gvCmdMgr.h"
+#include "gvType.h"
 #include "util.h"
-#include "gvMsg.h"
+#include "yosysMgr.h"
 
 using namespace std;
 
-extern CirMgr* cirMgr;
+extern gv::cir::CirMgr* cirMgr;
 extern int effLimit;
 
-bool
-GVinitCirCmd()
-{
-   return (gvCmdMgr->regCmd("CIRRead", 4, new CirReadCmd) &&
-         gvCmdMgr->regCmd("CIRPrint", 4, new CirPrintCmd) &&
-         gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd));
-         // gvCmdMgr->regCmd("CIRSWeep", 5, new CirSweepCmd) &&
-         // gvCmdMgr->regCmd("CIROPTimize", 6, new CirOptCmd) &&
-         // gvCmdMgr->regCmd("CIRSTRash", 6, new CirStrashCmd) &&
-         // gvCmdMgr->regCmd("CIRSIMulate", 6, new CirSimCmd) &&
-         // gvCmdMgr->regCmd("CIRFraig", 4, new CirFraigCmd) &&
-         // gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd) &&
-         // gvCmdMgr->regCmd("CIRMiter", 4, new CirMiterCmd) &&
-         // gvCmdMgr->regCmd("CIREFFort", 6, new CirEffortCmd));
+bool initCirCmd() {
+    return (gvCmdMgr->regCmd("CIRRead", 4, new CirReadCmd) &&
+            gvCmdMgr->regCmd("CIRPrint", 4, new CirPrintCmd) &&
+            gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd) &&
+            // gvCmdMgr->regCmd("CIRSWeep", 5, new CirSweepCmd) &&
+            // gvCmdMgr->regCmd("CIROPTimize", 6, new CirOptCmd) &&
+            // gvCmdMgr->regCmd("CIRSTRash", 6, new CirStrashCmd) &&
+            // gvCmdMgr->regCmd("CIRSIMulate", 6, new CirSimCmd) &&
+            // gvCmdMgr->regCmd("CIRFraig", 4, new CirFraigCmd) &&
+            // gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd) &&
+            // gvCmdMgr->regCmd("CIRMiter", 4, new CirMiterCmd) &&
+            // gvCmdMgr->regCmd("CIREFFort", 6, new CirEffortCmd));
+            gvCmdMgr->regCmd("CIRGate", 4, new CirGateCmd) &&
+            gvCmdMgr->regCmd("CIRWrite", 4, new CirWriteCmd));
+    // gvCmdMgr->regCmd("CIRBlast", 4, new CirBlastCmd));
 }
 
-enum CirCmdState
-{
-   // Order matters! Do not change the order!!
-   CIRINIT,
-   CIRREAD,
-   CIROPT,
-   CIRSTRASH,
-   CIRSIMULATE,
-   CIRFRAIG,
-   // dummy end
-   CIRCMDTOT
+enum CirCmdState {
+    // Order matters! Do not change the order!!
+    CIRINIT,
+    CIRREAD,
+    CIROPT,
+    CIRSTRASH,
+    CIRSIMULATE,
+    // dummy end
+    CIRCMDTOT
 };
 
 static CirCmdState curCmd = CIRINIT;
 
 //----------------------------------------------------------------------
-//    CIRRead <(string fileName)> [-Replace]
+//    CIRRead <-Verilog | -Aiger> <(string fileName)> [-Replace]
+//----------------------------------------------------------------------
+GVCmdExecStatus CirReadCmd::exec(const string& option) {
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    FileType fileType = VERILOG;
+
+    if (options.empty())
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+
+    bool doReplace = false, fileError = false;
+    string fileName = "", fileExt = "";
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        if (myStrNCmp("-Replace", options[i], 2) == 0) {
+            if (doReplace) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            doReplace = true;
+        } else if (myStrNCmp("-Verilog", options[i], 2) == 0) {
+            fileType = VERILOG;
+        } else if (myStrNCmp("-Aiger", options[i], 2) == 0) {
+            fileType = AIGER;
+        } else if (myStrNCmp("-Blif", options[i], 2) == 0) {
+            fileType = BLIF;
+        } else {
+            if (fileName.size())
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            fileName = options[i];
+            ifstream infile;
+            infile.open(options[i].c_str());
+            if (!infile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+            infile.close();
+        }
+    }
+    if (!fileName.empty()) {
+        if (fileType == VERILOG) {
+            fileExt   = fileName.substr(fileName.size() - 2);
+            fileError = (fileExt != ".v");
+        } else if (fileType == AIGER) {
+            fileExt   = fileName.substr(fileName.size() - 4);
+            fileError = (fileExt != ".aig");
+        } else if (fileType == BLIF) {
+            fileExt   = fileName.substr(fileName.size() - 5);
+            fileError = (fileExt != ".blif");
+        }
+    } else fileError = true;
+
+    if (fileError) return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, fileName);
+    if (cirMgr != 0) {
+        if (doReplace) {
+            cout << "Note: original circuit is replaced..." << endl;
+            curCmd = CIRINIT;
+            delete cirMgr;
+            cirMgr = 0;
+        } else {
+            cout << "Error: circuit already exists!!" << endl;
+            return GV_CMD_EXEC_ERROR;
+        }
+    }
+
+    cirMgr = new gv::cir::CirMgr();
+    cirMgr->setFileName(fileName);
+    cirMgr->setFileType(fileType);
+    if (!cirMgr->readCircuitNew()) {
+        delete cirMgr;
+        cirMgr = 0;
+        return GV_CMD_EXEC_NOP;
+    }
+    curCmd = CIRREAD;
+    return GV_CMD_EXEC_DONE;
+}
+
+void CirReadCmd::usage(const bool& verbose) const {
+    cout << "Usage: CIRRead <-Verilog | -Aiger | -Blif> <(string fileName)> [-Replace]" << endl;
+}
+
+void CirReadCmd::help() const {
+    cout << setw(20) << left << "CIRRead:"
+         << "Read in a circuit and construct the netlist" << endl;
+}
+
+//----------------------------------------------------------------------
+//    CIRPrint [-Summary | -Netlist | -PI | -PO]
 //----------------------------------------------------------------------
 GVCmdExecStatus
-CirReadCmd::exec(const string& option)
-{
-   // check option
-   vector<string> options;
-   GVCmdExec::lexOptions(option, options);
-   CirFileType fileType = VERILOG;
+CirPrintCmd::exec(const string& option) {
+    // check option
+    string token;
+    GVCmdExec::lexSingleOption(option, token);
 
-   if (options.empty())
-      return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (!cirMgr) {
+        cout << "Error: circuit is not yet constructed!!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
+        cirMgr->printSummary();
+    else if (myStrNCmp("-Netlist", token, 2) == 0)
+        cirMgr->printNetlist();
+    else if (myStrNCmp("-PI", token, 3) == 0)
+        cirMgr->printPIs();
+    else if (myStrNCmp("-PO", token, 3) == 0)
+        cirMgr->printPOs();
+    // else if (myStrNCmp("-FLoating", token, 3) == 0)
+    //     cirMgr->printFloatGates();
+    // else if (myStrNCmp("-FECpairs", token, 4) == 0)
+    //     cirMgr->printFECPairs();
+    else
+        return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
 
-   bool doReplace = false;
-   string fileName;
-   for (size_t i = 0, n = options.size(); i < n; ++i) {
-      if (myStrNCmp("-Replace", options[i], 2) == 0) {
-         if (doReplace) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA,options[i]);
-         doReplace = true;
-      }
-      else if (myStrNCmp("-Aiger", options[i], 1) == 0) {
-         fileType = AIGER;
-      }
-      else {
-         if (fileName.size())
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         fileName = options[i];
-      }
-   }
-
-   if (cirMgr != 0) {
-      if (doReplace) {
-         cerr << "Note: original circuit is replaced..." << endl;
-         curCmd = CIRINIT;
-         delete cirMgr; cirMgr = 0;
-      }
-      else {
-         cerr << "Error: circuit already exists!!" << endl;
-         return GV_CMD_EXEC_ERROR;
-      }
-   }
-   cirMgr = new CirMgr;
-   cirMgr->readCirFromAbc(fileName, fileType);
-
-   // curCmd = CIRREAD;
-
-   return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
-void
-CirReadCmd::usage(const bool& verbose) const
-{
-   gvMsg(GV_MSG_IFO) << "Usage: CIRRead <(string fileName)> [-Replace]" << endl;
+void CirPrintCmd::usage(const bool& verbose) const {
+    cout << "Usage: CIRPrint [-Summary | -Netlist | -PI | -PO]" << endl;
 }
 
-void
-CirReadCmd::help() const
-{
-   cout << setw(15) << left << "CIRRead: "
-        << "read in a circuit and construct the netlist" << endl;
-}
-
-//----------------------------------------------------------------------
-//    CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]
-//----------------------------------------------------------------------
-GVCmdExecStatus
-CirPrintCmd::exec(const string& option)
-{
-   // check option
-   string token;
-   GVCmdExec::lexSingleOption(option, token);
-
-   if (!cirMgr) {
-      cerr << "Error: circuit is not yet constructed!!" << endl;
-      return GV_CMD_EXEC_ERROR;
-   }
-   if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
-      cirMgr->printSummary();
-   else if (myStrNCmp("-Netlist", token, 2) == 0)
-      cirMgr->printNetlist();
-   else if (myStrNCmp("-PI", token, 3) == 0)
-      cirMgr->printPIs();
-   else if (myStrNCmp("-PO", token, 3) == 0)
-      cirMgr->printPOs();
-   else if (myStrNCmp("-FLoating", token, 3) == 0)
-      cirMgr->printFloatGates();
-   else if (myStrNCmp("-FECpairs", token, 4) == 0)
-      cirMgr->printFECPairs();
-   else
-      return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-
-   return GV_CMD_EXEC_DONE;
-}
-
-void
-CirPrintCmd::usage(const bool& verbose) const
-{  
-   gvMsg(GV_MSG_IFO) << "Usage: CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating "
-      << "| -FECpairs]" << endl;
-}
-
-void
-CirPrintCmd::help() const
-{  
-   cout << setw(15) << left << "CIRPrint: " << "print circuit\n";
+void CirPrintCmd::help() const {
+    cout << setw(20) << left << "CIRPrint: "
+         << "Print circuit" << endl;
 }
 
 //----------------------------------------------------------------------
 //    CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>
 //----------------------------------------------------------------------
 GVCmdExecStatus
-CirGateCmd::exec(const string& option)
-{
-   if (!cirMgr) {
-      cerr << "Error: circuit has not been read!!" << endl;
-      return GV_CMD_EXEC_ERROR;
-   }
+CirGateCmd::exec(const string& option) {
+    if (!cirMgr) {
+        cout << "Error: circuit has not been read!!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
 
-   // check option
-   vector<string> options;
-   GVCmdExec::lexOptions(option, options);
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-   if (options.empty())
-      return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+    if (options.empty())
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-   int gateId = -1, level = 0;
-   bool doFanin = false, doFanout = false;
-   CirGate* thisGate = 0;
-   for (size_t i = 0, n = options.size(); i < n; ++i) {
-      bool checkLevel = false;
-      if (myStrNCmp("-FANIn", options[i], 5) == 0) {
-         if (doFanin || doFanout)
+    int gateId = -1, level = 0;
+    bool doFanin = false, doFanout = false;
+    gv::cir::CirGate* thisGate = 0;
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        bool checkLevel = false;
+        if (myStrNCmp("-FANIn", options[i], 5) == 0) {
+            if (doFanin || doFanout)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            doFanin    = true;
+            checkLevel = true;
+        } else if (myStrNCmp("-FANOut", options[i], 5) == 0) {
+            if (doFanin || doFanout)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            doFanout   = true;
+            checkLevel = true;
+        } else if (!thisGate) {
+            if (!myStr2Int(options[i], gateId) || gateId < 0)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            thisGate = cirMgr->getGate(gateId);
+            if (!thisGate) {
+                cout << "Error: Gate(" << gateId << ") not found!!" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
+            }
+        } else if (thisGate)
+            return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+        else
             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         doFanin = true;
-         checkLevel = true;
-      }
-      else if (myStrNCmp("-FANOut", options[i], 5) == 0) {
-         if (doFanin || doFanout)
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         doFanout = true;
-         checkLevel = true;
-      }
-      else if (!thisGate) {
-         if (!myStr2Int(options[i], gateId) || gateId < 0)
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         thisGate = cirMgr->getGate(gateId);
-         if (!thisGate) {
-            cerr << "Error: Gate(" << gateId << ") not found!!" << endl;
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
-         }
-      }
-      else if (thisGate)
-         return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
-      else
-         return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-      if (checkLevel) {
-         if (++i == n)
-            return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
-         if (!myStr2Int(options[i], level) || level < 0)
-            return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-         checkLevel = true;
-      }
-   }
+        if (checkLevel) {
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            if (!myStr2Int(options[i], level) || level < 0)
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            checkLevel = true;
+        }
+    }
 
-   if (!thisGate) {
-      cerr << "Error: Gate id is not specified!!" << endl;
-      return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options.back());
-   }
+    if (!thisGate) {
+        cout << "Error: Gate id is not specified!!" << endl;
+        return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options.back());
+    }
 
-   if (doFanin)
-      thisGate->reportFanin(level);
-   else if (doFanout)
-      thisGate->reportFanout(level);
-   else
-      thisGate->reportGate();
+    if (doFanin)
+        thisGate->reportFanin(level);
+    else if (doFanout)
+        thisGate->reportFanout(level);
+    else
+        thisGate->reportGate();
 
-   return GV_CMD_EXEC_DONE;
+    return GV_CMD_EXEC_DONE;
 }
 
-void
-CirGateCmd::usage(const bool& verbose) const
-{
-   gvMsg(GV_MSG_IFO) << "Usage: CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>"
-      << endl;
+void CirGateCmd::usage(const bool& verbose) const {
+    cout << "Usage: CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>" << endl;
 }
 
-void
-CirGateCmd::help() const
-{
-   cout << setw(15) << left << "CIRGate: " << "report a gate\n";
+void CirGateCmd::help() const {
+    cout << setw(20) << left << "CIRGate:"
+         << "Report a gate" << endl;
 }
 
-// //----------------------------------------------------------------------
-// //    CIRSWeep
-// //----------------------------------------------------------------------
-// GVCmdExecStatus
-// CirSweepCmd::exec(const string& option)
-// {
-//    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
-//       return GV_CMD_EXEC_ERROR;
-//    }
-//    // check option
-//    vector<string> options;
-//    GVCmdExec::lexOptions(option, options);
+//----------------------------------------------------------------------
+//    CIRWrite <-Aag [(int gateId)] | -Aig | -Blif> <-Output (string fileName)>
+//----------------------------------------------------------------------
+GVCmdExecStatus
+CirWriteCmd::exec(const string& option) {
+    if (!cirMgr) {
+        cout << "Error: circuit is not yet constructed!!" << endl;
+        return GV_CMD_EXEC_ERROR;
+    }
+    // check option
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
 
-//    if (!options.empty())
-//       return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[0]);
+    if (options.empty()) {
+        cirMgr->writeAag(cout);
+        return GV_CMD_EXEC_DONE;
+    }
+    FileType fileType;
+    bool hasFile = false;
+    int gateId;
+    gv::cir::CirGate* thisGate = NULL;
+    string outFileName;
+    ofstream outfile;
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        if (myStrNCmp("-Aiger", options[i], 2) == 0) {
+            fileType = AIGER;
+        } else if (myStrNCmp("-Aag", options[i], 2) == 0) {
+            fileType = AAG;
+        } else if (myStrNCmp("-Blif", options[i], 2) == 0) {
+            fileType = BLIF;
+        } else if (myStrNCmp("-Output", options[i], 2) == 0) {
+            if (hasFile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            if (++i == n)
+                return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+            outFileName = options[i].c_str();
+            outfile.open(options[i].c_str(), ios::out);
+            if (!outfile)
+                return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[1]);
+            hasFile = true;
+            cirMgr->setFileName(outFileName);
+        } else if (myStr2Int(options[i], gateId) && gateId >= 0) {
+            if (fileType != AAG)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            if (thisGate != NULL)
+                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
+            thisGate = cirMgr->getGate(gateId);
+            if (!thisGate) {
+                cout << "Error: Gate(" << gateId << ") not found!!" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            }
+            if (!thisGate->isAig()) {
+                cout << "Error: Gate(" << gateId << ") is NOT an AIG!!" << endl;
+                return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+            }
+        } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+    }
 
-//    assert(curCmd != CIRINIT);
-//    cirMgr->sweep();
+    if (!hasFile) return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "-Output");
 
-//    return GV_CMD_EXEC_DONE;
-// }
+    // cout << outFileName << "\n";
+    // TODO: Fix the CIRWRITE command with the new functions
+    /*if (fileType == BLIF) yosysMgr->writeBlif(outFileName);*/
+    /*else if (fileType == AIGER) cirMgr->getYosysMgr()->writeAiger(outFileName);*/
+    if (fileType == AIGER) cirMgr->getYosysMgr()->writeAiger(outFileName);
+    // else {
+    //     if (!thisGate) {
+    //         assert(hasFile);
+    //         cirMgr->writeAag(outfile);
+    //     } else if (hasFile) cirMgr->writeGate(outfile, thisGate);
+    //     else cirMgr->writeGate(cout, thisGate);
+    // }
+    return GV_CMD_EXEC_DONE;
+}
 
-// void
-// CirSweepCmd::usage(const bool& verbose) const
-// {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRSWeep" << endl;
-// }
+void CirWriteCmd::usage(const bool& verbose) const {
+    cout << "Usage: CIRWrite <-Aag [(int gateId)] | -Aig | -Blif> <-Output (string fileName)>" << endl;
+}
+
+void CirWriteCmd::help() const {
+    cout << setw(20) << left << "CIRWrite: "
+         << "Write the netlist to an AIG/AAG/BLIF file\n";
+}
 
 // void
 // CirSweepCmd::help() const
@@ -287,7 +354,7 @@ CirGateCmd::help() const
 // CirOptCmd::exec(const string& option)
 // {
 //    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
+//       cout << "Error: circuit is not yet constructed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    // check option
@@ -299,7 +366,7 @@ CirGateCmd::help() const
 
 //    assert(curCmd != CIRINIT);
 //    if (curCmd == CIRSIMULATE) {
-//       cerr << "Error: circuit has been simulated!! Do \"CIRFraig\" first!!"
+//       cout << "Error: circuit has been simulated!! Do \"CIRFraig\" first!!"
 //            << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
@@ -312,7 +379,7 @@ CirGateCmd::help() const
 // void
 // CirOptCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIROPTimize" << endl;
+//    cout << "Usage: CIROPTimize" << endl;
 // }
 
 // void
@@ -329,7 +396,7 @@ CirGateCmd::help() const
 // CirStrashCmd::exec(const string& option)
 // {
 //    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
+//       cout << "Error: circuit is not yet constructed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    // check option
@@ -341,11 +408,11 @@ CirGateCmd::help() const
 
 //    assert(curCmd != CIRINIT);
 //    if (curCmd == CIRSTRASH) {
-//       cerr << "Error: circuit has been strashed!!" << endl;
+//       cout << "Error: circuit has been strashed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    else if (curCmd == CIRSIMULATE) {
-//       cerr << "Error: circuit has been simulated!! Do \"CIRFraig\" first!!"
+//       cout << "Error: circuit has been simulated!! Do \"CIRFraig\" first!!"
 //            << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
@@ -358,7 +425,7 @@ CirGateCmd::help() const
 // void
 // CirStrashCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRSTRash" << endl;
+//    cout << "Usage: CIRSTRash" << endl;
 // }
 
 // void
@@ -368,86 +435,104 @@ CirGateCmd::help() const
 //         << "perform structural hash on the circuit netlist\n";
 // }
 
-// //----------------------------------------------------------------------
-// //    CIRSIMulate <-Random | -File <string patternFile>>
-// //                [-Output (string logFile)]
-// //----------------------------------------------------------------------
+//----------------------------------------------------------------------
+//    CIRSIMulate <-Random | -File <string patternFile>>
+//                [-Output (string logFile)]
+//----------------------------------------------------------------------
 // GVCmdExecStatus
-// CirSimCmd::exec(const string& option)
-// {
-//    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
-//       return GV_CMD_EXEC_ERROR;
-//    }
-//    // check option
-//    vector<string> options;
-//    GVCmdExec::lexOptions(option, options);
+// CirSimCmd::exec(const string& option) {
+//     if (!cirMgr) {
+//         cout << "Error: circuit is not yet constructed!!" << endl;
+//         return GV_CMD_EXEC_ERROR;
+//     }
+//     // check option
+//     vector<string> options;
+//     GVCmdExec::lexOptions(option, options);
 
-//    ifstream patternFile;
-//    ofstream logFile;
-//    bool doRandom = false, doFile = false, doLog = false;
-//    for (size_t i = 0, n = options.size(); i < n; ++i) {
-//       if (myStrNCmp("-Random", options[i], 2) == 0) {
-//          if (doRandom || doFile)
+//     ifstream patternFile;
+//     ofstream logFile;
+//     bool doRandom = false, doFile = false, doLog = false;
+//     for (size_t i = 0, n = options.size(); i < n; ++i) {
+//         if (myStrNCmp("-Random", options[i], 2) == 0) {
+//             if (doRandom || doFile)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+//             doRandom = true;
+//         } else if (myStrNCmp("-File", options[i], 2) == 0) {
+//             if (doRandom || doFile)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+//             if (++i == n)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+//             patternFile.open(options[i].c_str(), ios::in);
+//             if (!patternFile)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+//             doFile = true;
+//         } else if (myStrNCmp("-Output", options[i], 2) == 0) {
+//             if (doLog)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
+//             if (++i == n)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i - 1]);
+//             logFile.open(options[i].c_str(), ios::out);
+//             if (!logFile)
+//                 return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
+//             doLog = true;
+//         } else
 //             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//          doRandom = true;
-//       }
-//       else if (myStrNCmp("-File", options[i], 2) == 0) {
-//          if (doRandom || doFile)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//          if (++i == n)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
-//          patternFile.open(options[i].c_str(), ios::in);
-//          if (!patternFile)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
-//          doFile = true;
-//       }
-//       else if (myStrNCmp("-Output", options[i], 2) == 0) {
-//          if (doLog)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//          if (++i == n)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
-//          logFile.open(options[i].c_str(), ios::out);
-//          if (!logFile)
-//             return GVCmdExec::errorOption(GV_CMD_OPT_FOPEN_FAIL, options[i]);
-//          doLog = true;
-//       }
-//       else
-//          return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
-//    }
+//     }
 
-//    if (!doRandom && !doFile)
-//       return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
+//     if (!doRandom && !doFile)
+//         return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, "");
 
-//    assert (curCmd != CIRINIT);
-//    if (doLog)
-//       cirMgr->setSimLog(&logFile);
-//    else cirMgr->setSimLog(0);
+//     assert(curCmd != CIRINIT);
+//     if (doLog)
+//         cirMgr->setSimLog(&logFile);
+//     else cirMgr->setSimLog(0);
 
-//    if (doRandom)
-//       cirMgr->randomSim();
-//    else
-//       cirMgr->fileSim(patternFile);
-//    cirMgr->setSimLog(0);
-//    curCmd = CIRSIMULATE;
-   
-//    return GV_CMD_EXEC_DONE;
+//     if (doRandom)
+//         cirMgr->randomSim();
+//     else
+//         cirMgr->fileSim(patternFile);
+//     cirMgr->setSimLog(0);
+//     curCmd = CIRSIMULATE;
+
+//     return GV_CMD_EXEC_DONE;
 // }
 
-// void
-// CirSimCmd::usage(const bool& verbose) const
-// {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRSIMulate <-Random | -File <string patternFile>>\n"
-//       << "                   [-Output (string logFile)]" << endl;
+// void CirSimCmd::usage(const bool& verbose) const {
+//     cout << "Usage: CIRSIMulate <-Random | -File <string patternFile>>\n"
+//          << "                   [-Output (string logFile)]" << endl;
 // }
 
-// void
-// CirSimCmd::help() const
-// {
-//    cout << setw(15) << left << "CIRSIMulate: "
-//         << "perform Boolean logic simulation on the circuit\n";
+// void CirSimCmd::help() const {
+//     cout << setw(20) << left << "CIRSIMulate: "
+//          << "Perform Boolean logic simulation on the circuit\n";
 // }
 
+// ----------------------------------------------------------------------
+// CIRBlast
+// ----------------------------------------------------------------------
+// GVCmdExecStatus
+// CirBlastCmd::exec(const string& option) {
+//     // check option
+//     vector<string> options;
+//     GVCmdExec::lexOptions(option, options);
+//     string fileName   = cirMgr->getFileName();
+//     FileType fileType = cirMgr->getFileType();
+//     if (!cirMgr->readCirFromAbc(fileName, fileType)) {
+//         delete cirMgr;
+//         cirMgr = 0;
+//     }
+
+//     return GV_CMD_EXEC_DONE;
+// }
+
+// void CirBlastCmd::usage(const bool& verbose) const {
+//     cout << "Usage: CIRBlast" << endl;
+// }
+
+// void CirBlastCmd::help() const {
+//     cout << setw(20) << left << "CIRBlast:"
+//          << "Convert network to AIG." << endl;
+// }
 // //----------------------------------------------------------------------
 // //    CIRFraig
 // //----------------------------------------------------------------------
@@ -455,7 +540,7 @@ CirGateCmd::help() const
 // CirFraigCmd::exec(const string& option)
 // {
 //    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
+//       cout << "Error: circuit is not yet constructed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    // check option
@@ -466,7 +551,7 @@ CirGateCmd::help() const
 //       return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[0]);
 
 //    if (curCmd != CIRSIMULATE) {
-//       cerr << "Error: circuit is not yet simulated!!" << endl;
+//       cout << "Error: circuit is not yet simulated!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    cirMgr->fraig();
@@ -478,7 +563,7 @@ CirGateCmd::help() const
 // void
 // CirFraigCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRFraig" << endl;
+//    cout << "Usage: CIRFraig" << endl;
 // }
 
 // void
@@ -495,7 +580,7 @@ CirGateCmd::help() const
 // CirWriteCmd::exec(const string& option)
 // {
 //    if (!cirMgr) {
-//       cerr << "Error: circuit is not yet constructed!!" << endl;
+//       cout << "Error: circuit is not yet constructed!!" << endl;
 //       return GV_CMD_EXEC_ERROR;
 //    }
 //    // check option
@@ -512,7 +597,7 @@ CirGateCmd::help() const
 //    ofstream outfile;
 //    for (size_t i = 0, n = options.size(); i < n; ++i) {
 //       if (myStrNCmp("-Output", options[i], 2) == 0) {
-//          if (hasFile) 
+//          if (hasFile)
 //             return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
 //          if (++i == n)
 //             return GVCmdExec::errorOption(GV_CMD_OPT_MISSING, options[i-1]);
@@ -526,11 +611,11 @@ CirGateCmd::help() const
 //             return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, options[i]);
 //          thisGate = cirMgr->getGate(gateId);
 //          if (!thisGate) {
-//             cerr << "Error: Gate(" << gateId << ") not found!!" << endl;
+//             cout << "Error: Gate(" << gateId << ") not found!!" << endl;
 //             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
 //          }
 //          if (!thisGate->isAig()) {
-//              cerr << "Error: Gate(" << gateId << ") is NOT an AIG!!" << endl;
+//              cout << "Error: Gate(" << gateId << ") is NOT an AIG!!" << endl;
 //             return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
 //          }
 //       }
@@ -550,7 +635,7 @@ CirGateCmd::help() const
 // void
 // CirWriteCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRWrite [(int gateId)][-Output (string aagFile)]" << endl;
+//    cout << "Usage: CIRWrite [(int gateId)][-Output (string aagFile)]" << endl;
 // }
 
 // void
@@ -571,7 +656,7 @@ CirGateCmd::help() const
 //    GVCmdExec::lexOptions(option, options);
 
 //    if (cirMgr != 0) {
-//       cerr << "Note: original circuit is replaced..." << endl;
+//       cout << "Note: original circuit is replaced..." << endl;
 //       curCmd = CIRINIT;
 //       delete cirMgr; cirMgr = 0;
 //    }
@@ -588,15 +673,15 @@ CirGateCmd::help() const
 //    }
 
 //    if (cm[0]->getNumPIs() != cm[1]->getNumPIs()) {
-//       cerr << "Error: numbers of PIs are different!!" << endl;
+//       cout << "Error: numbers of PIs are different!!" << endl;
 //       delete cm[0]; delete cm[1]; cirMgr = 0;
 //       return GV_CMD_EXEC_ERROR;
-//    } 
+//    }
 //    if (cm[0]->getNumPOs() != cm[1]->getNumPOs()) {
-//       cerr << "Error: numbers of POs are different!!" << endl;
+//       cout << "Error: numbers of POs are different!!" << endl;
 //       delete cm[0]; delete cm[1]; cirMgr = 0;
 //       return GV_CMD_EXEC_ERROR;
-//    } 
+//    }
 
 //    cirMgr = new CirMgr;
 //    if (!cirMgr->createMiter(cm[0], cm[1])) {
@@ -614,7 +699,7 @@ CirGateCmd::help() const
 // void
 // CirMiterCmd::usage(const bool& verbose) const
 // {
-//    gvMsg(GV_MSG_IFO) << "Usage: CIRMiter <(string inFile1)> <(string inFile2)> " << endl;
+//    cout << "Usage: CIRMiter <(string inFile1)> <(string inFile2)> " << endl;
 // }
 
 // void
@@ -647,13 +732,12 @@ CirGateCmd::help() const
 
 // void
 // CirEffortCmd::usage(const bool& verbose) const
-// {  
-//    gvMsg(GV_MSG_IFO) << "Usage: CIREFFort <(int effortLimit)>" << endl;
+// {
+//    cout << "Usage: CIREFFort <(int effortLimit)>" << endl;
 // }
 
 // void
 // CirEffortCmd::help() const
-// {  
+// {
 //    cout << setw(15) << left << "CIREFFort: " << "set SAT proof effort\n";
 // }
-

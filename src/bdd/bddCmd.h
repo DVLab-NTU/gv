@@ -3,11 +3,11 @@
   PackageName  [ ]
   Synopsis     [ Define classes for BDD commands ]
   Author       [ Chung-Yang (Ric) Huang, Cheng-Yin Wu ]
-  Copyright    [ Copyleft(c) 2005-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef BDD_CMD_H
-#define BDD_CMD_H
+#pragma once
+
 
 #include "gvCmdMgr.h"
 
@@ -32,4 +32,4 @@ GV_COMMAND(BDrawCmd, GV_CMD_TYPE_BDD);
 GV_COMMAND(BSetOrderCmd, GV_CMD_TYPE_BDD);
 GV_COMMAND(BConstructCmd, GV_CMD_TYPE_BDD);
 
-#endif // BDD_CMD_H
+

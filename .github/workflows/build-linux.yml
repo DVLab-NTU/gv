@@ -1,32 +1,50 @@
 name: Build(Linux)
 on:
-  push:
-    branches: [ "main","develop"]
-  pull_request:
-    branches: [ "main","develop"]
+    push:
+        branches: ["main", "develop"]
+    pull_request:
+        branches: ["main", "develop"]
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
 
-    - name: Modify INSTALL.sh
-      run: |
-        sed -i "s/.\/gv;//g" ./INSTALL.sh
-        
-    - name: Install Dependencies
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install gperf build-essential bison flex libreadline-dev gawk tcl-dev libffi-dev git graphviz xdot pkg-config python3 libboost-system-dev libboost-python-dev libboost-filesystem-dev zlib1g-dev
+            - name: Cache CMake dependency source code
+              uses: actions/cache@v3
+              env:
+                  cache-name: cache-cmake-engine-sources
+              with:
+                  # CMake cache is at ${{github.workspace}}/build/_deps but we only will cache folders ending in '-src' to cache source code
+                  path: ${{github.workspace}}/build/engines/src/engine-*
+                  # Cache hash is dependent on CMakeLists files anywhere as these can change what's in the cache, as well as cmake modules files
+                  # key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('./CMakeLists.txt') }}
+                  key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('./CMakeLists.txt') }}
+                  # it's acceptable to reuse caches for different CMakeLists content if exact match is not available and unlike build caches, we
+                  # don't need to restrict these by OS or compiler as it's only source code that's being cached
+                  restore-keys: |
+                      ${{ runner.os }}-${{ env.cache-name }}-
+
+            - name: Install Dependencies
+              shell: bash
+              run: |
+                  ls
+                  sudo apt-get update
+                  sudo apt-get -y install gperf build-essential bison flex libreadline-dev gawk tcl-dev libffi-dev git cmake parallel
+                  sudo apt-get -y install graphviz xdot pkg-config python3 libboost-system-dev libboost-python-dev libboost-filesystem-dev zlib1g-dev
+
+            - name: Install GV
+              run: |
+                  echo "Start to build the GV "
+                  make build
+
+            - name: Install Yosys
+              working-directory: ${{github.workspace}}/build/engines/src/engine-yosys
+              run: |
+                  echo "Start to install the Yosys"
+                  sudo make install
 
 
-    - name: Install GV
-      run: sudo ./INSTALL.sh
-
-
-    - name: Check GV library
-      run: ldd ./gv
-
-    - name: Run tests
-      run: ./gv -f tests/test.dofile
+            - name: Run tests
+              shell: bash
+              run: make test

@@ -1,27 +1,30 @@
 #ifndef GV_CMD_MGR_C
 #define GV_CMD_MGR_C
 
+#include "gvCmdMgr.h"
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 
-#include "gvCmdMgr.h"
 #include "gvMsg.h"
+#include "gvType.h"
 #include "util.h"
 
-extern "C"
-{
+extern "C" {
 #include <readline/history.h>
 #include <readline/readline.h>
 }
+
+extern GVCmdExecStatus appCmdHandlerItf();
+extern ModType getMode();
 
 /* -------------------------------------------------- *\
  * Class GVCmdMgr Implementations
 \* -------------------------------------------------- */
 
-bool
-GVCmdExec::operator<(const GVCmdExec& rhs) const {
+bool GVCmdExec::operator<(const GVCmdExec& rhs) const {
     string lstr, rstr;
     for (size_t idx = 0; idx < _cmdLen; ++idx) {
         if (idx != 0) lstr.append(" ");
@@ -36,8 +39,7 @@ GVCmdExec::operator<(const GVCmdExec& rhs) const {
     return (lstr < rstr);
 }
 
-void
-GVCmdExec::lexOptions(const string& option, vector<string>& tokens) const {
+void GVCmdExec::lexOptions(const string& option, vector<string>& tokens) const {
     string token;
     size_t n = myStrGetTok(option, token);
     while (token.size()) {
@@ -46,57 +48,53 @@ GVCmdExec::lexOptions(const string& option, vector<string>& tokens) const {
     }
 }
 
-bool
-GVCmdExec::lexSingleOption
-(const string& option, string& token, bool optional) const
-{
-   size_t n = myStrGetTok(option, token);
-   if (!optional) {
-      if (token.size() == 0) {
-         errorOption(GV_CMD_OPT_MISSING, "");
-         return false;
-      }
-   }
-   if (n != string::npos) {
-      errorOption(GV_CMD_OPT_EXTRA, option.substr(n));
-      return false;
-   }
-   return true;
+bool GVCmdExec::lexSingleOption(const string& option, string& token, bool optional) const {
+    size_t n = myStrGetTok(option, token);
+    if (!optional) {
+        if (token.size() == 0) {
+            errorOption(GV_CMD_OPT_MISSING, "");
+            return false;
+        }
+    }
+    if (n != string::npos) {
+        errorOption(GV_CMD_OPT_EXTRA, option.substr(n));
+        return false;
+    }
+    return true;
 }
 
 GVCmdExecStatus
 GVCmdExec::errorOption(GVCmdOptionError err, const string& opt) const {
     switch (err) {
-    case GV_CMD_OPT_MISSING:
-        if (opt.size())
-            gvMsg(GV_MSG_ERR) << "Missing option \"" << opt << "\" !!" << endl;
-        else
-            gvMsg(GV_MSG_ERR) << "Missing option"
-                              << "!!" << endl;
-        break;
-    case GV_CMD_OPT_EXTRA:
-        gvMsg(GV_MSG_ERR) << "Extra option \"" << opt << "\" !!" << endl;
-        break;
-    case GV_CMD_OPT_ILLEGAL:
-        gvMsg(GV_MSG_ERR) << "Illegal option \"" << opt << "\" !!" << endl;
-        break;
-    case GV_CMD_OPT_FOPEN_FAIL:
-        gvMsg(GV_MSG_ERR) << "Error: cannot open file \"" << opt << "\" !!"
-                          << endl;
-        break;
-    default:
-        gvMsg(GV_MSG_ERR) << "Unknown option error type \"" << err << "\" !!"
-                          << endl;
-        break;
+        case GV_CMD_OPT_MISSING:
+            if (opt.size())
+                gvMsg(GV_MSG_ERR) << "Missing option \"" << opt << "\" !!" << endl;
+            else
+                gvMsg(GV_MSG_ERR) << "Missing option"
+                                  << "!!" << endl;
+            break;
+        case GV_CMD_OPT_EXTRA:
+            gvMsg(GV_MSG_ERR) << "Extra option \"" << opt << "\" !!" << endl;
+            break;
+        case GV_CMD_OPT_ILLEGAL:
+            gvMsg(GV_MSG_ERR) << "Illegal option \"" << opt << "\" !!" << endl;
+            break;
+        case GV_CMD_OPT_FOPEN_FAIL:
+            gvMsg(GV_MSG_ERR) << "Error: cannot open file \"" << opt << "\" !!"
+                              << endl;
+            break;
+        default:
+            gvMsg(GV_MSG_ERR) << "Unknown option error type \"" << err << "\" !!"
+                              << endl;
+            break;
     }
     return GV_CMD_EXEC_ERROR;
 }
 
-bool
-GVCmdExec::checkCmd(const string& check) const {
-    unsigned len    = this->getCmdLen();
-    bool     result = false;
-    size_t   space  = 0, nxt_space;
+bool GVCmdExec::checkCmd(const string& check) const {
+    unsigned len = this->getCmdLen();
+    bool result = false;
+    size_t space = 0, nxt_space;
 
     for (unsigned word = 1; word <= len; ++word) {
         nxt_space = check.find(' ', space + 1);
@@ -104,7 +102,7 @@ GVCmdExec::checkCmd(const string& check) const {
 
         for (unsigned i = space + 1; i <= nxt_space; ++i) {
             string checkMand = check.substr(space, i - space);
-            string checkOpt  = check.substr(i, nxt_space - space - i);
+            string checkOpt = check.substr(i, nxt_space - space - i);
 
             if (checkMandCmd(checkMand, word) &&
                 (checkOpt.empty() || checkOptCmd(checkOpt, word))) {
@@ -115,21 +113,20 @@ GVCmdExec::checkCmd(const string& check) const {
         if (result == false) return false;
 
         result = false;
-        space  = nxt_space + 1;
+        space = nxt_space + 1;
     }
 
     return true;
 }
 
-bool
-GVCmdExec::checkCmd(const string& check, size_t idx) const {
+bool GVCmdExec::checkCmd(const string& check, size_t idx) const {
     if (idx >= this->getCmdLen()) return false;
 
     bool result = false;
 
     for (unsigned i = 1, n = check.size(); i <= n; ++i) {
         string checkMand = check.substr(0, i);
-        string checkOpt  = check.substr(i, n + 1 - i);
+        string checkOpt = check.substr(i, n + 1 - i);
 
         if (checkMandCmd(checkMand, idx) &&
             (checkOpt.empty() || checkOptCmd(checkOpt, idx))) {
@@ -140,8 +137,7 @@ GVCmdExec::checkCmd(const string& check, size_t idx) const {
     return result;
 }
 
-bool
-GVCmdExec::checkMandCmd(const string& check, size_t idx) const {
+bool GVCmdExec::checkMandCmd(const string& check, size_t idx) const {
     if (check.size() != _mandCmd[idx - 1].size()) return false;
     for (unsigned i = 0, n = _mandCmd[idx - 1].size(); i < n; ++i) {
         if (!check[i]) return true;
@@ -152,8 +148,7 @@ GVCmdExec::checkMandCmd(const string& check, size_t idx) const {
     return true;
 }
 
-bool
-GVCmdExec::checkOptCmd(const string& check, size_t idx) const {
+bool GVCmdExec::checkOptCmd(const string& check, size_t idx) const {
     if (check.size() > _optCmd[idx - 1].size()) return false;
     for (unsigned i = 0, n = _optCmd[idx - 1].size(); i < n; ++i) {
         if (!check[i]) return true;
@@ -177,8 +172,7 @@ GVCmdMgr::~GVCmdMgr() {
     if (_dofile.is_open()) _dofile.close();
 }
 
-bool
-GVCmdMgr::regCmd(const string& cmd, unsigned nCmp, GVCmdExec* e) {
+bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp, GVCmdExec* e) {
     assert(e);
     assert(cmd.size());
     assert(nCmp);
@@ -195,20 +189,19 @@ GVCmdMgr::regCmd(const string& cmd, unsigned nCmp, GVCmdExec* e) {
     e->setMandCmd(str.substr(0, nCmp));
     e->setOptCmd(str.substr(nCmp));
 
-    GVCmdExecSet::iterator it     = _cmdLib.find(e->getGVCmdType());
-    GVCmdExecSubSet*       cmdSet = 0;
+    GVCmdExecSet::iterator it = _cmdLib.find(e->getGVCmdType());
+    GVCmdExecSubSet* cmdSet = 0;
     if (it == _cmdLib.end()) {
         cmdSet = new GVCmdExecSubSet();
         _cmdLib.insert(make_pair(e->getGVCmdType(), cmdSet));
-    } else cmdSet = it->second;
+    } else
+        cmdSet = it->second;
     cmdSet->insert(e);
 
     return true;
 }
 
-bool
-GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2,
-                 GVCmdExec* e) {
+bool GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2, GVCmdExec* e) {
     assert(e);
     assert(cmd.size());
     assert(nCmp1);
@@ -236,33 +229,48 @@ GVCmdMgr::regCmd(const string& cmd, unsigned nCmp1, unsigned nCmp2,
     e->setMandCmd(str2.substr(0, nCmp2));
     e->setOptCmd(str2.substr(nCmp2));
 
-    GVCmdExecSet::iterator it     = _cmdLib.find(e->getGVCmdType());
-    GVCmdExecSubSet*       cmdSet = 0;
+    GVCmdExecSet::iterator it = _cmdLib.find(e->getGVCmdType());
+    GVCmdExecSubSet* cmdSet = 0;
     if (it == _cmdLib.end()) {
         cmdSet = new GVCmdExecSubSet();
         _cmdLib.insert(make_pair(e->getGVCmdType(), cmdSet));
-    } else cmdSet = it->second;
+    } else
+        cmdSet = it->second;
     cmdSet->insert(e);
     return true;
 }
 
 GVCmdExecStatus
 GVCmdMgr::execOneCmd() {
+    // Ridirect Commands to Application Command Handler
+    if (getMode() == MOD_TYPE_APP) {
+        appCmdHandlerItf();
+        return GV_CMD_EXEC_DONE;
+    }
+
     // Read User Command Input
-    string str     = "";
-    char*  execCmd = new char[1024];
+    string str = "";
+    char* execCmd = new char[1024];
     if (_dofile.is_open()) {
         getline(_dofile, str);
         strcpy(execCmd, str.c_str());
-        cout << getPrompt() << execCmd << endl;
+        // Detect dofile comment(#) and blank command
+        if (str.substr(0, 2) != "//" && str.size() > 0)
+            cout << getPrompt() << execCmd << endl;
+        else
+            return GV_CMD_EXEC_COMMENT;
         if (_dofile.eof()) closeDofile();
-    } else execCmd = readline(getPrompt().c_str());
+    } else
+        execCmd = readline(getPrompt().c_str());
     assert(execCmd);
+
+    // Detect dofile comment(#) for debugging
+    // if (str.substr(0, 2) == "//") return GV_CMD_EXEC_NOP;
 
     if (addHistory(execCmd)) {
         add_history(_history.back().c_str());
-        string     option = "";
-        GVCmdExec* e      = parseCmd(option);
+        string option = "";
+        GVCmdExec* e = parseCmd(option);
         // Check command types
         if (e) {
             GVCmdType cmdType = e->getGVCmdType();
@@ -278,10 +286,10 @@ GVCmdMgr::execOneCmd() {
                 }
             }
         }
-
         if (e) return e->exec(option);
     }
     delete[] execCmd;
+
     return GV_CMD_EXEC_NOP;
 }
 
@@ -292,7 +300,7 @@ GVCmdMgr::parseCmd(string& option) {
     assert(str[0] != 0 && str[0] != ' ');
 
     GVCmdExec* e = 0;
-    string     cmd;
+    string cmd;
 
     // normalize: keep only one space between two words
     unsigned delCount = 0;
@@ -335,7 +343,8 @@ GVCmdMgr::parseCmd(string& option) {
         if ((_cmd == "ls") || (_cmd == "vi") || (_cmd == "vim") ||
             (_cmd == "echo") || (_cmd == "cat") || (_cmd == "clear"))
             system(str.c_str());
-        else gvMsg(GV_MSG_ERR) << "Illegal command!! (" << str << ")" << endl;
+        else
+            gvMsg(GV_MSG_ERR) << "Illegal command!! (" << str << ")" << endl;
     } else if (idx != string::npos) {
         size_t opt = str.find_first_not_of(' ', idx);
         if (opt != string::npos) option = str.substr(opt);
@@ -354,7 +363,7 @@ GVCmdMgr::getCmd(const string& cmd) const {
         if (cmd[i] == ' ') ++spCount;
 
     GVCmdExecSet::const_iterator it;
-    GVCmdExecSubSet::iterator    is;
+    GVCmdExecSubSet::iterator is;
     for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
         for (is = it->second->begin(); is != it->second->end(); ++is) {
             if (((*is)->getCmdLen() == spCount + 1) && (*is)->checkCmd(cmd)) {
@@ -377,7 +386,7 @@ GVCmdMgr::getCmdListFromPart(const string& cmd) const {
         if (cmd[i] == ' ') ++spCount;
 
     GVCmdExecSet::const_iterator it;
-    GVCmdExecSubSet::iterator    is;
+    GVCmdExecSubSet::iterator is;
     for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
         if (it->first != GV_CMD_TYPE_REVEALED) {
             for (is = it->second->begin(); is != it->second->end(); ++is) {
@@ -397,37 +406,34 @@ GVCmdMgr::getCmdListFromPart(const string& cmd) const {
     return result;
 }
 
-void
-GVCmdMgr::printHelps(bool revealed) const {
+void GVCmdMgr::printHelps(bool revealed) const {
     GVCmdExecSet::const_iterator it;
-    GVCmdExecSubSet::iterator    is;
-    gvMsg(GV_MSG_IFO) << endl;
+    GVCmdExecSubSet::iterator is;
+    cout << endl;
     for (it = _cmdLib.begin(); it != _cmdLib.end(); ++it) {
         if ((revealed) ^ (it->first != GV_CMD_TYPE_REVEALED)) {
-            gvMsg(GV_MSG_IFO) << "========== " << GVCmdTypeString[it->first]
-                              << " Commands : ==========" << endl;
+            cout << "========== " << GVCmdTypeString[it->first]
+                 << " Commands : ==========" << endl;
             for (is = it->second->begin(); is != it->second->end(); ++is)
                 (*is)->help();
-            gvMsg(GV_MSG_IFO) << endl;
+            cout << endl;
         }
     }
 }
 
-void
-GVCmdMgr::printHistory(int nPrint) const {
+void GVCmdMgr::printHistory(int nPrint) const {
     int historySize = _history.size();
     if (historySize == 0) {
-        gvMsg(GV_MSG_IFO) << "Empty command history!!" << endl;
+        cout << "Empty command history!!" << endl;
         return;
     }
     if ((nPrint < 0) || (nPrint > historySize)) nPrint = historySize;
     assert(historySize >= nPrint);
     for (int i = historySize - nPrint; i < historySize; ++i)
-        gvMsg(GV_MSG_IFO) << "   " << i << ": " << _history[i] << endl;
+        cout << "   " << i << ": " << _history[i] << endl;
 }
 
-bool
-GVCmdMgr::addHistory(char* cmd) {
+bool GVCmdMgr::addHistory(char* cmd) {
     // remove ' ' at the end
     char* tmp = &(cmd[strlen(cmd) - 1]);
     while ((tmp >= cmd) && (*tmp == ' ')) *(tmp--) = 0;

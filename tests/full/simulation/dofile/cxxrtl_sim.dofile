@@ -1,0 +1,6 @@
+cirread -v ./designs/Simulation/adder.v
+se sys vrf
+set vsim cxxrtl
+vsim -file ./designs/Simulation/adder_input.pattern -output cxxrtl_test.vcd
+vcdprint cxxrtl_test.vcd
+q -f

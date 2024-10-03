@@ -1,19 +1,18 @@
-#ifndef GV_CMD_COMM_C
-#define GV_CMD_COMM_C
 
 #include "gvCmdComm.h"
-#include "gvMsg.h"
-#include "gvUsage.h"
-#include "util.h"
+
 #include <string>
 
-bool
-GVinitCommonCmd() {
+#include "gvMsg.h"
+#include "util.h"
+
+
+bool initCommonCmd() {
     return (gvCmdMgr->regCmd("DOfile", 2, new GVDofileCmd) &&
             gvCmdMgr->regCmd("HELp", 3, new GVHelpCmd) &&
             gvCmdMgr->regCmd("HIStory", 3, new GVHistoryCmd) &&
-            gvCmdMgr->regCmd("USAGE", 5, new GVUsageCmd) &&
             gvCmdMgr->regCmd("Quit", 1, new GVQuitCmd));
+            /*gvCmdMgr->regCmd("USAGE", 5, new GVUsageCmd) &&*/
 }
 
 //----------------------------------------------------------------------
@@ -25,7 +24,7 @@ GVHelpCmd::exec(const string& option) {
     vector<string> options;
     GVCmdExec::lexOptions(option, options);
 
-    bool   verbose = false, revealed = false;
+    bool verbose = false, revealed = false;
     string cmd = "";
 
     size_t n = options.size();
@@ -51,16 +50,16 @@ GVHelpCmd::exec(const string& option) {
         }
     }
 
-    if (revealed) gvCmdMgr->printHelps(true);     // Print All Commands
-    else if (!cmd.size()) gvCmdMgr->printHelps(); // Print Commands
+    if (revealed) gvCmdMgr->printHelps(true);      // Print All Commands
+    else if (!cmd.size()) gvCmdMgr->printHelps();  // Print Commands
     else {
         GVCmdExec* e = gvCmdMgr->getCmd(cmd);
         if (e) {
             e->usage(verbose);
             return GV_CMD_EXEC_DONE;
-        } // if exact match
+        }  // if exact match
         GVCmdExecSubSet list = gvCmdMgr->getCmdListFromPart(cmd);
-        if (list.size()) { // if partial match
+        if (list.size()) {  // if partial match
             GVCmdExecSubSet::iterator it = list.begin();
             if (verbose)
                 for (; it != list.end(); ++it) (*it)->usage();
@@ -72,22 +71,20 @@ GVHelpCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVHelpCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: HELp [<(string cmd) [-Verbose]>]" << endl;
+void GVHelpCmd::usage(const bool& verbose) const {
+    cout << "Usage: HELp [<(string cmd) [-Verbose]>]" << endl;
     if (verbose) {
-        gvMsg(GV_MSG_IFO)
+        cout
             << "Param: (string cmd): The (partial) name of the command."
             << endl;
-        gvMsg(GV_MSG_IFO) << "       -Verbose    : Print usage in more detail."
-                          << endl;
+        cout << "       -Verbose    : Print usage in more detail."
+             << endl;
     }
 }
 
-void
-GVHelpCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "HELp: "
-                      << "Print this help message." << endl;
+void GVHelpCmd::help() const {
+    cout << setw(20) << left << "HELp: "
+         << "Print this help message." << endl;
 }
 
 //----------------------------------------------------------------------
@@ -106,7 +103,7 @@ GVQuitCmd::exec(const string& option) {
         else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[0]);
     }
 
-    gvMsg(GV_MSG_IFO) << "Are you sure to quit (Yes/No)? [No] ";
+    cout << "Are you sure to quit (Yes/No)? [No] ";
     char str[1024];
     cin.getline(str, 1024);
     string ss = string(str);
@@ -118,19 +115,17 @@ GVQuitCmd::exec(const string& option) {
     else return GV_CMD_EXEC_DONE;
 }
 
-void
-GVQuitCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: Quit [-Force]" << endl;
+void GVQuitCmd::usage(const bool& verbose) const {
+    cout << "Usage: Quit [-Force]" << endl;
     if (verbose) {
-        gvMsg(GV_MSG_IFO) << "Param: -Force: Quit the program forcedly."
-                          << endl;
+        cout << "Param: -Force: Quit the program forcedly."
+             << endl;
     }
 }
 
-void
-GVQuitCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "Quit: "
-                      << "Quit the execution." << endl;
+void GVQuitCmd::help() const {
+    cout << setw(20) << left << "Quit: "
+         << "Quit the execution." << endl;
 }
 
 //----------------------------------------------------------------------
@@ -151,20 +146,18 @@ GVHistoryCmd::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVHistoryCmd::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: HIStory [(int nPrint)]" << endl;
+void GVHistoryCmd::usage(const bool& verbose) const {
+    cout << "Usage: HIStory [(int nPrint)]" << endl;
     if (verbose) {
-        gvMsg(GV_MSG_IFO) << "Param: (int nPrint): The number of the latest "
-                             "commands to be printed. (default = MAX)"
-                          << endl;
+        cout << "Param: (int nPrint): The number of the latest "
+                "commands to be printed. (default = MAX)"
+             << endl;
     }
 }
 
-void
-GVHistoryCmd::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "HIStory: "
-                      << "Print command history." << endl;
+void GVHistoryCmd::help() const {
+    cout << setw(20) << left << "HIStory: "
+         << "Print command history." << endl;
 }
 
 //----------------------------------------------------------------------
@@ -188,69 +181,64 @@ GVDofileCmd ::exec(const string& option) {
     return GV_CMD_EXEC_DONE;
 }
 
-void
-GVDofileCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: DOfile <(string fileName)>" << endl;
+void GVDofileCmd ::usage(const bool& verbose) const {
+    cout << "Usage: DOfile <(string fileName)>" << endl;
     if (verbose) {
-        gvMsg(GV_MSG_IFO)
+        cout
             << "Param: (string fileName): The file name of the script." << endl;
     }
 }
 
-void
-GVDofileCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "DOfile: "
-                      << "Execute the commands in the dofile." << endl;
+void GVDofileCmd ::help() const {
+    cout << setw(20) << left << "DOfile: "
+         << "Execute the commands in the dofile." << endl;
 }
 
 //----------------------------------------------------------------------
 // USAGE [-Time-only | -Memory-only] [-RESET]
 //----------------------------------------------------------------------
 
-GVCmdExecStatus
-GVUsageCmd ::exec(const string& option) {
-    vector<string> options;
-    GVCmdExec::lexOptions(option, options);
+/*GVCmdExecStatus*/
+/*GVUsageCmd ::exec(const string& option) {*/
+/*    vector<string> options;*/
+/*    GVCmdExec::lexOptions(option, options);*/
+/**/
+/*    bool timeOnly = false, memoryOnly = false, reset = false;*/
+/**/
+/*    size_t n = options.size();*/
+/*    for (size_t i = 0; i < n; ++i) {*/
+/*        const string& token = options[i];*/
+/*        if (myStrNCmp("-Time-only", token, 2) == 0) {*/
+/*            if (timeOnly || memoryOnly)*/
+/*                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);*/
+/*            else timeOnly = true;*/
+/*        } else if (myStrNCmp("-Memory-only", token, 2) == 0) {*/
+/*            if (timeOnly || memoryOnly)*/
+/*                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);*/
+/*            else memoryOnly = true;*/
+/*        } else if (myStrNCmp("-RESET", token, 6) == 0) {*/
+/*            if (reset) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);*/
+/*            else reset = true;*/
+/*        } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);*/
+/*    }*/
+/**/
+/*    gvUsage.report(!memoryOnly, !timeOnly);*/
+/*    if (reset) gvUsage.reset();*/
+/*    return GV_CMD_EXEC_DONE;*/
+/*}*/
+/**/
+/*void GVUsageCmd ::usage(const bool& verbose) const {*/
+/*    cout << "Usage: USAGE [-Time-only | -Memory-only]" << endl;*/
+/*    if (verbose) {*/
+/*        cout*/
+/*            << "Param: -Time-only  : Disable memory usage reporting." << endl;*/
+/*        cout*/
+/*            << "       -Memory-only: Disable time usage reporting." << endl;*/
+/*    }*/
+/*}*/
+/**/
+/*void GVUsageCmd ::help() const {*/
+/*    cout << setw(20) << left << "USAGE: "*/
+/*         << "Report resource usage." << endl;*/
+/*}*/
 
-    bool timeOnly = false, memoryOnly = false, reset = false;
-
-    size_t n = options.size();
-    for (size_t i = 0; i < n; ++i) {
-        const string& token = options[i];
-        if (myStrNCmp("-Time-only", token, 2) == 0) {
-            if (timeOnly || memoryOnly)
-                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else timeOnly = true;
-        } else if (myStrNCmp("-Memory-only", token, 2) == 0) {
-            if (timeOnly || memoryOnly)
-                return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else memoryOnly = true;
-        } else if (myStrNCmp("-RESET", token, 6) == 0) {
-            if (reset) return GVCmdExec::errorOption(GV_CMD_OPT_EXTRA, token);
-            else reset = true;
-        } else return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, token);
-    }
-
-    gvUsage.report(!memoryOnly, !timeOnly);
-    if (reset) gvUsage.reset();
-    return GV_CMD_EXEC_DONE;
-}
-
-void
-GVUsageCmd ::usage(const bool& verbose) const {
-    gvMsg(GV_MSG_IFO) << "Usage: USAGE [-Time-only | -Memory-only]" << endl;
-    if (verbose) {
-        gvMsg(GV_MSG_IFO)
-            << "Param: -Time-only  : Disable memory usage reporting." << endl;
-        gvMsg(GV_MSG_IFO)
-            << "       -Memory-only: Disable time usage reporting." << endl;
-    }
-}
-
-void
-GVUsageCmd ::help() const {
-    gvMsg(GV_MSG_IFO) << setw(20) << left << "USAGE: "
-                      << "Report resource usage." << endl;
-}
-
-#endif

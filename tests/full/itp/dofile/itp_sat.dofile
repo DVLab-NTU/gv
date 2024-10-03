@@ -1,0 +1,4 @@
+cirread -aig ./designs/SoCV/hwmcc/6s307rb06.aig
+se sys vrf
+satv itp -o 0
+q -f

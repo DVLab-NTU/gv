@@ -1,0 +1,11 @@
+setup> cirread -aiger ./designs/SoCV/hwmcc/6s388b07.aig
+
+setup> set sys vrf
+
+vrf> satv itp -o 0
+
+Monitor "34359" is violated.
+0: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx0
+
+vrf> quit -f
+

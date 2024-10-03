@@ -3,60 +3,55 @@
   PackageName  [ main ]
   Synopsis     [ Define main() ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-
-#ifndef GV_MAIN_CC
-#define GV_MAIN_CC
 
 #include "gvCmdMgr.h"
 #include "gvMsg.h"
-#include "gvUsage.h"
-#include "kernel/yosys.h"
+/*#include "gvUsage.h"*/
 #include "util.h"
 using namespace std;
 
-string   GVMsg::_allName = "";
+string GVMsg::_allName = "";
 ofstream GVMsg::_allout;
 GVMsgMgr gvMsg;
 
-GVUsage gvUsage;
+/*GVUsage gvUsage;*/
 
 //----------------------------------------------------------------------
 //    Global cmd Manager
 //----------------------------------------------------------------------
 GVCmdMgr* gvCmdMgr = new GVCmdMgr("gv");
 
-extern bool GVinitCommonCmd();
-extern bool GVinitNtkCmd();
-extern bool GVinitSimCmd();
-extern bool GVinitVrfCmd();
-extern bool GVinitAbcCmd();
-extern bool GVinitModCmd();
-extern bool GVinitBddCmd();
-extern bool GVinitProveCmd();
-extern bool GVinitProveCmd();
-extern bool GVinitItpCmd();
-extern bool GVinitCirCmd();
+extern bool initCommonCmd();
+extern bool initSimCmd();
+extern bool initVrfCmd();
+extern bool initAbcCmd();
+extern bool initModCmd();
+extern bool initBddCmd();
+/*extern bool initProveCmd();*/
+/*extern bool initItpCmd();*/
+extern bool initCirCmd();
+extern bool initYosysCmd();
+extern bool initAppCmd();
+extern bool initExpCmd();
 
-static void
-usage() {
-    cout << "Usage: cirTest [ -File < doFile > ]" << endl;
-}
-
+/*static void usage() {*/
+/*    cout << "Usage: ./gv [ -File < doFile > ]" << endl;*/
+/*}*/
+/**/
 static void
 myexit() {
-    usage();
+    /*usage();*/
     exit(-1);
 }
 
-int
-main(int argc, char** argv) {
-    myUsage.reset();
+int main(int argc, char** argv) {
+    /*myUsage.reset();*/
 
     ifstream dof;
 
-    if (argc == 3) { // -file <doFile>
+    if (argc == 3) {  // -file <doFile>
         if (myStrNCmp("-File", argv[1], 2) == 0) {
             if (!gvCmdMgr->openDofile(argv[2])) {
                 cout << "Error: cannot open file \"" << argv[2] << "\"!!\n";
@@ -70,19 +65,22 @@ main(int argc, char** argv) {
         cout << "Error: illegal number of argument (" << argc << ")!!\n";
         myexit();
     }
-    Yosys::yosys_setup();                     // initial yosys command
-    Yosys::log_streams.push_back(&std::cout); // log yosys message
-    if (!(GVinitCommonCmd() && GVinitNtkCmd() && GVinitSimCmd() && GVinitVrfCmd() &&
-          GVinitAbcCmd() && GVinitModCmd() && GVinitBddCmd() && GVinitProveCmd() && GVinitItpCmd() && GVinitCirCmd()))
+
+    // cout << "[EXPERIMENTAL VERSION FOR CMAKE v0.1]\n";
+    // clang-format off
+    if (!(initCommonCmd() && initVrfCmd() && initAbcCmd() && initModCmd() && initBddCmd() 
+           && initCirCmd() && initYosysCmd() && initAppCmd() && initExpCmd()))
         return 1;
+    // clang-format on
+
+    // printBanner();
+    // cout << "GV v0.3.0 - Copyright © 2023-present, DVLab.\n";
 
     GVCmdExecStatus status = GV_CMD_EXEC_DONE;
     while (status != GV_CMD_EXEC_QUIT) {
         gvCmdMgr->setPrompt();
         status = gvCmdMgr->execOneCmd();
-        cout << endl;
+        if (status != GV_CMD_EXEC_COMMENT) cout << endl;
     }
     return 0;
 }
-
-#endif

@@ -1,0 +1,36 @@
+setup> cirread -v ./designs/SoCV/basic/a.v
+Converted 0 1-valued FFs and 16 DC-valued FFs.
+
+setup> breset 2000 8009 30011
+
+setup> bsetorder -file
+Set BDD Variable Order Succeed !!
+
+setup> bcons -all
+
+setup> set system vrf
+
+vrf> pinit init
+
+vrf> ptrans tri tr
+
+vrf> pimage -n 100
+Fixed point is reached (time : 12)
+
+vrf> pcheckp -o 0
+Monitor "z1[0]" is safe.
+
+vrf> pcheckp -o 1
+Monitor "z2[0]" is safe.
+
+vrf> pcheckp -o 2
+Monitor "z3[0]" is safe.
+
+vrf> pcheckp -o 3
+Monitor "z4[0]" is safe.
+
+vrf> pcheckp -o 4
+Monitor "z5[0]" is safe.
+
+vrf> q -f
+

@@ -1,0 +1,21 @@
+bsetvar 1 a
+bsetvar 2 b
+bsetvar 3 c
+bsetvar 4 d
+bsetvar 5 e
+bsetvar 6 f
+bsetvar 7 g
+bsetvar 8 h
+bsetvar 9 i
+bsetvar 10 j
+brep a
+brep b
+brep c
+brep d
+brep e
+brep f
+brep g
+brep h
+brep i
+brep j
+q -f

@@ -1,128 +1,167 @@
 /****************************************************************************
   FileName     [ cirAig.cpp ]
   PackageName  [ cir ]
-  Synopsis     [ Define basic cir package commands ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ ]
+  Synopsis     [ Define GV cir/aig functions ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <cirMgr.h>
+
 #include <cirGate.h>
-#include "base/abc/abc.h"
-#include "gvModMgr.h"
-#include "gvAbcMgr.h"
+#include <cirMgr.h>
+#include <unistd.h>
 
-void 
-CirMgr::readCirFromAbc(string fileName, CirFileType fileType) {
-    // TODO : Convert abc ntk to gv aig ntk
-    CirGateV gateV;
-    Gia_Man_t* pGia = NULL;            // the gia pointer of abc
-    Gia_Obj_t *pObj, *pObjRi, *pObjRo; // the obj element of gia
-    unsigned iPi = 0, iPo = 0, iRi = 0, iRo = 0;
+#include <cassert>
+#include <map>
 
-    // abc function parameters
-    char* pFileName = new char[100];
-    cout << "filename = " << fileName << endl;
-    strcpy(pFileName, fileName.c_str());
-    char* pTopModule =
-        NULL; // the top module can be auto detected by yosys, no need to set
-    char* pDefines    = NULL;
-    int   fBlast      = 1; // blast the ntk to gia (abc's aig data structure)
-    int   fInvert     = 0;
-    int   fTechMap    = 1;
-    int   fSkipStrash = 0;
-    int   fCollapse   = 0;
-    int   c, fVerbose = 1; // set verbose to 1 to see which yosys command is used
-    int   i, *pWire;
+#include "abcMgr.h"
+#include "cirDef.h"
+#include "cirGate.h"
+#include "cirMgr.h"
 
-    if(fileType == AIGER)
-        pGia = Gia_AigerRead(pFileName, 0, fSkipStrash, 0);
-    else if(fileType == VERILOG) {
-        pGia = abcMgr->get_Abc_Frame_t()->pGia;
-        cout << Gia_ManPoNum(pGia) << endl;
-    }
+using namespace gv::cir;
 
-    // initialize the size of the containers
-    initCir(pGia);
-    // increment the global travel id for circuit traversing usage
-    Gia_ManIncrementTravId(pGia);
-
-    // since we don't want to traverse the constant node, set the TravId of the
-    // constant node to be as the global one
-    Gia_ObjSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
-
-    // traverse the obj's in topological order
-    Gia_ManForEachObj(pGia, pObj, i) {
-        if(Gia_ObjIsPi(pGia, pObj)) {
-            CirPiGate* gate = new CirPiGate(Gia_ObjId(pGia, pObj), 0);
-            _piList[iPi++] = gate;
-            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-        }
-        else if(Gia_ObjIsPo(pGia, pObj)) {
-            CirPoGate *gate = new CirPoGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-            gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
-            _poList[iPo++] = gate;
-            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-        }
-        else if(Gia_ObjIsAnd(pObj)) {
-            CirAigGate *gate = new CirAigGate(Gia_ObjId(pGia, pObj), 0);
-            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-            gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
-            gate->setIn1(getGate(Gia_ObjId(pGia, Gia_ObjFanin1(pObj))), Gia_ObjFaninC1(pObj));
-        }
-        else if(Gia_ObjIsRo(pGia, pObj)) {
-            CirRoGate* gate = new CirRoGate(Gia_ObjId(pGia, pObj), 0);
-            _roList[iRo++] = gate;
-            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-        }
-        else if(Gia_ObjIsRi(pGia, pObj)) {
-            CirRiGate *gate = new CirRiGate(Gia_ObjId(pGia, pObj), 0, Gia_ObjId(pGia, Gia_ObjFanin0(pObj)));
-            gate->setIn0(getGate(Gia_ObjId(pGia, Gia_ObjFanin0(pObj))), Gia_ObjFaninC0(pObj));
-            _riList[iPo++] = gate;
-            _totGateList[Gia_ObjId(pGia, pObj)] = gate;
-        }
-        else if(Gia_ObjIsConst0(pObj)) {
-            cout << "I am const0 " << Gia_ObjId(pGia, pObj) <<  endl;
-        }
-        else {
-            cout << "not defined gate type" << endl;
-        }
-    }
-
-
-    // genConnections();
-    genDfsList();
-    // checkFloatList();
-    // checkUnusedList();
-
+/**
+ * @brief Reads a circuit from the ABC Gia.
+ *
+ * @param fileName   The name of the file containing the circuit.
+ * @param fileType   The type of file (AIGER or VERILOG) to be read.
+ * @return           Returns true if the circuit is successfully read; otherwise, false.
+ */
+const bool CirMgr::readCirFromAbc(string fileName, FileType fileType) {
+    // ABCParams param;
+    // map<unsigned, string> id2Name;
+    // ifstream cirin(fileName);
+    // if (!cirin) {
+    //     cout << "Cannot open design \"" << fileName << "\"!!" << endl;
+    //     return false;
+    // }
+    // strcpy(param.pFileName, fileName.c_str());
+    // setFileName(fileName);
+    // if (fileType == AIGER) {
+    //     _abcMgr->readAiger(param);
+    // } else if (fileType == VERILOG) {
+    //     param.fTechMap = 1;
+    //     param.fVerbose = 0;
+    //     _abcMgr->readVerilog(param);
+    //     _ysyMgr->createMapping(fileName);
+    //     _abcMgr->buildAigName(id2Name);
+    // }
+    // // initialize the size of the containers
+    // _abcMgr->initCir(fileType);
+    // _abcMgr->travPreprocess();
+    // _abcMgr->travAllObj(fileType, id2Name);
+    // genDfsList();
+    // return true;
 }
 
-CirGate* 
-CirMgr::createGate(unsigned id, GateType type) {
-    CirGate* gate = _totGateList[id];
-    unsigned l = 0;
-    switch (type) {
-      case PI_GATE: gate = new CirPiGate(id, l); break;
-      case AIG_GATE: gate = new CirAigGate(id, l); break;
-      //case LATCH: gate = new CirRoGate(litId/2, lineNo+1); break;
-      default: cerr << "Error: Unknown gate type (" << type << ")!!\n";
-               exit(-1);
-   }
-   return gate;
+/**
+ * @brief Reorder all the gates id for AIG.
+ *
+ * @param aigIdMap The mapping bewtween the old id and the new id.
+ */
+void CirMgr::reorderGateId(IDMap& aigIdMap) {
+    unsigned nxtId = 1;
+    for (int i = 0, n = cirMgr->getNumPIs(); i < n; ++i) {
+        CirGate* gate   = cirMgr->getPi(i);
+        unsigned gateId = gate->getGid();
+        if (nxtId != gate->getGid()) {
+            aigIdMap[gateId] = nxtId;
+        }
+        nxtId++;
+    }
+    for (int i = 0, n = cirMgr->getNumLATCHs(); i < n; ++i) {
+        CirGate* gate   = cirMgr->getRo(i);
+        unsigned gateId = gate->getGid();
+        if (nxtId != gate->getGid()) {
+            aigIdMap[gateId] = nxtId;
+        }
+        nxtId++;
+    }
+    for (int i = 0, n = cirMgr->getNumAIGs(); i < n; ++i) {
+        CirGate* gate   = cirMgr->getAig(i);
+        unsigned gateId = gate->getGid();
+        if (!gate->isGlobalRef()) {
+            assert(true);
+            cout << "Redundant AIG Node !!\n";
+        }
+        if (nxtId != gate->getGid()) {
+            aigIdMap[gateId] = nxtId;
+        }
+        nxtId++;
+    }
+    for (int i = 0, n = cirMgr->getNumPOs(); i < n; ++i) {
+        CirGate* gate   = cirMgr->getPo(i);
+        unsigned gateId = gate->getGid();
+        if (nxtId != gate->getGid()) {
+            aigIdMap[gateId] = nxtId;
+        }
+        nxtId++;
+    }
 }
 
-void 
-CirMgr::initCir(Gia_Man_t* pGia) {
-    // TODO : Resize the list (PI/PO ...)
-    // Create lists
-    cout << "initializing..." << endl;
-    _numDecl[PI] = Gia_ManPiNum(pGia);
-   _piList = new CirPiGate*[_numDecl[PI]];
-   _numDecl[PO] = Gia_ManPoNum(pGia);
-   _poList = new CirPoGate*[_numDecl[PO]];
-   _numDecl[LATCH] = Gia_ManRegNum(pGia);
-   _riList = new CirRiGate*[_numDecl[LATCH]];
-   _roList = new CirRoGate*[_numDecl[LATCH]];
-   _numDecl[VARS] = Gia_ManObjNum(pGia);
-   _totGateList = new CirGate*[_numDecl[VARS]];
-   _numDecl[AIG] = Gia_ManAndNum(pGia);
+/**
+ * @brief Creates a NOT gate in the circuit.
+ *
+ * @param in0 The input gate for the NOT gate.
+ * @return    Returns a pointer to the created NOT gate.
+ */
+CirGate* CirMgr::createNotGate(CirGate* in0) {
+    CirGate* notGate = new CirAigGate(getNumTots(), 0);
+    addTotGate(notGate);
+    notGate->setIn0(in0, true);
+    notGate->setIn1(_const1, false);
+    return notGate;
+}
+
+/**
+ * @brief  Creates an AND gate in the circuit.
+ *
+ * @param in0 The first input gate for the AND gate.
+ * @param in1 The second input gate for the AND gate.
+ * @return    Returns a pointer to the created AND gate.
+ */
+CirGate* CirMgr::createAndGate(CirGate* in0, CirGate* in1) {
+    CirGate* andGate = new CirAigGate(getNumTots(), 0);
+    addTotGate(andGate);
+    andGate->setIn0(in0, false);
+    andGate->setIn1(in1, false);
+    return andGate;
+}
+
+/**
+ * @brief Creates an OR gate in the circuit.
+ *
+ * @param in0 The first input gate for the OR gate.
+ * @param in1 The second input gate for the OR gate.
+ * @return    Returns a pointer to the created OR gate.
+ */
+CirGate* CirMgr::createOrGate(CirGate* in0, CirGate* in1) {
+    CirGate* tmpGate = new CirAigGate(getNumTots(), 0);
+    addTotGate(tmpGate);
+    tmpGate->setIn0(in0, true);
+    tmpGate->setIn1(in1, true);
+    return createNotGate(tmpGate);
+}
+
+/**
+ * @brief Creates an XOR gate in the circuit.
+ *
+ * @param in0 The first input gate for the XOR gate.
+ * @param in1 The second input gate for the XOR gate.
+ * @return    Returns a pointer to the created XOR gate.
+ */
+CirGate* CirMgr::createXorGate(CirGate* in0, CirGate* in1) {
+    CirGate* tmpGate0 = new CirAigGate(getNumTots(), 0);
+    addTotGate(tmpGate0);
+    CirGate* tmpGate1 = new CirAigGate(getNumTots(), 0);
+    addTotGate(tmpGate1);
+    CirGate* tmpGate2 = new CirAigGate(getNumTots(), 0);
+    addTotGate(tmpGate2);
+    tmpGate0->setIn0(in0, true);
+    tmpGate0->setIn1(in1, false);
+    tmpGate1->setIn0(in0, false);
+    tmpGate1->setIn1(in1, true);
+    tmpGate2->setIn0(tmpGate0, true);
+    tmpGate2->setIn1(tmpGate1, true);
+    return createNotGate(tmpGate2);
 }
