@@ -45,12 +45,6 @@ BSIMulate:          BDD simulation
 BXNOR:              BDD Xnor
 BXOR:               BDD Xor
 
-========== Prove Commands : ==========
-PCHECKProperty:     check the monitor by BDDs
-PIMAGe:             build the next state images in BDDs
-PINITialstate:      Set initial state BDD
-PTRansrelation:     build the transition relationship in BDDs
-
 ========== EXP Commands : ==========
 EXPeriment:         Command for the testing of the experimental functions.
 
