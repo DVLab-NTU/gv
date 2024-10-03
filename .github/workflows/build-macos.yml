@@ -17,7 +17,7 @@ jobs:
               run: brew tap Homebrew/bundle && brew bundle
 
             - name: Install GV
-                run: make
+              run: make
 
             - name: Run tests
               run: make test
