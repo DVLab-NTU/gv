@@ -29,8 +29,7 @@ extern bool initVrfCmd();
 extern bool initAbcCmd();
 extern bool initModCmd();
 extern bool initBddCmd();
-extern bool initProveCmd();
-extern bool initProveCmd();
+/*extern bool initProveCmd();*/
 /*extern bool initItpCmd();*/
 extern bool initCirCmd();
 extern bool initYosysCmd();
@@ -70,7 +69,7 @@ int main(int argc, char** argv) {
     // cout << "[EXPERIMENTAL VERSION FOR CMAKE v0.1]\n";
     // clang-format off
     if (!(initCommonCmd() && initVrfCmd() && initAbcCmd() && initModCmd() && initBddCmd() 
-         && initProveCmd() && initCirCmd() && initYosysCmd() && initAppCmd() && initExpCmd()))
+           && initCirCmd() && initYosysCmd() && initAppCmd() && initExpCmd()))
         return 1;
     // clang-format on
 
@@ -85,4 +84,3 @@ int main(int argc, char** argv) {
     }
     return 0;
 }
-
