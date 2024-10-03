@@ -35,7 +35,8 @@ jobs:
               shell: bash
               run: |
                 brew install bison
-                export PATH="$(brew --prefix bison)/bin:$(brew --prefix)/bin:$PATH"
+                echo 'export PATH="$(brew --prefix bison)/bin:$PATH"' >> $GITHUB_ENV
+            # export PATH="$(brew --prefix bison)/bin:$(brew --prefix)/bin:$PATH"
 
             - name: Verify the brew path
               shell: bash
