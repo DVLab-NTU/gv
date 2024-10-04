@@ -119,9 +119,10 @@ void YosysMgr::resetDesign() {
  */
 void YosysMgr::createMapping(const string& fileName) {
     // loadDesign(fileName);
-    string yosys           = "yosys -qp ";
-    string readVerilog     = "read_verilog -sv " + fileName + "; ";
-    string topModule       = "hierarchy -auto-top; ";
+    /*string yosys = "yosys -qp ";*/
+    string yosys       = string(GV_YOSYS_BIN_PATH) + " -qp ";
+    string readVerilog = "read_verilog -sv " + fileName + "; ";
+    string topModule   = "hierarchy -auto-top; ";
     /*string preProcess      = "flatten; proc; techmap; setundef -zero; aigmap; ";*/
     // Try to solve the unsupported type issue
     string preProcess      = "flatten; proc; techmap; async2sync; dffunmap; setundef -zero; aigmap; ";
