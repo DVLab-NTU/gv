@@ -32,15 +32,15 @@ jobs:
               # run: brew tap Homebrew/bundle && brew bundle
 
             - name: Export the brew path
+              shell: bash
               run: |
-                echo 'export PATH="$(brew --prefix bison)/bin:$PATH"'
                 echo 'export PATH="$(brew --prefix bison)/bin:$PATH"' >> $GITHUB_ENV
-                echo 'export PATH="$(brew --prefix bison)/bin:$PATH"'
                 echo 'export PATH="$(brew --prefix bison)/bin:$PATH"' >> /Users/runner/.bash_profile
                 echo 'export PATH="/opt/homebrew/opt/bison/bin:$PATH"' >> /Users/runner/.bash_profile
-            # export PATH="$(brew --prefix bison)/bin:$(brew --prefix)/bin:$PATH"
+                echo $PATH
 
             - name: Verify the brew path
+              shell: bash
               run: which bison && echo $PATH && bison --version && brew --prefix bison
 
             # - name: Install GV
