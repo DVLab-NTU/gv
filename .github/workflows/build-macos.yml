@@ -37,6 +37,7 @@ jobs:
                 echo 'export PATH="$(brew --prefix bison)/bin:$PATH"' >> $GITHUB_ENV
                 echo 'export PATH="$(brew --prefix bison)/bin:$PATH"'
                 echo 'export PATH="$(brew --prefix bison)/bin:$PATH"' >> /Users/runner/.bash_profile
+                echo 'export PATH="/opt/homebrew/opt/bison/bin:$PATH"' >> /Users/runner/.bash_profile
             # export PATH="$(brew --prefix bison)/bin:$(brew --prefix)/bin:$PATH"
 
             - name: Verify the brew path
