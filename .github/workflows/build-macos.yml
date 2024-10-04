@@ -27,12 +27,12 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-${{ env.cache-name }}-
 
-            # - name: Install Dependencies
-            # run: brew tap Homebrew/bundle && brew bundle
+            - name: Install Dependencies
+              run: brew install bison
+              # run: brew tap Homebrew/bundle && brew bundle
 
             - name: Export the brew path
               run: |
-                brew install bison
                 echo 'export PATH="$(brew --prefix bison)/bin:$PATH"'
                 echo 'export PATH="$(brew --prefix bison)/bin:$PATH"' >> $GITHUB_ENV
                 echo 'export PATH="$(brew --prefix bison)/bin:$PATH"'
@@ -41,7 +41,7 @@ jobs:
             # export PATH="$(brew --prefix bison)/bin:$(brew --prefix)/bin:$PATH"
 
             - name: Verify the brew path
-              run: which bison && echo $PATH && bison --version
+              run: which bison && echo $PATH && bison --version && brew --prefix bison
 
             # - name: Install GV
             #   run: make
