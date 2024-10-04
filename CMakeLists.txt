@@ -208,7 +208,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${glucose_SOURCE_DIR})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/satsolvers)
 
 # target_link_libraries(${CMAKE_PROJECT_NAME} libabc libyosys readline gmp)
-target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp)
+find_package(Threads REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp dl Threads::Threads)
 target_link_libraries(${CMAKE_PROJECT_NAME} ${LIBYOSYS_PATH})
 # * Link the filesystem library
 # target_link_libraries(${CMAKE_PROJECT_NAME} stdc++fs)
