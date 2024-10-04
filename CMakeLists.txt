@@ -35,6 +35,7 @@ set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+
 include(ExternalProject)
 include(FetchContent)
 
@@ -199,6 +200,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/include/readline)
 # Include the gmp header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/local/include)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /opt/homebrew/include)
 # Include the VCD parser header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VCD_PARSER_DIR}/build)
 # Include the Glucose header files
