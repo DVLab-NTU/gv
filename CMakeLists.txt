@@ -87,7 +87,7 @@ ExternalProject_Add(
     UPDATE_COMMAND ""
     UPDATE_DISCONNECTED TRUE
     PATCH_COMMAND ${CMAKE_COMMAND} -P ${PATCH_DIR}/${YOSYS_PATCH_CMAKE}
-    BUILD_COMMAND $(MAKE) ${LIBYOSYS_NAME}
+    BUILD_COMMAND $(MAKE) ${LIBYOSYS_NAME} && $(MAKE)
     LOG_CONFIGURE ON
     LOG_INSTALL ON
     # LOG_BUILD ON
@@ -171,6 +171,7 @@ add_compile_definitions(GV_TEMPLATE_PATH="${CMAKE_SOURCE_DIR}/simulators/verilat
 add_compile_definitions(GV_VERILATOR_PATH="${CMAKE_SOURCE_DIR}/simulators/verilator/")
 add_compile_definitions(GV_VERILATOR_BUILD_PATH="${CMAKE_SOURCE_DIR}/simulators/verilator/build/")
 add_compile_definitions(GV_CXXRTL_PATH="${CMAKE_SOURCE_DIR}/simulators/cxxrtl/")
+add_compile_definitions(GV_YOSYS_BIN_PATH="${YOSYS_DIR}/yosys")
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
 # target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
@@ -192,7 +193,6 @@ foreach(DIR ${SRC_DIR})
     endif()
 endforeach()
 # Include all the header files under the engine Yosys
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${YOSYS_DIR})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${YOSYS_DIR})
 # Include all the header files under the engine ABC
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
