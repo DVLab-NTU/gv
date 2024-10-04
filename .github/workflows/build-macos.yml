@@ -34,7 +34,6 @@ jobs:
             - name: Export the brew path
               run: |
                 echo "$(brew --prefix bison)/bin" >> $GITHUB_PATH
-              # export PATH="$(brew --prefix bison)/bin:$PATH"
                 echo $PATH && brew --prefix bison && echo $GITHUB_PATH
               # echo 'export PATH="$(brew --prefix bison)/bin:$PATH"' >> $GITHUB_ENV
 
