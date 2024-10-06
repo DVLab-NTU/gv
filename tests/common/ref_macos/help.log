@@ -45,6 +45,9 @@ BSIMulate:          BDD simulation
 BXNOR:              BDD Xnor
 BXOR:               BDD Xor
 
+========== SATSolving Commands : ==========
+SATSolve DIMACS:    Command for satsolving DIMACS format file.
+
 ========== EXP Commands : ==========
 EXPeriment:         Command for the testing of the experimental functions.
 

@@ -63,9 +63,6 @@ bool CirMgr::readCircuitNew() {
         _abcMgr->giaToCir(_fileType, id2Name);
         genDfsList();
     }
-    /* else if (_fileType == BLIF) {*/
-    /*    _ysyMgr->readBlif(_fileName);*/
-    /*}*/
     return true;
 }
 

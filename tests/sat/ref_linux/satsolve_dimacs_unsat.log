@@ -1,0 +1,10 @@
+setup> satsolve dimacs -file ./testbench/dimacs_unsat.txt
+==================================[MINISAT]===================================
+| Conflicts |     ORIGINAL     |              LEARNT              | Progress |
+|           | Clauses Literals |   Limit Clauses Literals  Lit/Cl |          |
+==============================================================================
+|         0 |     166      485 |      55       0        0    -nan |  0.000 % |
+==============================================================================
+UNSAT
+setup> q -f
+

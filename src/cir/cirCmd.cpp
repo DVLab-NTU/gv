@@ -79,8 +79,6 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
             fileType = VERILOG;
         } else if (myStrNCmp("-Aiger", options[i], 2) == 0) {
             fileType = AIGER;
-        } else if (myStrNCmp("-Blif", options[i], 2) == 0) {
-            fileType = BLIF;
         } else {
             if (fileName.size())
                 return GVCmdExec::errorOption(GV_CMD_OPT_ILLEGAL, options[i]);
@@ -99,9 +97,6 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
         } else if (fileType == AIGER) {
             fileExt   = fileName.substr(fileName.size() - 4);
             fileError = (fileExt != ".aig");
-        } else if (fileType == BLIF) {
-            fileExt   = fileName.substr(fileName.size() - 5);
-            fileError = (fileExt != ".blif");
         }
     } else fileError = true;
 
@@ -131,7 +126,7 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
 }
 
 void CirReadCmd::usage(const bool& verbose) const {
-    cout << "Usage: CIRRead <-Verilog | -Aiger | -Blif> <(string fileName)> [-Replace]" << endl;
+    cout << "Usage: CIRRead <-Verilog | -Aiger> <(string fileName)> [-Replace]" << endl;
 }
 
 void CirReadCmd::help() const {
