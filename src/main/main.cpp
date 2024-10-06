@@ -38,6 +38,7 @@ extern bool initItpCmd();
 extern bool initCirCmd();
 extern bool initYosysCmd();
 extern bool initAppCmd();
+extern bool initSatCmd();
 extern bool initExpCmd();
 
 static void usage() {
@@ -73,7 +74,7 @@ int main(int argc, char** argv) {
     // cout << "[EXPERIMENTAL VERSION FOR CMAKE v0.1]\n";
     // clang-format off
     if (!(initCommonCmd() && initSimCmd() && initVrfCmd() && initAbcCmd() && initModCmd() && initBddCmd() 
-         && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd() && initAppCmd() && initExpCmd()))
+         && initProveCmd() && initItpCmd() && initCirCmd() && initYosysCmd() && initAppCmd() && initSatCmd() && initExpCmd()))
         return 1;
     // clang-format on
 

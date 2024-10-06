@@ -9,6 +9,7 @@
 #include "minisatMgr.h"
 
 #include <cmath>
+#include <fstream>
 
 #include "cirGate.h"
 #include "cirMgr.h"
@@ -16,6 +17,8 @@
 
 using namespace gv::cir;
 using gv::sat::MinisatMgr;
+
+MinisatMgr::MinisatMgr() {}
 
 MinisatMgr::MinisatMgr(CirMgr* cirMgr) : SatSolverMgr(cirMgr), _cirMgr(cirMgr) {
     _solver        = new SolverV();
@@ -258,4 +261,60 @@ void MinisatMgr::addBoundedVerifyDataRecursively(const CirGate* gate, const uint
 
 const bool MinisatMgr::existVerifyData(const CirGate* gate, const uint32_t& depth) {
     return getVerifyData(gate, depth);
+}
+
+void MinisatMgr::solve_dimacs_cnf(const string& filename) {
+    _solver_dimacs = new SolverV();
+
+    fstream file;
+    file.open(filename);
+
+    string p;
+    string cnf;
+    int nVars, nClauses;
+    string line;
+    getline(file,line);
+    while (line[0] == 'c') {
+        getline(file, line);
+    }
+    if (file.eof()) {
+        cerr << "Error: Unexpected end of file" << endl;
+        return;
+    }
+    stringstream ss(line);
+    ss >> p >> cnf >> nVars >> nClauses;
+
+    for (int i = 0; i < nVars; ++i) {
+        _solver_dimacs->newVar();
+    }
+    
+    for (int i = 0; i < nClauses; ++i) {
+        getline(file, line);
+        if (line[0] == 'c') {
+            --i;
+            continue;
+        }
+        vec<Lit> lits;
+        lits.clear();
+        stringstream ss(line);
+        int lit;
+        while (ss >> lit) {
+            if (lit == 0) break;
+            lits.push(mkLit(abs(lit) - 1, lit < 0));
+        }
+        _solver_dimacs->addClause(lits);
+    }
+    _solver_dimacs->verbosity = 1;
+    bool result = _solver_dimacs->solve();
+    if (result) {
+        cout << "SAT" << endl;
+        for (int i = 0; i < nVars; ++i) {
+            if (_solver_dimacs->model[i] == gv_l_True)
+                cout << i + 1 << " ";
+            else
+                cout << -(i + 1) << " ";
+        }
+    } else {
+        cout << "UNSAT";
+    }
 }
