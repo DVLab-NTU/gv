@@ -25,6 +25,7 @@ enum class SATSolverType {
 // Top-level SAT solver manager
 class SatSolverMgr {
 public:
+    SatSolverMgr();
     SatSolverMgr(gv::cir::CirMgr*);
     virtual ~SatSolverMgr();
 
@@ -53,6 +54,7 @@ public:
     virtual int nVars() { return 0; };
     virtual const GVBitVecX getDataValue(const gv::cir::CirGate* gate, const uint32_t& depth) const { return GVBitVecX(); };
     virtual const Var getVerifyData(const gv::cir::CirGate*, const uint32_t&) const {};
+    virtual void solve_dimacs_cnf(const string& filename) {};
 
 private:
     gv::cir::CirMgr* _cirMgr;

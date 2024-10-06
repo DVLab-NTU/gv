@@ -33,6 +33,7 @@ class MinisatMgr : public SatSolverMgr {
     friend class gv::itp::ItpMgr;
 
 public:
+    MinisatMgr();
     MinisatMgr(gv::cir::CirMgr*);
     ~MinisatMgr();
 
@@ -71,6 +72,8 @@ public:
     int nVars() { return _solver->nVars(); };
     const Var getVerifyData(const gv::cir::CirGate*, const uint32_t&) const;
 
+    void solve_dimacs_cnf(const string& filename);
+
 private:
     const Var newVar();
     /*const Var getVerifyData(const gv::cir::CirGate*, const uint32_t&) const;*/
@@ -81,6 +84,7 @@ private:
     inline const size_t getNegVar(const Var& v) const { return ((getPosVar(v)) | 1ul); }
 
     SolverV* _solver;                // Pointer to a Minisat solver
+    SolverV* _solver_dimacs;         // Pointer to a Minisat solver for DIMACS CNF
     Var _curVar;                     // Variable currently
     vec<Lit> _assump;                // Assumption List for assumption solve
     vector<Var>* _ntkData;           // Mapping between GVNetId and Solver Data

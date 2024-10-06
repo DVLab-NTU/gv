@@ -1,0 +1,2 @@
+satsolve dimacs -file ./testbench/dimacs_sat.txt
+q -f
