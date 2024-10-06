@@ -5,16 +5,9 @@ DOfile:             Execute the commands in the dofile.
 HELp:               Print this help message.
 HIStory:            Print command history.
 Quit:               Quit the execution.
-USAGE:              Report resource usage.
 
 ========== Verify Commands : ==========
 PDR:                Model checking using property directed reachability in abc.
-
-========== Simulate Commands : ==========
-SEt SAfe:           Set safe property for random sim.
-SEt VSIM:           Set the specified simulator (CXXRTL/Verilator).
-VCDPrint:           Print Verilog value change dump (VCD) files in tabular form.
-VSIMulate:          Simulate the verilog design with the specified simulator.
 
 ========== Network Commands : ==========
 CIRGate:            Report a gate
@@ -51,16 +44,6 @@ BSETVar:            BDD set a variable name for a support
 BSIMulate:          BDD simulation
 BXNOR:              BDD Xnor
 BXOR:               BDD Xor
-
-========== Prove Commands : ==========
-PCHECKProperty:     check the monitor by BDDs
-PIMAGe:             build the next state images in BDDs
-PINITialstate:      Set initial state BDD
-PTRansrelation:     build the transition relationship in BDDs
-
-========== Itp Commands : ==========
-SATVerify BMC:      check the monitor by bounded model checking
-SATVerify ITP:      check the monitor by interpolation-based technique
 
 ========== EXP Commands : ==========
 EXPeriment:         Command for the testing of the experimental functions.

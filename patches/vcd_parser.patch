@@ -1,3 +1,16 @@
+diff --git a/Makefile b/Makefile
+index 3286f6d..9068c51 100644
+--- a/Makefile
++++ b/Makefile
+@@ -24,7 +24,7 @@ VCD_OBJ_FILES   = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(VCD_SRC)) $(YAC
+ 
+ TEST_APP        ?= $(BUILD_DIR)/vcd-parse
+ 
+-all : vcd-parser docs $(BUILD_DIR)/libverilog-vcd-parser.a
++all : vcd-parser $(BUILD_DIR)/libverilog-vcd-parser.a
+ 
+ vcd-parser: $(TEST_APP)
+ 
 diff --git a/src/VCDParser.ypp b/src/VCDParser.ypp
 index 6b3f0d4..0d8c321 100644
 --- a/src/VCDParser.ypp

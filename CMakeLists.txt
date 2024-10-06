@@ -35,6 +35,7 @@ set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+
 include(ExternalProject)
 include(FetchContent)
 
@@ -86,7 +87,7 @@ ExternalProject_Add(
     UPDATE_COMMAND ""
     UPDATE_DISCONNECTED TRUE
     PATCH_COMMAND ${CMAKE_COMMAND} -P ${PATCH_DIR}/${YOSYS_PATCH_CMAKE}
-    BUILD_COMMAND $(MAKE) ${LIBYOSYS_NAME}
+    BUILD_COMMAND $(MAKE) ${LIBYOSYS_NAME} && $(MAKE)
     LOG_CONFIGURE ON
     LOG_INSTALL ON
     # LOG_BUILD ON
@@ -144,8 +145,6 @@ if(APPLE)
 endif()
 # Link the Yosys shared libray path
 link_directories(${YOSYS_DIR})
-# Link the VCD parser library path
-link_directories(./vcd/verilog-vcd-parser/build/)
 
 # Set the install rpath to the YOSYS_DIR
 set(CMAKE_MACOSX_RPATH TRUE)
@@ -172,6 +171,7 @@ add_compile_definitions(GV_TEMPLATE_PATH="${CMAKE_SOURCE_DIR}/simulators/verilat
 add_compile_definitions(GV_VERILATOR_PATH="${CMAKE_SOURCE_DIR}/simulators/verilator/")
 add_compile_definitions(GV_VERILATOR_BUILD_PATH="${CMAKE_SOURCE_DIR}/simulators/verilator/build/")
 add_compile_definitions(GV_CXXRTL_PATH="${CMAKE_SOURCE_DIR}/simulators/cxxrtl/")
+add_compile_definitions(GV_YOSYS_BIN_PATH="${YOSYS_DIR}/yosys")
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
 # target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -w)
@@ -194,11 +194,13 @@ foreach(DIR ${SRC_DIR})
 endforeach()
 # Include all the header files under the engine Yosys
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${YOSYS_DIR})
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${YOSYS_DIR})
 # Include all the header files under the engine ABC
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ABC_DIR}/src)
 # Include the readline header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/include/readline)
+# Include the gmp header files
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /usr/local/include)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE /opt/homebrew/include)
 # Include the VCD parser header files
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VCD_PARSER_DIR}/build)
 # Include the Glucose header files
@@ -208,10 +210,11 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${glucose_SOURCE_DIR})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/satsolvers)
 
 # target_link_libraries(${CMAKE_PROJECT_NAME} libabc libyosys readline gmp)
-target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp)
+find_package(Threads REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} libabc readline gmp dl Threads::Threads)
 target_link_libraries(${CMAKE_PROJECT_NAME} ${LIBYOSYS_PATH})
 # * Link the filesystem library
-target_link_libraries(${CMAKE_PROJECT_NAME} stdc++fs)
+# target_link_libraries(${CMAKE_PROJECT_NAME} stdc++fs)
 # * Link the verilog-vcd-parser library
 target_link_libraries(${CMAKE_PROJECT_NAME} libvcd-parser)
 # * Link the fmt library

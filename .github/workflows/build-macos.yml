@@ -12,9 +12,6 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            - name: Modify INSTALL.sh
-              run: |
-                  sed -i -e "s/.\/gv;//g" ./INSTALL.sh
             - name: Cache CMake dependency source code
               uses: actions/cache@v3
               env:
@@ -31,18 +28,18 @@ jobs:
                       ${{ runner.os }}-${{ env.cache-name }}-
 
             - name: Install Dependencies
-              shell: bash
+              run: brew tap Homebrew/bundle && brew bundle
+
+            - name: Export the brew path
               run: |
-                  brew install bison flex gawk libffi pkg-config bash
+                echo "$(brew --prefix bison)/bin" >> $GITHUB_PATH
+
+            - name: Verify the brew path
+              run: which bison && echo $PATH && bison --version && brew --prefix bison
 
             - name: Install GV
-              run: make build
-
-            - name: Install Yosys
-              working-directory: ${{github.workspace}}/build/engines/src/engine-yosys
-              run: |
-                  echo "Start to install the Yosys"
-                  sudo make install
+              run: make
 
             - name: Run tests
               run: make test
+
