@@ -24,17 +24,17 @@ GVMsgMgr gvMsg;
 GVCmdMgr* gvCmdMgr = new GVCmdMgr("gv");
 
 extern bool initCommonCmd();
-extern bool initSimCmd();
-extern bool initVrfCmd();
-extern bool initAbcCmd();
+// extern bool initSimCmd();
+// extern bool initVrfCmd();
+// extern bool initAbcCmd();
 extern bool initModCmd();
-extern bool initBddCmd();
+// extern bool initBddCmd();
 /*extern bool initProveCmd();*/
 /*extern bool initItpCmd();*/
-extern bool initCirCmd();
-extern bool initYosysCmd();
+// extern bool initCirCmd();
+// extern bool initYosysCmd();
 extern bool initAppCmd();
-extern bool initSatCmd();
+// extern bool initSatCmd();
 extern bool initExpCmd();
 
 /*static void usage() {*/
@@ -69,8 +69,7 @@ int main(int argc, char** argv) {
 
     // cout << "[EXPERIMENTAL VERSION FOR CMAKE v0.1]\n";
     // clang-format off
-    if (!(initCommonCmd() && initVrfCmd() && initAbcCmd() && initModCmd() && initBddCmd() 
-           && initCirCmd() && initYosysCmd() && initAppCmd() && initSatCmd() && initExpCmd()))
+    if (!(initCommonCmd() && initExpCmd() && initModCmd() && initAppCmd()))
         return 1;
     // clang-format on
 

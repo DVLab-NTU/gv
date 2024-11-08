@@ -223,8 +223,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} fmt::fmt)
 target_link_libraries(${CMAKE_PROJECT_NAME} glucose)
 
 # Add the Yosys extension CMake file
-set(YOSYS_PLUGIN_PATH src/ext/)
-add_subdirectory(${YOSYS_PLUGIN_PATH})
+# set(YOSYS_PLUGIN_PATH src/ext/)
+# add_subdirectory(${YOSYS_PLUGIN_PATH})
 
 # Allow GV to be built only after all steps in the External project are completed
 add_dependencies(${CMAKE_PROJECT_NAME} engine-yosys)
