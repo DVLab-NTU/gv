@@ -1,0 +1,60 @@
+success:
+IcContest/IC-contest/2012_pre_NFC/NFC.v
+IcContest/IC-contest/2013_pre_FAS/FAS.v
+IcContest/IC-contest/2014_pre_STI_DAC/STI_DAC.v
+IcContest/IC-contest/2015_pre_SET/SET.v
+IcContest/IC-contest/2017_pre_DT/DT.v
+IcContest/IC-contest/2018_pre_HUFFMAN/huffman.v
+IcContest/IC-contest/2019_final_IOTDF/IOTDF.v
+IcContest/IC-contest/2019_pre_CONV/CONV.v
+IcContest/IC-contest/2020_pre_SME/SME.v
+IcContest/IC-contest/2022_pre_JAM/JAM.v
+
+fail:
+read_verilog gv/IcContest/IC-contest/2021_pre_GEOFENCE/geofence.v
+    // yosys read successfully
+    #0  0x00005555555efb77 in YosysMgr::saveTopModuleName() ()
+    #1  0x00005555555f1bd3 in YosysMgr::saveDesign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) ()
+    #2  0x00005555555f208a in YosysMgr::readVerilog(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) ()
+    #3  0x00005555555cbf71 in gv::cir::CirMgr::readCircuitNew() ()
+    #4  0x00005555555c3eae in CirReadCmd::exec(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) ()
+    #5  0x00005555555d4f04 in GVCmdMgr::execOneCmd() ()
+    #6  0x0000555555594d76 in main ()
+
+read_verilog gv/IcContest/IC-contest/2017_final_LEDDC/sram_256x16/sram_256x16.v
+read_verilog gv/IcContest/IC-contest/2017_final_LEDDC/sram_512x16/sram_512x16.v
+read_verilog gv/IcContest/IC-contest/2023_pre_LASER/LASER.v
+read_verilog gv/IcContest/IC-contest/2024_pre_BICUBIC/Bicubic.v
+read_verilog gv/IcContest/IC-contest/2017_final_LEDDC/LEDDC.v
+read_verilog gv/IcContest/IC-contest/2024_pre_BICUBIC/ImgROM.v
+    #0  0x00005555555aa4ba in gv::engine::AbcMgr::buildAigName(std::map<unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<unsigned int>, std::allocator<std::pair<unsigned int const, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >&) ()
+    #1  0x00005555555cbfa0 in gv::cir::CirMgr::readCircuitNew() ()
+    #2  0x00005555555c3eae in CirReadCmd::exec(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) ()
+    #3  0x00005555555d4f04 in GVCmdMgr::execOneCmd() ()
+    #4  0x0000555555594d76 in main ()
+
+read_verilog gv/IcContest/IC-contest/2012_pre_NFC/flash_a.v
+read_verilog gv/IcContest/IC-contest/2012_pre_NFC/flash_b.v
+read_verilog gv/IcContest/IC-contest/2016_pre_LBP/LBP.v
+     // yosys read successfully
+read_verilog gv/IcContest/IC-contest/2018_pre_HUFFMAN/tb.v
+read_verilog gv/IcContest/IC-contest/2024_pre_BICUBIC/ResultSRAM.v
+read_verilog gv/IcContest/IC-contest/2012_pre_NFC/testfixture.v
+read_verilog gv/IcContest/IC-contest/2013_pre_FAS/testfixture1.v
+read_verilog gv/IcContest/IC-contest/2013_pre_FAS/testfixture2.v
+read_verilog gv/IcContest/IC-contest/2014_pre_STI_DAC/testfixture1.v
+read_verilog gv/IcContest/IC-contest/2014_pre_STI_DAC/testfixture2.v
+read_verilog gv/IcContest/IC-contest/2015_pre_SET/testfixture.v
+read_verilog gv/IcContest/IC-contest/2016_pre_LBP/testfixture.v
+read_verilog gv/IcContest/IC-contest/2017_final_LEDDC/testfixture_30fps.v
+read_verilog gv/IcContest/IC-contest/2017_final_LEDDC/testfixture_60fps.v
+read_verilog gv/IcContest/IC-contest/2017_pre_DT/testfixture.v
+read_verilog gv/IcContest/IC-contest/2019_final_IOTDF/testfixture.v
+read_verilog gv/IcContest/IC-contest/2019_pre_CONV/testfixture.v
+    yosys can't read @ such as "@(negedge clk);", "initial	$readmemh (`FWEXP, exp_fwpass);"
+    #13 0x00007ffff76a2e11 in Yosys::run_pass (command="read_verilog -sv IcContest/IC-contest/2012_pre_NFC/testfixture.v", design=0x555556827a80) at kernel/yosys.cc:1206
+    #14 0x00005555555f2067 in YosysMgr::readVerilog(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) ()
+    #15 0x00005555555cbf71 in gv::cir::CirMgr::readCircuitNew() ()
+    #16 0x00005555555c3eae in CirReadCmd::exec(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) ()
+    #17 0x00005555555d4f04 in GVCmdMgr::execOneCmd() ()
+    #18 0x0000555555594d76 in main ()
