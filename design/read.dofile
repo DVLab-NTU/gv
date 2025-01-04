@@ -9,6 +9,7 @@ IcContest/IC-contest/2019_final_IOTDF/IOTDF.v
 IcContest/IC-contest/2019_pre_CONV/CONV.v
 IcContest/IC-contest/2020_pre_SME/SME.v
 IcContest/IC-contest/2022_pre_JAM/JAM.v
+IcContest/IC-contest/2023_pre_LASER/LASER.v
 
 fail:
 read_verilog gv/IcContest/IC-contest/2021_pre_GEOFENCE/geofence.v
@@ -23,7 +24,6 @@ read_verilog gv/IcContest/IC-contest/2021_pre_GEOFENCE/geofence.v
 
 read_verilog gv/IcContest/IC-contest/2017_final_LEDDC/sram_256x16/sram_256x16.v
 read_verilog gv/IcContest/IC-contest/2017_final_LEDDC/sram_512x16/sram_512x16.v
-read_verilog gv/IcContest/IC-contest/2023_pre_LASER/LASER.v
 read_verilog gv/IcContest/IC-contest/2024_pre_BICUBIC/Bicubic.v
 read_verilog gv/IcContest/IC-contest/2017_final_LEDDC/LEDDC.v
 read_verilog gv/IcContest/IC-contest/2024_pre_BICUBIC/ImgROM.v
