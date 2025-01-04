@@ -1,0 +1,12 @@
+circuit_1.v
+4
+4 n1 n4 n27 n64
+4 n10 n32 n46 n66
+4 n13 n58 n61 n65
+4 n26 n34 n52 n54
+circuit_2.v
+4
+4 n4 n23 n28 n65
+4 n14 n34 n40 n59
+4 n25 n38 n58 n60
+4 n32 n50 n55 n63

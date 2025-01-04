@@ -32,7 +32,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CMAKE_CXX_FLAGS "")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -ggdb")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
