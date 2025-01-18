@@ -67,11 +67,14 @@ void YosysMgr::setLogging(const bool& enable) {
  *
  * @param designName The name to use when saving the design.
  */
-void YosysMgr::saveDesign(const string& designName) {
+bool YosysMgr::saveDesign(const string& designName) {
     _fileVec.emplace_back(designName);
     string command = "design -save " + designName;
     Yosys::run_pass(command);
-    saveTopModuleName();
+    if (!saveTopModuleName()) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -117,7 +120,7 @@ void YosysMgr::resetDesign() {
  *
  * @param fileName The name of the Verilog file containing the design.
  */
-void YosysMgr::createMapping(const string& fileName) {
+bool YosysMgr::createMapping(const string& fileName) {
     // loadDesign(fileName);
     /*string yosys = "yosys -qp ";*/
     string yosys       = string(GV_YOSYS_BIN_PATH) + " -qp ";
@@ -128,7 +131,11 @@ void YosysMgr::createMapping(const string& fileName) {
     string preProcess      = "flatten; proc; techmap; async2sync; dffunmap; setundef -zero; aigmap; ";
     string writeAigMapping = "write_aiger -map .map.txt ._temp_.aig";
     string command         = yosys + "\"" + readVerilog + topModule + preProcess + writeAigMapping + "\"";
-    system(command.c_str());
+    command += " 2>/dev/null";
+    if (system(command.c_str()) != 0) {
+        return false;
+    }
+    return true;
     // runPass(command);
 }
 
@@ -155,14 +162,21 @@ void YosysMgr::readBlif(const string& fileName) {
  *
  * @param fileName The name of the Verilog file to read.
  */
-void YosysMgr::readVerilog(const string& fileName) {
+bool YosysMgr::readVerilog(const string& fileName) {
     // const string designName = fileName;
     // const string command = "read_verilog -sv " + fileName;
     const string command = fmt::format("read_verilog -sv {0}", fileName);
-    Yosys::run_pass(command);
+    try {
+        Yosys::run_pass(command);
+    } catch (const std::exception& e) {
+        return false;
+    }
     // saveDesign(designName);
-    saveDesign(fileName);
+    if (!saveDesign(fileName)) {
+        return false;
+    }
     assignSignal();
+    return true;
 }
 
 /**
@@ -267,14 +281,18 @@ void YosysMgr::runPass(const string& command) {
  *
  * @return
  */
-void YosysMgr::saveTopModuleName() {
+bool YosysMgr::saveTopModuleName() {
     if (!Yosys::yosys_design) {
         cout << "[ERROR]: Please read the word-level design first !!\n";
-        return;
+        return false;
     }
     Yosys::RTLIL::Module* top = Yosys::yosys_design->top_module();
+    if (top == nullptr) {
+        return false;
+    }
     string topModule          = top->name.substr(1, strlen(Yosys::yosys_design->top_module()->name.c_str()) - 1);
     setTopModuleName(topModule);
+    return true;
 }
 
 /**

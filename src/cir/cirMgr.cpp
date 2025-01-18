@@ -53,8 +53,12 @@ bool CirMgr::readCircuitNew() {
         params.fTechMap = 1;
         params.fVerbose = 0;
         // _ysyMgr->setLogging(true);
-        _ysyMgr->readVerilog(_fileName);
-        _ysyMgr->createMapping(_fileName);
+        if (!_ysyMgr->readVerilog(_fileName)) {
+            return false;
+        }
+        if (!_ysyMgr->createMapping(_fileName)) {
+            return false;
+        }
         // _abcMgr->readSeqVerilog(params);
         _abcMgr->readVerilogNew(params);
         _abcMgr->buildAigName(id2Name);

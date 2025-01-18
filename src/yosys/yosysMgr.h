@@ -70,15 +70,15 @@ public:
     void init();
     void reset();
 
-    void saveDesign(const string&);
-    void saveTopModuleName();
+    bool saveDesign(const string&);
+    bool saveTopModuleName();
     void loadDesign(const string&);
     void loadSimPlugin();
     void deleteDesign(const string&);
     void resetDesign();
 
     void readBlif(const string&);
-    void readVerilog(const string&);
+    bool readVerilog(const string&);
     void readAiger(const string&);
     void writeBlif(const string&);
     void writeAiger(const string&);
@@ -88,7 +88,7 @@ public:
     void fetchAllFSMInfo();
     void fetchFSMInfo(Yosys::RTLIL::Cell*);
     void printDesignInfo(const bool& = false);
-    void createMapping(const string&);
+    bool createMapping(const string&);
     void runPass(const string&);
 
     void setLogging(const bool& = false);
