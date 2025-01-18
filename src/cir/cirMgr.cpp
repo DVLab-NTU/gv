@@ -53,10 +53,26 @@ bool CirMgr::readCircuitNew() {
         params.fTechMap = 1;
         params.fVerbose = 0;
         // _ysyMgr->setLogging(true);
-        if (!_ysyMgr->readVerilog(_fileName)) {
+        YsyReadExecStatus status = _ysyMgr->readVerilog(_fileName);
+        if (status != YSY_READ_EXEC_DONE) {
+            if (status == YSY_READ_EXEC_ERROR_TOP_MODULE) {
+                cout << "Error: failed to find top module!!" << endl;
+            } else if (status == YSY_READ_EXEC_ERROR_CREATE_MAPPING) {
+                cout << "Error: failed to create mapping!!" << endl;
+            } else {
+                cout << "Error: other error!!" << endl;
+            }
             return false;
         }
-        if (!_ysyMgr->createMapping(_fileName)) {
+        status = _ysyMgr->createMapping(_fileName);
+        if (status != YSY_READ_EXEC_DONE) {
+            if (status == YSY_READ_EXEC_ERROR_TOP_MODULE) {
+                cout << "Error: failed to find top module!!" << endl;
+            } else if (status == YSY_READ_EXEC_ERROR_CREATE_MAPPING) {
+                cout << "Error: failed to create mapping!!" << endl;
+            } else {
+                cout << "Error: other error!!" << endl;
+            }
             return false;
         }
         // _abcMgr->readSeqVerilog(params);

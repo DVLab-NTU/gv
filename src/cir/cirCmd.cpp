@@ -117,7 +117,6 @@ GVCmdExecStatus CirReadCmd::exec(const string& option) {
     cirMgr->setFileName(fileName);
     cirMgr->setFileType(fileType);
     if (!cirMgr->readCircuitNew()) {
-        cout << "Error: cirread failed!!" << endl;
         delete cirMgr;
         cirMgr = 0;
         return GV_CMD_EXEC_NOP;

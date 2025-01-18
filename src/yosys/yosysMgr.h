@@ -55,6 +55,13 @@ struct YosysFSM {
 //     int _id;
 // };
 
+enum YsyReadExecStatus {
+    YSY_READ_EXEC_DONE = 0,
+    YSY_READ_EXEC_ERROR_TOP_MODULE = 1,
+    YSY_READ_EXEC_ERROR_CREATE_MAPPING = 2,
+    YSY_READ_EXEC_ERROR_OTHER = 3,
+};
+
 class YosysMgr {
 public:
     enum YosysSigType {
@@ -70,15 +77,15 @@ public:
     void init();
     void reset();
 
-    bool saveDesign(const string&);
-    bool saveTopModuleName();
+    YsyReadExecStatus saveDesign(const string&);
+    YsyReadExecStatus saveTopModuleName();
     void loadDesign(const string&);
     void loadSimPlugin();
     void deleteDesign(const string&);
     void resetDesign();
 
     void readBlif(const string&);
-    bool readVerilog(const string&);
+    YsyReadExecStatus readVerilog(const string&);
     void readAiger(const string&);
     void writeBlif(const string&);
     void writeAiger(const string&);
@@ -88,7 +95,7 @@ public:
     void fetchAllFSMInfo();
     void fetchFSMInfo(Yosys::RTLIL::Cell*);
     void printDesignInfo(const bool& = false);
-    bool createMapping(const string&);
+    YsyReadExecStatus createMapping(const string&);
     void runPass(const string&);
 
     void setLogging(const bool& = false);
