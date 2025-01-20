@@ -1,5 +1,8 @@
 #include "yosysMgr.h"
 
+#include <sys/wait.h>
+#include <unistd.h>
+
 #include <cstdlib>
 #include <string>
 
@@ -70,7 +73,9 @@ void YosysMgr::setLogging(const bool& enable) {
 YsyReadExecStatus YosysMgr::saveDesign(const string& designName) {
     _fileVec.emplace_back(designName);
     string command = "design -save " + designName;
-    Yosys::run_pass(command);
+    if (!runPass(command)) {
+        return YSY_READ_EXEC_ERROR_OTHER;
+    }
     return saveTopModuleName();
 }
 
@@ -163,9 +168,7 @@ YsyReadExecStatus YosysMgr::readVerilog(const string& fileName) {
     // const string designName = fileName;
     // const string command = "read_verilog -sv " + fileName;
     const string command = fmt::format("read_verilog -sv {0}", fileName);
-    try {
-        Yosys::run_pass(command);
-    } catch (const std::exception& e) {
+    if (!runPass(command)) {
         return YSY_READ_EXEC_ERROR_OTHER;
     }
     // saveDesign(designName);
@@ -267,9 +270,36 @@ void YosysMgr::loadSimPlugin() {
  *
  * @param command The command string specifying the Yosys pass to run.
  */
-void YosysMgr::runPass(const string& command) {
+bool YosysMgr::runPass(const string& command) {
     // TODO: Check if the Yosys::run_pass is executed succefully
-    Yosys::run_pass(command);
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        // sub process
+        try {
+            Yosys::run_pass(command);
+            _exit(0);  // 成功時正常結束
+        } catch (const std::exception& e) {
+            _exit(1);  // 失敗時異常結束
+        }
+        exit(0);  // normal exit
+    } else if (pid > 0) {
+        // parent process
+        int status;
+        waitpid(pid, &status, 0);
+
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            // sub process normal exit
+            Yosys::run_pass(command);
+            return true;
+        } else {
+            // sub process abnormal exit
+            return false;
+        }
+    } else {
+        // fork failed
+        return false;
+    }
 }
 
 /**
@@ -288,7 +318,7 @@ YsyReadExecStatus YosysMgr::saveTopModuleName() {
     if (top == nullptr) {
         return YSY_READ_EXEC_ERROR_TOP_MODULE;
     }
-    string topModule          = top->name.substr(1, strlen(Yosys::yosys_design->top_module()->name.c_str()) - 1);
+    string topModule = top->name.substr(1, strlen(Yosys::yosys_design->top_module()->name.c_str()) - 1);
     setTopModuleName(topModule);
     return YSY_READ_EXEC_DONE;
 }

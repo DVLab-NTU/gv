@@ -96,7 +96,7 @@ public:
     void fetchFSMInfo(Yosys::RTLIL::Cell*);
     void printDesignInfo(const bool& = false);
     YsyReadExecStatus createMapping(const string&);
-    void runPass(const string&);
+    bool runPass(const string&);
 
     void setLogging(const bool& = false);
     void setSafeProperty(const unsigned& p = 0) { _property = p; };
