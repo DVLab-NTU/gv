@@ -14,10 +14,13 @@
 #include "cirMgr.h"
 #include "util.h"
 
+#include "ecoMgr.h"
+
 using namespace std;
 
 bool initVrfCmd() {
-    return (gvCmdMgr->regCmd("PDR", 3, new GVPdrCmd));
+    return (gvCmdMgr->regCmd("PDR", 3, new GVPdrCmd) &&
+    gvCmdMgr->regCmd("FUNCtional ECO", 4, 3, new GVFunctionalEcoCmd));
 }
 
 //----------------------------------------------------------------------
@@ -51,5 +54,51 @@ void GVPdrCmd::help() const {
     cout << setw(20) << left << "PDR:"
          << "Model checking using property directed reachability in abc." << endl;
 }
+
+//----------------------------------------------------------------------
+// FUNCtional ECO <-old old.v -new new.v>
+//----------------------------------------------------------------------
+
+GVCmdExecStatus
+GVFunctionalEcoCmd::exec(const string& option) {
+    // cout << "I am GVRandomSetSafe " << endl;
+
+    string newName="", oldName="", inputFolder;
+    vector<string> options;
+    GVCmdExec::lexOptions(option, options);
+    cout << "option size = " << options.size() << endl;
+    if (options.size() != 2) {
+        cout << "Please enter a valid value!" << endl;
+        return GV_CMD_EXEC_DONE;
+    }
+    
+    inputFolder = options[1];
+    oldName = inputFolder + "g1.v";
+    newName = inputFolder + "r2.v";
+
+    
+    
+    EcoMgr* pEcoMgr = new EcoMgr;
+    // EcoParams* pParams = new EcoParams(resynNewCircuit, doPrepatch, doCutMatch, outputSideNPN, reIte, doOutputMatch);
+    pEcoMgr->doEco(oldName, newName);
+
+    delete pEcoMgr;
+    // delete pParams;
+    
+    // gvModMgr->setSafe(stoi(options[0]));
+    return GV_CMD_EXEC_DONE;
+}
+
+void
+GVFunctionalEcoCmd::usage(const bool& verbose) const {
+    cout << "FUNCtional ECO <-old old.v -new new.v>" << endl;
+}
+
+void
+GVFunctionalEcoCmd::help() const {
+    cout << setw(20) << left << "FUNCtional ECO: "
+                      << "Perform Functional ECO on the two given circuits as cad contest2021." << endl;
+}
+
 
 #endif
