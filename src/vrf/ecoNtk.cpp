@@ -208,9 +208,11 @@ EcoNtk::parseNtkFile(const string& dir) {
   pParams->fVerbose   =    0; // the verbosiness flag
   pParams->fVerboseP  =    0; // the verbosiness flag
 
-  Abc_Ntk_t* pNtk = Io_Read( "./tmp.v", IO_FILE_VERILOG, 0, 0 );
-  // cout << "ntk name " << Abc_NtkName(pNtk) << endl;
+  Abc_Ntk_t* pNtk = Io_Read( "/C/Users/User/Documents/gv/tmp.v", IO_FILE_VERILOG, 0, 0 );
+  assert(pNtkOld && Abc_NtkCheck(pNtk)); // 
 
+  // new the internal EcoCir
+  cirV = new EcoCir();
   cirV->readCirFromAbcNtk(pNtk);
 }
 

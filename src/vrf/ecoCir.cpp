@@ -43,11 +43,7 @@ newFaninComp(Abc_Obj_t *pObj, int inIdx) {
 
 void 
 EcoCir::readCirFromAbcNtk(Abc_Ntk_t* pNtk) {
-  cout << "new cir mgr" << endl;
-  // cout << "print " << _ecoCirV << endl;
-  // _ecoCirV = nullptr;
-  cout << "set to null" << endl;
-  this->_ecoCirV = new CirMgr();
+  _ecoCirV = new gv::cir::CirMgr();
   cout << "cir generated" << endl;
     // TODO : Convert abc ntk to gv aig ntk
     CirGateV gateV;
@@ -86,7 +82,7 @@ cout << "22222222222" << endl;
         // cout<< "po " << Abc_ObjId(pObj) << endl;
         }
         else if(Abc_ObjIsNode(pObj)) {
-            // cout<< "node " << Abc_ObjId(pObj) << " / " << Abc_NtkObjNumMax(pNtk) << endl;
+            cout<< "node " << Abc_ObjId(pObj) << " / " << Abc_NtkObjNumMax(pNtk) << endl;
             CirAigGate *gate = new CirAigGate(Abc_ObjId(pObj), 0);
             _ecoCirV->_totGateList[Abc_ObjId(pObj)] = gate;
             gate->setIn0(_ecoCirV->getGate(Abc_ObjId(Abc_ObjFanin0(pObj))), newFaninComp(pObj, 0));

@@ -70,9 +70,10 @@ class EcoGate {
 class EcoCir {
   
 public:
-EcoCir() : _ecoCirV(NULL) {}
+EcoCir() : _ecoCirV(NULL), a(0) {}
   void readCirFromAbcNtk(Abc_Ntk_t* pNtk);
 private:
+  int a;
   gv::cir::CirMgr* _ecoCirV;
   unordered_map<CirGate*, vector<CirGate*>> _fanoutMap; // record the fanout mapping of the gates
   
