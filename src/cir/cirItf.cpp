@@ -111,9 +111,12 @@ void CirMgr::createConst1() {
 }
 
 void CirMgr::initCir(const int& piNum, const int& poNum, const int& regNum, const int& totNum) {
+    cout << "lll" << endl;
     _piList.resize(piNum);
+    cout << "ooo" << endl;
     _riList.resize(regNum);
     _roList.resize(regNum);
     _poList.resize(poNum);
     _totGateList.resize(totNum);
+    cout << "end" << endl;
 }

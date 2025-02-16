@@ -3,7 +3,8 @@
 
 #include "ecoMgr.h"
 
-
+namespace gv {
+namespace eco {
 // top function to do ECO
 void
 EcoMgr::doEco(const string& oldDesignName, const string& newDesignName) {
@@ -14,10 +15,10 @@ EcoMgr::doEco(const string& oldDesignName, const string& newDesignName) {
 // read input designs
 void
 EcoMgr::readDesigns(const string& oldDesignName, const string& newDesignName) {
-  _oldNtk = new EcoNtk;
-  _newNtk = new EcoNtk;
+  _oldNtk = new gv::cir::EcoNtk;
+  _newNtk = new gv::cir::EcoNtk;
   _oldNtk->parseNtkFile(oldDesignName);
   _newNtk->parseNtkFile(newDesignName);
 }
-
+}}
 #endif

@@ -8,11 +8,12 @@
 #include <map>
 #include <queue>
 #include <set>
-
+namespace gv {
+namespace eco {
 // forward decleration of classes
 class EcoMgr;
 class EcoCir;
-class EcoNtk;
+// class EcoNtk;
 // class CirMgr;
 
 
@@ -23,10 +24,10 @@ public:
   void readDesigns(const string& oldDesignName, const string& newDesignName);
   
 private:
-  EcoNtk* _oldNtk;
-  EcoNtk* _newNtk;
+  gv::cir::EcoNtk* _oldNtk;
+  gv::cir::EcoNtk* _newNtk;
 };
 
-
+}}
 
 #endif

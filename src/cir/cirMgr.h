@@ -34,6 +34,7 @@ namespace cir {
 class CirMgr {
     friend class CirComb;
     friend class CirSeq;
+    friend class EcoCir;
 
     enum CirMgrFlag { NO_FEC = 0x1 };
     enum ParsePorts { VARS = 0,
@@ -45,7 +46,7 @@ class CirMgr {
 
 public:
     CirMgr() : _piList(0), _poList(0), _totGateList(0), _fanoutInfo(0),
-               _abcMgr(new gv::engine::AbcMgr()), _ysyMgr(new YosysMgr()), _fileName("") {}
+               _abcMgr(new gv::engine::AbcMgr()), _ysyMgr(new YosysMgr()), _fileName("") {cout << "constructor called" << endl;}
 
     virtual ~CirMgr() { deleteCircuit(); }
 

@@ -1,5 +1,5 @@
-#ifndef ECO_MGR_CPP
-#define ECO_MGR_CPP
+#ifndef ECO_NTK_CPP
+#define ECO_NTK_CPP
 
 #include "ecoNtk.h"
 #include "base/abc/abc.h"
@@ -7,8 +7,8 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
-
+namespace gv {
+namespace cir {
 // print the gate type name
 string
 EcoGate::getGateTypeName() {
@@ -133,7 +133,7 @@ EcoNtk::parseNtkFile(const string& dir) {
   // rewrite the design file (handle capital chars and gate name stuff)
     ifstream file(dir);
     assert(file.is_open());
-    ofstream fout("./tmp.v");
+    ofstream fout("/C/Users/User/Documents/gv/tmp.v");
     string buf;
     unordered_set<string> gateTypeStrings = {"and", "or", "nand", "nor", "not", "buf", "xor", "xnor"};
     unordered_set<string> wires;
@@ -209,7 +209,134 @@ EcoNtk::parseNtkFile(const string& dir) {
   pParams->fVerboseP  =    0; // the verbosiness flag
 
   Abc_Ntk_t* pNtk = Io_Read( "./tmp.v", IO_FILE_VERILOG, 0, 0 );
-  cout << "ntk name " << Abc_NtkName(pNtk) << endl;
+  // cout << "ntk name " << Abc_NtkName(pNtk) << endl;
+
+  cirV->readCirFromAbcNtk(pNtk);
 }
 
+// bool
+// newFaninComp(Abc_Obj_t *pObj, int inIdx) {
+//     assert(inIdx == 0 || inIdx == 1);
+//     bool ret = false;
+//     if(inIdx == 0) {
+//         ret = Abc_ObjFaninC0(pObj);
+//         if(Abc_AigNodeIsConst(Abc_ObjFanin0(pObj))) {
+//             ret ^= true;
+//         }
+//     }
+//     else {
+//         ret = Abc_ObjFaninC1(pObj);
+//         if(Abc_AigNodeIsConst(Abc_ObjFanin1(pObj))) {
+//             ret ^= true;
+//         }
+//     }
+//     return ret;
+// }
+
+// const bool
+// EcoCir::readCirFromAbcNtk(Abc_Ntk_t* pNtk) {
+//     // TODO : Convert abc ntk to gv aig ntk
+//     CirGateV gateV;
+//     // Abc_Ntk_t* pNtk = NULL;            // the gia pointer of abc
+//     Abc_Obj_t *pObj, *pObjRi, *pObjRo; // the obj element of gia
+//     unsigned iPi = 0, iPo = 0, iRi = 0, iRo = 0;
+//     int i;
+
+// cout << "pppppppsp " << Abc_NtkPiNum(pNtk) << endl;
+//     // initialize the size of the containers
+//     initCir(Abc_NtkPiNum(pNtk), Abc_NtkPoNum(pNtk), Abc_NtkLatchNum(pNtk), Abc_NtkObjNumMax(pNtk));
+
+//     // increment the global travel id for circuit traversing usage
+//     // Abc_NtkIncrementTravId(pNtk);
+
+//     // since we don't want to traverse the constant node, set the TravId of the
+//     // constant node to be as the global one
+//     // Abc_NodeSetTravIdCurrent(pGia, Gia_ManConst0(pGia));
+//     _totGateList.push_back(_const0);
+//     cout << "pppppppppppppppppppppppppp" << endl;
+    
+//     // set the const node
+//     _totGateList[0] = _const0;
+//     // traverse the obj's in topological order
+//     Abc_NtkForEachObj( pNtk, pObj, i) {
+//         char *name = new char[strlen(Abc_ObjName(pObj))+1]; strcpy(name, Abc_ObjName(pObj));
+//         if(Abc_ObjIsPi(pObj)) {
+//             // cout<< "pi " << Abc_ObjId(pObj) << endl;
+            
+//             CirPiGate* gate = new CirPiGate(Abc_ObjId(pObj), 0);
+            
+//             _piList[iPi++] = gate;
+//             _totGateList[Abc_ObjId(pObj)] = gate;
+//             gate->setName(name);
+//         }
+//         else if(Abc_ObjIsPo(pObj)) {
+//         //  
+//         // cout<< "po " << Abc_ObjId(pObj) << endl;
+//         }
+//         else if(Abc_ObjIsNode(pObj)) {
+//             // cout<< "node " << Abc_ObjId(pObj) << " / " << Abc_NtkObjNumMax(pNtk) << endl;
+//             CirAigGate *gate = new CirAigGate(Abc_ObjId(pObj), 0);
+//             _totGateList[Abc_ObjId(pObj)] = gate;
+//             gate->setIn0(getGate(Abc_ObjId(Abc_ObjFanin0(pObj))), newFaninComp(pObj, 0));
+//             gate->setIn1(getGate(Abc_ObjId(Abc_ObjFanin1(pObj))), newFaninComp(pObj, 1));
+//             // char *name = new char[strlen(Abc_ObjName(pObj))+1]; strcpy(name, Abc_ObjName(pObj));
+//             gate->setName(name);
+//         }
+//         // TODO : handle latches
+
+//         // else if(Abc_ObjIsBo(pObj)) {
+//         //     CirRoGate* gate = new CirRoGate(Abc_ObjId(pObj), 0);
+//         //     _roList[iRo++] = gate;
+//         //     _totGateList[Abc_ObjId(pObj)] = gate;
+//         // }
+//         // else if(Abc_ObjIsBi(pObj)) {
+//         //     CirRiGate *gate = new CirRiGate(Abc_ObjId(pObj), 0, Abc_ObjId(Abc_ObjFanin0(pObj)));
+//         //     gate->setIn0(getGate(Abc_ObjId(Abc_ObjFanin0(pObj))), newFaninComp(pObj, 0));
+//         //     _riList[iPo++] = gate;
+//         //     _totGateList[Abc_ObjId(pObj)] = gate;
+//         // }
+//         else if(Abc_AigNodeIsConst(pObj)) {
+//             // cout << "I am const1 " << Abc_ObjId(pObj) <<  endl;
+//         }
+//         else {
+//             // cout << "not defined gate type" << endl;
+//         }
+//     }
+//     // handle the po's
+//     Abc_NtkForEachPo(pNtk, pObj, i) {
+//         char *name = new char[strlen(Abc_ObjName(pObj))+1]; strcpy(name, Abc_ObjName(pObj));
+//         CirPoGate *gate = new CirPoGate(Abc_ObjId(pObj), 0, Abc_ObjId(Abc_ObjFanin0(pObj)));
+//         gate->setIn0(getGate(Abc_ObjId(Abc_ObjFanin0(pObj))), newFaninComp(pObj, 0));
+//         _poList[iPo++] = gate;
+//         _totGateList[Abc_ObjId( pObj)] = gate;
+//         gate->setName(name);
+//     }
+    
+//     // add the fanout information
+//     Abc_NtkForEachObj( pNtk, pObj, i) {
+//         CirGate* gate = getGate(Abc_ObjId(pObj));
+//         if(gate->getType() == PI_GATE || gate->getType() == AIG_GATE) {
+//           for(int j=0; j<Abc_ObjFanoutNum(pObj); ++j)
+//             addFanout(gate, getGate(Abc_ObjId(Abc_ObjFanout(pObj, j))));
+//             // if(gate->getType() == PI_GATE) {
+//             //     for(int j=0; j<Abc_ObjFanoutNum(pObj); ++j) {
+//             //         static_cast<CirPiGate*>(gate)->addOut(getGate(Abc_ObjId(Abc_ObjFanout(pObj, j))));
+//             //     }
+//             // }
+//             // else {
+//             //     for(int j=0; j<Abc_ObjFanoutNum(pObj); ++j) {
+//             //         static_cast<CirAigGate*>(gate)->addOut(getGate(Abc_ObjId(Abc_ObjFanout(pObj, j))));
+//             //     }
+//             // }
+//         }
+//     }
+
+//     genDfsList();
+//     printNetlist();
+//     // checkFloatList();
+//     // checkUnusedList();
+// }
+
+}
+}
 #endif

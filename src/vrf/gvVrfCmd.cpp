@@ -78,7 +78,7 @@ GVFunctionalEcoCmd::exec(const string& option) {
 
     
     
-    EcoMgr* pEcoMgr = new EcoMgr;
+    gv::eco::EcoMgr* pEcoMgr = new gv::eco::EcoMgr;
     // EcoParams* pParams = new EcoParams(resynNewCircuit, doPrepatch, doCutMatch, outputSideNPN, reIte, doOutputMatch);
     pEcoMgr->doEco(oldName, newName);
 
