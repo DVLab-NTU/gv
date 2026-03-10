@@ -204,14 +204,19 @@ void YosysMgr::writeBlif(const string& fileName) {
 /**
  * @brief Writes the current design to an AIGER file.
  *
- * This function loads the current design from a Verilog file, processes it using a series
- * of Yosys passes, and then writes the resulting design to an AIGER file.
+ * This function loads the current design saved from the word-level (Verilog) flow,
+ * processes it using a series of Yosys passes, and then writes the resulting design
+ * to an AIGER file.
  *
  * @param fileName The name of the AIGER file to write the design to.
  */
 void YosysMgr::writeAiger(const string& fileName) {
-    // loadDesign(fileTypeStr[VERILOG]);
-    loadDesign(fileTypeStr[VERILOG]);
+    // Choose the correct design name: prefer the first saved design (e.g. the
+    // one created by readVerilog), fall back to the generic VERILOG tag only
+    // if nothing has been saved.
+    const std::string designName =
+        _fileVec.empty() ? fileTypeStr[VERILOG] : _fileVec.front();
+    loadDesign(designName);
     string command = "hierarchy -auto-top; ";
     command += "flatten; proc; techmap; setundef -zero; aigmap; ";
     command += "write_aiger " + fileName;
