@@ -187,7 +187,9 @@ void YosysMgr::readAiger(const string& fileName) {
  * @param fileName The name of the BLIF file to write the design to.
  */
 void YosysMgr::writeBlif(const string& fileName) {
-    loadDesign(fileTypeStr[VERILOG]);
+    const std::string designName =
+        _fileVec.empty() ? fileTypeStr[VERILOG] : _fileVec.front();
+    loadDesign(designName);
     string command = "hierarchy -auto-top; hierarchy -check; ";
     command += "proc; opt; ";
     command += "opt_expr -mux_undef; opt; ";
@@ -198,6 +200,7 @@ void YosysMgr::writeBlif(const string& fileName) {
     command += "dffunmap; ";
     command += "opt -fast -noff; ";
     command += "write_blif " + fileName;
+
     Yosys::run_pass(command);
 }
 
