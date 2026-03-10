@@ -23,6 +23,9 @@ yosys-config
 # vscode configuration files and folders
 .vscode/
 
+# cursor configuration files and folders
+.cursor/
+
 # vim configuration files and folders
 .cache/
 compile_commands.json
@@ -38,6 +41,9 @@ compile_commands.json
 *.txt
 *.json
 *.history
+
+# local traffic test artifacts
+traffic.*
 
 # gv 
 gv

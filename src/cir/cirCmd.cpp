@@ -313,16 +313,21 @@ CirWriteCmd::exec(const string& option) {
 
     // cout << outFileName << "\n";
     // TODO: Fix the CIRWRITE command with the new functions
-    /*if (fileType == BLIF) yosysMgr->writeBlif(outFileName);*/
-    /*else if (fileType == AIGER) cirMgr->getYosysMgr()->writeAiger(outFileName);*/
-    if (fileType == AIGER) cirMgr->getYosysMgr()->writeAiger(outFileName);
-    // else {
-    //     if (!thisGate) {
-    //         assert(hasFile);
-    //         cirMgr->writeAag(outfile);
-    //     } else if (hasFile) cirMgr->writeGate(outfile, thisGate);
-    //     else cirMgr->writeGate(cout, thisGate);
-    // }
+    if (fileType == AIGER) {
+        cirMgr->getYosysMgr()->writeAiger(outFileName);
+    } else if (fileType == BLIF) {
+        // Optional: support BLIF flow via Yosys
+        cirMgr->getYosysMgr()->writeBlif(outFileName);
+    } else if (fileType == AAG) {
+        // ASCII AAG output using CirMgr's native writer
+        if (!thisGate) {
+            assert(hasFile);
+            cirMgr->writeAag(outfile);
+        } else if (hasFile)
+            cirMgr->writeGate(outfile, thisGate);
+        else
+            cirMgr->writeGate(cout, thisGate);
+    }
     return GV_CMD_EXEC_DONE;
 }
 
