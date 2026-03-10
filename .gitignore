@@ -34,6 +34,8 @@ compile_commands.json
 .sim_main.cpp
 .sim.cpp
 .tb
+.tb.dSYM/
+*/.tb.dSYM/
 
 # design and log files
 *.aig

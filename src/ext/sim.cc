@@ -149,25 +149,33 @@ struct randomSim : public Pass {
         if (stimulus) {
             ofs << "vector<vector<unsigned>> stimulus_signal;\n";
             ofs << "vector<unsigned> stimulus_cycle;\n";
-            ofs << "	std::ifstream ifs;\n";
-            ofs << "	ifs.open(\"";
+            ofs << "    std::ifstream ifs;\n";
+            ofs << "    ifs.open(\"";
             ofs << stimulus_file_name;
             ofs << "\");\n";
-            ofs << "	for(size_t i = 0; i < ";
+            ofs << "    for(size_t i = 0; i < ";
             ofs << sim_cycle;
             ofs << "; ++i)\n";
-            ofs << "	{\n";
-            ofs << "		stimulus_cycle.clear();\n";
-            ofs << "		for(size_t j = 0; j < ";
+            ofs << "    {\n";
+            ofs << "        stimulus_cycle.clear();\n";
+            ofs << "        for(size_t j = 0; j < ";
             ofs << num_inputs;
             ofs << "; ++j)\n";
-            ofs << "		{\n";
-            ofs << "			ifs >> buffer;\n";
-            ofs << "			stimulus_cycle.push_back(std::stoi(std::string(buffer)));\n";
-            ofs << "		}\n";
-            ofs << "		stimulus_signal.push_back(stimulus_cycle);\n";
-            ofs << "	}\n";
-            ofs << "	ifs.close();\n";
+            ofs << "        {\n";
+            ofs << "            ifs >> buffer;\n";
+            ofs << "            std::string tok(buffer);\n";
+            ofs << "            unsigned val = 0;\n";
+            ofs << "            bool numeric = !tok.empty();\n";
+            ofs << "            for(char c : tok) {\n";
+            ofs << "                if (c < '0' || c > '9') { numeric = false; break; }\n";
+            ofs << "            }\n";
+            ofs << "            if (numeric) val = static_cast<unsigned>(std::stoul(tok));\n";
+            ofs << "            else val = 0;\n";
+            ofs << "            stimulus_cycle.push_back(val);\n";
+            ofs << "        }\n";
+            ofs << "        stimulus_signal.push_back(stimulus_cycle);\n";
+            ofs << "    }\n";
+            ofs << "    ifs.close();\n";
         }
         if (output_file_set) {
             ofs << "ofstream ofs;\n";
@@ -346,7 +354,24 @@ struct randomSim : public Pass {
         ofs << "}\n";
         ofs << "\n";
         ofs.close();
-        run_command(" g++ -g -O3 -std=c++14 -I `yosys-config --datdir`/include .sim_main.cpp -o .tb ");
+
+        // Derive absolute path to the bundled yosys-config based on GV_YOSYS_BIN_PATH.
+        std::string yosysBin   = GV_YOSYS_BIN_PATH;
+        std::string yosysConfig = "yosys-config";
+        size_t slashPos        = yosysBin.rfind('/');
+        if (slashPos != std::string::npos)
+            yosysConfig = yosysBin.substr(0, slashPos) + "/yosys-config";
+
+        std::string compileCmd =
+            " /opt/homebrew/opt/llvm/bin/clang++ -g -O3 -std=c++14 "
+            "-isysroot `xcrun --sdk macosx --show-sdk-path` "
+            "-I `" +
+            yosysConfig +
+            " --datdir`/include "
+            "-Wno-vla-cxx-extension -w "
+            ".sim_main.cpp -o .tb ";
+
+        run_command(compileCmd);
         run_command(" ./.tb ");
     }
 } randomSim;
