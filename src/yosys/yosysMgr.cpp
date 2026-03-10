@@ -238,7 +238,15 @@ void YosysMgr::showSchematic() {
     Yosys::run_pass("hierarchy -auto-top");
     Yosys::run_pass("proc");
     Yosys::run_pass("opt");
+    // Suppress xdot (Python/GTK) RuntimeWarnings when displaying the schematic
+    const char* oldPyWarn = getenv("PYTHONWARNINGS");
+    std::string oldVal = (oldPyWarn != nullptr) ? oldPyWarn : "";
+    setenv("PYTHONWARNINGS", "ignore", 1);
     Yosys::run_pass("show");
+    if (!oldVal.empty())
+        setenv("PYTHONWARNINGS", oldVal.c_str(), 1);
+    else
+        unsetenv("PYTHONWARNINGS");
 }
 
 /**
