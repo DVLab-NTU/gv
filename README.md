@@ -10,10 +10,10 @@ cd ./gv
 ## Install the dependencies
 - for MacOS :
 ```bash=
-brew tap Homebrew/bundle && brew bundle
-
-export PATH="$(brew --prefix)/bin:$PATH"
+brew bundle
+export PATH="$(brew --prefix)/opt/bison/bin:$(brew --prefix)/bin:$PATH"
 ```
+  (Note: `brew tap Homebrew/bundle` is no longer needed; `brew bundle` is built-in. Use Homebrew's bison for vcd-parser.)
 - for linux (Ubuntu) :
 ```bash=
 sudo apt-get -y install libgmp-dev gperf build-essential bison flex libreadline-dev gawk tcl-dev libffi-dev git cmake parallel

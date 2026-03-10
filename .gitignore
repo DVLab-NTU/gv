@@ -44,3 +44,6 @@ gv
 
 # debugging files
 debug.dofile
+
+# Examples for SoCV class
+examples/
