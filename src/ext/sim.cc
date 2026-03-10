@@ -363,12 +363,13 @@ struct randomSim : public Pass {
             yosysConfig = yosysBin.substr(0, slashPos) + "/yosys-config";
 
         std::string compileCmd =
-            " /opt/homebrew/opt/llvm/bin/clang++ -g -O3 -std=c++14 "
-            "-isysroot `xcrun --sdk macosx --show-sdk-path` "
+            " g++ -g -O3 -std=c++14 "
+            //"-isysroot `xcrun --sdk macosx --show-sdk-path` "
             "-I `" +
             yosysConfig +
             " --datdir`/include "
-            "-Wno-vla-cxx-extension -w "
+            //"-Wno-vla-cxx-extension -w "
+            "-w "
             ".sim_main.cpp -o .tb ";
 
         run_command(compileCmd);
