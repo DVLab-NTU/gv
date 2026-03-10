@@ -23,6 +23,9 @@ yosys-config
 # vscode configuration files and folders
 .vscode/
 
+# cursor configuration files and folders
+.cursor/
+
 # vim configuration files and folders
 .cache/
 compile_commands.json
@@ -31,6 +34,8 @@ compile_commands.json
 .sim_main.cpp
 .sim.cpp
 .tb
+.tb.dSYM/
+*/.tb.dSYM/
 
 # design and log files
 *.aig
@@ -39,8 +44,14 @@ compile_commands.json
 *.json
 *.history
 
+# local traffic test artifacts
+traffic.*
+
 # gv 
 gv
 
 # debugging files
 debug.dofile
+
+# Examples for SoCV class
+examples/

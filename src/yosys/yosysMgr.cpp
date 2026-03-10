@@ -187,7 +187,9 @@ void YosysMgr::readAiger(const string& fileName) {
  * @param fileName The name of the BLIF file to write the design to.
  */
 void YosysMgr::writeBlif(const string& fileName) {
-    loadDesign(fileTypeStr[VERILOG]);
+    const std::string designName =
+        _fileVec.empty() ? fileTypeStr[VERILOG] : _fileVec.front();
+    loadDesign(designName);
     string command = "hierarchy -auto-top; hierarchy -check; ";
     command += "proc; opt; ";
     command += "opt_expr -mux_undef; opt; ";
@@ -198,20 +200,26 @@ void YosysMgr::writeBlif(const string& fileName) {
     command += "dffunmap; ";
     command += "opt -fast -noff; ";
     command += "write_blif " + fileName;
+
     Yosys::run_pass(command);
 }
 
 /**
  * @brief Writes the current design to an AIGER file.
  *
- * This function loads the current design from a Verilog file, processes it using a series
- * of Yosys passes, and then writes the resulting design to an AIGER file.
+ * This function loads the current design saved from the word-level (Verilog) flow,
+ * processes it using a series of Yosys passes, and then writes the resulting design
+ * to an AIGER file.
  *
  * @param fileName The name of the AIGER file to write the design to.
  */
 void YosysMgr::writeAiger(const string& fileName) {
-    // loadDesign(fileTypeStr[VERILOG]);
-    loadDesign(fileTypeStr[VERILOG]);
+    // Choose the correct design name: prefer the first saved design (e.g. the
+    // one created by readVerilog), fall back to the generic VERILOG tag only
+    // if nothing has been saved.
+    const std::string designName =
+        _fileVec.empty() ? fileTypeStr[VERILOG] : _fileVec.front();
+    loadDesign(designName);
     string command = "hierarchy -auto-top; ";
     command += "flatten; proc; techmap; setundef -zero; aigmap; ";
     command += "write_aiger " + fileName;
@@ -230,7 +238,15 @@ void YosysMgr::showSchematic() {
     Yosys::run_pass("hierarchy -auto-top");
     Yosys::run_pass("proc");
     Yosys::run_pass("opt");
+    // Suppress xdot (Python/GTK) RuntimeWarnings when displaying the schematic
+    const char* oldPyWarn = getenv("PYTHONWARNINGS");
+    std::string oldVal = (oldPyWarn != nullptr) ? oldPyWarn : "";
+    setenv("PYTHONWARNINGS", "ignore", 1);
     Yosys::run_pass("show");
+    if (!oldVal.empty())
+        setenv("PYTHONWARNINGS", oldVal.c_str(), 1);
+    else
+        unsetenv("PYTHONWARNINGS");
 }
 
 /**
