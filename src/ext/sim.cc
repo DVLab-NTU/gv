@@ -205,10 +205,12 @@ struct randomSim : public Pass {
         }
         ofs << "     cxxrtl_design::p_" + module_name + " top;\n";
         ofs << "long long base_cycle = 0;\n";
+        // Checkpoint file for the next -continue run: must be written after every run that
+        // advances simulation (including -reset/-reset_n), not only when -continue is set.
+        ofs << "const char* state_file = \".sim_state.txt\";\n";
+        ofs << "cxxrtl::debug_items state_items;\n";
+        ofs << "top.debug_info(state_items);\n";
         if (continue_set) {
-            ofs << "const char* state_file = \".sim_state.txt\";\n";
-            ofs << "cxxrtl::debug_items state_items;\n";
-            ofs << "top.debug_info(state_items);\n";
             ofs << "std::unordered_map<std::string, cxxrtl::debug_item*> state_map;\n";
             ofs << "for (auto &entry : state_items.table) {\n";
             ofs << "    for (size_t part = 0; part < entry.second.size(); ++part) {\n";
@@ -420,22 +422,20 @@ struct randomSim : public Pass {
         }
 
         ofs << "}\n";
-        if (continue_set) {
-            ofs << "std::ofstream state_ofs(state_file);\n";
-            ofs << "state_ofs << \"__cycle__ \" << (base_cycle + " << sim_cycle << ") << \"\\n\";\n";
-            ofs << "for (auto &entry : state_items.table) {\n";
-            ofs << "    for (size_t part = 0; part < entry.second.size(); ++part) {\n";
-            ofs << "        auto &item = entry.second[part];\n";
-            ofs << "        if (item.depth != 1 || item.curr == nullptr || item.next == nullptr) continue;\n";
-            ofs << "        size_t chunks = (item.width + 31) / 32;\n";
-            ofs << "        state_ofs << entry.first << \"#\" << part << \" \" << item.width << \" \" << chunks;\n";
-            ofs << "        for (size_t c = 0; c < chunks; ++c)\n";
-            ofs << "            state_ofs << \" \" << std::hex << item.curr[c] << std::dec;\n";
-            ofs << "        state_ofs << \"\\n\";\n";
-            ofs << "    }\n";
-            ofs << "}\n";
-            ofs << "state_ofs.close();\n";
-        }
+        ofs << "std::ofstream state_ofs(state_file);\n";
+        ofs << "state_ofs << \"__cycle__ \" << (base_cycle + " << sim_cycle << ") << \"\\n\";\n";
+        ofs << "for (auto &entry : state_items.table) {\n";
+        ofs << "    for (size_t part = 0; part < entry.second.size(); ++part) {\n";
+        ofs << "        auto &item = entry.second[part];\n";
+        ofs << "        if (item.depth != 1 || item.curr == nullptr || item.next == nullptr) continue;\n";
+        ofs << "        size_t chunks = (item.width + 31) / 32;\n";
+        ofs << "        state_ofs << entry.first << \"#\" << part << \" \" << item.width << \" \" << chunks;\n";
+        ofs << "        for (size_t c = 0; c < chunks; ++c)\n";
+        ofs << "            state_ofs << \" \" << std::hex << item.curr[c] << std::dec;\n";
+        ofs << "        state_ofs << \"\\n\";\n";
+        ofs << "    }\n";
+        ofs << "}\n";
+        ofs << "state_ofs.close();\n";
         if (output_file_set) ofs << "ofs.close();\n";
         ofs << "}\n";
         ofs << "\n";
