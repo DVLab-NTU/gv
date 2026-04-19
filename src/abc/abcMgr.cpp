@@ -76,7 +76,9 @@ void AbcMgr::readVerilogNew(const ABCParams &opt) {
 }
 
 void AbcMgr::readAiger(const ABCParams &opt) {
-    char *pFileName = opt.pFileName;
+    string tmpFileAigfromYsys = "._tmp_.aig";
+    char *pFileName = new char[tmpFileAigfromYsys.size() + 1];
+    strcpy(pFileName, tmpFileAigfromYsys.c_str());
     int fSkipStrash = opt.fSkipStrash;
     int fGiaSimple  = opt.fGiaSimple;
     int fCheck      = opt.fCheck;
